@@ -20,3 +20,4 @@ jmccc.launchGame(new LaunchOption(1024, 512, (IVersion) jmccc.getOptions().getVe
 ### Dependencies
 * Google Gson 2.2.4 - https://code.google.com/p/google-gson/
 * Lombok 1.14.4 - http://projectlombok.org/
+* mclaunch-util-lib 0.1 https://github.com/Kronos666/mclaunch-util-lib/tree/master/release/
