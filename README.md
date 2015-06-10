@@ -15,7 +15,7 @@ Jmccc jmccc = new Jmccc(new BaseOptions(
             System.out.println("Game prints:" + log);
         }
         @Override public void onExit(int exitCode) {
-            System.out.println("Game exited with code " + exitCode);
+            System.out.println("Game exited with code:" + exitCode);
         }
     }
 );
@@ -23,7 +23,7 @@ jmccc.launchGame(new LaunchOption(
     1024, //optional
     512, //optional
     (IVersion) jmccc.getOptions().getVersionsHandler().getVersions().toArray()[0],
-    new OfflineAuthenticator("Player"),
+    new OfflineAuthenticator("Player"), //or YggdrasilAuthenticator()
     new ServerInfo( //optional
         "www.google.com",
         25565
