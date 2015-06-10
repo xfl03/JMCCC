@@ -12,6 +12,8 @@ import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import lombok.Cleanup;
+
 public class Utils {
 	public static String getSystemName() {
 		String name = System.getProperty("os.name").toLowerCase();
@@ -46,31 +48,25 @@ public class Utils {
 	}
 	
 	public static void uncompressZipFile(File file, String outputPath) throws IOException {
-		ZipInputStream zipInput = new ZipInputStream(new FileInputStream(file));
-		BufferedInputStream input = new BufferedInputStream(zipInput);
+		@Cleanup ZipInputStream zipInput = new ZipInputStream(new FileInputStream(file));
+		@Cleanup BufferedInputStream input = new BufferedInputStream(zipInput);
+		@Cleanup BufferedOutputStream output = null;
 		File temp = null;
 		ZipEntry entry;
-		try {
-			while((entry = zipInput.getNextEntry()) != null) {
-				temp = new File(outputPath, entry.getName());
-				if(entry.isDirectory()) {
-					temp.mkdir();
-				} else {
-					if(!temp.exists()) {
-						new File(temp.getParent()).mkdirs();
-					}
-					BufferedOutputStream output = new BufferedOutputStream(new FileOutputStream(temp));
-					int b;
-					while((b = input.read()) != -1){
-						output.write(b);
-					}
-					output.close();
+		while((entry = zipInput.getNextEntry()) != null) {
+			temp = new File(outputPath, entry.getName());
+			if(entry.isDirectory()) {
+				temp.mkdir();
+			} else {
+				if(!temp.exists()) {
+					new File(temp.getParent()).mkdirs();
+				}
+				output = new BufferedOutputStream(new FileOutputStream(temp));
+				int b;
+				while((b = input.read()) != -1){
+					output.write(b);
 				}
 			}
-			zipInput.close();
-			input.close();
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
 	}
 }

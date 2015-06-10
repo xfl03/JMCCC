@@ -12,4 +12,8 @@ public class LaunchResult {
 		this.errorType = errorType;
 		this.message = message;
 	}
+	
+	public LaunchResult(boolean isSucceed, ErrorType errorType) {
+		this(isSucceed, errorType, "");
+	}
 }

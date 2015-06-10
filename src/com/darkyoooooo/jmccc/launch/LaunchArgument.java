@@ -65,14 +65,14 @@ public class LaunchArgument {
 		buffer.append(Utils.resolvePath(v.getPath() + "/" + v.getId()) + ".jar;\" ");
 		
 		buffer.append(this.mainClass).append(' ');
-		buffer.append(this.replaceLaunchArgs());
+		buffer.append(this.replaceLaunchArgs()).append(' ');
 		if(this.serverInfo != null && this.serverInfo.getAddress() != null && !this.serverInfo.getAddress().equals("")) {
 			buffer.append("--server ").append(this.serverInfo.getAddress()).append(' ');
 			buffer.append("--port ").append(this.serverInfo.getPort() == 0 ? 25565 : this.serverInfo.getPort()).append(' ');
 		}
 		if(this.windowSize != null) {
 			if(this.windowSize.isFullSize()) {
-				buffer.append("--fullscreen ");
+				buffer.append("--fullscreen").append(' ');
 			}
 			if(this.windowSize.getHeight() > 0) {
 				buffer.append("--height " + this.windowSize.getHeight()).append(' ');

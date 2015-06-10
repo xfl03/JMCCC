@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Getter;
+
 import com.darkyoooooo.jmccc.auth.AuthInfo;
 import com.darkyoooooo.jmccc.launch.ErrorType;
 import com.darkyoooooo.jmccc.launch.LaunchArgument;
@@ -19,6 +21,7 @@ import com.darkyoooooo.jmccc.util.Utils;
 import com.darkyoooooo.jmccc.version.VersionsHandler;
 
 public class Jmccc {
+	public static final String VERSION = "1.0.1";
 	public static final List<String> DEFAULT_ADV_ARGS = new ArrayList<String>();
 	static {
 		DEFAULT_ADV_ARGS.add("-Dfml.ignoreInvalidMinecraftCertificates=true");
@@ -40,6 +43,10 @@ public class Jmccc {
 		}
 	}
 	
+	public Jmccc(BaseOptions baseOptions) {
+		this(baseOptions, null);
+	}
+	
 	public BaseOptions getOptions() {
 		return this.baseOptions;
 	}
@@ -52,6 +59,7 @@ public class Jmccc {
 				GameProcessListener listener = new GameProcessListener();
 				listener.monitor(process);
 			} catch (IOException e) {
+				this.launchResult = new LaunchResult(false, ErrorType.HANDLE_ERROR, "启动游戏进程时出错");
 		    }
 		}
 		return this.launchResult;
@@ -86,7 +94,7 @@ public class Jmccc {
 		tokens.put("user_type", authInfo.getUserType());
 		tokens.put("user_properties", authInfo.getProperties());
 		
-		this.launchResult = new LaunchResult(true, null, null);
+		this.launchResult = new LaunchResult(true, ErrorType.NONE);
 		
 		return new LaunchArgument(
 			this,
@@ -100,8 +108,8 @@ public class Jmccc {
 	}
 	
 	public static class BaseOptions {
-		private final String gameRoot, javaPath;
-		private final VersionsHandler versionsHandler;
+		@Getter private final String gameRoot, javaPath;
+		@Getter private final VersionsHandler versionsHandler;
 		
 		/**
 		 * BaseOptions第三个构造函数
@@ -130,18 +138,6 @@ public class Jmccc {
 		 */
 		public BaseOptions() {
 			this(".minecraft", Utils.getJavaPath());
-		}
-		
-		public String getGameRoot() {
-			return this.gameRoot;
-		}
-		
-		public String getJavaPath() {
-			return this.javaPath;
-		}
-		
-		public VersionsHandler getVersionHandler() {
-			return this.versionsHandler;
 		}
 	}
 }
