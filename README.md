@@ -13,7 +13,7 @@ Jmccc jmccc = new Jmccc(new BaseOptions("C:\\MyMinecraftClient\\.minecraft", "C:
 	@Override
 	public void onExit(int exitCode) { System.out.println("Game exited with code " + exitCode); }
 });
-jmccc.launchGame(new LaunchOption(1024, 512, (IVersion) jmccc.getOptions().getVersionHandler().getVersions().toArray()[0],
+jmccc.launchGame(new LaunchOption(1024, 512, (IVersion) jmccc.getOptions().getVersionsHandler().getVersions().toArray()[0],
 	new OfflineAuthenticator("Player"), new ServerInfo("www.google.com", 25565), new WindowSize(512, 1024)));
 ```
 
