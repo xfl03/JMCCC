@@ -26,7 +26,7 @@ jmccc.launchGame(new LaunchOption(
     new OfflineAuthenticator("Player"),
     new ServerInfo( //optional
         "www.google.com",
-        25565 //optional
+        25565
     ),
     new WindowSize(512, 1024) //optional
 ));
