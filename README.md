@@ -3,7 +3,7 @@ An open-source library for launching Minecraft (included mclaunch-util-lib by Kr
 It can run Minecraft client with a few codes.
 
 ### Download
-See [releases](https://github.com/Southern-InfinityStudio/JMCCC/releases).
+See [releases](https://github.com/Southern-InfinityStudio/JMCCC/tree/master/releases).
 
 ### Sample
 ```java
