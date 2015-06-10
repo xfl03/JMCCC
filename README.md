@@ -7,14 +7,29 @@ See [releases](https://github.com/Southern-InfinityStudio/JMCCC/releases).
 
 ### Sample
 ```java
-Jmccc jmccc = new Jmccc(new BaseOptions("C:\\MyMinecraftClient\\.minecraft", "C:\\java"), new IGameListener() {
-	@Override
-	public void onLog(String log) { System.out.println("Game prints:" + log); }
-	@Override
-	public void onExit(int exitCode) { System.out.println("Game exited with code " + exitCode); }
-});
-jmccc.launchGame(new LaunchOption(1024, 512, (IVersion) jmccc.getOptions().getVersionsHandler().getVersions().toArray()[0],
-	new OfflineAuthenticator("Player"), new ServerInfo("www.google.com", 25565), new WindowSize(512, 1024)));
+Jmccc jmccc = new Jmccc(new BaseOptions(
+    "C:\\MyMinecraftClient\\.minecraft", //optional
+    "C:\\java"), //optional
+    new IGameListener() { //optional
+        @Override public void onLog(String log) {
+            System.out.println("Game prints:" + log);
+        }
+        @Override public void onExit(int exitCode) {
+            System.out.println("Game exited with code " + exitCode);
+        }
+    }
+);
+jmccc.launchGame(new LaunchOption(
+    1024, //optional
+    512, //optional
+    (IVersion) jmccc.getOptions().getVersionsHandler().getVersions().toArray()[0],
+    new OfflineAuthenticator("Player"),
+    new ServerInfo( //optional
+        "www.google.com",
+        25565 //optional
+    ),
+    new WindowSize(512, 1024) //optional
+));
 ```
 
 ### Dependencies
