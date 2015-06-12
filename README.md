@@ -7,13 +7,13 @@ See [releases](https://github.com/Southern-InfinityStudio/JMCCC/tree/master/rele
 
 ### Sample
 ```java
-Jmccc jmccc = new Jmccc(new BaseOptions("C:\\Users\\Administrator\\Desktop\\Private\\po\\.minecraft"));
+Jmccc jmccc = new Jmccc(new BaseOptions("/path/to/your/minecraft/client/.minecraft"));
 jmccc.addGameListener(new IGameListener() { //optional
     @Override public void onLog(String log) { System.out.println("Game prints:" + log); }
-	@Override public void onExit(int exitCode) { System.out.println("Game exited with code " + exitCode); }
+    @Override public void onExit(int exitCode) { System.out.println("Game exited with code " + exitCode); }
 });
 LaunchOption option = new LaunchOption((Version) jmccc.getBaseOptions().getVersionsHandler().getVersions().toArray()[0],
-	new OfflineAuthenticator("Player"));
+    new OfflineAuthenticator("Player"));
 option.setMaxMemory(1024); //optional
 option.setMinMemory(512); //optional
 option.setServerInfo(new ServerInfo("helloworld", 25565)); //optional
