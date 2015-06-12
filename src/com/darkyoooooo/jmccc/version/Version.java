@@ -6,12 +6,13 @@ import java.util.List;
 
 import lombok.Getter;
 
+import com.darkyoooooo.jmccc.util.OSNames;
 import com.darkyoooooo.jmccc.util.Utils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-public class Version implements IVersion {
+public class Version {
 	@Getter private final String path;
 	@Getter private boolean isValid = false;
 	@Getter private String launchArgs, id, assets, mainClass, jarId;
@@ -41,7 +42,7 @@ public class Version implements IVersion {
 						obj.has("clientreq") ? obj.get("clientreq").getAsBoolean() : true
 					));
 				} else {
-					String suffix = obj.get("natives").getAsJsonObject().get(Utils.getSystemName()).getAsString();
+					String suffix = obj.get("natives").getAsJsonObject().get(OSNames.CURRENT.toString().toLowerCase()).getAsString();
 					this.natives.add(new Native(info[0], info[1], info[2],
 						suffix.contains("${arch}") ? suffix.replaceAll("\\Q${arch}", System.getProperty("os.arch").replaceAll("[^0-9]", "")) : suffix,
 						obj.has("rules") ? this.checkNativeRules(obj.get("rules").getAsJsonArray()) : true));
@@ -59,7 +60,7 @@ public class Version implements IVersion {
 					flag = obj.get("action").getAsString().equalsIgnoreCase("allow");
 				} else {
 					String name = obj.get("os").getAsJsonObject().get("name").getAsString();
-					flag = name.toLowerCase().contains(Utils.getSystemName()) 
+					flag = name.toLowerCase().contains(OSNames.CURRENT.toString().toLowerCase()) 
 						&& obj.get("action").getAsString().equalsIgnoreCase("allow");
 				}
 			} catch (Exception e) {

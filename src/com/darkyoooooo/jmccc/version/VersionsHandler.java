@@ -6,10 +6,10 @@ import java.util.HashSet;
 import lombok.Getter;
 
 public class VersionsHandler {
-	@Getter private final HashSet<IVersion> versions;
+	@Getter private final HashSet<Version> versions;
 	
 	public VersionsHandler(String gameRoot) {
-		this.versions = new HashSet<IVersion>();
+		this.versions = new HashSet<Version>();
 		for(File verDir : new File(gameRoot + "/versions/").listFiles()) {
 			if(verDir.isDirectory()) {
 				try {

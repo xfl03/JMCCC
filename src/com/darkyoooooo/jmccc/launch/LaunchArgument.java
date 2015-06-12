@@ -7,8 +7,9 @@ import java.util.Map;
 import lombok.Getter;
 
 import com.darkyoooooo.jmccc.Jmccc;
+import com.darkyoooooo.jmccc.util.OSNames;
 import com.darkyoooooo.jmccc.util.Utils;
-import com.darkyoooooo.jmccc.version.IVersion;
+import com.darkyoooooo.jmccc.version.Version;
 
 
 public class LaunchArgument {
@@ -42,11 +43,11 @@ public class LaunchArgument {
 	@Override
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
-		String sysName = Utils.getSystemName();
-		if(sysName.contains("win")) {
-			buffer.append('\"').append(this.jmccc.getOptions().getJavaPath()).append("\" ");
-		} else if(sysName.contains("linux") || sysName.contains("osx")) {
-			buffer.append("java ");
+		OSNames os = OSNames.CURRENT;
+		if(os == OSNames.WINDOWS) {
+			buffer.append('\"').append(this.jmccc.getBaseOptions().getJavaPath()).append("\" ");
+		} else {
+			buffer.append("jar ");
 		}
 		
 		buffer.append(this.enableCGC ? "-Xincgc " : " ");
@@ -59,13 +60,14 @@ public class LaunchArgument {
 		
 		buffer.append("-cp \"");
 		for(String lib : this.libraries) {
-			buffer.append(lib).append(';');
+			buffer.append(lib).append(os.getPathSpearator());
 		}
-		IVersion v = this.launchOption.getVersion();
-		buffer.append(Utils.resolvePath(v.getPath() + "/" + v.getId()) + ".jar;\" ");
+		Version ver = this.launchOption.getVersion();
+		buffer.append(String.format("%s.jar%s\" ", Utils.resolvePath(ver.getPath() + "/" + ver.getId()), os.getPathSpearator()));
 		
 		buffer.append(this.mainClass).append(' ');
 		buffer.append(this.replaceLaunchArgs()).append(' ');
+		
 		if(this.serverInfo != null && this.serverInfo.getAddress() != null && !this.serverInfo.getAddress().equals("")) {
 			buffer.append("--server ").append(this.serverInfo.getAddress()).append(' ');
 			buffer.append("--port ").append(this.serverInfo.getPort() == 0 ? 25565 : this.serverInfo.getPort()).append(' ');

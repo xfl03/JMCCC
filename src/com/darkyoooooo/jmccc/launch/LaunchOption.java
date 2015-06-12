@@ -1,24 +1,20 @@
 package com.darkyoooooo.jmccc.launch;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import com.darkyoooooo.jmccc.auth.IAuthenticator;
-import com.darkyoooooo.jmccc.version.IVersion;
+import com.darkyoooooo.jmccc.version.Version;
 
 public class LaunchOption {
-	@Getter private final int maxMemory, minMemory;
-	@Getter private final IVersion version;
+	@Getter @Setter private int maxMemory, minMemory;
+	@Getter private final Version version;
 	@Getter private final IAuthenticator authenticator;
-	@Getter private final ServerInfo serverInfo;
-	@Getter private final WindowSize windowSize;
+	@Getter @Setter private ServerInfo serverInfo;
+	@Getter @Setter private WindowSize windowSize;
 	
-	public LaunchOption(int maxMemory, int minMemory, IVersion version, IAuthenticator authenticator,
-			ServerInfo serverInfo, WindowSize windowSize) {
-		this.maxMemory = maxMemory;
-		this.minMemory = minMemory;
+	public LaunchOption(Version version, IAuthenticator authenticator) {
 		this.version = version;
 		this.authenticator = authenticator;
-		this.serverInfo = serverInfo;
-		this.windowSize = windowSize;
 	}
 }

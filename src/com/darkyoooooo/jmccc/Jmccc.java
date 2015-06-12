@@ -21,34 +21,23 @@ import com.darkyoooooo.jmccc.util.Utils;
 import com.darkyoooooo.jmccc.version.VersionsHandler;
 
 public class Jmccc {
-	public static final String VERSION = "1.0.1";
+	public static final String VERSION = "1.0.2";
 	public static final List<String> DEFAULT_ADV_ARGS = new ArrayList<String>();
 	static {
 		DEFAULT_ADV_ARGS.add("-Dfml.ignoreInvalidMinecraftCertificates=true");
 		DEFAULT_ADV_ARGS.add("-Dfml.ignorePatchDiscrepancies=true");
 	}
 	
-	private final BaseOptions baseOptions;
+	@Getter private final BaseOptions baseOptions;
 	private LaunchResult launchResult = null;
-	
-	/**
-	 * Jmccc核心模块构造函数
-	 * @param options 没什么好说的 new一个BaseOptions就好
-	 * @param gameListener 游戏监听器 可以为null
-	 */
-	public Jmccc(BaseOptions baseOptions, IGameListener gameListener) {
-		this.baseOptions = baseOptions;
-		if(gameListener != null) {
-			GameProcessListener.LISTENERS.add(gameListener);
-		}
-	}
+	private GameProcessListener processListener = null;
 	
 	public Jmccc(BaseOptions baseOptions) {
-		this(baseOptions, null);
+		this.baseOptions = baseOptions;
 	}
 	
-	public BaseOptions getOptions() {
-		return this.baseOptions;
+	public void addGameListener(IGameListener listener) {
+		GameProcessListener.addGameListener(listener);
 	}
 	
 	public LaunchResult launchGame(LaunchOption option) {
@@ -56,8 +45,8 @@ public class Jmccc {
 		if(arg != null && this.launchResult != null && this.launchResult.isSucceed()) {
 			try {
 				Process process = Runtime.getRuntime().exec(arg.toString(), null, new File(this.baseOptions.gameRoot));
-				GameProcessListener listener = new GameProcessListener();
-				listener.monitor(process);
+				processListener = new GameProcessListener();
+				processListener.startMonitor(process);
 			} catch (IOException e) {
 				this.launchResult = new LaunchResult(false, ErrorType.HANDLE_ERROR, "启动游戏进程时出错");
 		    }
@@ -65,7 +54,19 @@ public class Jmccc {
 		return this.launchResult;
 	}
 	
+	public boolean stopGameProcess() {
+		if(this.processListener == null) {
+			return false;
+		}
+		this.processListener.stopProcess();
+		return true;
+	}
+	
 	private LaunchArgument genLaunchArgs(LaunchOption option) {
+		if(option == null) {
+			throw new NullPointerException();
+		}
+		
 		AuthInfo authInfo = option.getAuthenticator().run();
 		if(authInfo.getError() != null && !authInfo.getError().isEmpty()) {
 			this.launchResult = new LaunchResult(false, ErrorType.BAD_LOGIN, authInfo.getError());
@@ -111,31 +112,19 @@ public class Jmccc {
 		@Getter private final String gameRoot, javaPath;
 		@Getter private final VersionsHandler versionsHandler;
 		
-		/**
-		 * BaseOptions第三个构造函数
-		 * @param gameRoot .minecraft目录位置
-		 * @param javaPath Java目录(javaw.exe的位置)
-		 */
 		public BaseOptions(String gameRoot, String javaPath) {
+			if(gameRoot == null || javaPath == null) {
+				throw new NullPointerException();
+			}
 			this.gameRoot = gameRoot;
 			this.javaPath = javaPath;
 			this.versionsHandler = new VersionsHandler(gameRoot);
 		}
 		
-		/**
-		 * 默认的第二个构造函数 调用BaseOptions(String gameRoot, String javaPath)<br>
-		 * @param gameRoot .minecraft目录位置<br><br>
-		 * javaPath 会直接取当前运行的Java的javaw.exe位置
-		 */
 		public BaseOptions(String gameRoot) {
 			this(gameRoot, Utils.getJavaPath());
 		}
 		
-		/**
-		 * 默认构造函数 调用BaseOptions(String gameRoot, String javaPath)<br>
-		 * gameRoot 会直接取当前运行目录下的.minecraft<br>
-		 * javaPath 会直接取当前运行的Java的javaw.exe位置
-		 */
 		public BaseOptions() {
 			this(".minecraft", Utils.getJavaPath());
 		}

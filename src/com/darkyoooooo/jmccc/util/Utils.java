@@ -15,16 +15,9 @@ import java.util.zip.ZipInputStream;
 import lombok.Cleanup;
 
 public class Utils {
-	public static String getSystemName() {
-		String name = System.getProperty("os.name").toLowerCase();
-		if(name.contains("win")) return "windows";
-		else if(name.contains("linux")) return "linux";
-		else if(name.contains("osx")) return "osx";
-		else return "fuckyou";
-	}
 	
 	public static String resolvePath(String path) {
-		return path.replace("/", System.getProperty("file.separator"));
+		return path.replace("/", OSNames.CURRENT.getFileSpearator() + "");
 	}
 	
 	public static String getJavaPath() {
@@ -37,13 +30,11 @@ public class Utils {
 	
 	public static String readFileToString(File file) throws IOException {
 		StringBuffer buffer = new StringBuffer();
-		FileReader fileReader = new FileReader(file);
-		BufferedReader reader = new BufferedReader(fileReader);
+		@Cleanup FileReader fileReader = new FileReader(file);
+		@Cleanup BufferedReader reader = new BufferedReader(fileReader);
 		while(reader.ready()) {
 			buffer.append(reader.readLine());
 		}
-		fileReader.close();
-		reader.close();
 		return buffer.toString();
 	}
 	
@@ -52,7 +43,7 @@ public class Utils {
 		@Cleanup BufferedInputStream input = new BufferedInputStream(zipInput);
 		@Cleanup BufferedOutputStream output = null;
 		File temp = null;
-		ZipEntry entry;
+		ZipEntry entry = null;
 		while((entry = zipInput.getNextEntry()) != null) {
 			temp = new File(outputPath, entry.getName());
 			if(entry.isDirectory()) {
@@ -62,8 +53,8 @@ public class Utils {
 					new File(temp.getParent()).mkdirs();
 				}
 				output = new BufferedOutputStream(new FileOutputStream(temp));
-				int b;
-				while((b = input.read()) != -1){
+				byte[] b = new byte[1024 * 4];
+				while(input.read(b) != -1) {
 					output.write(b);
 				}
 			}
