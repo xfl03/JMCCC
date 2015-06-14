@@ -20,6 +20,9 @@ public class FilePathResolver {
 	public static List<String> resolveRealNativePaths(Jmccc jmccc, List<Native> list) {
 		List<String> realPaths = new ArrayList<String>();
 		for(Native nat : list) {
+			if(!nat.isAllowed()) {
+				continue;
+			}
 			realPaths.add(Utils.resolvePath(String.format("%s/libraries/%s/%s/%s/%s-%s-%s.jar", jmccc.getBaseOptions().getGameRoot(),
 				nat.getDomain().replace(".", "/"), nat.getName(), nat.getVersion(), nat.getName(), nat.getVersion(),
 				nat.getSuffix())));

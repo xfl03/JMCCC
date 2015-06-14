@@ -5,7 +5,7 @@ import lombok.Getter;
 import com.darkyoooooo.jmccc.util.Utils;
 
 public class OfflineAuthenticator implements IAuthenticator {
-	@Getter private final String playerName;
+	@Getter private String playerName;
 	
 	public OfflineAuthenticator(String playerName) {
 		this.playerName = playerName.trim();

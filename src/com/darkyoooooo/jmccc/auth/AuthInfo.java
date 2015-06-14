@@ -3,7 +3,7 @@ package com.darkyoooooo.jmccc.auth;
 import lombok.Getter;
 
 public class AuthInfo {
-	@Getter private final String uuid, displayName, accessToken, properties, error, userType;
+	@Getter private String uuid, displayName, accessToken, properties, error, userType;
 	
 	public AuthInfo(String uuid, String displayName, String accessToken,
 			String properties, String error, String userType) {

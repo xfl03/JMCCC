@@ -15,7 +15,6 @@ import java.util.zip.ZipInputStream;
 import lombok.Cleanup;
 
 public class Utils {
-	
 	public static String resolvePath(String path) {
 		return path.replace("/", OSNames.CURRENT.getFileSpearator() + "");
 	}

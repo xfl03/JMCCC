@@ -14,14 +14,14 @@ import com.darkyoooooo.jmccc.version.Version;
 
 public class LaunchArgument {
 	private final Jmccc jmccc;
-	@Getter private final LaunchOption launchOption;
-	@Getter private final String argTemplet, mainClass, nativePath;
-	@Getter private final List<String> libraries, advArgs;
-	@Getter private final Map<String, String> tokens;
-	@Getter private final int maxMemory, minMemory;
-	@Getter private final boolean enableCGC;
-	@Getter private final ServerInfo serverInfo;
-	@Getter private final WindowSize windowSize;
+	@Getter private LaunchOption launchOption;
+	@Getter private String argTemplet, mainClass, nativePath;
+	@Getter private List<String> libraries, advArgs;
+	@Getter private Map<String, String> tokens;
+	@Getter private int maxMemory, minMemory;
+	@Getter private boolean enableCGC;
+	@Getter private ServerInfo serverInfo;
+	@Getter private WindowSize windowSize;
 	
 	public LaunchArgument(Jmccc jmccc, LaunchOption launchOption, Map<String, String> tokens,
 			List<String> advArgs, boolean enableCGC, List<String> libraries, String nativesPath) {
@@ -63,7 +63,11 @@ public class LaunchArgument {
 			buffer.append(lib).append(os.getPathSpearator());
 		}
 		Version ver = this.launchOption.getVersion();
-		buffer.append(String.format("%s.jar%s\" ", Utils.resolvePath(ver.getPath() + "/" + ver.getId()), os.getPathSpearator()));
+		if(!ver.isInheritsForm()) {
+			buffer.append(String.format("%s.jar%s\" ", Utils.resolvePath(ver.getPath() + "/" + ver.getId()), os.getPathSpearator()));
+		} else {
+			buffer.append(String.format("%s.jar%s\" ", Utils.resolvePath(ver.getInheritsPath() + "/" + ver.getInheritsFormName()), os.getPathSpearator()));
+		}
 		
 		buffer.append(this.mainClass).append(' ');
 		buffer.append(this.replaceLaunchArgs()).append(' ');

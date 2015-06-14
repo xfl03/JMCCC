@@ -14,14 +14,12 @@ import com.darkyoooooo.jmccc.launch.ErrorType;
 import com.darkyoooooo.jmccc.launch.LaunchArgument;
 import com.darkyoooooo.jmccc.launch.LaunchOption;
 import com.darkyoooooo.jmccc.launch.LaunchResult;
-import com.darkyoooooo.jmccc.process.GameProcessListener;
-import com.darkyoooooo.jmccc.process.IGameListener;
 import com.darkyoooooo.jmccc.util.FilePathResolver;
 import com.darkyoooooo.jmccc.util.Utils;
 import com.darkyoooooo.jmccc.version.VersionsHandler;
 
 public class Jmccc {
-	public static final String VERSION = "1.0.2";
+	public static final String VERSION = "1.0.3";
 	public static final List<String> DEFAULT_ADV_ARGS = new ArrayList<String>();
 	static {
 		DEFAULT_ADV_ARGS.add("-Dfml.ignoreInvalidMinecraftCertificates=true");
@@ -30,36 +28,23 @@ public class Jmccc {
 	
 	@Getter private final BaseOptions baseOptions;
 	private LaunchResult launchResult = null;
-	private GameProcessListener processListener = null;
 	
 	public Jmccc(BaseOptions baseOptions) {
 		this.baseOptions = baseOptions;
-	}
-	
-	public void addGameListener(IGameListener listener) {
-		GameProcessListener.addGameListener(listener);
 	}
 	
 	public LaunchResult launchGame(LaunchOption option) {
 		LaunchArgument arg = this.genLaunchArgs(option);
 		if(arg != null && this.launchResult != null && this.launchResult.isSucceed()) {
 			try {
-				Process process = Runtime.getRuntime().exec(arg.toString(), null, new File(this.baseOptions.gameRoot));
-				processListener = new GameProcessListener();
-				processListener.startMonitor(process);
+				Runtime.getRuntime().exec(arg.toString(), null, new File(this.baseOptions.gameRoot));
 			} catch (IOException e) {
 				this.launchResult = new LaunchResult(false, ErrorType.HANDLE_ERROR, "启动游戏进程时出错");
 		    }
+		} else {
+			System.out.println(this.launchResult.getMessage());
 		}
 		return this.launchResult;
-	}
-	
-	public boolean stopGameProcess() {
-		if(this.processListener == null) {
-			return false;
-		}
-		this.processListener.stopProcess();
-		return true;
 	}
 	
 	private LaunchArgument genLaunchArgs(LaunchOption option) {

@@ -9,8 +9,8 @@ import net.kronos.mclaunch_util_lib.auth.model.YggdrasilProfile;
 import com.darkyoooooo.jmccc.util.Utils;
 
 public class YggdrasilAuthenticator implements IAuthenticator {
-	@Getter private final String email, password, clientToken;
-	@Getter private final boolean enableTwitch;
+	@Getter private String email, password, clientToken;
+	@Getter private boolean enableTwitch;
 	
 	public YggdrasilAuthenticator(String email, String password, boolean enableTwitch,
 			String clientToken) {
@@ -34,8 +34,7 @@ public class YggdrasilAuthenticator implements IAuthenticator {
 		YggdrasilRequester req = new YggdrasilRequester();
 		YggdrasilAuthenticateRes res;
 		try {
-			res = req.authenticate(YggdrasilAgent.getMinecraftAgent(),
-					this.email, this.password);
+			res = req.authenticate(YggdrasilAgent.getMinecraftAgent(), this.email, this.password);
 			YggdrasilProfile profile = res.getSelectedProfile();
 			return new AuthInfo(profile.getId(), profile.getName(), res.getAccessToken(), "{}",
 				null, profile.isLegacy() ? "legacy" : "mojang");

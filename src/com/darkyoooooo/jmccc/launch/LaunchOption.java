@@ -8,8 +8,8 @@ import com.darkyoooooo.jmccc.version.Version;
 
 public class LaunchOption {
 	@Getter @Setter private int maxMemory, minMemory;
-	@Getter private final Version version;
-	@Getter private final IAuthenticator authenticator;
+	@Getter private Version version;
+	@Getter private IAuthenticator authenticator;
 	@Getter @Setter private ServerInfo serverInfo;
 	@Getter @Setter private WindowSize windowSize;
 	

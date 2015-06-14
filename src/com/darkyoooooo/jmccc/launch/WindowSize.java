@@ -3,8 +3,8 @@ package com.darkyoooooo.jmccc.launch;
 import lombok.Getter;
 
 public class WindowSize {
-	@Getter private final boolean isFullSize;
-	@Getter private final int height, width;
+	@Getter private boolean isFullSize;
+	@Getter private int height, width;
 	
 	public WindowSize(boolean isFullSize) {
 		this.isFullSize = isFullSize;

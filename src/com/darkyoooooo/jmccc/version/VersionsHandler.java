@@ -13,7 +13,7 @@ public class VersionsHandler {
 		for(File verDir : new File(gameRoot + "/versions/").listFiles()) {
 			if(verDir.isDirectory()) {
 				try {
-					Version ver = new Version(verDir.getAbsolutePath(), verDir.getName());
+					Version ver = new Version(verDir, verDir.getName());
 					if(ver.isValid()) {
 						this.versions.add(ver);
 					}
