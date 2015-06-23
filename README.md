@@ -1,5 +1,5 @@
 # JMCCC
-An open-source library for launching Minecraft (included mclaunch-util-lib by Kronos666).<br>
+An open-source library for launching Minecraft (uses mclaunch-util-lib by Kronos666).<br>
 It can run Minecraft client with a few codes.
 
 ### Download
