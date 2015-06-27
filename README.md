@@ -1,4 +1,6 @@
 # JMCCC
+
+[![Join the chat at https://gitter.im/Southern-InfinityStudio/JMCCC](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Southern-InfinityStudio/JMCCC?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 An open-source library for launching Minecraft (uses `mclaunch-util-lib` by Kronos666).
 
 It can run Minecraft client with a few codes.
