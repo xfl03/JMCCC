@@ -2,21 +2,21 @@ package com.darkyoooooo.jmccc.util;
 
 import lombok.Getter;
 
-public enum OSNames {
+public enum OsTypes {
 	WINDOWS('\\', ';'),
 	LINUX('/', ':'),
 	OSX('/', ':'),
-	UNKNOWN('/', ':');
+	UNKNOWN('\\', ';');
 	
 	@Getter private final char fileSpearator, pathSpearator;
-	public static final OSNames CURRENT = getCurrent();
+	public static final OsTypes CURRENT = getCurrent();
 	
-	private OSNames(char fileSpearator, char pathSpearator) {
+	private OsTypes(char fileSpearator, char pathSpearator) {
 		this.fileSpearator = fileSpearator;
 		this.pathSpearator = pathSpearator;
 	}
 	
-	private static OSNames getCurrent() {
+	private static OsTypes getCurrent() {
 		String name = System.getProperty("os.name").toLowerCase();
 		if(name.contains("win")) return WINDOWS;
 		else if(name.contains("linux")) return LINUX;

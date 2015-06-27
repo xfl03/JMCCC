@@ -6,7 +6,7 @@ import java.util.List;
 
 import lombok.Getter;
 
-import com.darkyoooooo.jmccc.util.OSNames;
+import com.darkyoooooo.jmccc.util.OsTypes;
 import com.darkyoooooo.jmccc.util.Utils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -23,7 +23,7 @@ public class Version {
 		this.path = currentDirectory.getAbsolutePath();
 		this.libraries = new ArrayList<Library>();
 		this.natives = new ArrayList<Native>();
-		File jsonFile = new File(Utils.resolvePath(String.format("%s/%s.json", path, name)));
+		File jsonFile = new File(String.format("%s/%s.json", this.path, name));
 		if(jsonFile.exists() && jsonFile.canRead()) {
 			this.isValid = true;
 			JsonObject obj = new JsonParser().parse(Utils.readFileToString(jsonFile)).getAsJsonObject();
@@ -57,7 +57,7 @@ public class Version {
 					obj.has("clientreq") ? obj.get("clientreq").getAsBoolean() : true
 				));
 			} else {
-				String suffix = obj.get("natives").getAsJsonObject().get(OSNames.CURRENT.toString().toLowerCase()).getAsString();
+				String suffix = obj.get("natives").getAsJsonObject().get(OsTypes.CURRENT.toString().toLowerCase()).getAsString();
 				this.natives.add(new Native(info[0], info[1], info[2],
 					suffix.contains("${arch}") ? suffix.replaceAll("\\Q${arch}", System.getProperty("os.arch").replaceAll("[^0-9]", "")) : suffix,
 					obj.has("rules") ? this.checkNativeRules(obj.get("rules").getAsJsonArray()) : true));
@@ -73,7 +73,7 @@ public class Version {
 				    return obj.get("action").getAsString().equalsIgnoreCase("allow");
 				} else {
 					String name = obj.get("os").getAsJsonObject().get("name").getAsString();
-					return name.toLowerCase().contains(OSNames.CURRENT.toString().toLowerCase()) 
+					return name.toLowerCase().contains(OsTypes.CURRENT.toString().toLowerCase()) 
 						&& obj.get("action").getAsString().equalsIgnoreCase("allow");
 				}
 			} catch (Exception e) {

@@ -7,10 +7,9 @@ import java.util.Map;
 import lombok.Getter;
 
 import com.darkyoooooo.jmccc.Jmccc;
-import com.darkyoooooo.jmccc.util.OSNames;
+import com.darkyoooooo.jmccc.util.OsTypes;
 import com.darkyoooooo.jmccc.util.Utils;
 import com.darkyoooooo.jmccc.version.Version;
-
 
 public class LaunchArgument {
 	private final Jmccc jmccc;
@@ -43,8 +42,8 @@ public class LaunchArgument {
 	@Override
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
-		OSNames os = OSNames.CURRENT;
-		if(os == OSNames.WINDOWS) {
+		OsTypes os = OsTypes.CURRENT;
+		if(os == OsTypes.WINDOWS) {
 			buffer.append('\"').append(this.jmccc.getBaseOptions().getJavaPath()).append("\" ");
 		} else {
 			buffer.append("jar ");

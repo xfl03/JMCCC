@@ -31,7 +31,7 @@ public class OfflineAuthenticator implements IAuthenticator {
 			Utils.genRandomTokenOrUUID(),
 			"{}",
 			null,
-			"Mojang"
+			"mojang"
 		);
 	}
 }

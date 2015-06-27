@@ -8,19 +8,47 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import com.darkyoooooo.jmccc.Jmccc;
+import com.darkyoooooo.jmccc.version.Library;
+import com.darkyoooooo.jmccc.version.Native;
+
 import lombok.Cleanup;
 
 public class Utils {
+	public static List<String> resolveRealLibPaths(Jmccc jmccc, List<Library> list) {
+		List<String> realPaths = new ArrayList<String>();
+		for(Library lib : list) {
+			realPaths.add(Utils.resolvePath(String.format("%s/libraries/%s/%s/%s/%s-%s.jar", jmccc.getBaseOptions().getGameRoot(),
+				lib.getDomain().replace(".", "/"), lib.getName(), lib.getVersion(), lib.getName(), lib.getVersion())));
+		}
+		return realPaths;
+	}
+	
+	public static List<String> resolveRealNativePaths(Jmccc jmccc, List<Native> list) {
+		List<String> realPaths = new ArrayList<String>();
+		for(Native nat : list) {
+			if(!nat.isAllowed()) {
+				continue;
+			}
+			realPaths.add(Utils.resolvePath(String.format("%s/libraries/%s/%s/%s/%s-%s-%s.jar", jmccc.getBaseOptions().getGameRoot(),
+				nat.getDomain().replace(".", "/"), nat.getName(), nat.getVersion(), nat.getName(), nat.getVersion(),
+				nat.getSuffix())));
+		}
+		return realPaths;
+	}
+	
 	public static String resolvePath(String path) {
-		return path.replace("/", OSNames.CURRENT.getFileSpearator() + "");
+		return path.replace("/", String.valueOf(OsTypes.CURRENT.getFileSpearator()));
 	}
 	
 	public static String getJavaPath() {
-		return resolvePath(new File(System.getProperty("java.home")  + "/bin/java.exe").getAbsolutePath());
+		return resolvePath(new File(new File(System.getProperty("java.home"), "bin"), "java.exe").getAbsolutePath());
 	}
 	
 	public static String genRandomTokenOrUUID() {
@@ -32,7 +60,7 @@ public class Utils {
 		@Cleanup FileReader fileReader = new FileReader(file);
 		@Cleanup BufferedReader reader = new BufferedReader(fileReader);
 		while(reader.ready()) {
-			buffer.append(reader.readLine());
+			buffer.append(reader.readLine() + "\n");
 		}
 		return buffer.toString();
 	}
@@ -52,9 +80,10 @@ public class Utils {
 					new File(temp.getParent()).mkdirs();
 				}
 				output = new BufferedOutputStream(new FileOutputStream(temp));
-				byte[] b = new byte[1024 * 4];
-				while(input.read(b) != -1) {
-					output.write(b);
+				int i;
+				byte[] b = new byte[1024];
+				while((i = input.read(b)) != -1) {
+					output.write(b, 0, i);
 				}
 			}
 		}

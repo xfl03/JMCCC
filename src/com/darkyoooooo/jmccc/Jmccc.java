@@ -14,36 +14,39 @@ import com.darkyoooooo.jmccc.launch.ErrorType;
 import com.darkyoooooo.jmccc.launch.LaunchArgument;
 import com.darkyoooooo.jmccc.launch.LaunchOption;
 import com.darkyoooooo.jmccc.launch.LaunchResult;
-import com.darkyoooooo.jmccc.util.FilePathResolver;
 import com.darkyoooooo.jmccc.util.Utils;
 import com.darkyoooooo.jmccc.version.VersionsHandler;
 
 public class Jmccc {
-	public static final String VERSION = "1.0.3";
-	public static final List<String> DEFAULT_ADV_ARGS = new ArrayList<String>();
+	public static final String VERSION = "1.0.4";
+	public static final List<String> ADV_ARGS = new ArrayList<String>();
 	static {
-		DEFAULT_ADV_ARGS.add("-Dfml.ignoreInvalidMinecraftCertificates=true");
-		DEFAULT_ADV_ARGS.add("-Dfml.ignorePatchDiscrepancies=true");
+		ADV_ARGS.add("-Dfml.ignoreInvalidMinecraftCertificates=true");
+		ADV_ARGS.add("-Dfml.ignorePatchDiscrepancies=true");
 	}
 	
+	@Getter private long launchTime = 0;
 	@Getter private final BaseOptions baseOptions;
+	@Getter private final VersionsHandler versionsHandler;
 	private LaunchResult launchResult = null;
 	
 	public Jmccc(BaseOptions baseOptions) {
 		this.baseOptions = baseOptions;
+		this.versionsHandler = new VersionsHandler(this.baseOptions.getGameRoot());
 	}
 	
 	public LaunchResult launchGame(LaunchOption option) {
+		long start = System.currentTimeMillis();
 		LaunchArgument arg = this.genLaunchArgs(option);
 		if(arg != null && this.launchResult != null && this.launchResult.isSucceed()) {
 			try {
 				Runtime.getRuntime().exec(arg.toString(), null, new File(this.baseOptions.gameRoot));
 			} catch (IOException e) {
-				this.launchResult = new LaunchResult(false, ErrorType.HANDLE_ERROR, "启动游戏进程时出错");
+				this.launchResult = new LaunchResult(false, ErrorType.HANDLE_ERROR, "启动游戏进程时出错", e);
 		    }
-		} else {
-			System.out.println(this.launchResult.getMessage());
 		}
+		long end = System.currentTimeMillis();
+		this.launchTime = end - start;
 		return this.launchResult;
 	}
 	
@@ -54,15 +57,15 @@ public class Jmccc {
 		
 		AuthInfo authInfo = option.getAuthenticator().run();
 		if(authInfo.getError() != null && !authInfo.getError().isEmpty()) {
-			this.launchResult = new LaunchResult(false, ErrorType.BAD_LOGIN, authInfo.getError());
+			this.launchResult = new LaunchResult(false, ErrorType.BAD_LOGIN, authInfo.getError(), null);
 			return null;
 		}
 		
-		for(String path : FilePathResolver.resolveRealNativePaths(this, option.getVersion().getNatives())) {
+		for(String path : Utils.resolveRealNativePaths(this, option.getVersion().getNatives())) {
 			try {
 				Utils.uncompressZipFile(new File(path), this.baseOptions.getGameRoot() + "/natives");
 			} catch (IOException e) {
-				this.launchResult = new LaunchResult(false, ErrorType.UNCOMPRESS_ERROR, String.format("解压%s时出现错误", path));
+				this.launchResult = new LaunchResult(false, ErrorType.UNCOMPRESS_ERROR, String.format("解压\'%s\'时出现错误", path), e);
 				return null;
 			}
 		}
@@ -80,22 +83,21 @@ public class Jmccc {
 		tokens.put("user_type", authInfo.getUserType());
 		tokens.put("user_properties", authInfo.getProperties());
 		
-		this.launchResult = new LaunchResult(true, ErrorType.NONE);
+		this.launchResult = new LaunchResult(true, ErrorType.NONE, null);
 		
 		return new LaunchArgument(
 			this,
 			option,
 			tokens,
-			DEFAULT_ADV_ARGS,
+			ADV_ARGS,
 			true,
-			FilePathResolver.resolveRealLibPaths(this, option.getVersion().getLibraries()),
+			Utils.resolveRealLibPaths(this, option.getVersion().getLibraries()),
 			Utils.resolvePath(this.baseOptions.getGameRoot() + "/natives")
 		);
 	}
 	
 	public static class BaseOptions {
 		@Getter private final String gameRoot, javaPath;
-		@Getter private final VersionsHandler versionsHandler;
 		
 		public BaseOptions(String gameRoot, String javaPath) {
 			if(gameRoot == null || javaPath == null) {
@@ -103,7 +105,6 @@ public class Jmccc {
 			}
 			this.gameRoot = gameRoot;
 			this.javaPath = javaPath;
-			this.versionsHandler = new VersionsHandler(gameRoot);
 		}
 		
 		public BaseOptions(String gameRoot) {
