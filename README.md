@@ -46,13 +46,13 @@ jmccc.launchGame(option);
 
 ### Change Logs
 ##### 1.0.4
-* Added function `Jmccc.getLaunchTime()` to get the time for launching game (ms).
-* Added function `LaunchResult.getExceptionInstance()` to get the instance of exception if it exists.
-* Added function `VersionsHandler.getUnvalidVersions()` to get the versions which are invalid.
+* Added method `Jmccc.getLaunchTime()` to get the time for launching game (ms).
+* Added method `LaunchResult.getExceptionInstance()` to get the instance of exception if it exists.
+* Added method `VersionsHandler.getUnvalidVersions()` to get the versions which are invalid.
 * Changed `BaseOptions.getVersionsHandler()` to `Jmccc.getVersionsHandler()`.
 * Changed `Jmccc.DEFAULT_ADV_ARGS` to `Jmccc.ADV_ARGS`.
 * Changed the name of class `OSNames` to `OsTypes`.
-* Removed class `FilePathResolver`, the functions have been moved into class `Utils`.
+* Removed class `FilePathResolver`, the methods have been moved into class `Utils`.
 
 ##### 1.0.3
 * Removed class `IGameListener`, the function has a fatal bug. Fixing in progress.
