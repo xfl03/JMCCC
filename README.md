@@ -1,5 +1,6 @@
 # JMCCC
 An open-source library for launching Minecraft (uses `mclaunch-util-lib` by Kronos666).
+
 It can run Minecraft client with a few codes.
 
 ### Download
@@ -47,6 +48,7 @@ jmccc.launchGame(option);
 ##### 1.0.4
 * Added function `Jmccc.getLaunchTime()` to get the time for launching game (ms).
 * Added function `LaunchResult.getExceptionInstance()` to get the instance of exception if it exists.
+* Added function `VersionsHandler.getUnvalidVersions()` to get the versions which are invalid.
 * Changed `BaseOptions.getVersionsHandler()` to `Jmccc.getVersionsHandler()`.
 * Changed `Jmccc.DEFAULT_ADV_ARGS` to `Jmccc.ADV_ARGS`.
 * Changed the name of class `OSNames` to `OsTypes`.
