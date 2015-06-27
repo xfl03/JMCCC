@@ -52,7 +52,7 @@ jmccc.launchGame(option);
 * Changed `BaseOptions.getVersionsHandler()` to `Jmccc.getVersionsHandler()`.
 * Changed `Jmccc.DEFAULT_ADV_ARGS` to `Jmccc.ADV_ARGS`.
 * Changed the name of class `OSNames` to `OsTypes`.
-* Removed class `FilePathResolver`, the functions moved into class `Utils`.
+* Removed class `FilePathResolver`, the functions have been moved into class `Utils`.
 
 ##### 1.0.3
 * Removed class `IGameListener`, the function has a fatal bug. Fixing in progress.
