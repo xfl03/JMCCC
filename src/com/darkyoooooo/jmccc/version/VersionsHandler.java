@@ -13,7 +13,12 @@ public class VersionsHandler {
 		this.versions = new HashSet<Version>();
 		this.unvalidVersions = new HashSet<String>();
 		
-		for(File verDir : new File(gameRoot, "versions").listFiles()) {
+		File versions = new File(gameRoot, "versions");
+		if (!versions.exists()) {
+			versions.mkdirs();
+			return;
+		}
+		for(File verDir : versions.listFiles()) {
 			if(verDir.isDirectory()) {
 				try {
 					Version ver = new Version(verDir, verDir.getName());

@@ -50,8 +50,14 @@ public class LaunchArgument {
 		}
 		
 		buffer.append(this.enableCGC ? "-Xincgc " : " ");
-		buffer.append("-Xms" + (this.minMemory > 0 ? this.minMemory + "M " : " "));
-		buffer.append("-Xmx" + (this.maxMemory > 0 ? this.maxMemory + "M " : "1024M "));
+		if(this.minMemory > 0) {
+			buffer.append("-Xms").append(this.minMemory).append("M ");
+		}
+		if(this.maxMemory > 0) {
+			buffer.append("-Xmx").append(this.maxMemory).append("M ");
+		} else {
+			buffer.append("-Xmx1024M ");
+		}
 		for(String adv : this.advArgs) {
 			buffer.append(adv).append(' ');
 		}

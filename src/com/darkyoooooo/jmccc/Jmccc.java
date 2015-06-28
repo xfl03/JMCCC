@@ -18,7 +18,7 @@ import com.darkyoooooo.jmccc.util.Utils;
 import com.darkyoooooo.jmccc.version.VersionsHandler;
 
 public class Jmccc {
-	public static final String VERSION = "1.0.4";
+	public static final String VERSION = "1.0.5";
 	public static final List<String> ADV_ARGS = new ArrayList<String>();
 	static {
 		ADV_ARGS.add("-Dfml.ignoreInvalidMinecraftCertificates=true");
@@ -40,6 +40,7 @@ public class Jmccc {
 		LaunchArgument arg = this.genLaunchArgs(option);
 		if(arg != null && this.launchResult != null && this.launchResult.isSucceed()) {
 			try {
+				System.out.println(1);
 				Runtime.getRuntime().exec(arg.toString(), null, new File(this.baseOptions.gameRoot));
 			} catch (IOException e) {
 				this.launchResult = new LaunchResult(false, ErrorType.HANDLE_ERROR, "启动游戏进程时出错", e);
@@ -90,7 +91,7 @@ public class Jmccc {
 			option,
 			tokens,
 			ADV_ARGS,
-			true,
+			!System.getProperty("java.version").contains("1.9."),
 			Utils.resolveRealLibPaths(this, option.getVersion().getLibraries()),
 			Utils.resolvePath(this.baseOptions.getGameRoot() + "/natives")
 		);
@@ -112,7 +113,7 @@ public class Jmccc {
 		}
 		
 		public BaseOptions() {
-			this(".minecraft", Utils.getJavaPath());
+			this(new File(".minecraft").getAbsolutePath(), Utils.getJavaPath());
 		}
 	}
 }

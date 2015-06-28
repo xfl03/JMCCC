@@ -45,6 +45,10 @@ jmccc.launchGame(option);
 ```
 
 ### Change Logs
+##### 1.0.5
+* Java9 support.
+* Bugs fixing.
+
 ##### 1.0.4
 * Added method `Jmccc.getLaunchTime()` to get the time for launching game (ms).
 * Added method `LaunchResult.getExceptionInstance()` to get the instance of exception if it exists.
