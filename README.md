@@ -8,7 +8,6 @@ See [releases](https://github.com/Southern-InfinityStudio/JMCCC/tree/master/rele
 
 ### Dependencies
 * Google Gson 2.2.4 https://code.google.com/p/google-gson/
-* Lombok 1.14.4 http://projectlombok.org/
 * mclaunch-util-lib 0.1 https://github.com/Kronos666/mclaunch-util-lib/tree/master/release/
 
 ### Samples
@@ -16,7 +15,7 @@ See [releases](https://github.com/Southern-InfinityStudio/JMCCC/tree/master/rele
 ```java
 Jmccc jmccc = new Jmccc(new BaseOptions("/path/to/your/minecraft/client/.minecraft", "/path/to/you/java/path"));
 Jmccc jmccc = new Jmccc(new BaseOptions("/path/to/your/minecraft/client/.minecraft"));
-Jmccc jmccc = new Jmccc(new BaseOptions());
+Jmccc jmccc = new Jmccc();
 ```
 ##### Find Versions
 ```java
@@ -29,7 +28,7 @@ for (Version version : jmccc.getVersionsHandler().getVersions()) {
 ##### Create Authenticator Instance
 ```java
 IAuthenticator authenticator = new OfflineAuthenticator("your_name");
-IAuthenticator authenticator = new YggdrasilAuthenticator("your@e.mail", "yourpassword", true /*enableTwitch*/);
+IAuthenticator authenticator = new YggdrasilAuthenticator("your@e.mail", "your_password");
 ```
 ##### Create LaunchOption Instance
 ```java
@@ -48,7 +47,7 @@ jmccc.launchGame(option);
 ##### 1.0.6
 * Removed Lombok dependency.
 * Bugs fixing.
-* IGameListener still WIP.
+* `IGameListener` is still WIP.
 
 ##### 1.0.5
 * Java9 support.
