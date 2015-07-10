@@ -4,8 +4,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import lombok.Getter;
-
 import com.darkyoooooo.jmccc.Jmccc;
 import com.darkyoooooo.jmccc.util.OsTypes;
 import com.darkyoooooo.jmccc.util.Utils;
@@ -13,14 +11,14 @@ import com.darkyoooooo.jmccc.version.Version;
 
 public class LaunchArgument {
 	private final Jmccc jmccc;
-	@Getter private LaunchOption launchOption;
-	@Getter private String argTemplet, mainClass, nativePath;
-	@Getter private List<String> libraries, advArgs;
-	@Getter private Map<String, String> tokens;
-	@Getter private int maxMemory, minMemory;
-	@Getter private boolean enableCGC;
-	@Getter private ServerInfo serverInfo;
-	@Getter private WindowSize windowSize;
+	private LaunchOption launchOption;
+	private String argTemplet, mainClass, nativePath;
+	private List<String> libraries, advArgs;
+	private Map<String, String> tokens;
+	private int maxMemory, minMemory;
+    private boolean enableCGC;
+    private ServerInfo serverInfo;
+    private WindowSize windowSize;
 	
 	public LaunchArgument(Jmccc jmccc, LaunchOption launchOption, Map<String, String> tokens,
 			List<String> advArgs, boolean enableCGC, List<String> libraries, String nativesPath) {
@@ -41,58 +39,61 @@ public class LaunchArgument {
 	
 	@Override
 	public String toString() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		OsTypes os = OsTypes.CURRENT;
 		if(os == OsTypes.WINDOWS) {
-			buffer.append('\"').append(this.jmccc.getBaseOptions().getJavaPath()).append("\" ");
+			sb.append('\"').append(this.jmccc.getBaseOptions().getJavaPath()).append("\" ");
 		} else {
-			buffer.append("jar ");
+			sb.append("jar ");
 		}
 		
-		buffer.append(this.enableCGC ? "-Xincgc " : " ");
+		if(this.enableCGC) {
+			sb.append("-Xincgc ");
+		}
 		if(this.minMemory > 0) {
-			buffer.append("-Xms").append(this.minMemory).append("M ");
+			sb.append("-Xms").append(this.minMemory).append("M ");
 		}
 		if(this.maxMemory > 0) {
-			buffer.append("-Xmx").append(this.maxMemory).append("M ");
+			sb.append("-Xmx").append(this.maxMemory).append("M ");
 		} else {
-			buffer.append("-Xmx1024M ");
+			sb.append("-Xmx1024M ");
 		}
 		for(String adv : this.advArgs) {
-			buffer.append(adv).append(' ');
+			sb.append(adv).append(' ');
 		}
-		buffer.append("-Djava.library.path=\"" + this.nativePath + "\" ");
+		sb.append("-Djava.library.path=\"" + this.nativePath + "\" ");
 		
-		buffer.append("-cp \"");
+		sb.append("-cp \"");
 		for(String lib : this.libraries) {
-			buffer.append(lib).append(os.getPathSpearator());
+			sb.append(lib).append(os.getPathSpearator());
 		}
 		Version ver = this.launchOption.getVersion();
 		if(!ver.isInheritsForm()) {
-			buffer.append(String.format("%s.jar%s\" ", Utils.resolvePath(ver.getPath() + "/" + ver.getId()), os.getPathSpearator()));
+			sb.append(String.format("%s.jar%s\" ", Utils.resolvePath(ver.getPath() + "/" + ver.getId()), os.getPathSpearator()));
 		} else {
-			buffer.append(String.format("%s.jar%s\" ", Utils.resolvePath(ver.getInheritsPath() + "/" + ver.getInheritsFormName()), os.getPathSpearator()));
+			sb.append(String.format("%s.jar%s\" ", Utils.resolvePath(String.format("%s/%s", ver.getParentInheritsPath(), ver.getParentInheritsFormName())), os.getPathSpearator()));
 		}
 		
-		buffer.append(this.mainClass).append(' ');
-		buffer.append(this.replaceLaunchArgs()).append(' ');
+		sb.append(this.mainClass).append(' ');
+		sb.append(this.replaceLaunchArgs()).append(' ');
 		
 		if(this.serverInfo != null && this.serverInfo.getAddress() != null && !this.serverInfo.getAddress().equals("")) {
-			buffer.append("--server ").append(this.serverInfo.getAddress()).append(' ');
-			buffer.append("--port ").append(this.serverInfo.getPort() == 0 ? 25565 : this.serverInfo.getPort()).append(' ');
+			sb.append("--server ").append(this.serverInfo.getAddress()).append(' ');
+			sb.append("--port ").append(this.serverInfo.getPort() == 0 ? 25565 : this.serverInfo.getPort()).append(' ');
 		}
 		if(this.windowSize != null) {
 			if(this.windowSize.isFullSize()) {
-				buffer.append("--fullscreen").append(' ');
+				sb.append("--fullscreen").append(' ');
 			}
 			if(this.windowSize.getHeight() > 0) {
-				buffer.append("--height " + this.windowSize.getHeight()).append(' ');
+				sb.append("--height " + this.windowSize.getHeight()).append(' ');
 			}
 			if(this.windowSize.getWidth() > 0) {
-				buffer.append("--width " + this.windowSize.getWidth()).append(' ');
+				sb.append("--width " + this.windowSize.getWidth()).append(' ');
 			}
 		}
-		return buffer.toString();
+		
+		return sb.toString();
 	}
 	
 	private String replaceLaunchArgs() {
@@ -103,5 +104,53 @@ public class LaunchArgument {
 			arg = arg.replace("${" + left.next() + "}", right.next());
 		}
 		return arg;
+	}
+
+	public LaunchOption getLaunchOption() {
+		return this.launchOption;
+	}
+
+	public String getArgTemplet() {
+		return this.argTemplet;
+	}
+
+	public String getMainClass() {
+		return this.mainClass;
+	}
+
+	public String getNativePath() {
+		return this.nativePath;
+	}
+
+	public List<String> getLibraries() {
+		return this.libraries;
+	}
+
+	public List<String> getAdvArgs() {
+		return this.advArgs;
+	}
+
+	public Map<String, String> getTokens() {
+		return this.tokens;
+	}
+
+	public int getMaxMemory() {
+		return this.maxMemory;
+	}
+
+	public int getMinMemory() {
+		return this.minMemory;
+	}
+
+	public boolean isEnableCGC() {
+		return this.enableCGC;
+	}
+
+	public ServerInfo getServerInfo() {
+		return this.serverInfo;
+	}
+
+	public WindowSize getWindowSize() {
+		return this.windowSize;
 	}
 }

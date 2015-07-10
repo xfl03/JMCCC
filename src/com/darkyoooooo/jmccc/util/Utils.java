@@ -18,8 +18,6 @@ import com.darkyoooooo.jmccc.Jmccc;
 import com.darkyoooooo.jmccc.version.Library;
 import com.darkyoooooo.jmccc.version.Native;
 
-import lombok.Cleanup;
-
 public class Utils {
 	public static List<String> resolveRealLibPaths(Jmccc jmccc, List<Library> list) {
 		List<String> realPaths = new ArrayList<String>();
@@ -44,11 +42,11 @@ public class Utils {
 	}
 	
 	public static String resolvePath(String path) {
-		return path.replace("/", String.valueOf(OsTypes.CURRENT.getFileSpearator()));
+		return new File(path).getAbsolutePath();
 	}
 	
 	public static String getJavaPath() {
-		return resolvePath(new File(new File(System.getProperty("java.home"), "bin"), "java.exe").getAbsolutePath());
+		return new File(new File(System.getProperty("java.home"), "bin"), "java.exe").getAbsolutePath();
 	}
 	
 	public static String genRandomTokenOrUUID() {
@@ -57,18 +55,20 @@ public class Utils {
 	
 	public static String readFileToString(File file) throws IOException {
 		StringBuffer buffer = new StringBuffer();
-		@Cleanup FileReader fileReader = new FileReader(file);
-		@Cleanup BufferedReader reader = new BufferedReader(fileReader);
+		FileReader fileReader = new FileReader(file);
+		BufferedReader reader = new BufferedReader(fileReader);
 		while(reader.ready()) {
 			buffer.append(reader.readLine() + "\n");
 		}
+		fileReader.close();
+		reader.close();
 		return buffer.toString();
 	}
 	
 	public static void uncompressZipFile(File file, String outputPath) throws IOException {
-		@Cleanup ZipInputStream zipInput = new ZipInputStream(new FileInputStream(file));
-		@Cleanup BufferedInputStream input = new BufferedInputStream(zipInput);
-		@Cleanup BufferedOutputStream output = null;
+		ZipInputStream zipInput = new ZipInputStream(new FileInputStream(file));
+		BufferedInputStream input = new BufferedInputStream(zipInput);
+		BufferedOutputStream output = null;
 		File temp = null;
 		ZipEntry entry = null;
 		while((entry = zipInput.getNextEntry()) != null) {
@@ -87,5 +87,8 @@ public class Utils {
 				}
 			}
 		}
+		zipInput.close();
+		input.close();
+		output.close();
 	}
 }

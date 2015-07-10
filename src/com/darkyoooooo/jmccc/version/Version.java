@@ -4,8 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import lombok.Getter;
-
 import com.darkyoooooo.jmccc.util.OsTypes;
 import com.darkyoooooo.jmccc.util.Utils;
 import com.google.gson.JsonArray;
@@ -13,20 +11,22 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 public class Version {
-	@Getter private String path, inheritsPath;
-	@Getter private boolean isValid = false, isInheritsForm = false;
-	@Getter private String launchArgs, id, assets, mainClass, jarId, inheritsFormName;
-	@Getter private List<Library> libraries;
-	@Getter private List<Native> natives;
+	private String path, parentInheritsPath, launchArgs, id, assets, mainClass, jarId, parentInheritsFormName;
+	private boolean isValid = false, isInheritsForm = false;
+	private List<String> inheritsFormNames;
+	private List<Library> libraries;
+	private List<Native> natives;
+	private JsonParser jsonParser = new JsonParser();
 	
 	public Version(File currentDirectory, String name) throws Exception {
 		this.path = currentDirectory.getAbsolutePath();
 		this.libraries = new ArrayList<Library>();
 		this.natives = new ArrayList<Native>();
+		this.inheritsFormNames = new ArrayList<String>();
 		File jsonFile = new File(String.format("%s/%s.json", this.path, name));
 		if(jsonFile.exists() && jsonFile.canRead()) {
 			this.isValid = true;
-			JsonObject obj = new JsonParser().parse(Utils.readFileToString(jsonFile)).getAsJsonObject();
+			JsonObject obj = jsonParser.parse(Utils.readFileToString(jsonFile)).getAsJsonObject();
 			this.id = obj.get("id").getAsString();
 			this.jarId = this.id + ".jar";
 			this.assets = obj.get("assets").getAsString();
@@ -36,12 +36,15 @@ public class Version {
 			
 			if(obj.get("inheritsFrom") != null) {
 				this.isInheritsForm = true;
-				this.inheritsFormName = obj.get("inheritsFrom").getAsString();
-				this.inheritsPath = new File(currentDirectory.getParent() + "/" + this.inheritsFormName).getAbsolutePath();
-		    	jsonFile = new File(Utils.resolvePath(String.format("%s/%s/%s.json", currentDirectory.getParentFile(),
-		    		this.inheritsFormName, inheritsFormName)));
-				obj = new JsonParser().parse(Utils.readFileToString(jsonFile)).getAsJsonObject();
-				this.loadLibrariesAndNatives(obj);
+				while(obj.has("inheritsFrom")) {
+					this.parentInheritsFormName = obj.get("inheritsFrom").getAsString();
+					this.inheritsFormNames.add(this.parentInheritsFormName);
+					this.parentInheritsPath = new File(currentDirectory.getParent(), this.parentInheritsFormName).getAbsolutePath();
+					obj = jsonParser.parse(Utils.readFileToString(new File(Utils.resolvePath(
+							String.format("%s/%s/%s.json", currentDirectory.getParent(), this.parentInheritsFormName, this.parentInheritsFormName)
+						)))).getAsJsonObject();
+					this.loadLibrariesAndNatives(obj);
+				}
 			}
 		}
 	}
@@ -80,5 +83,57 @@ public class Version {
 			}
 		}
 		return false;
+	}
+
+	public String getPath() {
+		return this.path;
+	}
+
+	public String getParentInheritsPath() {
+		return this.parentInheritsPath;
+	}
+
+	public boolean isValid() {
+		return this.isValid;
+	}
+
+	public boolean isInheritsForm() {
+		return this.isInheritsForm;
+	}
+
+	public String getLaunchArgs() {
+		return this.launchArgs;
+	}
+
+	public String getId() {
+		return this.id;
+	}
+
+	public String getAssets() {
+		return this.assets;
+	}
+
+	public String getMainClass() {
+		return this.mainClass;
+	}
+
+	public String getJarId() {
+		return this.jarId;
+	}
+	
+	public String getParentInheritsFormName() {
+		return this.parentInheritsFormName;
+	}
+
+	public List<String> getInheritsFormNames() {
+		return this.inheritsFormNames;
+	}
+
+	public List<Library> getLibraries() {
+		return this.libraries;
+	}
+
+	public List<Native> getNatives() {
+		return this.natives;
 	}
 }

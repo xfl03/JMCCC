@@ -1,14 +1,12 @@
 package com.darkyoooooo.jmccc.util;
 
-import lombok.Getter;
-
 public enum OsTypes {
 	WINDOWS('\\', ';'),
 	LINUX('/', ':'),
 	OSX('/', ':'),
 	UNKNOWN('\\', ';');
 	
-	@Getter private final char fileSpearator, pathSpearator;
+	private final char fileSpearator, pathSpearator;
 	public static final OsTypes CURRENT = getCurrent();
 	
 	private OsTypes(char fileSpearator, char pathSpearator) {
@@ -22,5 +20,13 @@ public enum OsTypes {
 		else if(name.contains("linux")) return LINUX;
 		else if(name.contains("osx")) return OSX;
 		else return UNKNOWN;
+	}
+
+	public char getFileSpearator() {
+		return this.fileSpearator;
+	}
+
+	public char getPathSpearator() {
+		return this.pathSpearator;
 	}
 }

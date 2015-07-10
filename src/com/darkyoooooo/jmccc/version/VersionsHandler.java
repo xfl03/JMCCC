@@ -3,11 +3,9 @@ package com.darkyoooooo.jmccc.version;
 import java.io.File;
 import java.util.HashSet;
 
-import lombok.Getter;
-
 public class VersionsHandler {
-	@Getter private final HashSet<Version> versions;
-	@Getter private final HashSet<String> unvalidVersions;
+	private final HashSet<Version> versions;
+	private final HashSet<String> unvalidVersions;
 	
 	public VersionsHandler(String gameRoot) {
 		this.versions = new HashSet<Version>();
@@ -15,22 +13,29 @@ public class VersionsHandler {
 		
 		File versions = new File(gameRoot, "versions");
 		if (!versions.exists()) {
-			versions.mkdirs();
 			return;
 		}
-		for(File verDir : versions.listFiles()) {
-			if(verDir.isDirectory()) {
+		for(File version : versions.listFiles()) {
+			if(version.isDirectory()) {
 				try {
-					Version ver = new Version(verDir, verDir.getName());
-					if(ver.isValid()) {
-						this.versions.add(ver);
-					} else {
-						this.unvalidVersions.add(verDir.getAbsolutePath());
+					if(!(version.getName().split(" ").length > 1)) {
+						Version ver = new Version(version, version.getName());
+						if(ver.isValid()) {
+							this.versions.add(ver);
+						}
 					}
 				} catch (Exception e) {
-					this.unvalidVersions.add(verDir.getAbsolutePath());
 				}
+				this.unvalidVersions.add(version.getAbsolutePath());
 			}
 		}
+	}
+
+	public HashSet<Version> getVersions() {
+		return this.versions;
+	}
+
+	public HashSet<String> getUnvalidVersions() {
+		return this.unvalidVersions;
 	}
 }
