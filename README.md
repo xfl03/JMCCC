@@ -45,6 +45,11 @@ jmccc.launchGame(option);
 ```
 
 ### Change Logs
+##### 1.0.6
+* Removed Lombok dependency.
+* Bugs fixing.
+* IGameListener still WIP.
+
 ##### 1.0.5
 * Java9 support.
 * Bugs fixing.
