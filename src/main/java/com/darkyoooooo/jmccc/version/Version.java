@@ -55,34 +55,49 @@ public class Version {
 			obj = libs.get(i).getAsJsonObject();
 			String[] info = obj.get("name").getAsString().split(":");
 			if(!obj.has("natives")) {
+				if(obj.has("rules")) {
+					if(!this.checkRules(obj.get("rules").getAsJsonArray())) {
+						continue;
+					}
+				}
 				this.libraries.add(new Library(info[0], info[1], info[2],
-				    obj.has("serverreq") ? obj.get("serverreq").getAsBoolean() : true,
-					obj.has("clientreq") ? obj.get("clientreq").getAsBoolean() : true
+					    obj.has("serverreq") ? obj.get("serverreq").getAsBoolean() : true,
+						obj.has("clientreq") ? obj.get("clientreq").getAsBoolean() : true
 				));
 			} else {
 				String suffix = obj.get("natives").getAsJsonObject().get(OsTypes.CURRENT.toString().toLowerCase()).getAsString();
 				this.natives.add(new Native(info[0], info[1], info[2],
-					suffix.contains("${arch}") ? suffix.replaceAll("\\Q${arch}", System.getProperty("os.arch").replaceAll("[^0-9]", "")) : suffix,
-					obj.has("rules") ? this.checkNativeRules(obj.get("rules").getAsJsonArray()) : true));
+						suffix.contains("${arch}") ? suffix.replaceAll("\\Q${arch}",
+					    System.getProperty("java.vm.name").contains("64") ? "64" : "32") : suffix,
+					    obj.has("rules") ? this.checkRules(obj.get("rules").getAsJsonArray()) : true
+				));
 			}
 		}
 	}
 	
-	private boolean checkNativeRules(JsonArray array) {
+	private boolean checkRules(JsonArray array) {
+		boolean flag = false;
 		for(int i = 0; i < array.size(); i++) {
 			try {
 				JsonObject obj = array.get(i).getAsJsonObject();
-				if(!obj.has("os")) {
-				    return obj.get("action").getAsString().equalsIgnoreCase("allow");
-				} else {
-					String name = obj.get("os").getAsJsonObject().get("name").getAsString();
-					return name.toLowerCase().contains(OsTypes.CURRENT.toString().toLowerCase()) 
-						&& obj.get("action").getAsString().equalsIgnoreCase("allow");
+				if (obj.has("action")) {
+					if (obj.get("action").getAsString().contentEquals("allow")) {
+						if (!obj.has("os")) {
+							flag = true;
+						} else {
+							flag = obj.get("os").getAsJsonObject().get("name").getAsString().contains(OsTypes.CURRENT.toString().toLowerCase());
+						}
+					}
+					if (obj.get("action").getAsString().contentEquals("disallow")) {
+						if (obj.has("os")) {
+							return !obj.get("os").getAsJsonObject().get("name").getAsString().contains(OsTypes.CURRENT.toString().toLowerCase());
+						}
+					}
 				}
 			} catch (Exception e) {
 			}
 		}
-		return false;
+		return flag;
 	}
 
 	public String getPath() {

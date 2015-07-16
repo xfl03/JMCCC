@@ -12,7 +12,7 @@ public class VersionsHandler {
 		this.unvalidVersions = new HashSet<String>();
 		
 		File versions = new File(gameRoot, "versions");
-		if (!versions.exists()) {
+		if(!versions.exists()) {
 			return;
 		}
 		for(File version : versions.listFiles()) {
@@ -29,6 +29,17 @@ public class VersionsHandler {
 				this.unvalidVersions.add(version.getAbsolutePath());
 			}
 		}
+	}
+	
+	public Version getVersionById(String id) {
+		Version version = null;
+		for(Version ver : this.versions) {
+			if (ver.getId().contentEquals(id)) {
+				version = ver;
+				break;
+			}
+		}
+		return version;
 	}
 
 	public HashSet<Version> getVersions() {

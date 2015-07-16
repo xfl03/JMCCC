@@ -16,7 +16,7 @@ import com.darkyoooooo.jmccc.util.Utils;
 import com.darkyoooooo.jmccc.version.VersionsHandler;
 
 public class Jmccc {
-	public static final String VERSION = "1.0.6";
+	public static final String VERSION = "1.1";
 	public static final List<String> ADV_ARGS = new ArrayList<String>();
 	static {
 		ADV_ARGS.add("-Dfml.ignoreInvalidMinecraftCertificates=true");
@@ -83,7 +83,6 @@ public class Jmccc {
 		tokens.put("auth_player_name", authInfo.getDisplayName());
 		tokens.put("version_name", option.getVersion().getId());
 		tokens.put("game_directory", ".");
-		tokens.put("game_assets", "assets");
 		tokens.put("assets_root", "assets");
 		tokens.put("assets_index_name", option.getVersion().getAssets());
 		tokens.put("auth_uuid", authInfo.getUuid());

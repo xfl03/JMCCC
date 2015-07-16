@@ -1,13 +1,13 @@
 package com.darkyoooooo.jmccc.util;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -58,7 +58,7 @@ public class Utils {
 		FileReader fileReader = new FileReader(file);
 		BufferedReader reader = new BufferedReader(fileReader);
 		while(reader.ready()) {
-			buffer.append(reader.readLine() + "\n");
+			buffer.append(reader.readLine()).append(System.getProperty("line.separator"));
 		}
 		fileReader.close();
 		reader.close();
@@ -68,7 +68,7 @@ public class Utils {
 	public static void uncompressZipFile(File file, String outputPath) throws IOException {
 		ZipInputStream zipInput = new ZipInputStream(new FileInputStream(file));
 		BufferedInputStream input = new BufferedInputStream(zipInput);
-		BufferedOutputStream output = null;
+		OutputStream output = null;
 		File temp = null;
 		ZipEntry entry = null;
 		while((entry = zipInput.getNextEntry()) != null) {
@@ -79,7 +79,7 @@ public class Utils {
 				if(!temp.exists()) {
 					new File(temp.getParent()).mkdirs();
 				}
-				output = new BufferedOutputStream(new FileOutputStream(temp));
+				output = new FileOutputStream(temp);
 				int i;
 				byte[] b = new byte[1024];
 				while((i = input.read(b)) != -1) {
