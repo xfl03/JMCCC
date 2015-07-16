@@ -7,7 +7,7 @@ It can run Minecraft client with a few codes.
 See [releases](https://github.com/Southern-InfinityStudio/JMCCC/tree/master/releases).
 
 ### Dependencies
-* Google Gson 2.2.4 https://code.google.com/p/google-gson/
+* gson 2.2.4 https://code.google.com/p/google-gson/
 * mclaunch-util-lib 0.1 https://github.com/Kronos666/mclaunch-util-lib/tree/master/release/
 
 ### Samples
@@ -19,11 +19,7 @@ Jmccc jmccc = new Jmccc();
 ```
 ##### Find Versions
 ```java
-Version versionToLaunch = null;
-for (Version version : jmccc.getVersionsHandler().getVersions()) {
-    System.out.println("-->" + version.getId());
-    if (version.getId().equals("1.8")) versionToLaunch = version;
-}
+Version versionToLaunch = jmccc.getVersionsHandler().getVersionById("1.8");
 ```
 ##### Create Authenticator Instance
 ```java
@@ -46,6 +42,7 @@ jmccc.launchGame(option);
 ### Change Logs
 ##### 1.1
 * Bugs fixing.
+* Added method `VersionsHandler.getVersionById(String id)`.
 
 ##### 1.0.6
 * Removed Lombok dependency.
