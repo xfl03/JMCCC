@@ -44,6 +44,9 @@ jmccc.launchGame(option);
 ```
 
 ### Change Logs
+##### 1.1
+* Bugs fixing.
+
 ##### 1.0.6
 * Removed Lombok dependency.
 * Bugs fixing.
