@@ -15,7 +15,7 @@ See [releases](https://github.com/Southern-InfinityStudio/JMCCC/tree/master/rele
 ```java
 Jmccc jmccc = new Jmccc(new BaseOptions("/path/to/your/minecraft/client/.minecraft", "/path/to/you/java/path"));
 Jmccc jmccc = new Jmccc(new BaseOptions("/path/to/your/minecraft/client/.minecraft"));
-Jmccc jmccc = new Jmccc();
+Jmccc jmccc = new Jmccc(); // equals: Jmccc jmccc = new Jmccc(new BaseOptions());
 ```
 ##### Find Versions
 ```java
