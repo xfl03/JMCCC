@@ -53,6 +53,16 @@ for(Native nat : Jmccc.MISSING_NATIVES) {
 jmccc.launchGame(arg);
 ```
 
+### Compiling
+Windows:
+```
+gradlew clean build
+```
+Linux:
+```
+./gradlew clean build
+```
+
 ### Change Logs
 ##### 1.2
 * Bugs fixing.
@@ -65,20 +75,3 @@ jmccc.launchGame(arg);
 * Removed Lombok dependency.
 * Bugs fixing.
 * `IGameListener` is still WIP.
-
-##### 1.0.5
-* Java9 support.
-* Bugs fixing.
-
-##### 1.0.4
-* Added method `Jmccc.getLaunchTime()` to get the time for launching game (ms).
-* Added method `LaunchResult.getExceptionInstance()` to get the instance of exception if it exists.
-* Added method `VersionsHandler.getUnvalidVersions()` to get the versions which are invalid.
-* Changed `BaseOptions.getVersionsHandler()` to `Jmccc.getVersionsHandler()`.
-* Changed `Jmccc.DEFAULT_ADV_ARGS` to `Jmccc.ADV_ARGS`.
-* Changed the name of class `OSNames` to `OsTypes`.
-* Removed class `FilePathResolver`, the methods have been moved into class `Utils`.
-
-##### 1.0.3
-* Removed class `IGameListener`, the function has a fatal bug. Fixing in progress.
-* Forge lastest version support.
