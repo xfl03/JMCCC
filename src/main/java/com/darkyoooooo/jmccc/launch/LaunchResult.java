@@ -1,24 +1,24 @@
 package com.darkyoooooo.jmccc.launch;
 
 public class LaunchResult {
-	private boolean isSucceed;
+	private boolean succeed;
 	private ErrorType errorType;
 	private String message;
 	private Throwable exceptionInstance;
 	
-	public LaunchResult(boolean isSucceed, ErrorType errorType, String message, Throwable throwable) {
-		this.isSucceed = isSucceed;
+	public LaunchResult(boolean succeed, ErrorType errorType, String message, Throwable throwable) {
+		this.succeed = succeed;
 		this.errorType = errorType;
 		this.message = message;
 		this.exceptionInstance = throwable;
 	}
 	
-	public LaunchResult(boolean isSucceed, ErrorType errorType, Throwable throwable) {
-		this(isSucceed, errorType, "", throwable);
+	public LaunchResult(boolean succeed, ErrorType errorType, Throwable throwable) {
+		this(succeed, errorType, "", throwable);
 	}
 
-	public boolean isSucceed() {
-		return this.isSucceed;
+	public boolean succeed() {
+		return this.succeed;
 	}
 
 	public ErrorType getErrorType() {

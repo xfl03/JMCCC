@@ -41,8 +41,8 @@ public class Version {
 					this.inheritsFormNames.add(this.parentInheritsFormName);
 					this.parentInheritsPath = new File(currentDirectory.getParent(), this.parentInheritsFormName).getAbsolutePath();
 					obj = jsonParser.parse(Utils.readFileToString(new File(Utils.resolvePath(
-							String.format("%s/%s/%s.json", currentDirectory.getParent(), this.parentInheritsFormName, this.parentInheritsFormName)
-						)))).getAsJsonObject();
+							    String.format("%s/%s/%s.json", currentDirectory.getParent(), this.parentInheritsFormName, this.parentInheritsFormName)
+					      )))).getAsJsonObject();
 					this.loadLibrariesAndNatives(obj);
 				}
 			}

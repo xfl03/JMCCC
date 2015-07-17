@@ -16,7 +16,6 @@ repositories {
 dependencies {
     compile (
         'com.google.code.gson:gson:2.3.1',
-		'net.kronos:mclaunch_util_lib:1.0'
 	)
 }
 

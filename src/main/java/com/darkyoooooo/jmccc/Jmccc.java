@@ -13,17 +13,21 @@ import com.darkyoooooo.jmccc.launch.LaunchArgument;
 import com.darkyoooooo.jmccc.launch.LaunchOption;
 import com.darkyoooooo.jmccc.launch.LaunchResult;
 import com.darkyoooooo.jmccc.util.Utils;
+import com.darkyoooooo.jmccc.version.Library;
+import com.darkyoooooo.jmccc.version.Native;
 import com.darkyoooooo.jmccc.version.VersionsHandler;
 
 public class Jmccc {
-	public static final String VERSION = "1.1";
+	public static final String VERSION = "1.2";
 	public static final List<String> ADV_ARGS = new ArrayList<String>();
+	public static final List<Library> MISSING_LIBRARIES = new ArrayList<Library>();
+	public static final List<Native> MISSING_NATIVES = new ArrayList<Native>();
+	
 	static {
 		ADV_ARGS.add("-Dfml.ignoreInvalidMinecraftCertificates=true");
 		ADV_ARGS.add("-Dfml.ignorePatchDiscrepancies=true");
 	}
 	
-	private long launchTime = -1;
 	private final BaseOptions baseOptions;
 	private final VersionsHandler versionsHandler;
 	private LaunchResult launchResult = null;
@@ -34,32 +38,36 @@ public class Jmccc {
 	
 	public Jmccc(BaseOptions baseOptions) {
 		this.baseOptions = baseOptions;
-		this.versionsHandler = new VersionsHandler(this.baseOptions.getGameRoot());
+		this.versionsHandler = new VersionsHandler(this.baseOptions.gameRoot);
 	}
 	
-	public LaunchResult launchGame(LaunchOption option, AuthInfo authInfo) {
-		if(option == null) {
-			throw new NullPointerException();
+	public boolean hasMissingLibraries() {
+		return !MISSING_LIBRARIES.isEmpty();
+	}
+	
+	public boolean hasMissingNatives() {
+		return !MISSING_NATIVES.isEmpty();
+	}
+
+	public LaunchResult launchGame(LaunchArgument arg) {
+		if(this.hasMissingLibraries() || this.hasMissingNatives()) {
+			return new LaunchResult(false, ErrorType.DEPENDS_MISSING_ERROR, "library文件或native文件缺失", null);
 		}
-		long start = System.currentTimeMillis();
-		LaunchArgument arg = this.genLaunchArgs(option, authInfo);
-		if(arg != null && this.launchResult != null && this.launchResult.isSucceed()) {
+		if(arg != null && this.launchResult != null && this.launchResult.succeed()) {
 			try {
 				Runtime.getRuntime().exec(arg.toString(), null, new File(this.baseOptions.gameRoot));
 			} catch (IOException e) {
 				this.launchResult = new LaunchResult(false, ErrorType.HANDLE_ERROR, "启动游戏进程时出错", e);
 		    }
 		}
-		long end = System.currentTimeMillis();
-		this.launchTime = end - start;
 		return this.launchResult;
 	}
 	
-	public LaunchResult launchGame(LaunchOption option) {
-		return this.launchGame(option, null);
+	public LaunchArgument generateLaunchArgs(LaunchOption option) {
+		return this.generateLaunchArgs(option, null);
 	}
 	
-	private LaunchArgument genLaunchArgs(LaunchOption option, AuthInfo authInfo) {
+	public LaunchArgument generateLaunchArgs(LaunchOption option, AuthInfo authInfo) {
 		if(authInfo == null) {
 			authInfo = option.getAuthenticator().run();
 		}
@@ -67,7 +75,6 @@ public class Jmccc {
 			this.launchResult = new LaunchResult(false, ErrorType.BAD_LOGIN, authInfo.getError(), null);
 			return null;
 		}
-		
 		for(String path : Utils.resolveRealNativePaths(this, option.getVersion().getNatives())) {
 			try {
 				Utils.uncompressZipFile(new File(path), this.baseOptions.getGameRoot() + "/natives");
@@ -76,7 +83,6 @@ public class Jmccc {
 				return null;
 			}
 		}
-		
 		Map<String, String> tokens = new HashMap<String, String>();
 		tokens.put("auth_access_token", authInfo.getAccessToken());
 		tokens.put("auth_session", authInfo.getAccessToken());
@@ -88,22 +94,16 @@ public class Jmccc {
 		tokens.put("auth_uuid", authInfo.getUuid());
 		tokens.put("user_type", authInfo.getUserType());
 		tokens.put("user_properties", authInfo.getProperties());
-		
 		this.launchResult = new LaunchResult(true, ErrorType.NONE, null);
-		
 		return new LaunchArgument(
-			this,
-			option,
-			tokens,
-			ADV_ARGS,
-			!System.getProperty("java.version").contains("1.9."),
-			Utils.resolveRealLibPaths(this, option.getVersion().getLibraries()),
-			Utils.resolvePath(this.baseOptions.getGameRoot() + "/natives")
+				this,
+		    	option,
+		    	tokens,
+		    	ADV_ARGS,
+			    !System.getProperty("java.version").contains("1.9."),
+		    	Utils.resolveRealLibPaths(this, option.getVersion().getLibraries()),
+		    	Utils.resolvePath(this.baseOptions.getGameRoot() + "/natives")
 		);
-	}
-	
-	public long getLaunchTime() {
-		return this.launchTime;
 	}
 
 	public BaseOptions getBaseOptions() {
@@ -118,9 +118,6 @@ public class Jmccc {
 		private final String gameRoot, javaPath;
 		
 		public BaseOptions(String gameRoot, String javaPath) {
-			if(gameRoot == null || javaPath == null) {
-				throw new NullPointerException();
-			}
 			this.gameRoot = gameRoot;
 			this.javaPath = javaPath;
 		}

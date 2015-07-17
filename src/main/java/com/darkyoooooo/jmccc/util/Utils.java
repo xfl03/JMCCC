@@ -22,8 +22,12 @@ public class Utils {
 	public static List<String> resolveRealLibPaths(Jmccc jmccc, List<Library> list) {
 		List<String> realPaths = new ArrayList<String>();
 		for(Library lib : list) {
-			realPaths.add(Utils.resolvePath(String.format("%s/libraries/%s/%s/%s/%s-%s.jar", jmccc.getBaseOptions().getGameRoot(),
-				lib.getDomain().replace(".", "/"), lib.getName(), lib.getVersion(), lib.getName(), lib.getVersion())));
+			String path = Utils.resolvePath(String.format("%s/libraries/%s/%s/%s/%s-%s.jar", jmccc.getBaseOptions().getGameRoot(), 
+					lib.getDomain().replace(".", "/"), lib.getName(), lib.getVersion(), lib.getName(), lib.getVersion()));
+			realPaths.add(path);
+			if(!new File(path).exists()) {
+				Jmccc.MISSING_LIBRARIES.add(lib);
+			}
 		}
 		return realPaths;
 	}
@@ -34,9 +38,12 @@ public class Utils {
 			if(!nat.isAllowed()) {
 				continue;
 			}
-			realPaths.add(Utils.resolvePath(String.format("%s/libraries/%s/%s/%s/%s-%s-%s.jar", jmccc.getBaseOptions().getGameRoot(),
-				nat.getDomain().replace(".", "/"), nat.getName(), nat.getVersion(), nat.getName(), nat.getVersion(),
-				nat.getSuffix())));
+			String path = Utils.resolvePath(String.format("%s/libraries/%s/%s/%s/%s-%s-%s.jar", jmccc.getBaseOptions().getGameRoot(),
+					nat.getDomain().replace(".", "/"), nat.getName(), nat.getVersion(), nat.getName(), nat.getVersion(), nat.getSuffix()));
+			realPaths.add(path);
+			if(!new File(path).exists()) {
+				Jmccc.MISSING_NATIVES.add(nat);
+			}
 		}
 		return realPaths;
 	}
