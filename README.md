@@ -8,7 +8,7 @@ See [releases](https://github.com/Southern-InfinityStudio/JMCCC/tree/master/rele
 
 ### Dependencies
 * gson 2.2.4 https://code.google.com/p/google-gson/
-* mclaunch-util-lib 0.1 https://github.com/Kronos666/mclaunch-util-lib/tree/master/release/
+* (Included) mclaunch-util-lib 0.1 https://github.com/Kronos666/mclaunch-util-lib/tree/master/release/
 
 ### Samples
 ##### Create Jmccc Instance:
