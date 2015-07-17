@@ -34,12 +34,29 @@ option.setMinMemory(512); //optional
 option.setServerInfo(new ServerInfo("helloworld", 25565)); //optional
 option.setWindowSize(new WindowSize(512, 1024)); //optional
 ```
+##### Create LaunchArgument Instance
+```java
+LaunchArgument arg = jmccc.generateLaunchArgs(option);
+```
+##### Get Missing Libraries & Natives
+```java
+//Remember to generate LaunchArgs before getting the missing libraries and natives.
+for(Library lib : Jmccc.MISSING_LIBRARIES) {
+    System.out.println("Missing Library: " + lib.getName());
+}
+for(Native nat : Jmccc.MISSING_NATIVES) {
+    System.out.println("Missing Native: " + nat.getName());
+}
+```
 ##### Launch Game
 ```java
-jmccc.launchGame(option);
+jmccc.launchGame(arg);
 ```
 
 ### Change Logs
+##### 1.2
+* Bugs fixing.
+
 ##### 1.1
 * Bugs fixing.
 * Added method `VersionsHandler.getVersionById(String id)`.
