@@ -1,4 +1,0 @@
-此处的Jar由Jdk8编译 即只能在Java8环境下使用 如果你想让Java7也能用 请自行下载源码用Jdk7编译。
-
-The jars here were compiled by Jdk8 and can only run on Jre8.
-If you want to run it on Jre7, please download the source codes and compile them with Jdk7 by yourself.
