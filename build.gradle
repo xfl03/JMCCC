@@ -23,6 +23,12 @@ dependencies {
     )
 }
 
+processResources {
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'LICENSE'
+    }
+}
+
 jar {
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
 }
