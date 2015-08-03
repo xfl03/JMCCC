@@ -56,11 +56,11 @@ jmccc.launchGame(arg);
 ### Compiling
 Windows:
 ```
-gradlew clean build
+gradlew clean copyLicense build
 ```
 Linux:
 ```
-./gradlew clean build
+./gradlew clean copyLicense build
 ```
 
 ### Change Logs
