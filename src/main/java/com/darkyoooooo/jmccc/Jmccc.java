@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.darkyoooooo.jmccc.auth.AuthInfo;
+import com.darkyoooooo.jmccc.ext.Reporter;
 import com.darkyoooooo.jmccc.launch.ErrorType;
 import com.darkyoooooo.jmccc.launch.LaunchArgument;
 import com.darkyoooooo.jmccc.launch.LaunchOption;
@@ -18,7 +19,6 @@ import com.darkyoooooo.jmccc.version.Native;
 import com.darkyoooooo.jmccc.version.VersionsHandler;
 
 public class Jmccc {
-	public static final String VERSION = "1.2";
 	public static final List<String> ADV_ARGS = new ArrayList<String>();
 	public static final List<Library> MISSING_LIBRARIES = new ArrayList<Library>();
 	public static final List<Native> MISSING_NATIVES = new ArrayList<Native>();
@@ -49,14 +49,22 @@ public class Jmccc {
 		return !MISSING_NATIVES.isEmpty();
 	}
 
-	public LaunchResult launchGame(LaunchArgument arg) {
+	public LaunchResult launchGame(final LaunchArgument arg) {
 		if(this.hasMissingLibraries() || this.hasMissingNatives()) {
 			return new LaunchResult(false, ErrorType.DEPENDS_MISSING_ERROR, "library文件或native文件缺失", null);
 		}
 		if(arg != null && this.launchResult != null && this.launchResult.succeed()) {
 			try {
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							Reporter.report(Jmccc.this, arg);
+						} catch(Exception e) {e.printStackTrace();}
+					}
+				}).start();
 				Runtime.getRuntime().exec(arg.toString(), null, new File(this.baseOptions.gameRoot));
-			} catch (IOException e) {
+			} catch (Exception e) {
 				this.launchResult = new LaunchResult(false, ErrorType.HANDLE_ERROR, "启动游戏进程时出错", e);
 		    }
 		}

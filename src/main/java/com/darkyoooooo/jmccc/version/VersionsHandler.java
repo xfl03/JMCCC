@@ -11,22 +11,23 @@ public class VersionsHandler {
 		this.versions = new HashSet<Version>();
 		this.unvalidVersions = new HashSet<String>();
 		
-		File versions = new File(gameRoot, "versions");
-		if(!versions.exists()) {
+		File versionsDir = new File(gameRoot, "versions");
+		if(!versionsDir.exists()) {
 			return;
 		}
-		for(File version : versions.listFiles()) {
-			if(version.isDirectory()) {
+		for(File versionDir : versionsDir.listFiles()) {
+			if(versionDir.isDirectory()) {
 				try {
-					if(!(version.getName().split(" ").length > 1)) {
-						Version ver = new Version(version, version.getName());
+					if(!(versionDir.getName().split(" ").length > 1)) {
+						Version ver = new Version(versionDir, versionDir.getName());
 						if(ver.isValid()) {
 							this.versions.add(ver);
+							continue;
 						}
 					}
 				} catch (Exception e) {
 				}
-				this.unvalidVersions.add(version.getAbsolutePath());
+				this.unvalidVersions.add(versionDir.getAbsolutePath());
 			}
 		}
 	}
