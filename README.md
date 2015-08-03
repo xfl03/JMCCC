@@ -4,7 +4,7 @@ An open-source library for launching Minecraft (uses `mclaunch-util-lib` by Kron
 It can run Minecraft client with a few codes.
 
 ### Download
-See [releases](https://github.com/Southern-InfinityStudio/JMCCC/tree/master/releases).
+See [jenkins](http://ci.infinity-studio.org/job/JMCCC/).
 
 ### Dependencies
 * gson 2.2.4 https://code.google.com/p/google-gson/
