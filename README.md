@@ -64,6 +64,10 @@ Linux:
 ```
 
 ### Change Logs
+##### 1.3
+* Bugs fixing.
+* `Jmccc.VERSION` -> `Reporter.version`
+
 ##### 1.2
 * Bugs fixing.
 
