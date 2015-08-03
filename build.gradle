@@ -23,10 +23,11 @@ dependencies {
     )
 }
 
-processResources {
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'LICENSE'
-    }
+tasks.create(name: 'copyLicense') << {
+    copy {
+		from 'LICENSE'
+		into 'build/classes/main'
+	}
 }
 
 jar {
