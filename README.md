@@ -15,7 +15,7 @@ See [jenkins](http://ci.infinity-studio.org/job/JMCCC/).
 ```java
 Jmccc jmccc = new Jmccc(new BaseOptions("/path/to/your/minecraft/client/.minecraft", "/path/to/you/java/path"));
 Jmccc jmccc = new Jmccc(new BaseOptions("/path/to/your/minecraft/client/.minecraft"));
-Jmccc jmccc = new Jmccc(); // equals: Jmccc jmccc = new Jmccc(new BaseOptions());
+Jmccc jmccc = new Jmccc(new BaseOptions());
 ```
 ##### Find Versions
 ```java
@@ -48,6 +48,12 @@ for(Native nat : Jmccc.MISSING_NATIVES) {
     System.out.println("Missing Native: " + nat.getName());
 }
 ```
+##### Register IGameListener
+```java
+GameProcessMonitor.instance().addListener(new IGameListener() {
+    ...
+});
+```
 ##### Launch Game
 ```java
 jmccc.launchGame(arg);
@@ -64,6 +70,11 @@ Linux:
 ```
 
 ### Change Logs
+##### 1.4
+* Readd `IGameListener`
+* Complete Linux/Osx Support
+* Bugs fixing.
+
 ##### 1.3
 * Bugs fixing.
 * `Jmccc.VERSION` -> `Reporter.version`
