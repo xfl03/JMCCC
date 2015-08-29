@@ -1,10 +1,11 @@
 package com.darkyoooooo.jmccc.launch;
 
 public enum ErrorType {
-	NONE,
-	BAD_LOGIN,
-	HANDLE_ERROR,
-	UNCOMPRESS_ERROR,
-	DEPENDS_MISSING_ERROR,
-	UNKNOWN
+    NONE,
+    BAD_LOGIN,
+    HANDLE_ERROR,
+    UNCOMPRESS_ERROR,
+    DEPENDS_MISSING_ERROR,
+    GEN_ARGS_ERROR,
+    UNKNOWN
 }

@@ -4,54 +4,54 @@ import com.darkyoooooo.jmccc.auth.IAuthenticator;
 import com.darkyoooooo.jmccc.version.Version;
 
 public class LaunchOption {
-	private int maxMemory, minMemory;
-	private Version version;
-	private IAuthenticator authenticator;
-	private ServerInfo serverInfo;
-	private WindowSize windowSize;
-	
-	public LaunchOption(Version version, IAuthenticator authenticator) {
-		this.version = version;
-		this.authenticator = authenticator;
-	}
+    private int maxMemory, minMemory;
+    private Version version;
+    private IAuthenticator authenticator;
+    private ServerInfo serverInfo;
+    private WindowSize windowSize;
 
-	public int getMaxMemory() {
-		return this.maxMemory;
-	}
+    public LaunchOption(Version version, IAuthenticator authenticator) {
+        this.version = version;
+        this.authenticator = authenticator;
+    }
 
-	public void setMaxMemory(int maxMemory) {
-		this.maxMemory = maxMemory;
-	}
+    public int getMaxMemory() {
+        return this.maxMemory;
+    }
 
-	public int getMinMemory() {
-		return this.minMemory;
-	}
+    public void setMaxMemory(int maxMemory) {
+        this.maxMemory = maxMemory;
+    }
 
-	public void setMinMemory(int minMemory) {
-		this.minMemory = minMemory;
-	}
+    public int getMinMemory() {
+        return this.minMemory;
+    }
 
-	public ServerInfo getServerInfo() {
-		return this.serverInfo;
-	}
+    public void setMinMemory(int minMemory) {
+        this.minMemory = minMemory;
+    }
 
-	public void setServerInfo(ServerInfo serverInfo) {
-		this.serverInfo = serverInfo;
-	}
+    public ServerInfo getServerInfo() {
+        return this.serverInfo;
+    }
 
-	public WindowSize getWindowSize() {
-		return this.windowSize;
-	}
+    public void setServerInfo(ServerInfo serverInfo) {
+        this.serverInfo = serverInfo;
+    }
 
-	public void setWindowSize(WindowSize windowSize) {
-		this.windowSize = windowSize;
-	}
+    public WindowSize getWindowSize() {
+        return this.windowSize;
+    }
 
-	public Version getVersion() {
-		return this.version;
-	}
+    public void setWindowSize(WindowSize windowSize) {
+        this.windowSize = windowSize;
+    }
 
-	public IAuthenticator getAuthenticator() {
-		return this.authenticator;
-	}
+    public Version getVersion() {
+        return this.version;
+    }
+
+    public IAuthenticator getAuthenticator() {
+        return this.authenticator;
+    }
 }
