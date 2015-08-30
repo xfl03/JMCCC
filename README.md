@@ -31,7 +31,7 @@ IAuthenticator authenticator = new YggdrasilAuthenticator("your@e.mail", "your_p
 LaunchOption option = new LaunchOption(versionToLaunch, authenticator);
 option.setMaxMemory(1024); //optional
 option.setMinMemory(512); //optional
-option.setServerInfo(new ServerInfo("helloworld", 25565)); //optional
+option.setServerInfo(new ServerInfo("helloworld.com", 25565)); //optional
 option.setWindowSize(new WindowSize(512, 1024)); //optional
 ```
 ##### Create LaunchArgument Instance
