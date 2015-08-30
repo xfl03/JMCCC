@@ -10,9 +10,18 @@
 *.sh
 *.txt
 *.xml
+*.jar
+*.war
+*.ear
 .cache
 libs/
 natives/
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# virtual machine crash logs
+hs_err_pid*
 
 ## Because Macs
 .DS_Store
