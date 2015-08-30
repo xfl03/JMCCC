@@ -44,3 +44,7 @@ eclipse/
 ## netbeans
 nbbuild/
 nbproject/
+
+!gradle/
+!gradlew
+!gradlew.bat
