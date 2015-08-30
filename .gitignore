@@ -1,12 +1,46 @@
+## General housekeeping
+*.bat
 *.class
+*.iml
+*.ipr
+*.iws
+*.json
+*.log
+*.py
+*.sh
+*.txt
+*.xml
+.cache
+libs/
+natives/
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
+## Because Macs
+.DS_Store
+._*
 
-# Package Files #
-*.jar
-*.war
-*.ear
+## Gradle
+.gradle/
+build/
+gradle/
+gradlew
+out/
+output/
+run/
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
+## sublime
+*.sublime*
+
+## eclipse
+.classpath
+.metadata/
+.project
+.settings/
+bin/
+eclipse/
+
+## Intellij IDEA
+.idea/
+
+## netbeans
+nbbuild/
+nbproject/
