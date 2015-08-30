@@ -1,7 +1,8 @@
+apply plugin: 'java'
+
 ext.proj_name = "jmccc"
 ext.proj_ver = "1.4"
 ext.env = System.getenv()
-apply plugin: 'java'
 
 if (env.BUILD_NUMBER != null) {
     proj_ver += "." + env.BUILD_NUMBER
@@ -23,13 +24,12 @@ dependencies {
     )
 }
 
-tasks.create(name: 'copyLicense') << {
-    copy {
-		from 'LICENSE'
-		into 'build/classes/main'
-	}
+processResources {
+    from 'LICENSE'
+    into 'build/classes/main'
 }
 
 jar {
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
 }
+
