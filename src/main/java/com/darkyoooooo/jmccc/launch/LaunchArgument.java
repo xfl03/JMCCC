@@ -4,13 +4,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.darkyoooooo.jmccc.Jmccc;
 import com.darkyoooooo.jmccc.util.OsTypes;
 import com.darkyoooooo.jmccc.util.Utils;
 import com.darkyoooooo.jmccc.version.Version;
 
 public class LaunchArgument {
-    private final Jmccc jmccc;
     private LaunchOption launchOption;
     private String argTemplet, mainClass, nativePath;
     private List<String> libraries, advArgs;
@@ -20,8 +18,7 @@ public class LaunchArgument {
     private ServerInfo serverInfo;
     private WindowSize windowSize;
 
-    public LaunchArgument(Jmccc jmccc, LaunchOption launchOption, Map<String, String> tokens, List<String> advArgs, boolean enableCGC, List<String> libraries, String nativesPath) {
-        this.jmccc = jmccc;
+    public LaunchArgument(LaunchOption launchOption, Map<String, String> tokens, List<String> advArgs, boolean enableCGC, List<String> libraries, String nativesPath) {
         this.launchOption = launchOption;
         this.argTemplet = launchOption.getVersion().getLaunchArgs();
         this.mainClass = launchOption.getVersion().getMainClass();
@@ -40,11 +37,9 @@ public class LaunchArgument {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         OsTypes os = OsTypes.CURRENT();
-        if (os == OsTypes.WINDOWS) {
-            sb.append('\"').append(this.jmccc.getBaseOptions().getJavaPath()).append("\" ");
-        } else {
-            sb.append("java ");
-        }
+
+        sb.append(Utils.getJavaPath()).append(' ');
+
         if (this.enableCGC) {
             sb.append("-Xincgc ");
         }

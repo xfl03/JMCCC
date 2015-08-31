@@ -9,6 +9,7 @@ public class LaunchOption {
     private IAuthenticator authenticator;
     private ServerInfo serverInfo;
     private WindowSize windowSize;
+    private MonitorOption monitorOption;
 
     public LaunchOption(Version version, IAuthenticator authenticator) {
         this.version = version;
@@ -53,5 +54,13 @@ public class LaunchOption {
 
     public IAuthenticator getAuthenticator() {
         return this.authenticator;
+    }
+
+    public MonitorOption getMonitorOption() {
+        return monitorOption;
+    }
+
+    public void setMonitorOption(MonitorOption monitorOption) {
+        this.monitorOption = monitorOption;
     }
 }

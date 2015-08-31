@@ -1,12 +1,10 @@
 package com.darkyoooooo.jmccc;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import com.darkyoooooo.jmccc.auth.AuthInfo;
 import com.darkyoooooo.jmccc.ext.GameProcessMonitor;
 import com.darkyoooooo.jmccc.ext.Reporter;
@@ -14,6 +12,7 @@ import com.darkyoooooo.jmccc.launch.ErrorType;
 import com.darkyoooooo.jmccc.launch.LaunchArgument;
 import com.darkyoooooo.jmccc.launch.LaunchOption;
 import com.darkyoooooo.jmccc.launch.LaunchResult;
+import com.darkyoooooo.jmccc.launch.MonitorOption;
 import com.darkyoooooo.jmccc.util.BaseOptions;
 import com.darkyoooooo.jmccc.util.Utils;
 import com.darkyoooooo.jmccc.util.VersionsHandler;
@@ -61,14 +60,21 @@ public class Jmccc {
             return this.launchResult;
         }
         if (this.hasMissingLibraries() || this.hasMissingNatives()) {
-            return this.launchResult = new LaunchResult(false, ErrorType.DEPENDS_MISSING_ERROR, "Library文件或Native文件缺失", null);
+            return this.launchResult = LaunchResult.launchUnsuccessfully(ErrorType.DEPENDS_MISSING_ERROR, "Library文件或Native文件缺失");
         }
         try {
             Process process = Runtime.getRuntime().exec(arg.toString(), null, new File(this.baseOptions.getGameRoot()));
-            GameProcessMonitor.instance().monitor(process);
-            return this.launchResult = new LaunchResult(true, ErrorType.NONE, null);
+
+            GameProcessMonitor monitor = null;
+            MonitorOption monitorOption = arg.getLaunchOption().getMonitorOption();
+            if (monitorOption != null) {
+                monitor = new GameProcessMonitor(process, monitorOption.isDaemon(), monitorOption.getListeners());
+                monitor.monitor();
+            }
+
+            return this.launchResult = LaunchResult.launchSuccessfully(monitor);
         } catch (Exception e) {
-            return this.launchResult = new LaunchResult(false, ErrorType.HANDLE_ERROR, "启动游戏进程时出错", e);
+            return this.launchResult = LaunchResult.launchUnsuccessfully(ErrorType.HANDLE_ERROR, "启动游戏进程时出错", e);
         }
     }
 
@@ -77,34 +83,33 @@ public class Jmccc {
     }
 
     public LaunchArgument generateLaunchArgs(LaunchOption option, AuthInfo authInfo) {
-        this.resetAdvArgs();      // ↓
+        this.resetAdvArgs();
         this.launchResult = null; // 防止第一次启动失败后再次启动时出现的各种奇怪问题
         authInfo = authInfo == null ? option.getAuthenticator().get() : authInfo;
         if (authInfo.getError() != null && !authInfo.getError().isEmpty()) { // 检测登录是否有效
-            this.launchResult = new LaunchResult(false, ErrorType.BAD_LOGIN, authInfo.getError(), null);
+            this.launchResult = LaunchResult.launchUnsuccessfully(ErrorType.BAD_LOGIN, authInfo.getError());
             return null;
         } else {
             for (String path : Utils.resolveRealNativePaths(this, option.getVersion().getNatives())) {
                 try {
                     Utils.uncompressZipFile(new File(path), this.baseOptions.getGameRoot() + "/natives");
                 } catch (Exception e) {
-                    this.launchResult = new LaunchResult(false, ErrorType.UNCOMPRESS_ERROR, String.format("解压\'%s\'时出现错误", path), e);
+                    this.launchResult = LaunchResult.launchUnsuccessfully(ErrorType.UNCOMPRESS_ERROR, String.format("解压\'%s\'时出现错误", path), e);
                     return null;
                 }
             }
             Map<String, String> tokens = new HashMap<String, String>();
-            // 爽不爽
-            tokens.put("auth_access_token", authInfo.getAccessToken()); 
-            tokens.put("auth_session",      authInfo.getAccessToken());
-            tokens.put("auth_player_name",  authInfo.getDisplayName());
-            tokens.put("version_name",      option.getVersion().getId());
-            tokens.put("game_directory",    ".");
-            tokens.put("assets_root",       "assets");
+            tokens.put("auth_access_token", authInfo.getAccessToken());
+            tokens.put("auth_session", authInfo.getAccessToken());
+            tokens.put("auth_player_name", authInfo.getDisplayName());
+            tokens.put("version_name", option.getVersion().getId());
+            tokens.put("game_directory", ".");
+            tokens.put("assets_root", "assets");
             tokens.put("assets_index_name", option.getVersion().getAssets());
-            tokens.put("auth_uuid",         authInfo.getUuid());
-            tokens.put("user_type",         authInfo.getUserType());
-            tokens.put("user_properties",   authInfo.getProperties());
-            return new LaunchArgument(this, option, tokens, ADV_ARGS, !System.getProperty("java.version").contains("1.9."), Utils.resolveRealLibPaths(this, option.getVersion().getLibraries()),
+            tokens.put("auth_uuid", authInfo.getUuid());
+            tokens.put("user_type", authInfo.getUserType());
+            tokens.put("user_properties", authInfo.getProperties());
+            return new LaunchArgument(option, tokens, ADV_ARGS, !System.getProperty("java.version").contains("1.9."), Utils.resolveRealLibPaths(this, option.getVersion().getLibraries()),
                     Utils.handlePath(this.baseOptions.getGameRoot() + "/natives"));
         }
     }

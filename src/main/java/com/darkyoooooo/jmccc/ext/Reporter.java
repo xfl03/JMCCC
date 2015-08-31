@@ -9,7 +9,7 @@ import com.darkyoooooo.jmccc.launch.LaunchResult;
 import com.darkyoooooo.jmccc.util.OsTypes;
 
 public class Reporter {
-    private static final String version = "1.4";
+    private static final String version = "2.0-dev";
     private static final String reportLink = "http://darkyoooooo.sinaapp.com/update.php?";
     private static String reportName = "Jmccc@" + version;
     private static boolean disable = false;
