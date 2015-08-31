@@ -1,4 +1,4 @@
-package com.darkyoooooo.jmccc.launch;
+package com.darkyoooooo.jmccc;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,6 +10,13 @@ import java.util.Objects;
 import com.darkyoooooo.jmccc.auth.AuthInfo;
 import com.darkyoooooo.jmccc.ext.GameProcessMonitor;
 import com.darkyoooooo.jmccc.ext.IGameListener;
+import com.darkyoooooo.jmccc.launch.LaunchArgument;
+import com.darkyoooooo.jmccc.launch.LaunchException;
+import com.darkyoooooo.jmccc.launch.LaunchOption;
+import com.darkyoooooo.jmccc.launch.LaunchResult;
+import com.darkyoooooo.jmccc.launch.LoginException;
+import com.darkyoooooo.jmccc.launch.MissingDependenciesException;
+import com.darkyoooooo.jmccc.launch.UncompressException;
 import com.darkyoooooo.jmccc.util.BaseOptions;
 import com.darkyoooooo.jmccc.util.Utils;
 import com.darkyoooooo.jmccc.util.VersionsHandler;
@@ -17,12 +24,12 @@ import com.darkyoooooo.jmccc.version.Library;
 import com.darkyoooooo.jmccc.version.Native;
 
 public class Jmccc {
-    public static final List<String> ADV_ARGS = new ArrayList<String>();
-    public static final List<Library> MISSING_LIBRARIES = new ArrayList<Library>();
-    public static final List<Native> MISSING_NATIVES = new ArrayList<Native>();
+    public List<String> ADV_ARGS = new ArrayList<String>();
+    public List<Library> MISSING_LIBRARIES = new ArrayList<Library>();
+    public List<Native> MISSING_NATIVES = new ArrayList<Native>();
 
-    private final BaseOptions baseOptions;
-    private final VersionsHandler versionsHandler;
+    private BaseOptions baseOptions;
+    private VersionsHandler versionsHandler;
 
     public Jmccc(BaseOptions baseOptions) {
         this.baseOptions = baseOptions;

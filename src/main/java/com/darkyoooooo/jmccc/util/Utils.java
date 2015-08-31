@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import com.darkyoooooo.jmccc.launch.Jmccc;
+import com.darkyoooooo.jmccc.Jmccc;
 import com.darkyoooooo.jmccc.version.Library;
 import com.darkyoooooo.jmccc.version.Native;
 
@@ -25,7 +25,7 @@ public class Utils {
                     lib.getName(), lib.getVersion()));
             realPaths.add(path);
             if (!new File(path).exists()) {
-                Jmccc.MISSING_LIBRARIES.add(lib);
+                jmccc.MISSING_LIBRARIES.add(lib);
             }
         }
         return realPaths;
@@ -41,7 +41,7 @@ public class Utils {
                     nat.getVersion(), nat.getName(), nat.getVersion(), nat.getSuffix()));
             realPaths.add(path);
             if (!new File(path).exists()) {
-                Jmccc.MISSING_NATIVES.add(nat);
+                jmccc.MISSING_NATIVES.add(nat);
             }
         }
         return realPaths;
