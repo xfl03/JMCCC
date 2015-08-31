@@ -1,69 +1,73 @@
 package com.darkyoooooo.jmccc.version;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 import com.darkyoooooo.jmccc.util.OsTypes;
 import com.darkyoooooo.jmccc.util.Utils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 
 public class Version {
-    private String path, parentInheritsPath, launchArgs, id, assets, mainClass, jarId, parentInheritsFormName;
-    private boolean isValid = false, isInheritsForm = false;
-    private List<String> inheritsFormNames;
-    private List<Library> libraries;
-    private List<Native> natives;
-    private JsonParser jsonParser = new JsonParser();
 
-    public Version(File currentDirectory, String name) throws Exception {
-        this.path = currentDirectory.getAbsolutePath();
-        this.libraries = new ArrayList<Library>();
-        this.natives = new ArrayList<Native>();
-        this.inheritsFormNames = new ArrayList<String>();
-        File jsonFile = new File(String.format("%s/%s.json", this.path, name));
-        JsonObject obj;
-        if (jsonFile.exists() && jsonFile.canRead() && (obj = jsonParser.parse(Utils.readFileToString(jsonFile)).getAsJsonObject()) != null) {
-            this.isValid = true;
-            this.id = obj.get("id").getAsString();
-            this.jarId = this.id + ".jar";
-            this.assets = obj.get("assets").getAsString();
-            this.mainClass = obj.get("mainClass").getAsString();
-            this.launchArgs = obj.get("minecraftArguments").getAsString();
-            this.loadDepends(obj);
-            if (obj.get("inheritsFrom") != null) { // 主要用于处理Forge, Liteloader等API
-                this.isInheritsForm = true;
-                while (obj.has("inheritsFrom")) {
-                    this.parentInheritsFormName = obj.get("inheritsFrom").getAsString();
-                    this.inheritsFormNames.add(this.parentInheritsFormName);
-                    this.parentInheritsPath = new File(currentDirectory.getParent(), this.parentInheritsFormName).getAbsolutePath();
-                    obj = jsonParser.parse(Utils.readFileToString(new File(Utils.handlePath(String.format("%s/%s/%s.json", currentDirectory.getParent(), this.parentInheritsFormName,
-                            this.parentInheritsFormName))))).getAsJsonObject();
-                    this.loadDepends(obj);
-                }
-            }
+    private static File getVersionJsonFile(File versionsDir, String version) {
+        return new File(new File(versionsDir, version), version + ".json");
+    }
+
+    private static File getVersionJarFile(File versionsDir, String version) {
+        return new File(new File(versionsDir, version), version + ".jar");
+    }
+
+    private String version;
+    private String mainClass;
+    private String assets;
+    private String launchArgs;
+    private File jar;
+
+    private List<Library> libraries = new ArrayList<>();
+    private List<Native> natives = new ArrayList<>();
+
+    public Version(File versionsDir, String name) throws JsonSyntaxException, IOException {
+        JsonObject json = Utils.readJson(getVersionJsonFile(versionsDir, name)).getAsJsonObject();
+
+        version = json.get("id").getAsString();
+        assets = json.get("assets").getAsString();
+        mainClass = json.get("mainClass").getAsString();
+        launchArgs = json.get("minecraftArguments").getAsString();
+        loadDepends(json);
+
+        // used to handle Forge, Liteloader......
+        if (json.has("inheritsFrom")) {
+            String inheritsFrom;
+            String inheritsJar;
+            do {
+                inheritsFrom = json.get("inheritsFrom").getAsString();
+                inheritsJar = json.has("jar") ? json.get("jar").getAsString() : inheritsFrom;
+                json = Utils.readJson(getVersionJsonFile(versionsDir, inheritsFrom)).getAsJsonObject();
+                loadDepends(json);
+            } while (json.has("inheritsFrom"));
+            jar = new File(new File(versionsDir, inheritsFrom), inheritsJar + ".jar");
+        } else {
+            jar = getVersionJarFile(versionsDir, name);
         }
     }
 
     private void loadDepends(JsonObject obj) {
         JsonArray libs = obj.get("libraries").getAsJsonArray();
-        for (int i = 0; i < libs.size(); ++i) { // ++i是永远的真理
+        for (int i = 0; i < libs.size(); ++i) {
             obj = libs.get(i).getAsJsonObject();
             String[] info = obj.get("name").getAsString().split(":");
             if (!obj.has("natives")) {
-                if (obj.has("rules") && !this.checkRules(obj.get("rules").getAsJsonArray())) {
+                if (obj.has("rules") && !checkRules(obj.get("rules").getAsJsonArray())) {
                     continue;
                 } else {
-                    this.libraries.add(new Library(info[0], info[1], info[2], obj.has("serverreq") ? obj.get("serverreq").getAsBoolean() : true, obj.has("clientreq") ? obj.get("clientreq").getAsBoolean() : true));
+                    libraries.add(new Library(info[0], info[1], info[2], obj.has("serverreq") ? obj.get("serverreq").getAsBoolean() : true, obj.has("clientreq") ? obj.get("clientreq").getAsBoolean() : true));
                 }
             } else {
-                try {
-                    String suffix = obj.get("natives").getAsJsonObject().get(OsTypes.CURRENT().toString().toLowerCase()).getAsString();
-                    this.natives.add(new Native(info[0], info[1], info[2], suffix.contains("${arch}") ? suffix.replaceAll("\\Q${arch}", System.getProperty("java.vm.name").contains("64") ? "64" : "32") : suffix, obj.has("rules") ? this.checkRules(obj.get("rules").getAsJsonArray()) : true));
-                } catch (Exception e) {
-                }
+                String suffix = obj.get("natives").getAsJsonObject().get(OsTypes.CURRENT().toString().toLowerCase()).getAsString();
+                natives.add(new Native(info[0], info[1], info[2], suffix.contains("${arch}") ? suffix.replaceAll("\\Q${arch}", System.getProperty("java.vm.name").contains("64") ? "64" : "32") : suffix, obj.has("rules") ? checkRules(obj.get("rules").getAsJsonArray()) : true));
             }
         }
     }
@@ -71,75 +75,48 @@ public class Version {
     private boolean checkRules(JsonArray array) {
         boolean flag = false;
         for (int i = 0; i < array.size(); ++i) {
-            try {
-                JsonObject obj = array.get(i).getAsJsonObject();
-                if (obj.has("action")) {
-                    if (obj.get("action").getAsString().contentEquals("allow")) {
-                        if (!obj.has("os")) {
-                            flag = true;
-                        } else {
-                            flag = obj.get("os").getAsJsonObject().get("name").getAsString().contains(OsTypes.CURRENT().toString().toLowerCase());
-                        }
-                    }
-                    if (obj.get("action").getAsString().contentEquals("disallow") && obj.has("os")) {
-                        return !obj.get("os").getAsJsonObject().get("name").getAsString().contains(OsTypes.CURRENT().toString().toLowerCase());
+            JsonObject obj = array.get(i).getAsJsonObject();
+            if (obj.has("action")) {
+                if (obj.get("action").getAsString().contentEquals("allow")) {
+                    if (!obj.has("os")) {
+                        flag = true;
+                    } else {
+                        flag = obj.get("os").getAsJsonObject().get("name").getAsString().contains(OsTypes.CURRENT().toString().toLowerCase());
                     }
                 }
-            } catch (Exception e) {
+                if (obj.get("action").getAsString().contentEquals("disallow") && obj.has("os")) {
+                    return !obj.get("os").getAsJsonObject().get("name").getAsString().contains(OsTypes.CURRENT().toString().toLowerCase());
+                }
             }
         }
         return flag;
     }
 
-    public String getPath() {
-        return this.path;
-    }
-
-    public String getParentInheritsPath() {
-        return this.parentInheritsPath;
-    }
-
-    public boolean isValid() {
-        return this.isValid;
-    }
-
-    public boolean isInheritsForm() {
-        return this.isInheritsForm;
-    }
-
-    public String getLaunchArgs() {
-        return this.launchArgs;
-    }
-
-    public String getId() {
-        return this.id;
-    }
-
-    public String getAssets() {
-        return this.assets;
+    public String getVersion() {
+        return version;
     }
 
     public String getMainClass() {
-        return this.mainClass;
+        return mainClass;
     }
 
-    public String getJarId() {
-        return this.jarId;
+    public String getAssets() {
+        return assets;
     }
 
-    public String getParentInheritsFormName() {
-        return this.parentInheritsFormName;
+    public String getLaunchArgs() {
+        return launchArgs;
     }
 
-    public List<String> getInheritsFormNames() {
-        return this.inheritsFormNames;
+    public File getJar() {
+        return jar;
     }
 
     public List<Library> getLibraries() {
-        return this.libraries;
+        return libraries;
     }
 
     public List<Native> getNatives() {
-        return this.natives;
+        return natives;
     }
 }

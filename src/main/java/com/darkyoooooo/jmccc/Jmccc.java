@@ -17,40 +17,21 @@ import com.darkyoooooo.jmccc.launch.LaunchResult;
 import com.darkyoooooo.jmccc.launch.LoginException;
 import com.darkyoooooo.jmccc.launch.MissingDependenciesException;
 import com.darkyoooooo.jmccc.launch.UncompressException;
-import com.darkyoooooo.jmccc.util.BaseOptions;
+import com.darkyoooooo.jmccc.util.EnvironmentOption;
 import com.darkyoooooo.jmccc.util.Utils;
-import com.darkyoooooo.jmccc.util.VersionsHandler;
 import com.darkyoooooo.jmccc.version.Library;
 import com.darkyoooooo.jmccc.version.Native;
 
 public class Jmccc {
-    public List<String> ADV_ARGS = new ArrayList<String>();
-    public List<Library> MISSING_LIBRARIES = new ArrayList<Library>();
-    public List<Native> MISSING_NATIVES = new ArrayList<Native>();
 
-    private BaseOptions baseOptions;
-    private VersionsHandler versionsHandler;
+    private EnvironmentOption baseOptions;
 
-    public Jmccc(BaseOptions baseOptions) {
+    public Jmccc(EnvironmentOption baseOptions) {
         this.baseOptions = baseOptions;
-        this.versionsHandler = new VersionsHandler(this.baseOptions.getGameRoot());
     }
 
-    public void resetAdvArgs() {
-        if (!ADV_ARGS.isEmpty()) {
-            ADV_ARGS.clear();
-        }
-        ADV_ARGS.add("-Dfml.ignoreInvalidMinecraftCertificates=true");
-        ADV_ARGS.add("-Dfml.ignorePatchDiscrepancies=true");
-    }
-
-    public boolean hasMissingLibraries() {
-        return !MISSING_LIBRARIES.isEmpty();
-    }
-
-    public boolean hasMissingNatives() {
-        return !MISSING_NATIVES.isEmpty();
-    }
+    // ADV_ARGS.add("-Dfml.ignoreInvalidMinecraftCertificates=true");
+    // ADV_ARGS.add("-Dfml.ignorePatchDiscrepancies=true");
 
     public LaunchResult launch(LaunchOption option) throws LaunchException {
         return launch(generateLaunchArgs(option), null);
@@ -66,10 +47,6 @@ public class Jmccc {
 
     public LaunchResult launch(LaunchArgument arg, IGameListener listener) throws LaunchException {
         Objects.requireNonNull(arg);
-
-        if (hasMissingLibraries() || hasMissingNatives()) {
-            throw new MissingDependenciesException("Library文件或Native文件缺失");
-        }
 
         Process process;
         try {
@@ -88,7 +65,6 @@ public class Jmccc {
     }
 
     public LaunchArgument generateLaunchArgs(LaunchOption option) throws LaunchException {
-        this.resetAdvArgs();
         AuthInfo authInfo = option.getAuthenticator().get();
         if (authInfo.getError() != null && !authInfo.getError().isEmpty()) {
             throw new LoginException(authInfo.getError());
@@ -111,16 +87,42 @@ public class Jmccc {
             tokens.put("auth_uuid", authInfo.getUuid());
             tokens.put("user_type", authInfo.getUserType());
             tokens.put("user_properties", authInfo.getProperties());
-            return new LaunchArgument(option, tokens, ADV_ARGS, Utils.isCGCSupported(), Utils.resolveRealLibPaths(this, option.getVersion().getLibraries()),
+            return new LaunchArgument(option, tokens, option.getExtraArguments(), Utils.isCGCSupported(), Utils.resolveRealLibPaths(this, option.getVersion().getLibraries()),
                     Utils.handlePath(this.baseOptions.getGameRoot() + "/natives"));
         }
     }
 
-    public BaseOptions getBaseOptions() {
+    public List<String> resolveRealLibPaths(List<Library> list) throws MissingDependenciesException {
+        List<String> realPaths = new ArrayList<String>();
+        for (Library lib : list) {
+            String path = Utils.handlePath(String.format("%s/libraries/%s/%s/%s/%s-%s.jar", jmccc.getBaseOptions().getGameRoot(), lib.getDomain().replace(".", "/"), lib.getName(), lib.getVersion(),
+                    lib.getName(), lib.getVersion()));
+            realPaths.add(path);
+            if (!new File(path).exists()) {
+                jmccc.MISSING_LIBRARIES.add(lib);
+            }
+        }
+        return realPaths;
+    }
+
+    public static List<String> resolveRealNativePaths(Jmccc jmccc, List<Native> list) {
+        List<String> realPaths = new ArrayList<String>();
+        for (Native nat : list) {
+            if (!nat.isAllowed()) {
+                continue;
+            }
+            String path = Utils.handlePath(String.format("%s/libraries/%s/%s/%s/%s-%s-%s.jar", jmccc.getBaseOptions().getGameRoot(), nat.getDomain().replace(".", "/"), nat.getName(),
+                    nat.getVersion(), nat.getName(), nat.getVersion(), nat.getSuffix()));
+            realPaths.add(path);
+            if (!new File(path).exists()) {
+                jmccc.MISSING_NATIVES.add(nat);
+            }
+        }
+        return realPaths;
+    }
+
+    public EnvironmentOption getBaseOptions() {
         return this.baseOptions;
     }
 
-    public VersionsHandler getVersionsHandler() {
-        return this.versionsHandler;
-    }
 }

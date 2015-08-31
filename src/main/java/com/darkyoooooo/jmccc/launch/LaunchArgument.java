@@ -1,81 +1,97 @@
 package com.darkyoooooo.jmccc.launch;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import com.darkyoooooo.jmccc.util.OsTypes;
-import com.darkyoooooo.jmccc.util.Utils;
 import com.darkyoooooo.jmccc.version.Version;
 
 /**
  * Used to generate launching command line.
  */
 public class LaunchArgument {
+
     private LaunchOption launchOption;
-    private String argTemplet, mainClass, nativePath;
-    private List<String> libraries, advArgs;
+    private String nativesPath;
+    private List<File> libraries;
+    private List<String> extendedArguments;
     private Map<String, String> tokens;
-    private int maxMemory, minMemory;
     private boolean enableCGC;
 
-    public LaunchArgument(LaunchOption launchOption, Map<String, String> tokens, List<String> advArgs, boolean enableCGC, List<String> libraries, String nativesPath) {
+    public LaunchArgument(LaunchOption launchOption, Map<String, String> tokens, List<String> extendedArguments, boolean enableCGC, List<File> libraries, String nativesPath) {
         this.launchOption = launchOption;
-        this.argTemplet = launchOption.getVersion().getLaunchArgs();
-        this.mainClass = launchOption.getVersion().getMainClass();
         this.libraries = libraries;
-        this.maxMemory = launchOption.getMaxMemory();
-        this.minMemory = launchOption.getMinMemory();
         this.enableCGC = enableCGC;
-        this.nativePath = nativesPath;
+        this.nativesPath = nativesPath;
         this.tokens = tokens;
-        this.advArgs = advArgs;
+        this.extendedArguments = extendedArguments;
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         OsTypes os = OsTypes.CURRENT();
+        Version version = launchOption.getVersion();
 
-        sb.append(Utils.getJavaPath()).append(' ');
+        // java pach
+        sb.append(launchOption.getEnvironmentOption().getJavaPath()).append(' ');
 
+        // cgc
         if (enableCGC) {
             sb.append("-Xincgc ");
         }
-        if (minMemory > 0) {
-            sb.append("-Xms").append(minMemory).append("M ");
-        }
-        if (maxMemory > 0) {
-            sb.append("-Xmx").append(maxMemory).append("M ");
-        } else {
-            sb.append("-Xmx1024M ");
-        }
-        for (String adv : advArgs) {
-            sb.append(adv).append(' ');
-        }
-        if (os == OsTypes.WINDOWS) {
-            sb.append("-Djava.library.path=\"" + nativePath + "\" ");
-        } else {
-            sb.append("-Djava.library.path=" + nativePath + " ");
+
+        // min memory
+        if (launchOption.getMinMemory() != 0) {
+            sb.append("-Xms").append(launchOption.getMinMemory()).append("M ");
         }
 
+        // max memory
+        if (launchOption.getMaxMemory() != 0) {
+            sb.append("-Xmx").append(launchOption.getMaxMemory()).append("M ");
+        }
+
+        // extended arguments
+        for (String arg : extendedArguments) {
+            sb.append(arg).append(' ');
+        }
+
+        // natives path
+        if (os == OsTypes.WINDOWS) {
+            sb.append("-Djava.library.path=\"" + nativesPath + "\" ");
+        } else {
+            sb.append("-Djava.library.path=" + nativesPath + " ");
+        }
+
+        // class path
+        // ==========START==========
         sb.append("-cp \"");
-        for (String lib : libraries) {
+
+        // libraries
+        for (File lib : libraries) {
             sb.append(lib).append(os.getPathSpearator());
         }
-        Version ver = launchOption.getVersion();
-        if (!ver.isInheritsForm()) {
-            sb.append(String.format("%s.jar%s\" ", Utils.handlePath(ver.getPath() + "/" + ver.getId()), os.getPathSpearator()));
-        } else {
-            sb.append(String.format("%s.jar%s\" ", Utils.handlePath(String.format("%s/%s", ver.getParentInheritsPath(), ver.getParentInheritsFormName())), os.getPathSpearator()));
-        }
 
-        sb.append(mainClass).append(' ');
-        sb.append(replaceLaunchArgs()).append(' ');
+        // game jar file
+        sb.append(version.getJar()).append(os.getPathSpearator());
 
+        sb.append("\" ");
+        // ==========END==========
+
+        // main class
+        sb.append(version.getMainClass()).append(' ');
+
+        // templete arguments
+        sb.append(getFormattedLaunchArgs()).append(' ');
+
+        // server, port default to 25565
         if (launchOption.getServerInfo() != null && launchOption.getServerInfo().getAddress() != null && !launchOption.getServerInfo().getAddress().equals("")) {
             sb.append("--server ").append(launchOption.getServerInfo().getAddress()).append(' ');
             sb.append("--port ").append(launchOption.getServerInfo().getPort() == 0 ? 25565 : launchOption.getServerInfo().getPort()).append(' ');
         }
+
+        // window size settings
         if (launchOption.getWindowSize() != null) {
             if (launchOption.getWindowSize().isFullSize()) {
                 sb.append("--fullscreen").append(' ');
@@ -87,11 +103,12 @@ public class LaunchArgument {
                 sb.append("--width " + launchOption.getWindowSize().getWidth()).append(' ');
             }
         }
+
         return sb.toString();
     }
 
-    private String replaceLaunchArgs() {
-        String arg = argTemplet;
+    private String getFormattedLaunchArgs() {
+        String arg = launchOption.getVersion().getLaunchArgs();
         for (Entry<String, String> entry : tokens.entrySet()) {
             arg = arg.replace("${" + entry.getKey() + "}", entry.getValue());
         }
@@ -102,36 +119,20 @@ public class LaunchArgument {
         return launchOption;
     }
 
-    public String getArgTemplet() {
-        return argTemplet;
+    public String getNativesPath() {
+        return nativesPath;
     }
 
-    public String getMainClass() {
-        return mainClass;
-    }
-
-    public String getNativePath() {
-        return nativePath;
-    }
-
-    public List<String> getLibraries() {
+    public List<File> getLibraries() {
         return libraries;
     }
 
-    public List<String> getAdvArgs() {
-        return advArgs;
+    public List<String> getExtendedArguments() {
+        return extendedArguments;
     }
 
     public Map<String, String> getTokens() {
         return tokens;
-    }
-
-    public int getMaxMemory() {
-        return maxMemory;
-    }
-
-    public int getMinMemory() {
-        return minMemory;
     }
 
     public boolean isEnableCGC() {
