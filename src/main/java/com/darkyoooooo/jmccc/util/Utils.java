@@ -13,8 +13,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-
-import com.darkyoooooo.jmccc.Jmccc;
+import com.darkyoooooo.jmccc.launch.Jmccc;
 import com.darkyoooooo.jmccc.version.Library;
 import com.darkyoooooo.jmccc.version.Native;
 
@@ -97,5 +96,10 @@ public class Utils {
         zipInput.close();
         input.close();
         output.close();
+    }
+
+    public static boolean isCGCSupported() {
+        String javaVersion = System.getProperty("java.version");
+        return !(javaVersion.contains("1.8.") || javaVersion.contains("1.9."));
     }
 }

@@ -4,9 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 import com.darkyoooooo.jmccc.util.OsTypes;
 
 public class GameProcessMonitor {
@@ -46,13 +43,9 @@ public class GameProcessMonitor {
                         String log = buffer.toString();
                         buffer.delete(0, buffer.length());
                         if (isErr) {
-                            for (IGameListener l : listeners) {
-                                l.onErrorLog(log);
-                            }
+                            listener.onErrorLog(log);
                         } else {
-                            for (IGameListener l : listeners) {
-                                l.onLog(log);
-                            }
+                            listener.onLog(log);
                         }
                     }
 
@@ -79,17 +72,13 @@ public class GameProcessMonitor {
             }
 
             int exitCode = process.exitValue();
-            for (IGameListener l : listeners) {
-                l.onExit(exitCode);
-            }
+            listener.onExit(exitCode);
         }
 
     }
 
-    private Set<IGameListener> listeners = new HashSet<IGameListener>();
-
     private Process process;
-    private boolean isDaemon;
+    private IGameListener listener;
 
     private InputStream stdout;
     private InputStream stderr;
@@ -98,26 +87,17 @@ public class GameProcessMonitor {
     private Thread errThread;
     private Thread exitThread;
 
-    public GameProcessMonitor(Process process, boolean isDaemon) {
+    public GameProcessMonitor(Process process) {
         this.process = process;
-        this.isDaemon = isDaemon;
     }
 
-    public GameProcessMonitor(Process process, boolean isDaemon, Set<IGameListener> listeners) {
-        this(process, isDaemon);
-        this.listeners.addAll(listeners);
+    public GameProcessMonitor(Process process, IGameListener listener) {
+        this(process);
+        this.listener = listener;
     }
 
-    public void addListener(IGameListener listener) {
-        listeners.add(listener);
-    }
-
-    public void removeListener(IGameListener listener) {
-        listeners.remove(listener);
-    }
-
-    public Set<IGameListener> getListeners() {
-        return Collections.unmodifiableSet(listeners);
+    public IGameListener getListener() {
+        return listener;
     }
 
     public void monitor() {
@@ -127,10 +107,6 @@ public class GameProcessMonitor {
         outThread = new Thread(new LogMonitor(false));
         errThread = new Thread(new LogMonitor(true));
         exitThread = new Thread(new ExitMonitor());
-
-        outThread.setDaemon(isDaemon);
-        errThread.setDaemon(isDaemon);
-        exitThread.setDaemon(isDaemon);
 
         outThread.setName("jmccc stdout monitor");
         errThread.setName("jmccc stderr monitor");

@@ -2,52 +2,38 @@ package com.darkyoooooo.jmccc.launch;
 
 import com.darkyoooooo.jmccc.ext.GameProcessMonitor;
 
+/**
+ * The result of launching.
+ * <p>
+ * This will be returned only when the game is launched successfully.
+ */
 public class LaunchResult {
 
-    public static LaunchResult launchSuccessfully(GameProcessMonitor monitor) {
-        return new LaunchResult(true, null, null, null, monitor);
+    private GameProcessMonitor monitor;
+    private Process process;
+
+    public LaunchResult(GameProcessMonitor monitor, Process process) {
+        this.monitor = monitor;
+        this.process = process;
     }
 
-    public static LaunchResult launchUnsuccessfully(ErrorType errorType, String message, Throwable throwable) {
-        return new LaunchResult(false, errorType, message, throwable, null);
+    /**
+     * Gets the game monitor, null if no monitor started
+     * 
+     * @return the game monitor, null if no monitor started
+     */
+    public GameProcessMonitor getMonitor() {
+        return monitor;
     }
 
-    public static LaunchResult launchUnsuccessfully(ErrorType errorType, String message) {
-        return launchUnsuccessfully(errorType, message, null);
+    /**
+     * Gets the game process
+     * 
+     * @return the game process
+     */
+    public Process getProcess() {
+        return process;
     }
 
-    private boolean succeed;
-    private ErrorType errorType;
-    private String message;
-    private Throwable exceptionInstance;
-    private GameProcessMonitor gameMonitor;
-
-    private LaunchResult(boolean succeed, ErrorType errorType, String message, Throwable throwable, GameProcessMonitor gameMonitor) {
-        this.succeed = succeed;
-        this.errorType = errorType;
-        this.message = message;
-        this.exceptionInstance = throwable;
-        this.gameMonitor = gameMonitor;
-    }
-
-    public boolean succeed() {
-        return this.succeed;
-    }
-
-    public ErrorType getErrorType() {
-        return this.errorType;
-    }
-
-    public String getMessage() {
-        return this.message;
-    }
-
-    public Throwable getExceptionInstance() {
-        return this.exceptionInstance;
-    }
-
-    public GameProcessMonitor getGameMonitor() {
-        return gameMonitor;
-    }
 
 }

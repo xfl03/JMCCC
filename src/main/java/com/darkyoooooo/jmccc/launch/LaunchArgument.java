@@ -3,11 +3,13 @@ package com.darkyoooooo.jmccc.launch;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import com.darkyoooooo.jmccc.util.OsTypes;
 import com.darkyoooooo.jmccc.util.Utils;
 import com.darkyoooooo.jmccc.version.Version;
 
+/**
+ * Used to generate launching command line.
+ */
 public class LaunchArgument {
     private LaunchOption launchOption;
     private String argTemplet, mainClass, nativePath;
@@ -15,8 +17,6 @@ public class LaunchArgument {
     private Map<String, String> tokens;
     private int maxMemory, minMemory;
     private boolean enableCGC;
-    private ServerInfo serverInfo;
-    private WindowSize windowSize;
 
     public LaunchArgument(LaunchOption launchOption, Map<String, String> tokens, List<String> advArgs, boolean enableCGC, List<String> libraries, String nativesPath) {
         this.launchOption = launchOption;
@@ -28,8 +28,6 @@ public class LaunchArgument {
         this.enableCGC = enableCGC;
         this.nativePath = nativesPath;
         this.tokens = tokens;
-        this.serverInfo = launchOption.getServerInfo();
-        this.windowSize = launchOption.getWindowSize();
         this.advArgs = advArgs;
     }
 
@@ -40,111 +38,104 @@ public class LaunchArgument {
 
         sb.append(Utils.getJavaPath()).append(' ');
 
-        if (this.enableCGC) {
+        if (enableCGC) {
             sb.append("-Xincgc ");
         }
-        if (this.minMemory > 0) {
-            sb.append("-Xms").append(this.minMemory).append("M ");
+        if (minMemory > 0) {
+            sb.append("-Xms").append(minMemory).append("M ");
         }
-        if (this.maxMemory > 0) {
-            sb.append("-Xmx").append(this.maxMemory).append("M ");
+        if (maxMemory > 0) {
+            sb.append("-Xmx").append(maxMemory).append("M ");
         } else {
             sb.append("-Xmx1024M ");
         }
-        for (String adv : this.advArgs) {
+        for (String adv : advArgs) {
             sb.append(adv).append(' ');
         }
         if (os == OsTypes.WINDOWS) {
-            sb.append("-Djava.library.path=\"" + this.nativePath + "\" ");
+            sb.append("-Djava.library.path=\"" + nativePath + "\" ");
         } else {
-            sb.append("-Djava.library.path=" + this.nativePath + " ");
+            sb.append("-Djava.library.path=" + nativePath + " ");
         }
 
         sb.append("-cp \"");
-        for (String lib : this.libraries) {
+        for (String lib : libraries) {
             sb.append(lib).append(os.getPathSpearator());
         }
-        Version ver = this.launchOption.getVersion();
+        Version ver = launchOption.getVersion();
         if (!ver.isInheritsForm()) {
             sb.append(String.format("%s.jar%s\" ", Utils.handlePath(ver.getPath() + "/" + ver.getId()), os.getPathSpearator()));
         } else {
             sb.append(String.format("%s.jar%s\" ", Utils.handlePath(String.format("%s/%s", ver.getParentInheritsPath(), ver.getParentInheritsFormName())), os.getPathSpearator()));
         }
 
-        sb.append(this.mainClass).append(' ');
-        sb.append(this.replaceLaunchArgs()).append(' ');
+        sb.append(mainClass).append(' ');
+        sb.append(replaceLaunchArgs()).append(' ');
 
-        if (this.serverInfo != null && this.serverInfo.getAddress() != null && !this.serverInfo.getAddress().equals("")) {
-            sb.append("--server ").append(this.serverInfo.getAddress()).append(' ');
-            sb.append("--port ").append(this.serverInfo.getPort() == 0 ? 25565 : this.serverInfo.getPort()).append(' ');
+        if (launchOption.getServerInfo() != null && launchOption.getServerInfo().getAddress() != null && !launchOption.getServerInfo().getAddress().equals("")) {
+            sb.append("--server ").append(launchOption.getServerInfo().getAddress()).append(' ');
+            sb.append("--port ").append(launchOption.getServerInfo().getPort() == 0 ? 25565 : launchOption.getServerInfo().getPort()).append(' ');
         }
-        if (this.windowSize != null) {
-            if (this.windowSize.isFullSize()) {
+        if (launchOption.getWindowSize() != null) {
+            if (launchOption.getWindowSize().isFullSize()) {
                 sb.append("--fullscreen").append(' ');
             }
-            if (this.windowSize.getHeight() > 0) {
-                sb.append("--height " + this.windowSize.getHeight()).append(' ');
+            if (launchOption.getWindowSize().getHeight() > 0) {
+                sb.append("--height " + launchOption.getWindowSize().getHeight()).append(' ');
             }
-            if (this.windowSize.getWidth() > 0) {
-                sb.append("--width " + this.windowSize.getWidth()).append(' ');
+            if (launchOption.getWindowSize().getWidth() > 0) {
+                sb.append("--width " + launchOption.getWindowSize().getWidth()).append(' ');
             }
         }
         return sb.toString();
     }
 
     private String replaceLaunchArgs() {
-        String arg = this.argTemplet;
-        for (Entry<String, String> entry : this.tokens.entrySet()) {
+        String arg = argTemplet;
+        for (Entry<String, String> entry : tokens.entrySet()) {
             arg = arg.replace("${" + entry.getKey() + "}", entry.getValue());
         }
         return arg;
     }
 
     public LaunchOption getLaunchOption() {
-        return this.launchOption;
+        return launchOption;
     }
 
     public String getArgTemplet() {
-        return this.argTemplet;
+        return argTemplet;
     }
 
     public String getMainClass() {
-        return this.mainClass;
+        return mainClass;
     }
 
     public String getNativePath() {
-        return this.nativePath;
+        return nativePath;
     }
 
     public List<String> getLibraries() {
-        return this.libraries;
+        return libraries;
     }
 
     public List<String> getAdvArgs() {
-        return this.advArgs;
+        return advArgs;
     }
 
     public Map<String, String> getTokens() {
-        return this.tokens;
+        return tokens;
     }
 
     public int getMaxMemory() {
-        return this.maxMemory;
+        return maxMemory;
     }
 
     public int getMinMemory() {
-        return this.minMemory;
+        return minMemory;
     }
 
     public boolean isEnableCGC() {
-        return this.enableCGC;
+        return enableCGC;
     }
 
-    public ServerInfo getServerInfo() {
-        return this.serverInfo;
-    }
-
-    public WindowSize getWindowSize() {
-        return this.windowSize;
-    }
 }

@@ -1,18 +1,15 @@
-package com.darkyoooooo.jmccc;
+package com.darkyoooooo.jmccc.launch;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import com.darkyoooooo.jmccc.auth.AuthInfo;
 import com.darkyoooooo.jmccc.ext.GameProcessMonitor;
-import com.darkyoooooo.jmccc.ext.Reporter;
-import com.darkyoooooo.jmccc.launch.ErrorType;
-import com.darkyoooooo.jmccc.launch.LaunchArgument;
-import com.darkyoooooo.jmccc.launch.LaunchOption;
-import com.darkyoooooo.jmccc.launch.LaunchResult;
-import com.darkyoooooo.jmccc.launch.MonitorOption;
+import com.darkyoooooo.jmccc.ext.IGameListener;
 import com.darkyoooooo.jmccc.util.BaseOptions;
 import com.darkyoooooo.jmccc.util.Utils;
 import com.darkyoooooo.jmccc.util.VersionsHandler;
@@ -26,7 +23,6 @@ public class Jmccc {
 
     private final BaseOptions baseOptions;
     private final VersionsHandler versionsHandler;
-    private LaunchResult launchResult = null;
 
     public Jmccc(BaseOptions baseOptions) {
         this.baseOptions = baseOptions;
@@ -49,53 +45,52 @@ public class Jmccc {
         return !MISSING_NATIVES.isEmpty();
     }
 
-    public LaunchResult launchGame(LaunchArgument arg) {
-        LaunchResult result = this.rLaunchGame(arg);
-        Reporter.report(this, arg, result);
-        return result;
+    public LaunchResult launch(LaunchOption option) throws LaunchException {
+        return launch(generateLaunchArgs(option), null);
     }
 
-    private LaunchResult rLaunchGame(LaunchArgument arg) {
-        if (this.launchResult != null) {
-            return this.launchResult;
+    public LaunchResult launch(LaunchArgument arg) throws LaunchException {
+        return launch(arg, null);
+    }
+
+    public LaunchResult launch(LaunchOption option, IGameListener listener) throws LaunchException {
+        return launch(generateLaunchArgs(option), null);
+    }
+
+    public LaunchResult launch(LaunchArgument arg, IGameListener listener) throws LaunchException {
+        Objects.requireNonNull(arg);
+
+        if (hasMissingLibraries() || hasMissingNatives()) {
+            throw new MissingDependenciesException("Library文件或Native文件缺失");
         }
-        if (this.hasMissingLibraries() || this.hasMissingNatives()) {
-            return this.launchResult = LaunchResult.launchUnsuccessfully(ErrorType.DEPENDS_MISSING_ERROR, "Library文件或Native文件缺失");
-        }
+
+        Process process;
         try {
-            Process process = Runtime.getRuntime().exec(arg.toString(), null, new File(this.baseOptions.getGameRoot()));
-
-            GameProcessMonitor monitor = null;
-            MonitorOption monitorOption = arg.getLaunchOption().getMonitorOption();
-            if (monitorOption != null) {
-                monitor = new GameProcessMonitor(process, monitorOption.isDaemon(), monitorOption.getListeners());
-                monitor.monitor();
-            }
-
-            return this.launchResult = LaunchResult.launchSuccessfully(monitor);
-        } catch (Exception e) {
-            return this.launchResult = LaunchResult.launchUnsuccessfully(ErrorType.HANDLE_ERROR, "启动游戏进程时出错", e);
+            process = Runtime.getRuntime().exec(arg.toString(), null, new File(baseOptions.getGameRoot()));
+        } catch (IOException e) {
+            throw new LaunchException(e);
         }
+
+        GameProcessMonitor monitor = null;
+        if (listener != null) {
+            monitor = new GameProcessMonitor(process, listener);
+            monitor.monitor();
+        }
+
+        return new LaunchResult(monitor, process);
     }
 
-    public LaunchArgument generateLaunchArgs(LaunchOption option) {
-        return this.generateLaunchArgs(option, null);
-    }
-
-    public LaunchArgument generateLaunchArgs(LaunchOption option, AuthInfo authInfo) {
+    public LaunchArgument generateLaunchArgs(LaunchOption option) throws LaunchException {
         this.resetAdvArgs();
-        this.launchResult = null; // 防止第一次启动失败后再次启动时出现的各种奇怪问题
-        authInfo = authInfo == null ? option.getAuthenticator().get() : authInfo;
-        if (authInfo.getError() != null && !authInfo.getError().isEmpty()) { // 检测登录是否有效
-            this.launchResult = LaunchResult.launchUnsuccessfully(ErrorType.BAD_LOGIN, authInfo.getError());
-            return null;
+        AuthInfo authInfo = option.getAuthenticator().get();
+        if (authInfo.getError() != null && !authInfo.getError().isEmpty()) {
+            throw new LoginException(authInfo.getError());
         } else {
             for (String path : Utils.resolveRealNativePaths(this, option.getVersion().getNatives())) {
                 try {
                     Utils.uncompressZipFile(new File(path), this.baseOptions.getGameRoot() + "/natives");
-                } catch (Exception e) {
-                    this.launchResult = LaunchResult.launchUnsuccessfully(ErrorType.UNCOMPRESS_ERROR, String.format("解压\'%s\'时出现错误", path), e);
-                    return null;
+                } catch (IOException e) {
+                    throw new UncompressException(String.format("解压\'%s\'时出现错误", path), e);
                 }
             }
             Map<String, String> tokens = new HashMap<String, String>();
@@ -109,7 +104,7 @@ public class Jmccc {
             tokens.put("auth_uuid", authInfo.getUuid());
             tokens.put("user_type", authInfo.getUserType());
             tokens.put("user_properties", authInfo.getProperties());
-            return new LaunchArgument(option, tokens, ADV_ARGS, !System.getProperty("java.version").contains("1.9."), Utils.resolveRealLibPaths(this, option.getVersion().getLibraries()),
+            return new LaunchArgument(option, tokens, ADV_ARGS, Utils.isCGCSupported(), Utils.resolveRealLibPaths(this, option.getVersion().getLibraries()),
                     Utils.handlePath(this.baseOptions.getGameRoot() + "/natives"));
         }
     }
