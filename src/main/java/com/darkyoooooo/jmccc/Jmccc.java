@@ -27,9 +27,6 @@ public class Jmccc {
     public Jmccc() {
     }
 
-    // ADV_ARGS.add("-Dfml.ignoreInvalidMinecraftCertificates=true");
-    // ADV_ARGS.add("-Dfml.ignorePatchDiscrepancies=true");
-
     /**
      * Launches the game with the given option.
      * <p>
