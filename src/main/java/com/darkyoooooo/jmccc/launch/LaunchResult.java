@@ -1,35 +1,39 @@
 package com.darkyoooooo.jmccc.launch;
 
+import com.darkyoooooo.jmccc.ext.GameProcessMonitor;
+
+/**
+ * The result of launching.
+ * <p>
+ * This will be returned only when the game is launched successfully.
+ */
 public class LaunchResult {
-    private boolean succeed;
-    private ErrorType errorType;
-    private String message;
-    private Throwable exceptionInstance;
 
-    public LaunchResult(boolean succeed, ErrorType errorType, String message, Throwable throwable) {
-        this.succeed = succeed;
-        this.errorType = errorType;
-        this.message = message;
-        this.exceptionInstance = throwable;
+    private GameProcessMonitor monitor;
+    private Process process;
+
+    public LaunchResult(GameProcessMonitor monitor, Process process) {
+        this.monitor = monitor;
+        this.process = process;
     }
 
-    public LaunchResult(boolean succeed, ErrorType errorType, Throwable throwable) {
-        this(succeed, errorType, "", throwable);
+    /**
+     * Gets the game monitor, null if no monitor started
+     * 
+     * @return the game monitor, null if no monitor started
+     */
+    public GameProcessMonitor getMonitor() {
+        return monitor;
     }
 
-    public boolean succeed() {
-        return this.succeed;
+    /**
+     * Gets the game process
+     * 
+     * @return the game process
+     */
+    public Process getProcess() {
+        return process;
     }
 
-    public ErrorType getErrorType() {
-        return this.errorType;
-    }
 
-    public String getMessage() {
-        return this.message;
-    }
-
-    public Throwable getExceptionInstance() {
-        return this.exceptionInstance;
-    }
 }

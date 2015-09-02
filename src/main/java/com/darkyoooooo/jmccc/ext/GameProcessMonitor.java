@@ -1,85 +1,138 @@
 package com.darkyoooooo.jmccc.ext;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
-
+import java.io.Reader;
 import com.darkyoooooo.jmccc.util.OsTypes;
 
-public final class GameProcessMonitor {
-    private static final GameProcessMonitor instance = new GameProcessMonitor();
-    
-    public static GameProcessMonitor instance() {
-        return instance;
-    }
+public class GameProcessMonitor {
 
-    private final List<IGameListener> listeners;
+    private class LogMonitor implements Runnable {
 
-    public GameProcessMonitor() {
-        this.listeners = new ArrayList<IGameListener>(5);
-    }
+        /**
+         * False for stdout, true for stderr
+         */
+        private boolean isErr;
 
-    public void addListener(IGameListener listener) {
-        listeners.add(listener);
-    }
+        public LogMonitor(boolean isErr) {
+            this.isErr = isErr;
+        }
 
-    public void monitor(final Process process) {
-        Thread logThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    InputStreamReader reader = new InputStreamReader(process.getInputStream(), Charset.defaultCharset());
-                    int i;
-                    char[] buffer = new char[1024];
-                    while ((i = reader.read(buffer)) != -1) {
-                        String log = new String(buffer, 0, i).intern().replace(OsTypes.CURRENT().getLineSpearator(), "");
-                        for (IGameListener listener : listeners) {
+        @Override
+        public void run() {
+            char[] eol = OsTypes.CURRENT().getLineSpearator().toCharArray();
+            InputStream in = isErr ? stderr : stdout;
+            try (Reader reader = new InputStreamReader(in)) {
+                StringBuilder buffer = new StringBuilder();
+                int ch;
+                while ((ch = reader.read()) != -1) {
+                    buffer.append((char) ch);
+
+                    // check eol
+                    boolean isEOL = true;
+                    for (int i = 0; i < eol.length; i++) {
+                        if (eol[i] != buffer.charAt(buffer.length() - 1 - i)) {
+                            isEOL = false;
+                            break;
+                        }
+                    }
+
+                    if (isEOL) {
+                        buffer.delete(buffer.length() - eol.length, buffer.length());
+                        String log = buffer.toString();
+                        buffer.delete(0, buffer.length());
+                        if (isErr) {
+                            listener.onErrorLog(log);
+                        } else {
                             listener.onLog(log);
                         }
                     }
-                    reader.close();
-                } catch (IOException e) {
-                }
-            }
-        });
-        Thread errorThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    InputStreamReader reader = new InputStreamReader(process.getErrorStream(), Charset.defaultCharset());
-                    int i;
-                    char[] buffer = new char[1024];
-                    while ((i = reader.read(buffer)) != -1) {
-                        String log = new String(buffer, 0, i).intern().replace(OsTypes.CURRENT().getLineSpearator(), "");
-                        for (IGameListener listener : listeners) {
-                            listener.onErrorLog(log);
-                        }
+
+                    if (Thread.interrupted()) {
+                        return;
                     }
-                    reader.close();
-                } catch (IOException e) {
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        });
-        Thread exitCodeThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    process.waitFor();
-                    int exitCode = process.exitValue();
-                    for (IGameListener listener : listeners) {
-                        listener.onExit(exitCode);
-                    }
-                } catch (Exception e) {
-                }
+
+        }
+    }
+
+    private class ExitMonitor implements Runnable {
+
+        @Override
+        public void run() {
+            try {
+                process.waitFor();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                return;
             }
-        });
-        logThread.setName("Jmccc Monitor Thread (Log)");
-        logThread.start();
-        errorThread.setName("Jmccc Monitor Thread (ErrorLog)");
-        errorThread.start();
-        exitCodeThread.setName("Jmccc Monitor Thread (ExitCode)");
-        exitCodeThread.start();
+
+            int exitCode = process.exitValue();
+            listener.onExit(exitCode);
+        }
+
+    }
+
+    private Process process;
+    private IGameListener listener;
+
+    private InputStream stdout;
+    private InputStream stderr;
+
+    private Thread outThread;
+    private Thread errThread;
+    private Thread exitThread;
+
+    public GameProcessMonitor(Process process) {
+        this.process = process;
+    }
+
+    public GameProcessMonitor(Process process, IGameListener listener) {
+        this(process);
+        this.listener = listener;
+    }
+
+    public IGameListener getListener() {
+        return listener;
+    }
+
+    public void monitor() {
+        stdout = process.getInputStream();
+        stderr = process.getErrorStream();
+
+        outThread = new Thread(new LogMonitor(false));
+        errThread = new Thread(new LogMonitor(true));
+        exitThread = new Thread(new ExitMonitor());
+
+        outThread.setName("jmccc stdout monitor");
+        errThread.setName("jmccc stderr monitor");
+        exitThread.setName("jmccc exit monitor");
+
+        outThread.start();
+        errThread.start();
+        exitThread.start();
+    }
+
+    public void shutdown() {
+        exitThread.interrupt();
+
+        try {
+            stdout.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            stderr.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        outThread.interrupt();
+        errThread.interrupt();
     }
 }

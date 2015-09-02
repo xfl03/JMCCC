@@ -2,118 +2,190 @@ package com.darkyoooooo.jmccc;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
-
+import java.util.Objects;
+import java.util.Set;
 import com.darkyoooooo.jmccc.auth.AuthInfo;
 import com.darkyoooooo.jmccc.ext.GameProcessMonitor;
-import com.darkyoooooo.jmccc.ext.Reporter;
-import com.darkyoooooo.jmccc.launch.ErrorType;
+import com.darkyoooooo.jmccc.ext.IGameListener;
 import com.darkyoooooo.jmccc.launch.LaunchArgument;
+import com.darkyoooooo.jmccc.launch.LaunchException;
 import com.darkyoooooo.jmccc.launch.LaunchOption;
 import com.darkyoooooo.jmccc.launch.LaunchResult;
-import com.darkyoooooo.jmccc.util.BaseOptions;
+import com.darkyoooooo.jmccc.launch.LoginException;
+import com.darkyoooooo.jmccc.launch.MissingDependenciesException;
+import com.darkyoooooo.jmccc.launch.UncompressException;
 import com.darkyoooooo.jmccc.util.Utils;
-import com.darkyoooooo.jmccc.util.VersionsHandler;
 import com.darkyoooooo.jmccc.version.Library;
-import com.darkyoooooo.jmccc.version.Native;
+import com.darkyoooooo.jmccc.version.Version;
+import com.google.gson.JsonSyntaxException;
 
 public class Jmccc {
-    public static final List<String> ADV_ARGS = new ArrayList<String>();
-    public static final List<Library> MISSING_LIBRARIES = new ArrayList<Library>();
-    public static final List<Native> MISSING_NATIVES = new ArrayList<Native>();
 
-    private final BaseOptions baseOptions;
-    private final VersionsHandler versionsHandler;
-    private LaunchResult launchResult = null;
-
-    public Jmccc(BaseOptions baseOptions) {
-        this.baseOptions = baseOptions;
-        this.versionsHandler = new VersionsHandler(this.baseOptions.getGameRoot());
+    public Jmccc() {
     }
 
-    public void resetAdvArgs() {
-        if (!ADV_ARGS.isEmpty()) {
-            ADV_ARGS.clear();
-        }
-        ADV_ARGS.add("-Dfml.ignoreInvalidMinecraftCertificates=true");
-        ADV_ARGS.add("-Dfml.ignorePatchDiscrepancies=true");
+    /**
+     * Launches the game with the given option.
+     * <p>
+     * If we fail to launch the game, we will throw a {@link LaunchException}.
+     * 
+     * @param option the launching option
+     * @return the launching result
+     * @throws LaunchException if we fail to launch the game
+     * @throws NullPointerException if <code>option==null</code>
+     * @see LaunchResult
+     * @see LaunchException
+     */
+    public LaunchResult launch(LaunchOption option) throws LaunchException {
+        Objects.requireNonNull(option);
+        return launch(generateLaunchArgs(option), null);
     }
 
-    public boolean hasMissingLibraries() {
-        return !MISSING_LIBRARIES.isEmpty();
+    /**
+     * Launches the game with the given option. If <code>listener!=null</code>, JMCCC will create a
+     * {@link GameProcessMonitor} to monitor the game process. The logs will be reported to the given listener.
+     * Else if <code>listener==null</code>, this method won't create a monitor.
+     * <p>
+     * The monitor threads won't stop until the game process stops, or {@link GameProcessMonitor#shutdown()} has been
+     * called. Also, the jvm won't exit automatically because the monitor threads are not daemon.<br>
+     * If we fail to launch the game, we will throw a {@link LaunchException}.
+     * 
+     * @param option the launching option
+     * @param listener the game listener to receive logs from the game
+     * @return the launching result
+     * @throws LaunchException if we fail to launch the game
+     * @throws NullPointerException if <code>option==null</code>
+     * @see LaunchResult
+     * @see GameProcessMonitor
+     * @see IGameListener
+     * @see GameProcessMonitor#shutdown()
+     * @see LaunchException
+     */
+    public LaunchResult launch(LaunchOption option, IGameListener listener) throws LaunchException {
+        Objects.requireNonNull(option);
+        return launch(generateLaunchArgs(option), listener);
     }
 
-    public boolean hasMissingNatives() {
-        return !MISSING_NATIVES.isEmpty();
-    }
-
-    public LaunchResult launchGame(LaunchArgument arg) {
-        LaunchResult result = this.rLaunchGame(arg);
-        Reporter.report(this, arg, result);
-        return result;
-    }
-
-    private LaunchResult rLaunchGame(LaunchArgument arg) {
-        if (this.launchResult != null) {
-            return this.launchResult;
-        }
-        if (this.hasMissingLibraries() || this.hasMissingNatives()) {
-            return this.launchResult = new LaunchResult(false, ErrorType.DEPENDS_MISSING_ERROR, "Library文件或Native文件缺失", null);
-        }
-        try {
-            Process process = Runtime.getRuntime().exec(arg.toString(), null, new File(this.baseOptions.getGameRoot()));
-            GameProcessMonitor.instance().monitor(process);
-            return this.launchResult = new LaunchResult(true, ErrorType.NONE, null);
-        } catch (Exception e) {
-            return this.launchResult = new LaunchResult(false, ErrorType.HANDLE_ERROR, "启动游戏进程时出错", e);
-        }
-    }
-
-    public LaunchArgument generateLaunchArgs(LaunchOption option) {
-        return this.generateLaunchArgs(option, null);
-    }
-
-    public LaunchArgument generateLaunchArgs(LaunchOption option, AuthInfo authInfo) {
-        this.resetAdvArgs();      // ↓
-        this.launchResult = null; // 防止第一次启动失败后再次启动时出现的各种奇怪问题
-        authInfo = authInfo == null ? option.getAuthenticator().get() : authInfo;
-        if (authInfo.getError() != null && !authInfo.getError().isEmpty()) { // 检测登录是否有效
-            this.launchResult = new LaunchResult(false, ErrorType.BAD_LOGIN, authInfo.getError(), null);
+    /**
+     * Gets the Version object of the given version in the given .minecraft dir.
+     * 
+     * @param version the version name
+     * @return the Version object, null if <code>version==null</code>, or the version does not exist
+     * @throws IOException if an I/O exception has occurred during resolving version
+     * @throws JsonSyntaxException if an JSON syntax exception has occurred during resolving version json
+     * @throws NullPointerException if <code>minecraftDir==null</code>
+     * @see Version
+     * @see Jmccc#getVersions(File)
+     */
+    public Version getVersion(File minecraftDir, String version) throws JsonSyntaxException, IOException {
+        Objects.requireNonNull(minecraftDir);
+        if (version == null) {
             return null;
+        }
+
+        if (doesVersionExists(minecraftDir, version)) {
+            return new Version(minecraftDir, version);
         } else {
-            for (String path : Utils.resolveRealNativePaths(this, option.getVersion().getNatives())) {
-                try {
-                    Utils.uncompressZipFile(new File(path), this.baseOptions.getGameRoot() + "/natives");
-                } catch (Exception e) {
-                    this.launchResult = new LaunchResult(false, ErrorType.UNCOMPRESS_ERROR, String.format("解压\'%s\'时出现错误", path), e);
-                    return null;
+            return null;
+        }
+    }
+
+    /**
+     * Gets the names of the versions in the given .minecraft dir.
+     * <p>
+     * This method returns a non-threaded safe, unordered set.
+     * 
+     * @param minecraftDir the .minecraft dir
+     * @return a set of the names of the versions in the given .minecraft dir
+     * @throws NullPointerException if <code>minecraftDir==null</code>
+     * @see Jmccc#getVersion(File, String)
+     */
+    public Set<String> getVersions(File minecraftDir) {
+        Objects.requireNonNull(minecraftDir);
+
+        Set<String> versions = new HashSet<>();
+        for (File file : new File(minecraftDir, "versions").listFiles()) {
+            if (file.isDirectory() && doesVersionExists(minecraftDir, file.getName())) {
+                versions.add(file.getName());
+            }
+        }
+        return versions;
+    }
+
+    private boolean doesVersionExists(File minecraftDir, String version) {
+        File versionsDir = new File(minecraftDir, "versions");
+        File versionDir = new File(versionsDir, version);
+        File versionJsonFile = new File(versionDir, version + ".json");
+        return versionJsonFile.isFile();
+    }
+
+    private LaunchResult launch(LaunchArgument arg, IGameListener listener) throws LaunchException {
+        Process process;
+        try {
+            process = Runtime.getRuntime().exec(arg.toString(), null, arg.getLaunchOption().getEnvironmentOption().getMinecraftDir());
+        } catch (SecurityException | IOException e) {
+            throw new LaunchException("Failed to start process", e);
+        }
+
+        GameProcessMonitor monitor = null;
+        if (listener != null) {
+            monitor = new GameProcessMonitor(process, listener);
+            monitor.monitor();
+        }
+
+        return new LaunchResult(monitor, process);
+    }
+
+    private LaunchArgument generateLaunchArgs(LaunchOption option) throws LaunchException {
+        // check libraries
+        Set<Library> missing = option.getVersion().findMissingLibraries();
+        if (!missing.isEmpty()) {
+            throw new MissingDependenciesException(missing.toString());
+        }
+
+        AuthInfo authInfo = option.getAuthenticator().get();
+        if (authInfo.getError() != null && !authInfo.getError().isEmpty()) {
+            throw new LoginException(authInfo.getError());
+        } else {
+            Set<File> javaLibraries = new HashSet<>();
+            File nativesDir = getNativesDir(option);
+            for (Library library : option.getVersion().getLibraries()) {
+                File libraryFile = getLibraryFile(library, option);
+                if (library.isNatives()) {
+                    try {
+                        Utils.uncompressZipWithExcludes(libraryFile, nativesDir, library.getExtractExcludes());
+                    } catch (IOException e) {
+                        throw new UncompressException("Failed to uncompress " + libraryFile, e);
+                    }
+                } else {
+                    javaLibraries.add(libraryFile);
                 }
             }
+
             Map<String, String> tokens = new HashMap<String, String>();
-            // 爽不爽
-            tokens.put("auth_access_token", authInfo.getAccessToken()); 
-            tokens.put("auth_session",      authInfo.getAccessToken());
-            tokens.put("auth_player_name",  authInfo.getDisplayName());
-            tokens.put("version_name",      option.getVersion().getId());
-            tokens.put("game_directory",    ".");
-            tokens.put("assets_root",       "assets");
+            tokens.put("auth_access_token", authInfo.getAccessToken());
+            tokens.put("auth_session", authInfo.getAccessToken());
+            tokens.put("auth_player_name", authInfo.getDisplayName());
+            tokens.put("version_name", option.getVersion().getVersion());
+            tokens.put("game_directory", ".");
+            tokens.put("assets_root", "assets");
             tokens.put("assets_index_name", option.getVersion().getAssets());
-            tokens.put("auth_uuid",         authInfo.getUuid());
-            tokens.put("user_type",         authInfo.getUserType());
-            tokens.put("user_properties",   authInfo.getProperties());
-            return new LaunchArgument(this, option, tokens, ADV_ARGS, !System.getProperty("java.version").contains("1.9."), Utils.resolveRealLibPaths(this, option.getVersion().getLibraries()),
-                    Utils.handlePath(this.baseOptions.getGameRoot() + "/natives"));
+            tokens.put("auth_uuid", authInfo.getUuid());
+            tokens.put("user_type", authInfo.getUserType());
+            tokens.put("user_properties", authInfo.getProperties());
+            return new LaunchArgument(option, tokens, option.getExtraArguments(), Utils.isCGCSupported(), javaLibraries, nativesDir);
         }
     }
 
-    public BaseOptions getBaseOptions() {
-        return this.baseOptions;
+    private File getLibraryFile(Library library, LaunchOption option) {
+        return new File(option.getEnvironmentOption().getMinecraftDir(), library.getPath());
     }
 
-    public VersionsHandler getVersionsHandler() {
-        return this.versionsHandler;
+    private File getNativesDir(LaunchOption option) {
+        return new File(option.getEnvironmentOption().getMinecraftDir(), "natives");
     }
+
 }
