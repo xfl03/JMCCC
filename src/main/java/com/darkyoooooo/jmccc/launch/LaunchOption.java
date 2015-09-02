@@ -92,7 +92,7 @@ public class LaunchOption {
      * @return the max memory(MB)
      */
     public int getMaxMemory() {
-        return this.maxMemory;
+        return maxMemory;
     }
 
     /**
@@ -115,7 +115,7 @@ public class LaunchOption {
      * @return the min memory(MB)
      */
     public int getMinMemory() {
-        return this.minMemory;
+        return minMemory;
     }
 
     /**
@@ -138,7 +138,7 @@ public class LaunchOption {
      * @return the server info, default to null
      */
     public ServerInfo getServerInfo() {
-        return this.serverInfo;
+        return serverInfo;
     }
 
     /**
@@ -156,7 +156,7 @@ public class LaunchOption {
      * @return the window size, default to null
      */
     public WindowSize getWindowSize() {
-        return this.windowSize;
+        return windowSize;
     }
 
     /**
@@ -192,7 +192,7 @@ public class LaunchOption {
      * @return the version to launch
      */
     public Version getVersion() {
-        return this.version;
+        return version;
     }
 
     /**
@@ -201,7 +201,7 @@ public class LaunchOption {
      * @return the authenticator
      */
     public IAuthenticator getAuthenticator() {
-        return this.authenticator;
+        return authenticator;
     }
 
 }

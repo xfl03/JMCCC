@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import com.darkyoooooo.jmccc.util.OsTypes;
 import com.darkyoooooo.jmccc.version.Version;
 
@@ -13,13 +14,13 @@ import com.darkyoooooo.jmccc.version.Version;
 public class LaunchArgument {
 
     private LaunchOption launchOption;
-    private String nativesPath;
-    private List<File> libraries;
+    private File nativesPath;
+    private Set<File> libraries;
     private List<String> extendedArguments;
     private Map<String, String> tokens;
     private boolean enableCGC;
 
-    public LaunchArgument(LaunchOption launchOption, Map<String, String> tokens, List<String> extendedArguments, boolean enableCGC, List<File> libraries, String nativesPath) {
+    public LaunchArgument(LaunchOption launchOption, Map<String, String> tokens, List<String> extendedArguments, boolean enableCGC, Set<File> libraries, File nativesPath) {
         this.launchOption = launchOption;
         this.libraries = libraries;
         this.enableCGC = enableCGC;
@@ -85,10 +86,13 @@ public class LaunchArgument {
         // templete arguments
         sb.append(getFormattedLaunchArgs()).append(' ');
 
-        // server, port default to 25565
+        // server
         if (launchOption.getServerInfo() != null && launchOption.getServerInfo().getAddress() != null && !launchOption.getServerInfo().getAddress().equals("")) {
             sb.append("--server ").append(launchOption.getServerInfo().getAddress()).append(' ');
-            sb.append("--port ").append(launchOption.getServerInfo().getPort() == 0 ? 25565 : launchOption.getServerInfo().getPort()).append(' ');
+
+            if (launchOption.getServerInfo().getPort() == 0) {
+                sb.append("--port ").append(launchOption.getServerInfo().getPort()).append(' ');
+            }
         }
 
         // window size settings
@@ -96,10 +100,10 @@ public class LaunchArgument {
             if (launchOption.getWindowSize().isFullSize()) {
                 sb.append("--fullscreen").append(' ');
             }
-            if (launchOption.getWindowSize().getHeight() > 0) {
+            if (launchOption.getWindowSize().getHeight() != 0) {
                 sb.append("--height " + launchOption.getWindowSize().getHeight()).append(' ');
             }
-            if (launchOption.getWindowSize().getWidth() > 0) {
+            if (launchOption.getWindowSize().getWidth() != 0) {
                 sb.append("--width " + launchOption.getWindowSize().getWidth()).append(' ');
             }
         }
@@ -119,11 +123,11 @@ public class LaunchArgument {
         return launchOption;
     }
 
-    public String getNativesPath() {
+    public File getNativesPath() {
         return nativesPath;
     }
 
-    public List<File> getLibraries() {
+    public Set<File> getLibraries() {
         return libraries;
     }
 

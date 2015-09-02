@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.util.Set;
 import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -40,13 +41,12 @@ public class Utils {
     /**
      * Uncompresses the given zip to the given output dir
      * 
-     * @param zip
-     *            file to uncompress
-     * @param outputDir
-     *            the output dir
+     * @param zip file to uncompress
+     * @param outputDir the output dir
+     * @param excludes the excludes list
      * @throws IOException
      */
-    public static void uncompressZip(File zip, File outputDir) throws IOException {
+    public static void uncompressZipWithExcludes(File zip, File outputDir, Set<String> excludes) throws IOException {
         if (!outputDir.exists()) {
             outputDir.mkdirs();
         }
@@ -57,10 +57,21 @@ public class Utils {
         try (ZipInputStream in = new ZipInputStream(new FileInputStream(zip))) {
             ZipEntry entry;
             while ((entry = in.getNextEntry()) != null) {
+                boolean excluded = false;
+                if (excludes != null) {
+                    for (String exclude : excludes) {
+                        if (entry.getName().startsWith(exclude)) {
+                            excluded = true;
+                            break;
+                        }
+                    }
+                }
 
-                try (OutputStream out = new FileOutputStream(new File(outputDir, entry.getName()))) {
-                    while ((read = in.read(buffer)) != -1) {
-                        out.write(buffer, 0, read);
+                if (!excluded) {
+                    try (OutputStream out = new FileOutputStream(new File(outputDir, entry.getName()))) {
+                        while ((read = in.read(buffer)) != -1) {
+                            out.write(buffer, 0, read);
+                        }
                     }
                 }
 
@@ -84,8 +95,7 @@ public class Utils {
     /**
      * Reads json from given file with charset UTF-8.
      * 
-     * @param file
-     *            file to read
+     * @param file file to read
      * @return json in the file
      * @throws IOException
      */

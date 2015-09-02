@@ -2,11 +2,12 @@ package com.darkyoooooo.jmccc.version;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import com.darkyoooooo.jmccc.util.OsTypes;
 import com.darkyoooooo.jmccc.util.Utils;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 
@@ -20,23 +21,26 @@ public class Version {
         return new File(new File(versionsDir, version), version + ".jar");
     }
 
+    private File minecraftDir;
     private String version;
     private String mainClass;
     private String assets;
     private String launchArgs;
     private File jar;
 
-    private List<Library> libraries = new ArrayList<>();
-    private List<Native> natives = new ArrayList<>();
+    private Set<Library> libraries = new HashSet<>();
 
-    public Version(File versionsDir, String name) throws JsonSyntaxException, IOException {
+    public Version(File minecraftDir, String name) throws JsonSyntaxException, IOException {
+        this.minecraftDir = minecraftDir;
+
+        File versionsDir = new File(minecraftDir, "versions");
         JsonObject json = Utils.readJson(getVersionJsonFile(versionsDir, name)).getAsJsonObject();
 
         version = json.get("id").getAsString();
         assets = json.get("assets").getAsString();
         mainClass = json.get("mainClass").getAsString();
         launchArgs = json.get("minecraftArguments").getAsString();
-        loadDepends(json);
+        loadDepends(json.getAsJsonArray("libraries"));
 
         // used to handle Forge, Liteloader......
         if (json.has("inheritsFrom")) {
@@ -46,7 +50,7 @@ public class Version {
                 inheritsFrom = json.get("inheritsFrom").getAsString();
                 inheritsJar = json.has("jar") ? json.get("jar").getAsString() : inheritsFrom;
                 json = Utils.readJson(getVersionJsonFile(versionsDir, inheritsFrom)).getAsJsonObject();
-                loadDepends(json);
+                loadDepends(json.getAsJsonArray("libraries"));
             } while (json.has("inheritsFrom"));
             jar = new File(new File(versionsDir, inheritsFrom), inheritsJar + ".jar");
         } else {
@@ -54,42 +58,110 @@ public class Version {
         }
     }
 
-    private void loadDepends(JsonObject obj) {
-        JsonArray libs = obj.get("libraries").getAsJsonArray();
-        for (int i = 0; i < libs.size(); ++i) {
-            obj = libs.get(i).getAsJsonObject();
-            String[] info = obj.get("name").getAsString().split(":");
-            if (!obj.has("natives")) {
-                if (obj.has("rules") && !checkRules(obj.get("rules").getAsJsonArray())) {
-                    continue;
-                } else {
-                    libraries.add(new Library(info[0], info[1], info[2], obj.has("serverreq") ? obj.get("serverreq").getAsBoolean() : true, obj.has("clientreq") ? obj.get("clientreq").getAsBoolean() : true));
-                }
+    /**
+     * Checks the libraries and returns a set of the missing libraries.
+     * <p>
+     * If there's no missing library, this method will return a empty set. This method returns a non-threaded safe,
+     * unordered set.
+     * 
+     * @return a set of missing libraries
+     */
+    public Set<Library> findMissingLibraries() {
+        Set<Library> missing = new HashSet<>();
+        for (Library library : libraries) {
+            if (!new File(minecraftDir, library.getPath()).exists()) {
+                missing.add(library);
+            }
+        }
+        return missing;
+    }
+
+    private void loadDepends(JsonArray librariesList) {
+        for (JsonElement element : librariesList) {
+            JsonObject library = element.getAsJsonObject();
+
+            if (!IsAllow(library.get("rules"))) {
+                continue;
+            }
+
+            String[] splited = library.get("name").getAsString().split(":", 3);
+            String domain = splited[0];
+            String name = splited[1];
+            String version = splited[2];
+
+            boolean isNative = library.has("natives");
+            if (isNative) {
+                String natives = resolveNatives(library.get("natives"));
+                Set<String> excludes = resolveExtractExclude(library.get("extract"));
+                libraries.add(new Library(domain, name, version, natives, excludes));
             } else {
-                String suffix = obj.get("natives").getAsJsonObject().get(OsTypes.CURRENT().toString().toLowerCase()).getAsString();
-                natives.add(new Native(info[0], info[1], info[2], suffix.contains("${arch}") ? suffix.replaceAll("\\Q${arch}", System.getProperty("java.vm.name").contains("64") ? "64" : "32") : suffix, obj.has("rules") ? checkRules(obj.get("rules").getAsJsonArray()) : true));
+                libraries.add(new Library(domain, name, version));
             }
         }
     }
 
-    private boolean checkRules(JsonArray array) {
-        boolean flag = false;
-        for (int i = 0; i < array.size(); ++i) {
-            JsonObject obj = array.get(i).getAsJsonObject();
-            if (obj.has("action")) {
-                if (obj.get("action").getAsString().contentEquals("allow")) {
-                    if (!obj.has("os")) {
-                        flag = true;
-                    } else {
-                        flag = obj.get("os").getAsJsonObject().get("name").getAsString().contains(OsTypes.CURRENT().toString().toLowerCase());
+    private boolean IsAllow(JsonElement rules) {
+        // by default it's allow
+        if (rules == null || rules.getAsJsonArray().size() == 0) {
+            return true;
+        }
+
+        // else it's disallow by default
+        boolean allow = false;
+        for (JsonElement element : rules.getAsJsonArray()) {
+            JsonObject rule = element.getAsJsonObject();
+
+            boolean action = rule.get("action").equals("allow");
+
+            // apply by default
+            boolean apply = true;
+
+            if (rule.has("os")) {
+                // don't apply by default if has os rule
+                apply = false;
+
+                JsonObject osRule = rule.getAsJsonObject("os");
+                String name = osRule.get("name").getAsString();
+                String version = osRule.has("version") ? osRule.get("version").getAsString() : null;
+
+                if (OsTypes.CURRENT().name().equalsIgnoreCase(name)) {
+                    if (version == null || System.getProperty("os.version").matches(version)) {
+                        apply = true;
                     }
                 }
-                if (obj.get("action").getAsString().contentEquals("disallow") && obj.has("os")) {
-                    return !obj.get("os").getAsJsonObject().get("name").getAsString().contains(OsTypes.CURRENT().toString().toLowerCase());
-                }
+            }
+
+            if (apply) {
+                allow = action;
             }
         }
-        return flag;
+
+        return allow;
+    }
+
+    private String resolveNatives(JsonElement nativesList) {
+        if (nativesList == null) {
+            return null;
+        }
+
+        JsonElement nativesElement = nativesList.getAsJsonObject().get(OsTypes.CURRENT().name().toLowerCase());
+        if (nativesElement == null) {
+            return null;
+        } else {
+            return nativesElement.getAsString().replaceAll("\\Q${arch}", System.getProperty("java.vm.name").contains("64") ? "64" : "32");
+        }
+    }
+
+    private Set<String> resolveExtractExclude(JsonElement extract) {
+        if (extract == null || !extract.getAsJsonObject().has("exclude")) {
+            return null;
+        }
+
+        Set<String> excludes = new HashSet<>();
+        for (JsonElement element : extract.getAsJsonObject().getAsJsonArray("exclude")) {
+            excludes.add(element.getAsString());
+        }
+        return excludes;
     }
 
     public String getVersion() {
@@ -112,11 +184,8 @@ public class Version {
         return jar;
     }
 
-    public List<Library> getLibraries() {
+    public Set<Library> getLibraries() {
         return libraries;
     }
 
-    public List<Native> getNatives() {
-        return natives;
-    }
 }
