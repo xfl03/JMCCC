@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -56,8 +57,8 @@ public class Utils {
         return handlePath(System.getProperty("java.home") + "/bin/java" + (OsTypes.CURRENT() == OsTypes.WINDOWS ? ".exe" : ""));
     }
 
-    public static String genRandomToken() {
-        return UUID.randomUUID().toString().replace("-", "");
+    public static String genRandomToken(String playerName) throws UnsupportedEncodingException {
+        return UUID.nameUUIDFromBytes(("OfflinePlayer:" + playerName).getBytes("UTF-8")).toString().replace("-", "");
     }
 
     public static String readFileToString(File file) throws IOException {
