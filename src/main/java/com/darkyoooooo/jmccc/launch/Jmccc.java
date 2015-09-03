@@ -48,19 +48,26 @@ public class Jmccc implements Launcher {
     }
 
     private Jmccc(String extendedIdentity) {
-        // TODO creates a reporter with the given extended identity
+        reporter = new Reporter(extendedIdentity);
     }
+
+    private Reporter reporter;
+    private boolean reportmode = true;
 
     @Override
     public LaunchResult launch(LaunchOption option) throws LaunchException {
         Objects.requireNonNull(option);
-        return launch(generateLaunchArgs(option), null);
+        return launch(option, null);
     }
 
     @Override
     public LaunchResult launch(LaunchOption option, IGameListener listener) throws LaunchException {
         Objects.requireNonNull(option);
-        return launch(generateLaunchArgs(option), listener);
+        if (reportmode) {
+            return launchWithReport(option, listener);
+        } else {
+            return launchWithoutReport(option, listener);
+        }
     }
 
     @Override
@@ -92,7 +99,22 @@ public class Jmccc implements Launcher {
 
     @Override
     public void setReport(boolean on) {
-        // TODO sets the report mode to on or off
+        reportmode = on;
+    }
+
+    public LaunchResult launchWithoutReport(LaunchOption option, IGameListener listener) throws LaunchException {
+        return launch(generateLaunchArgs(option), listener);
+    }
+
+    public LaunchResult launchWithReport(LaunchOption option, IGameListener listener) throws LaunchException {
+        try {
+            LaunchResult result = launch(generateLaunchArgs(option), listener);
+            reporter.asyncLaunchSuccessfully(option, result);
+            return result;
+        } catch (Throwable e) {
+            reporter.asyncLaunchUnsuccessfully(option, e);
+            throw e;
+        }
     }
 
     private boolean doesVersionExists(File minecraftDir, String version) {
