@@ -2,7 +2,7 @@ package com.darkyoooooo.jmccc.launch;
 
 import java.util.List;
 import java.util.Objects;
-import com.darkyoooooo.jmccc.auth.IAuthenticator;
+import com.darkyoooooo.jmccc.auth.Authenticator;
 import com.darkyoooooo.jmccc.util.EnvironmentOption;
 import com.darkyoooooo.jmccc.version.Version;
 
@@ -26,7 +26,7 @@ public class LaunchOption {
     /**
      * The authenticator
      */
-    private IAuthenticator authenticator;
+    private Authenticator authenticator;
 
     /**
      * The server to join, null if you don't join a server automatically
@@ -56,7 +56,7 @@ public class LaunchOption {
      * @param environmentOption the EnvironmentOption
      * @throws NullPointerException if <code>version==null||authenticator==null</code>
      */
-    public LaunchOption(Version version, IAuthenticator authenticator, EnvironmentOption environmentOption) {
+    public LaunchOption(Version version, Authenticator authenticator, EnvironmentOption environmentOption) {
         Objects.requireNonNull(version);
         Objects.requireNonNull(authenticator);
         Objects.requireNonNull(environmentOption);
@@ -200,7 +200,7 @@ public class LaunchOption {
      * 
      * @return the authenticator
      */
-    public IAuthenticator getAuthenticator() {
+    public Authenticator getAuthenticator() {
         return authenticator;
     }
 

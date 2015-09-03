@@ -34,7 +34,7 @@ public class Utils {
      * 
      * @return a random minecraft token
      */
-    public static String genRandomToken() {
+    public static String generateRandomToken() {
         return UUID.randomUUID().toString().replace("-", "");
     }
 

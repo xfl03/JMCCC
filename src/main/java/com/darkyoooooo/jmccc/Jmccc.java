@@ -7,14 +7,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import com.darkyoooooo.jmccc.auth.AuthInfo;
+import com.darkyoooooo.jmccc.auth.AuthResult;
 import com.darkyoooooo.jmccc.ext.GameProcessMonitor;
 import com.darkyoooooo.jmccc.ext.IGameListener;
 import com.darkyoooooo.jmccc.launch.LaunchArgument;
 import com.darkyoooooo.jmccc.launch.LaunchException;
 import com.darkyoooooo.jmccc.launch.LaunchOption;
 import com.darkyoooooo.jmccc.launch.LaunchResult;
-import com.darkyoooooo.jmccc.launch.LoginException;
 import com.darkyoooooo.jmccc.launch.MissingDependenciesException;
 import com.darkyoooooo.jmccc.launch.UncompressException;
 import com.darkyoooooo.jmccc.util.Utils;
@@ -146,38 +145,35 @@ public class Jmccc {
             throw new MissingDependenciesException(missing.toString());
         }
 
-        AuthInfo authInfo = option.getAuthenticator().get();
-        if (authInfo.getError() != null && !authInfo.getError().isEmpty()) {
-            throw new LoginException(authInfo.getError());
-        } else {
-            Set<File> javaLibraries = new HashSet<>();
-            File nativesDir = getNativesDir(option);
-            for (Library library : option.getVersion().getLibraries()) {
-                File libraryFile = getLibraryFile(library, option);
-                if (library.isNatives()) {
-                    try {
-                        Utils.uncompressZipWithExcludes(libraryFile, nativesDir, library.getExtractExcludes());
-                    } catch (IOException e) {
-                        throw new UncompressException("Failed to uncompress " + libraryFile, e);
-                    }
-                } else {
-                    javaLibraries.add(libraryFile);
-                }
-            }
+        AuthResult auth = option.getAuthenticator().auth();
 
-            Map<String, String> tokens = new HashMap<String, String>();
-            tokens.put("auth_access_token", authInfo.getAccessToken());
-            tokens.put("auth_session", authInfo.getAccessToken());
-            tokens.put("auth_player_name", authInfo.getDisplayName());
-            tokens.put("version_name", option.getVersion().getVersion());
-            tokens.put("game_directory", ".");
-            tokens.put("assets_root", "assets");
-            tokens.put("assets_index_name", option.getVersion().getAssets());
-            tokens.put("auth_uuid", authInfo.getUuid());
-            tokens.put("user_type", authInfo.getUserType());
-            tokens.put("user_properties", authInfo.getProperties());
-            return new LaunchArgument(option, tokens, option.getExtraArguments(), Utils.isCGCSupported(), javaLibraries, nativesDir);
+        Set<File> javaLibraries = new HashSet<>();
+        File nativesDir = getNativesDir(option);
+        for (Library library : option.getVersion().getLibraries()) {
+            File libraryFile = getLibraryFile(library, option);
+            if (library.isNatives()) {
+                try {
+                    Utils.uncompressZipWithExcludes(libraryFile, nativesDir, library.getExtractExcludes());
+                } catch (IOException e) {
+                    throw new UncompressException("Failed to uncompress " + libraryFile, e);
+                }
+            } else {
+                javaLibraries.add(libraryFile);
+            }
         }
+
+        Map<String, String> tokens = new HashMap<String, String>();
+        tokens.put("auth_access_token", auth.getToken());
+        tokens.put("auth_session", auth.getToken());
+        tokens.put("auth_player_name", auth.getUsername());
+        tokens.put("version_name", option.getVersion().getVersion());
+        tokens.put("game_directory", ".");
+        tokens.put("assets_root", "assets");
+        tokens.put("assets_index_name", option.getVersion().getAssets());
+        tokens.put("auth_uuid", auth.getUUID());
+        tokens.put("user_type", auth.getUserType());
+        tokens.put("user_properties", auth.getProperties());
+        return new LaunchArgument(option, tokens, option.getExtraArguments(), Utils.isCGCSupported(), javaLibraries, nativesDir);
     }
 
     private File getLibraryFile(Library library, LaunchOption option) {
