@@ -127,7 +127,9 @@ public class Jmccc implements Launcher {
     private LaunchResult launch(LaunchArgument arg, IGameListener listener) throws LaunchException {
         Process process;
         try {
-            process = Runtime.getRuntime().exec(arg.toString(), null, arg.getLaunchOption().getEnvironmentOption().getMinecraftDir());
+            ProcessBuilder processBuilder = new ProcessBuilder(arg.generateCommandline());
+            processBuilder.directory(arg.getLaunchOption().getEnvironmentOption().getMinecraftDir());
+            process = processBuilder.start();
         } catch (SecurityException | IOException e) {
             throw new LaunchException("Failed to start process", e);
         }
