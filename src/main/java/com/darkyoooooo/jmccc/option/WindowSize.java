@@ -1,4 +1,4 @@
-package com.darkyoooooo.jmccc.launch;
+package com.darkyoooooo.jmccc.option;
 
 public class WindowSize {
 

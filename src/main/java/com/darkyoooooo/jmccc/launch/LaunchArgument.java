@@ -5,13 +5,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import com.darkyoooooo.jmccc.option.LaunchOption;
 import com.darkyoooooo.jmccc.util.OsTypes;
 import com.darkyoooooo.jmccc.version.Version;
 
 /**
  * Used to generate launching command line.
  */
-public class LaunchArgument {
+class LaunchArgument {
 
     private LaunchOption launchOption;
     private File nativesPath;

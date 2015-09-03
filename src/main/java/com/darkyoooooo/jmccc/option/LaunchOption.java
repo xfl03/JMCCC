@@ -1,9 +1,8 @@
-package com.darkyoooooo.jmccc.launch;
+package com.darkyoooooo.jmccc.option;
 
 import java.util.List;
 import java.util.Objects;
 import com.darkyoooooo.jmccc.auth.Authenticator;
-import com.darkyoooooo.jmccc.util.EnvironmentOption;
 import com.darkyoooooo.jmccc.version.Version;
 
 public class LaunchOption {

@@ -15,7 +15,7 @@ import com.google.gson.Gson;
  * The extended identity is used to identity the caller of JMCCC, default to null. If you wanna help us do the
  * statistics better, please set this to the name, and the version of your launcher.
  */
-public class Reporter {
+class Reporter {
 
     /**
      * JMCCC Report API

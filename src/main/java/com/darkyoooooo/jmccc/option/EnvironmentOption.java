@@ -1,7 +1,8 @@
-package com.darkyoooooo.jmccc.util;
+package com.darkyoooooo.jmccc.option;
 
 import java.io.File;
 import java.util.Objects;
+import com.darkyoooooo.jmccc.util.Utils;
 
 public class EnvironmentOption {
 
