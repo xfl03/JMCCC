@@ -96,7 +96,7 @@ class Reporter {
 
         report.put("jmccc_name", References.ID);
         report.put("jmccc_version", References.VERSION);
-        report.put("os", OsTypes.CURRENT().name());
+        report.put("os", OsTypes.CURRENT.name());
         report.put("os_version", System.getProperty("os.version"));
         report.put("os_name", System.getProperty("os.name"));
         report.put("os_arch", System.getProperty("os.arch"));
@@ -141,7 +141,7 @@ class Reporter {
         report(generateUnsuccessfulReport(option, e));
     }
 
-    public void asyncLaunchSuccessfully(LaunchOption option, LaunchResult result) {
+    public void asyncLaunchSuccessfully(final LaunchOption option, final LaunchResult result) {
         asyncReport(new Runnable() {
 
             @Override
@@ -155,7 +155,7 @@ class Reporter {
         });
     }
 
-    public void asyncLaunchUnsuccessfully(LaunchOption option, Throwable e) {
+    public void asyncLaunchUnsuccessfully(final LaunchOption option, final Throwable e) {
         asyncReport(new Runnable() {
 
             @Override

@@ -21,7 +21,7 @@ public class GameProcessMonitor {
 
         @Override
         public void run() {
-            char[] eol = OsTypes.CURRENT().getLineSpearator().toCharArray();
+            char[] eol = OsTypes.CURRENT.getLineSpearator().toCharArray();
             InputStream in = isErr ? stderr : stdout;
             try (Reader reader = new InputStreamReader(in)) {
                 StringBuilder buffer = new StringBuilder();

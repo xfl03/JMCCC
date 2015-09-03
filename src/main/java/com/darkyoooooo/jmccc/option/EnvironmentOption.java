@@ -2,6 +2,7 @@ package com.darkyoooooo.jmccc.option;
 
 import java.io.File;
 import java.util.Objects;
+
 import com.darkyoooooo.jmccc.util.Utils;
 
 public class EnvironmentOption {
@@ -28,6 +29,10 @@ public class EnvironmentOption {
         Objects.requireNonNull(minecraftDir);
         Objects.requireNonNull(javaPath);
 
+        if (!minecraftDir.getName().equalsIgnoreCase(".minecraft")) {
+            throw new IllegalArgumentException("the name of the minecraft directory must be \'.minecraft\'!");
+        }
+        
         this.minecraftDir = minecraftDir;
         this.javaPath = javaPath;
     }

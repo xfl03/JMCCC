@@ -33,7 +33,7 @@ class LaunchArgument {
 
     public String[] generateCommandline() {
         List<String> args = new ArrayList<>();
-        OsTypes os = OsTypes.CURRENT();
+        OsTypes os = OsTypes.CURRENT;
         Version version = launchOption.getVersion();
 
         // java pach

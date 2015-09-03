@@ -28,7 +28,7 @@ public class Utils {
      * @return the current 'java' path
      */
     public static File getJavaPath() {
-        return new File(System.getProperty("java.home"), "bin/java" + (OsTypes.CURRENT() == OsTypes.WINDOWS ? ".exe" : ""));
+        return new File(System.getProperty("java.home"), "bin/java" + (OsTypes.CURRENT == OsTypes.WINDOWS ? ".exe" : ""));
     }
 
     /**

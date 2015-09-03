@@ -124,7 +124,7 @@ public class Version {
                 String name = osRule.get("name").getAsString();
                 String version = osRule.has("version") ? osRule.get("version").getAsString() : null;
 
-                if (OsTypes.CURRENT().name().equalsIgnoreCase(name)) {
+                if (OsTypes.CURRENT.name().equalsIgnoreCase(name)) {
                     if (version == null || System.getProperty("os.version").matches(version)) {
                         apply = true;
                     }
@@ -144,7 +144,7 @@ public class Version {
             return null;
         }
 
-        JsonElement nativesElement = nativesList.getAsJsonObject().get(OsTypes.CURRENT().name().toLowerCase());
+        JsonElement nativesElement = nativesList.getAsJsonObject().get(OsTypes.CURRENT.name().toLowerCase());
         if (nativesElement == null) {
             return null;
         } else {
