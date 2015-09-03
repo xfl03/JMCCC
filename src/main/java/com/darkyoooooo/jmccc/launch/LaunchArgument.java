@@ -55,8 +55,10 @@ class LaunchArgument {
         }
 
         // extended arguments
-        for (String arg : extendedArguments) {
-            sb.append(arg).append(' ');
+        if (extendedArguments != null) {
+            for (String arg : extendedArguments) {
+                sb.append(arg).append(' ');
+            }
         }
 
         // natives path
