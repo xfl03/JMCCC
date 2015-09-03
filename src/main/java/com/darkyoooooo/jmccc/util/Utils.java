@@ -77,7 +77,7 @@ public class Utils {
                     }
                 }
 
-                in.getNextEntry();
+                in.closeEntry();
             }
         }
     }
