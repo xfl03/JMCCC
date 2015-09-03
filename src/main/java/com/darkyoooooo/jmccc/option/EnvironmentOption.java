@@ -28,10 +28,6 @@ public class EnvironmentOption {
     public EnvironmentOption(File minecraftDir, File javaPath) {
         Objects.requireNonNull(minecraftDir);
         Objects.requireNonNull(javaPath);
-
-        if (!minecraftDir.getName().equalsIgnoreCase(".minecraft")) {
-            throw new IllegalArgumentException("the name of the minecraft directory must be \'.minecraft\'!");
-        }
         
         this.minecraftDir = minecraftDir;
         this.javaPath = javaPath;
