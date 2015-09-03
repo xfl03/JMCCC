@@ -1,6 +1,7 @@
 package com.darkyoooooo.jmccc.launch;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -30,96 +31,100 @@ class LaunchArgument {
         this.extendedArguments = extendedArguments;
     }
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
+    public String[] generateCommandline() {
+        List<String> args = new ArrayList<>();
         OsTypes os = OsTypes.CURRENT();
         Version version = launchOption.getVersion();
 
         // java pach
-        sb.append(launchOption.getEnvironmentOption().getJavaPath()).append(' ');
+        args.add(launchOption.getEnvironmentOption().getJavaPath().toString());
 
         // cgc
         if (enableCGC) {
-            sb.append("-Xincgc ");
+            args.add("-Xincgc");
         }
 
         // min memory
         if (launchOption.getMinMemory() != 0) {
-            sb.append("-Xms").append(launchOption.getMinMemory()).append("M ");
+            args.add("-Xms" + launchOption.getMinMemory() + "M");
         }
 
         // max memory
         if (launchOption.getMaxMemory() != 0) {
-            sb.append("-Xmx").append(launchOption.getMaxMemory()).append("M ");
+            args.add("-Xmx" + launchOption.getMaxMemory() + "M");
         }
 
         // extended arguments
         if (extendedArguments != null) {
             for (String arg : extendedArguments) {
-                sb.append(arg).append(' ');
+                args.add(arg);
             }
         }
 
         // natives path
-        if (os == OsTypes.WINDOWS) {
-            sb.append("-Djava.library.path=\"" + nativesPath + "\" ");
-        } else {
-            sb.append("-Djava.library.path=" + nativesPath + " ");
-        }
+        args.add("-Djava.library.path=" + nativesPath);
 
         // class path
         // ==========START==========
-        sb.append("-cp \"");
+        args.add("-cp");
+        StringBuilder cpBuilder = new StringBuilder();
 
         // libraries
         for (File lib : libraries) {
-            sb.append(lib).append(os.getPathSpearator());
+            cpBuilder.append(lib).append(os.getPathSpearator());
         }
 
         // game jar file
-        sb.append(version.getJar()).append(os.getPathSpearator());
+        cpBuilder.append(version.getJar()).append(os.getPathSpearator());
 
-        sb.append("\" ");
+        args.add(cpBuilder.toString());
         // ==========END==========
 
         // main class
-        sb.append(version.getMainClass()).append(' ');
+        args.add(version.getMainClass());
 
         // templete arguments
-        sb.append(getFormattedLaunchArgs()).append(' ');
+        args.addAll(getFormattedTokens());
 
         // server
         if (launchOption.getServerInfo() != null && launchOption.getServerInfo().getAddress() != null && !launchOption.getServerInfo().getAddress().equals("")) {
-            sb.append("--server ").append(launchOption.getServerInfo().getAddress()).append(' ');
+            args.add("--server");
+            args.add(launchOption.getServerInfo().getAddress());
 
             if (launchOption.getServerInfo().getPort() == 0) {
-                sb.append("--port ").append(launchOption.getServerInfo().getPort()).append(' ');
+                args.add("--port");
+                args.add(String.valueOf(launchOption.getServerInfo().getPort()));
             }
         }
 
         // window size settings
         if (launchOption.getWindowSize() != null) {
             if (launchOption.getWindowSize().isFullSize()) {
-                sb.append("--fullscreen").append(' ');
+                args.add("--fullscreen");
             }
             if (launchOption.getWindowSize().getHeight() != 0) {
-                sb.append("--height " + launchOption.getWindowSize().getHeight()).append(' ');
+                args.add("--height");
+                args.add(String.valueOf(launchOption.getWindowSize().getHeight()));
             }
             if (launchOption.getWindowSize().getWidth() != 0) {
-                sb.append("--width " + launchOption.getWindowSize().getWidth()).append(' ');
+                args.add("--width");
+                args.add(String.valueOf(launchOption.getWindowSize().getWidth()));
             }
         }
 
-        return sb.toString();
+        return args.toArray(new String[args.size()]);
     }
 
-    private String getFormattedLaunchArgs() {
-        String arg = launchOption.getVersion().getLaunchArgs();
-        for (Entry<String, String> entry : tokens.entrySet()) {
-            arg = arg.replace("${" + entry.getKey() + "}", entry.getValue());
+    private List<String> getFormattedTokens() {
+        String templete = launchOption.getVersion().getLaunchArgs();
+        List<String> args = new ArrayList<>();
+        for (String arg : templete.split(" ")) {
+            for (Entry<String, String> token : tokens.entrySet()) {
+                arg = arg.replace("${" + token.getKey() + "}", token.getValue());
+            }
+            args.add(arg);
         }
-        return arg;
+        return args;
     }
 
     public LaunchOption getLaunchOption() {
