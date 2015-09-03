@@ -70,13 +70,13 @@ class Reporter {
                 connection.setRequestProperty("Content-Type", "application/json");
 
                 connection.connect();
-                int responseCode = connection.getResponseCode();
 
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    try (OutputStream out = connection.getOutputStream()) {
-                        out.write(reportData);
-                    }
-                } else {
+                try (OutputStream out = connection.getOutputStream()) {
+                    out.write(reportData);
+                }
+
+                int responseCode = connection.getResponseCode();
+                if (responseCode != HttpURLConnection.HTTP_OK) {
                     throw new ReportException("illegal http response code: " + responseCode);
                 }
 
