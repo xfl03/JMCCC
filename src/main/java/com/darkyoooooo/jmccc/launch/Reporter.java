@@ -60,6 +60,7 @@ class Reporter {
                 connection.setRequestMethod("POST");
                 connection.setUseCaches(false);
                 connection.setDoInput(true);
+                connection.setDoOutput(true);
                 connection.setConnectTimeout(10 * 1000);
                 connection.setReadTimeout(10 * 1000);
                 connection.setRequestProperty("Connection", "Keep-Alive");
