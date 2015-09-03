@@ -108,7 +108,7 @@ public class Jmccc implements Launcher {
 
     public LaunchResult launchWithReport(LaunchOption option, IGameListener listener) throws LaunchException {
         try {
-            LaunchResult result = launch(generateLaunchArgs(option), listener);
+            LaunchResult result = launchWithoutReport(option, listener);
             reporter.asyncLaunchSuccessfully(option, result);
             return result;
         } catch (Throwable e) {
