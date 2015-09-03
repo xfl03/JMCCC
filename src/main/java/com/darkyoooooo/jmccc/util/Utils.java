@@ -1,12 +1,14 @@
 package com.darkyoooooo.jmccc.util;
 
 import java.io.BufferedInputStream;
+import java.io.CharArrayWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.io.Reader;
 import java.util.Set;
 import java.util.UUID;
@@ -75,7 +77,7 @@ public class Utils {
                     }
                 }
 
-                in.getNextEntry();
+                in.closeEntry();
             }
         }
     }
@@ -104,6 +106,20 @@ public class Utils {
         try (Reader reader = new InputStreamReader(new BufferedInputStream(new FileInputStream(file)), "UTF-8")) {
             return parser.parse(reader);
         }
+    }
+
+    /**
+     * Gets the stack trace of the given exception.
+     * 
+     * @param e the exception
+     * @return the stack trace of the given exception
+     */
+    public static String getStackTrace(Throwable e) {
+        CharArrayWriter cw = new CharArrayWriter();
+        PrintWriter pw = new PrintWriter(cw);
+        e.printStackTrace(pw);
+        pw.close();
+        return cw.toString();
     }
 
 }

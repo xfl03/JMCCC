@@ -1,4 +1,4 @@
-package com.darkyoooooo.jmccc;
+package com.darkyoooooo.jmccc.launch;
 
 import java.io.File;
 import java.io.IOException;
@@ -7,78 +7,70 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import com.darkyoooooo.jmccc.Launcher;
 import com.darkyoooooo.jmccc.auth.AuthResult;
 import com.darkyoooooo.jmccc.ext.GameProcessMonitor;
 import com.darkyoooooo.jmccc.ext.IGameListener;
-import com.darkyoooooo.jmccc.launch.LaunchArgument;
-import com.darkyoooooo.jmccc.launch.LaunchException;
-import com.darkyoooooo.jmccc.launch.LaunchOption;
-import com.darkyoooooo.jmccc.launch.LaunchResult;
-import com.darkyoooooo.jmccc.launch.MissingDependenciesException;
-import com.darkyoooooo.jmccc.launch.UncompressException;
+import com.darkyoooooo.jmccc.option.LaunchOption;
 import com.darkyoooooo.jmccc.util.Utils;
 import com.darkyoooooo.jmccc.version.Library;
 import com.darkyoooooo.jmccc.version.Version;
 import com.google.gson.JsonSyntaxException;
 
-public class Jmccc {
+public class Jmccc implements Launcher {
 
-    public Jmccc() {
+    /**
+     * Gets a Launcher object with no extended identity.
+     * 
+     * @return the launcher
+     * @see Jmccc#getLauncher(String)
+     * @see Launcher#setReport(boolean)
+     * @see Reporter
+     */
+    public static Launcher getLauncher() {
+        return getLauncher(null);
     }
 
     /**
-     * Launches the game with the given option.
+     * Gets a Launcher object with the given extended identity.
      * <p>
-     * If we fail to launch the game, we will throw a {@link LaunchException}.
+     * If <code>extendedIdentity==null</code>, this launcher won't have any extended identity.<br>
+     * The extended identity is used to identity the caller of JMCCC, default to null. If you want to help us do the
+     * statistics better, please set this to the name and the version of your launcher.
      * 
-     * @param option the launching option
-     * @return the launching result
-     * @throws LaunchException if we fail to launch the game
-     * @throws NullPointerException if <code>option==null</code>
-     * @see LaunchResult
-     * @see LaunchException
+     * @return the launcher
+     * @see Jmccc#getLauncher()
+     * @see Launcher#setReport(boolean)
+     * @see Reporter
      */
+    public static Launcher getLauncher(String extendedIdentity) {
+        return new Jmccc(extendedIdentity);
+    }
+
+    private Jmccc(String extendedIdentity) {
+        reporter = new Reporter(extendedIdentity);
+    }
+
+    private Reporter reporter;
+    private boolean reportmode = true;
+
+    @Override
     public LaunchResult launch(LaunchOption option) throws LaunchException {
         Objects.requireNonNull(option);
-        return launch(generateLaunchArgs(option), null);
+        return launch(option, null);
     }
 
-    /**
-     * Launches the game with the given option. If <code>listener!=null</code>, JMCCC will create a
-     * {@link GameProcessMonitor} to monitor the game process. The logs will be reported to the given listener.
-     * Else if <code>listener==null</code>, this method won't create a monitor.
-     * <p>
-     * The monitor threads won't stop until the game process stops, or {@link GameProcessMonitor#shutdown()} has been
-     * called. Also, the jvm won't exit automatically because the monitor threads are not daemon.<br>
-     * If we fail to launch the game, we will throw a {@link LaunchException}.
-     * 
-     * @param option the launching option
-     * @param listener the game listener to receive logs from the game
-     * @return the launching result
-     * @throws LaunchException if we fail to launch the game
-     * @throws NullPointerException if <code>option==null</code>
-     * @see LaunchResult
-     * @see GameProcessMonitor
-     * @see IGameListener
-     * @see GameProcessMonitor#shutdown()
-     * @see LaunchException
-     */
+    @Override
     public LaunchResult launch(LaunchOption option, IGameListener listener) throws LaunchException {
         Objects.requireNonNull(option);
-        return launch(generateLaunchArgs(option), listener);
+        if (reportmode) {
+            return launchWithReport(option, listener);
+        } else {
+            return launchWithoutReport(option, listener);
+        }
     }
 
-    /**
-     * Gets the Version object of the given version in the given .minecraft dir.
-     * 
-     * @param version the version name
-     * @return the Version object, null if <code>version==null</code>, or the version does not exist
-     * @throws IOException if an I/O exception has occurred during resolving version
-     * @throws JsonSyntaxException if an JSON syntax exception has occurred during resolving version json
-     * @throws NullPointerException if <code>minecraftDir==null</code>
-     * @see Version
-     * @see Jmccc#getVersions(File)
-     */
+    @Override
     public Version getVersion(File minecraftDir, String version) throws JsonSyntaxException, IOException {
         Objects.requireNonNull(minecraftDir);
         if (version == null) {
@@ -92,16 +84,7 @@ public class Jmccc {
         }
     }
 
-    /**
-     * Gets the names of the versions in the given .minecraft dir.
-     * <p>
-     * This method returns a non-threaded safe, unordered set.
-     * 
-     * @param minecraftDir the .minecraft dir
-     * @return a set of the names of the versions in the given .minecraft dir
-     * @throws NullPointerException if <code>minecraftDir==null</code>
-     * @see Jmccc#getVersion(File, String)
-     */
+    @Override
     public Set<String> getVersions(File minecraftDir) {
         Objects.requireNonNull(minecraftDir);
 
@@ -112,6 +95,26 @@ public class Jmccc {
             }
         }
         return versions;
+    }
+
+    @Override
+    public void setReport(boolean on) {
+        reportmode = on;
+    }
+
+    public LaunchResult launchWithoutReport(LaunchOption option, IGameListener listener) throws LaunchException {
+        return launch(generateLaunchArgs(option), listener);
+    }
+
+    public LaunchResult launchWithReport(LaunchOption option, IGameListener listener) throws LaunchException {
+        try {
+            LaunchResult result = launchWithoutReport(option, listener);
+            reporter.asyncLaunchSuccessfully(option, result);
+            return result;
+        } catch (Throwable e) {
+            reporter.asyncLaunchUnsuccessfully(option, e);
+            throw e;
+        }
     }
 
     private boolean doesVersionExists(File minecraftDir, String version) {

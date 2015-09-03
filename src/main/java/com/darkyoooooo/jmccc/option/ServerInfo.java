@@ -1,4 +1,4 @@
-package com.darkyoooooo.jmccc.launch;
+package com.darkyoooooo.jmccc.option;
 
 import java.util.Objects;
 

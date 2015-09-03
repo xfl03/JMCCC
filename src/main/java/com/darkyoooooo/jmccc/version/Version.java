@@ -111,7 +111,7 @@ public class Version {
         for (JsonElement element : rules.getAsJsonArray()) {
             JsonObject rule = element.getAsJsonObject();
 
-            boolean action = rule.get("action").equals("allow");
+            boolean action = rule.get("action").getAsString().equals("allow");
 
             // apply by default
             boolean apply = true;
