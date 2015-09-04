@@ -23,7 +23,7 @@ class Reporter {
     /**
      * JMCCC Report API
      */
-    private static final String reportLink = "http://darkyoooooo.sinaapp.com/update-v2.php";
+    private static final String reportLink = "http://yushijinhun.imwork.net:8081/jmccc-reporter-server-2.0/api/report-v2";
 
     private Gson gson = new Gson();
 
