@@ -1,15 +1,9 @@
 ## General housekeeping
-*.bat
 *.class
 *.iml
 *.ipr
 *.iws
-*.json
 *.log
-*.py
-*.sh
-*.txt
-*.xml
 *.jar
 *.war
 *.ear
@@ -54,6 +48,6 @@ eclipse/
 nbbuild/
 nbproject/
 
-!gradle/
-!gradlew
-!gradlew.bat
+# maven
+target/
+
