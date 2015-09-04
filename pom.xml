@@ -23,6 +23,10 @@
 		<connection>scm:git:git://github.com/to2mbn/JMCCC.git</connection>
 		<developerConnection>scm:git:git@github.com:to2mbn/JMCCC.git</developerConnection>
 	</scm>
+	<ciManagement>
+		<system>Jenkins</system>
+		<url>http://ci.infinity-studio.org/job/JMCCC</url>
+	</ciManagement>
 	<developers>
 		<developer>
 			<email>2569766005@qq.com</email>
