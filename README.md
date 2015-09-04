@@ -16,7 +16,7 @@ Require Maven
 	mvn clean install
 
 ### Examples
-
+```java
 	File md = new File("/home/test/.minecraft");
 	Launcher launcher = Jmccc.getLauncher("test");
 	launcher.launch(new LaunchOption(launcher.getVersion(md, "1.8"), new OfflineAuthenticator("test"), new EnvironmentOption(md)), new IGameListener() {
@@ -36,7 +36,7 @@ Require Maven
 			System.err.println(log);
 		}
 	});
-
+```
 In this example, we use `/home/test/.minecraft` as the .minecraft directory, and launches Minecraft 1.8 with an offine
 account `test`. And the logs from game process will be printed to stdout or stderr. When the game process terminates, 
 this program will print `***EXIT <the exit code>***` to the console, and then the monitor threads will terminate.<br/>
