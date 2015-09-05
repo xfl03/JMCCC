@@ -1,10 +1,18 @@
 # JMCCC 2.0
-![](http://i1.tietuku.com/e86de030295d85ac.png)<br>
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Southern-InfinityStudio/JMCCC?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)<br>
-An open-source lightweight library for launching Minecraft.<br>
+![](http://i1.tietuku.com/e86de030295d85ac.png)<br/>
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Southern-InfinityStudio/JMCCC?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)<br/>
+An open-source lightweight library for launching Minecraft.<br/>
 
 ### Download
-See [jenkins](http://ci.infinity-studio.org/job/JMCCC/).
+See [Jenkins](http://ci.infinity-studio.org/job/JMCCC/).<br/>
+Or add this library as a maven dependency.<br/>
+```xml
+<dependency>
+	<groupId>com.github.to2mbn</groupId>
+	<artifactId>jmccc</artifactId>
+	<version>2.0</version>
+</dependency>
+```
 
 ### Dependencies
 * gson 2.2.4 https://code.google.com/p/google-gson/
@@ -17,25 +25,25 @@ Require Maven
 
 ### Examples
 ```java
-	File md = new File("/home/test/.minecraft");
-	Launcher launcher = Jmccc.getLauncher("test");
-	launcher.launch(new LaunchOption(launcher.getVersion(md, "1.8"), new OfflineAuthenticator("test"), new EnvironmentOption(md)), new IGameListener() {
-	
-		@Override
-		public void onLog(String log) {
-			System.out.println(log);
-		}
-	
-		@Override
-		public void onExit(int code) {
-			System.err.println("***EXIT " + code + "***");
-		}
-	
-		@Override
-		public void onErrorLog(String log) {
-			System.err.println(log);
-		}
-	});
+File md = new File("/home/test/.minecraft");
+Launcher launcher = Jmccc.getLauncher("test");
+launcher.launch(new LaunchOption(launcher.getVersion(md, "1.8"), new OfflineAuthenticator("test"), new EnvironmentOption(md)), new IGameListener() {
+
+	@Override
+	public void onLog(String log) {
+		System.out.println(log);
+	}
+
+	@Override
+	public void onExit(int code) {
+		System.err.println("***EXIT " + code + "***");
+	}
+
+	@Override
+	public void onErrorLog(String log) {
+		System.err.println(log);
+	}
+});
 ```
 In this example, we use `/home/test/.minecraft` as the .minecraft directory, and launches Minecraft 1.8 with an offine
 account `test`. And the logs from game process will be printed to stdout or stderr. When the game process terminates, 
