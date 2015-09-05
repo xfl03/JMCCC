@@ -4,7 +4,7 @@
 An open-source lightweight library for launching Minecraft.<br/>
 
 ### Download
-See [Jenkins](http://ci.infinity-studio.org/job/JMCCC/).<br/>
+See [Jenkins](http://ci.infinity-studio.org/job/JMCCCv2/).<br/>
 Or add this library as a maven dependency.<br/>
 ```xml
 <dependency>
