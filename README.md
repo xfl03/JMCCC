@@ -45,7 +45,7 @@ launcher.launch(new LaunchOption(launcher.getVersion(md, "1.8"), new OfflineAuth
 	}
 });
 ```
-In this example, we use `/home/test/.minecraft` as the .minecraft directory, and launches Minecraft 1.8 with an offine
+In this example, we use `/home/test/.minecraft` as the .minecraft directory, and launches Minecraft 1.8 with an offline
 account `test`. And the logs from game process will be printed to stdout or stderr. When the game process terminates, 
 this program will print `***EXIT <the exit code>***` to the console, and then the monitor threads will terminate.<br/>
 See JavaDoc in the code for more usages.
