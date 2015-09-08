@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.Objects;
 import com.github.to2mbn.jmccc.util.Utils;
 
-public class EnvironmentOption {
+public class JavaOption {
 
     /**
      * the 'java'
@@ -12,24 +12,24 @@ public class EnvironmentOption {
     private File javaPath;
 
     /**
-     * Creates a EnvironmentOption with the given minecraft dir and the given 'java' path.
+     * Creates a JavaOption with the given minecraft dir and the given 'java' path.
      * 
      * @param javaPath the 'java'
      * @throws NullPointerException if <code>minecraftDir==null||javaPath==null</code>
      * @see Utils#getJavaPath()
      */
-    public EnvironmentOption(File javaPath) {
+    public JavaOption(File javaPath) {
         Objects.requireNonNull(javaPath);
 
         this.javaPath = javaPath;
     }
 
     /**
-     * Creates a EnvironmentOption with the .minecraft dir in the current dir and the default 'java' path.
+     * Creates a JavaOption with the .minecraft dir in the current dir and the default 'java' path.
      * 
      * @see Utils#getJavaPath()
      */
-    public EnvironmentOption() {
+    public JavaOption() {
         this(Utils.getJavaPath());
     }
 

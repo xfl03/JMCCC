@@ -40,7 +40,7 @@ public class LaunchOption {
     /*
      * The environment option
      */
-    private EnvironmentOption environmentOption;
+    private JavaOption javaOption;
 
     /**
      * The minecraft directory
@@ -57,37 +57,37 @@ public class LaunchOption {
      * 
      * @param version the version to launch
      * @param authenticator the authenticator
-     * @param environmentOption the EnvironmentOption
+     * @param javaOption the JavaOption
      * @throws NullPointerException if <code>version==null||authenticator==null</code>
      */
-    public LaunchOption(Version version, Authenticator authenticator, EnvironmentOption environmentOption) {
+    public LaunchOption(Version version, Authenticator authenticator, JavaOption javaOption) {
         Objects.requireNonNull(version);
         Objects.requireNonNull(authenticator);
-        Objects.requireNonNull(environmentOption);
+        Objects.requireNonNull(javaOption);
 
         this.version = version;
         this.authenticator = authenticator;
-        this.environmentOption = environmentOption;
+        this.javaOption = javaOption;
     }
 
     /**
-     * Gets the EnvironmentOption.
+     * Gets the JavaOption.
      * 
-     * @return the EnvironmentOption
+     * @return the JavaOption
      */
-    public EnvironmentOption getEnvironmentOption() {
-        return environmentOption;
+    public JavaOption getJavaOption() {
+        return javaOption;
     }
 
     /**
-     * Sets the EnvironmentOption.
+     * Sets the JavaOption.
      * 
-     * @param environmentOption the EnvironmentOption to set
-     * @throws NullPointerException if <code>environmentOption=null</code>
+     * @param javaOption the JavaOption to set
+     * @throws NullPointerException if <code>javaOption=null</code>
      */
-    public void setEnvironmentOption(EnvironmentOption environmentOption) {
-        Objects.requireNonNull(environmentOption);
-        this.environmentOption = environmentOption;
+    public void setJavaOption(JavaOption javaOption) {
+        Objects.requireNonNull(javaOption);
+        this.javaOption = javaOption;
     }
 
     /**

@@ -37,7 +37,7 @@ class LaunchArgument {
         Version version = launchOption.getVersion();
 
         // java pach
-        args.add(launchOption.getEnvironmentOption().getJavaPath().toString());
+        args.add(launchOption.getJavaOption().getJavaPath().toString());
 
         // cgc
         if (enableCGC) {
