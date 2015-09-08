@@ -98,7 +98,7 @@ public class MinecraftDirectory {
      * @return the json file of the given version
      */
     public File getVersionJson(String version) {
-        return new File(getVersion(version), version + ".json");
+        return getVersionJson(version, version);
     }
 
     /**
@@ -108,7 +108,29 @@ public class MinecraftDirectory {
      * @return the jar file of the given version
      */
     public File getVersionJar(String version) {
-        return new File(getVersion(version), version + ".jar");
+        return getVersionJar(version, version);
+    }
+
+    /**
+     * Gets the json file of the given version
+     * 
+     * @param version the version
+     * @param jarName the jar name
+     * @return the json file of the given version
+     */
+    public File getVersionJson(String version, String jarName) {
+        return new File(getVersion(version), jarName + ".json");
+    }
+
+    /**
+     * Gets the jar file of the given version
+     * 
+     * @param version the version
+     * @param jarName the jar name
+     * @return the jar file of the given version
+     */
+    public File getVersionJar(String version, String jarName) {
+        return new File(getVersion(version), jarName + ".jar");
     }
 
 }
