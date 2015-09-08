@@ -20,12 +20,10 @@ class LaunchArgument {
     private Set<File> libraries;
     private List<String> extendedArguments;
     private Map<String, String> tokens;
-    private boolean enableCGC;
 
-    public LaunchArgument(LaunchOption launchOption, Map<String, String> tokens, List<String> extendedArguments, boolean enableCGC, Set<File> libraries, File nativesPath) {
+    public LaunchArgument(LaunchOption launchOption, Map<String, String> tokens, List<String> extendedArguments, Set<File> libraries, File nativesPath) {
         this.launchOption = launchOption;
         this.libraries = libraries;
-        this.enableCGC = enableCGC;
         this.nativesPath = nativesPath;
         this.tokens = tokens;
         this.extendedArguments = extendedArguments;
@@ -40,7 +38,7 @@ class LaunchArgument {
         args.add(launchOption.getJavaOption().getJavaPath().toString());
 
         // cgc
-        if (enableCGC) {
+        if (launchOption.getJavaOption().isInCGC()) {
             args.add("-Xincgc");
         }
 
@@ -145,10 +143,6 @@ class LaunchArgument {
 
     public Map<String, String> getTokens() {
         return tokens;
-    }
-
-    public boolean isEnableCGC() {
-        return enableCGC;
     }
 
 }

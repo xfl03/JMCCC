@@ -176,7 +176,7 @@ public class Jmccc implements Launcher {
         tokens.put("auth_uuid", auth.getUUID());
         tokens.put("user_type", auth.getUserType());
         tokens.put("user_properties", auth.getProperties());
-        return new LaunchArgument(option, tokens, option.getExtraArguments(), Utils.isCGCSupported(), javaLibraries, nativesDir);
+        return new LaunchArgument(option, tokens, option.getExtraArguments(), javaLibraries, nativesDir);
     }
 
 }
