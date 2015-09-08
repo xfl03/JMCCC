@@ -16,6 +16,13 @@ public class MinecraftDirectory {
     protected File rootDir;
 
     /**
+     * Creates a MinecraftDirectory with the '.minecraft' directory in the current directory.
+     */
+    public MinecraftDirectory() {
+        this(new File(".minecraft"));
+    }
+
+    /**
      * Creates a MinecraftDirectory with the given root directory.
      * 
      * @param rootDir the root directory of minecraft (eg. <code>".minecraft"<code>)
