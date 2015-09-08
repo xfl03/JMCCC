@@ -7,11 +7,6 @@ import com.github.to2mbn.jmccc.util.Utils;
 public class EnvironmentOption {
 
     /**
-     * the minecraft dir
-     */
-    private MinecraftDirectory minecraftDir;
-
-    /**
      * the 'java'
      */
     private File javaPath;
@@ -19,28 +14,14 @@ public class EnvironmentOption {
     /**
      * Creates a EnvironmentOption with the given minecraft dir and the given 'java' path.
      * 
-     * @param minecraftDir the minecraft dir
      * @param javaPath the 'java'
      * @throws NullPointerException if <code>minecraftDir==null||javaPath==null</code>
      * @see Utils#getJavaPath()
      */
-    public EnvironmentOption(MinecraftDirectory minecraftDir, File javaPath) {
-        Objects.requireNonNull(minecraftDir);
+    public EnvironmentOption(File javaPath) {
         Objects.requireNonNull(javaPath);
 
-        this.minecraftDir = minecraftDir;
         this.javaPath = javaPath;
-    }
-
-    /**
-     * Creates a EnvironmentOption with the given minecraft dir and the default 'java' path.
-     * 
-     * @param minecraftDir the minecraft dir
-     * @throws NullPointerException if <code>minecraftDir==null</code>
-     * @see Utils#getJavaPath()
-     */
-    public EnvironmentOption(MinecraftDirectory minecraftDir) {
-        this(minecraftDir, Utils.getJavaPath());
     }
 
     /**
@@ -49,28 +30,7 @@ public class EnvironmentOption {
      * @see Utils#getJavaPath()
      */
     public EnvironmentOption() {
-        this(new MinecraftDirectory(), Utils.getJavaPath());
-    }
-
-    /**
-     * Gets the .minecraft dir.
-     * 
-     * @return the .minecraft dir
-     */
-    public MinecraftDirectory getMinecraftDir() {
-        return minecraftDir;
-    }
-
-    /**
-     * Sets the .minecraft dir.
-     * 
-     * @param minecraftDir the .minecraft dir to set
-     * @throws NullPointerException if <code>minecraftDir==null</code>
-     */
-    public void setMinecraftDir(MinecraftDirectory minecraftDir) {
-        Objects.requireNonNull(minecraftDir);
-
-        this.minecraftDir = minecraftDir;
+        this(Utils.getJavaPath());
     }
 
     /**

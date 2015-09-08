@@ -43,6 +43,11 @@ public class LaunchOption {
     private EnvironmentOption environmentOption;
 
     /**
+     * The minecraft directory
+     */
+    private MinecraftDirectory minecraftDirectory;
+
+    /**
      * The extra arguments to append to the command line, defualt to null
      */
     private List<String> extraArguments;
@@ -201,6 +206,26 @@ public class LaunchOption {
      */
     public Authenticator getAuthenticator() {
         return authenticator;
+    }
+
+    /**
+     * Gets the minecraft directory.
+     * 
+     * @return the minecraft directory
+     */
+    public MinecraftDirectory getMinecraftDirectory() {
+        return minecraftDirectory;
+    }
+
+    /**
+     * Sets the minecraft directory.
+     * 
+     * @param minecraftDirectory the minecraft directory
+     * @throws NullPointerException if <code>minecraftDirectory==null</code>
+     */
+    public void setMinecraftDirectory(MinecraftDirectory minecraftDirectory) {
+        Objects.requireNonNull(minecraftDirectory);
+        this.minecraftDirectory = minecraftDirectory;
     }
 
 }

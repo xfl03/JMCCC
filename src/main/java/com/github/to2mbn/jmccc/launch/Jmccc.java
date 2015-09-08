@@ -126,7 +126,7 @@ public class Jmccc implements Launcher {
         Process process;
         try {
             ProcessBuilder processBuilder = new ProcessBuilder(arg.generateCommandline());
-            processBuilder.directory(arg.getLaunchOption().getEnvironmentOption().getMinecraftDir().getRoot());
+            processBuilder.directory(arg.getLaunchOption().getMinecraftDirectory().getRoot());
             process = processBuilder.start();
         } catch (SecurityException | IOException e) {
             throw new LaunchException("Failed to start process", e);
@@ -151,9 +151,9 @@ public class Jmccc implements Launcher {
         AuthResult auth = option.getAuthenticator().auth();
 
         Set<File> javaLibraries = new HashSet<>();
-        File nativesDir = option.getEnvironmentOption().getMinecraftDir().getNatives();
+        File nativesDir = option.getMinecraftDirectory().getNatives();
         for (Library library : option.getVersion().getLibraries()) {
-            File libraryFile = new File(option.getEnvironmentOption().getMinecraftDir().getLibraries(), library.getPath());
+            File libraryFile = new File(option.getMinecraftDirectory().getLibraries(), library.getPath());
             if (library.isNatives()) {
                 try {
                     Utils.uncompressZipWithExcludes(libraryFile, nativesDir, library.getExtractExcludes());
