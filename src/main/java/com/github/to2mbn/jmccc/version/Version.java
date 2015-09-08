@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+import com.github.to2mbn.jmccc.option.MinecraftDirectory;
 import com.github.to2mbn.jmccc.util.OsTypes;
 import com.github.to2mbn.jmccc.util.Utils;
 import com.google.gson.JsonArray;
@@ -13,15 +14,7 @@ import com.google.gson.JsonSyntaxException;
 
 public class Version {
 
-    private static File getVersionJsonFile(File versionsDir, String version) {
-        return new File(new File(versionsDir, version), version + ".json");
-    }
-
-    private static File getVersionJarFile(File versionsDir, String version) {
-        return new File(new File(versionsDir, version), version + ".jar");
-    }
-
-    private File minecraftDir;
+    private MinecraftDirectory minecraftDir;
     private String version;
     private String mainClass;
     private String assets;
@@ -30,11 +23,10 @@ public class Version {
 
     private Set<Library> libraries = new HashSet<>();
 
-    public Version(File minecraftDir, String name) throws JsonSyntaxException, IOException {
+    public Version(MinecraftDirectory minecraftDir, String name) throws JsonSyntaxException, IOException {
         this.minecraftDir = minecraftDir;
 
-        File versionsDir = new File(minecraftDir, "versions");
-        JsonObject json = Utils.readJson(getVersionJsonFile(versionsDir, name)).getAsJsonObject();
+        JsonObject json = Utils.readJson(minecraftDir.getVersionJson(name)).getAsJsonObject();
 
         version = json.get("id").getAsString();
         assets = json.get("assets").getAsString();
@@ -49,12 +41,12 @@ public class Version {
             do {
                 inheritsFrom = json.get("inheritsFrom").getAsString();
                 inheritsJar = json.has("jar") ? json.get("jar").getAsString() : inheritsFrom;
-                json = Utils.readJson(getVersionJsonFile(versionsDir, inheritsFrom)).getAsJsonObject();
+                json = Utils.readJson(minecraftDir.getVersionJson(inheritsFrom, inheritsJar)).getAsJsonObject();
                 loadDepends(json.getAsJsonArray("libraries"));
             } while (json.has("inheritsFrom"));
-            jar = new File(new File(versionsDir, inheritsFrom), inheritsJar + ".jar");
+            jar = minecraftDir.getVersionJar(inheritsFrom, inheritsJar);
         } else {
-            jar = getVersionJarFile(versionsDir, name);
+            jar = minecraftDir.getVersionJar(name);
         }
     }
 
@@ -69,7 +61,7 @@ public class Version {
     public Set<Library> findMissingLibraries() {
         Set<Library> missing = new HashSet<>();
         for (Library library : libraries) {
-            if (!new File(minecraftDir, library.getPath()).exists()) {
+            if (!new File(minecraftDir.getLibraries(), library.getPath()).exists()) {
                 missing.add(library);
             }
         }

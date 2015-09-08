@@ -9,6 +9,7 @@ import com.github.to2mbn.jmccc.launch.Jmccc;
 import com.github.to2mbn.jmccc.launch.LaunchException;
 import com.github.to2mbn.jmccc.launch.LaunchResult;
 import com.github.to2mbn.jmccc.option.LaunchOption;
+import com.github.to2mbn.jmccc.option.MinecraftDirectory;
 import com.github.to2mbn.jmccc.version.Version;
 import com.google.gson.JsonSyntaxException;
 
@@ -62,8 +63,9 @@ public interface Launcher {
     LaunchResult launch(LaunchOption option, IGameListener listener) throws LaunchException;
 
     /**
-     * Gets the Version object of the given version in the given .minecraft dir.
+     * Gets the Version object of the given version in the given minecraft directory.
      * 
+     * @param minecraftDir the minecraft directory
      * @param version the version name
      * @return the Version object, null if <code>version==null</code>, or the version does not exist
      * @throws IOException if an I/O exception has occurred during resolving version
@@ -72,19 +74,19 @@ public interface Launcher {
      * @see Version
      * @see Jmccc#getVersions(File)
      */
-    Version getVersion(File minecraftDir, String version) throws JsonSyntaxException, IOException;
+    Version getVersion(MinecraftDirectory minecraftDir, String version) throws JsonSyntaxException, IOException;
 
     /**
-     * Gets the names of the versions in the given .minecraft dir.
+     * Gets the names of the versions in the given minecraft directory.
      * <p>
      * This method returns a non-threaded safe, unordered set.
      * 
-     * @param minecraftDir the .minecraft dir
+     * @param minecraftDir the minecraft directory
      * @return a set of the names of the versions in the given .minecraft dir
      * @throws NullPointerException if <code>minecraftDir==null</code>
      * @see Jmccc#getVersion(File, String)
      */
-    Set<String> getVersions(File minecraftDir);
+    Set<String> getVersions(MinecraftDirectory minecraftDir);
 
     /**
      * Sets the report mode to on or off.

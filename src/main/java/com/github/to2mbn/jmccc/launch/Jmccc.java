@@ -12,6 +12,7 @@ import com.github.to2mbn.jmccc.auth.AuthResult;
 import com.github.to2mbn.jmccc.ext.GameProcessMonitor;
 import com.github.to2mbn.jmccc.ext.IGameListener;
 import com.github.to2mbn.jmccc.option.LaunchOption;
+import com.github.to2mbn.jmccc.option.MinecraftDirectory;
 import com.github.to2mbn.jmccc.util.Utils;
 import com.github.to2mbn.jmccc.version.Library;
 import com.github.to2mbn.jmccc.version.Version;
@@ -71,7 +72,7 @@ public class Jmccc implements Launcher {
     }
 
     @Override
-    public Version getVersion(File minecraftDir, String version) throws JsonSyntaxException, IOException {
+    public Version getVersion(MinecraftDirectory minecraftDir, String version) throws JsonSyntaxException, IOException {
         Objects.requireNonNull(minecraftDir);
         if (version == null) {
             return null;
@@ -85,11 +86,11 @@ public class Jmccc implements Launcher {
     }
 
     @Override
-    public Set<String> getVersions(File minecraftDir) {
+    public Set<String> getVersions(MinecraftDirectory minecraftDir) {
         Objects.requireNonNull(minecraftDir);
 
         Set<String> versions = new HashSet<>();
-        for (File file : new File(minecraftDir, "versions").listFiles()) {
+        for (File file : minecraftDir.getVersions().listFiles()) {
             if (file.isDirectory() && doesVersionExists(minecraftDir, file.getName())) {
                 versions.add(file.getName());
             }
@@ -117,18 +118,15 @@ public class Jmccc implements Launcher {
         }
     }
 
-    private boolean doesVersionExists(File minecraftDir, String version) {
-        File versionsDir = new File(minecraftDir, "versions");
-        File versionDir = new File(versionsDir, version);
-        File versionJsonFile = new File(versionDir, version + ".json");
-        return versionJsonFile.isFile();
+    private boolean doesVersionExists(MinecraftDirectory minecraftDir, String version) {
+        return minecraftDir.getVersionJson(version).isFile();
     }
 
     private LaunchResult launch(LaunchArgument arg, IGameListener listener) throws LaunchException {
         Process process;
         try {
             ProcessBuilder processBuilder = new ProcessBuilder(arg.generateCommandline());
-            processBuilder.directory(arg.getLaunchOption().getEnvironmentOption().getMinecraftDir());
+            processBuilder.directory(arg.getLaunchOption().getEnvironmentOption().getMinecraftDir().getRoot());
             process = processBuilder.start();
         } catch (SecurityException | IOException e) {
             throw new LaunchException("Failed to start process", e);
@@ -153,9 +151,9 @@ public class Jmccc implements Launcher {
         AuthResult auth = option.getAuthenticator().auth();
 
         Set<File> javaLibraries = new HashSet<>();
-        File nativesDir = getNativesDir(option);
+        File nativesDir = option.getEnvironmentOption().getMinecraftDir().getNatives();
         for (Library library : option.getVersion().getLibraries()) {
-            File libraryFile = getLibraryFile(library, option);
+            File libraryFile = new File(option.getEnvironmentOption().getMinecraftDir().getLibraries(), library.getPath());
             if (library.isNatives()) {
                 try {
                     Utils.uncompressZipWithExcludes(libraryFile, nativesDir, library.getExtractExcludes());
@@ -179,14 +177,6 @@ public class Jmccc implements Launcher {
         tokens.put("user_type", auth.getUserType());
         tokens.put("user_properties", auth.getProperties());
         return new LaunchArgument(option, tokens, option.getExtraArguments(), Utils.isCGCSupported(), javaLibraries, nativesDir);
-    }
-
-    private File getLibraryFile(Library library, LaunchOption option) {
-        return new File(option.getEnvironmentOption().getMinecraftDir(), library.getPath());
-    }
-
-    private File getNativesDir(LaunchOption option) {
-        return new File(option.getEnvironmentOption().getMinecraftDir(), "natives");
     }
 
 }
