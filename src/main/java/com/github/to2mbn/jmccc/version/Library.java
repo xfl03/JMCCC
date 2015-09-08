@@ -8,7 +8,7 @@ public class Library {
     /**
      * The relative path of the library.
      * <p>
-     * Use '/' as the separator char, and '.minecraft' as the base dir.
+     * Use '/' as the separator char, and 'libraries' as the base dir.
      */
     private String path;
 
@@ -52,16 +52,16 @@ public class Library {
         this.extractExcludes = extractExcludes;
 
         if (natives == null) {
-            path = "libraries/" + domain.replace('.', '/') + "/" + name + "/" + version + "/" + name + "-" + version + ".jar";
+            path = domain.replace('.', '/') + "/" + name + "/" + version + "/" + name + "-" + version + ".jar";
         } else {
-            path = "libraries/" + domain.replace('.', '/') + "/" + name + "/" + version + "/" + name + "-" + version + "-" + natives + ".jar";
+            path = domain.replace('.', '/') + "/" + name + "/" + version + "/" + name + "-" + version + "-" + natives + ".jar";
         }
     }
 
     /**
      * Gets the relative path of the library.
      * <p>
-     * Use '/' as the separator char, and '.minecraft' as the base dir.
+     * Use '/' as the separator char, and 'libraries' as the base dir.
      * 
      * @return the relative path of the library
      */

@@ -7,9 +7,9 @@ import com.github.to2mbn.jmccc.util.Utils;
 public class EnvironmentOption {
 
     /**
-     * the .minecraft dir
+     * the minecraft dir
      */
-    private File minecraftDir;
+    private MinecraftDirectory minecraftDir;
 
     /**
      * the 'java'
@@ -17,29 +17,29 @@ public class EnvironmentOption {
     private File javaPath;
 
     /**
-     * Creates a EnvironmentOption with the given .minecraft dir and the given 'java' path.
+     * Creates a EnvironmentOption with the given minecraft dir and the given 'java' path.
      * 
-     * @param minecraftDir the .minecraft dir
+     * @param minecraftDir the minecraft dir
      * @param javaPath the 'java'
      * @throws NullPointerException if <code>minecraftDir==null||javaPath==null</code>
      * @see Utils#getJavaPath()
      */
-    public EnvironmentOption(File minecraftDir, File javaPath) {
+    public EnvironmentOption(MinecraftDirectory minecraftDir, File javaPath) {
         Objects.requireNonNull(minecraftDir);
         Objects.requireNonNull(javaPath);
-        
+
         this.minecraftDir = minecraftDir;
         this.javaPath = javaPath;
     }
 
     /**
-     * Creates a EnvironmentOption with the given .minecraft dir and the default 'java' path.
+     * Creates a EnvironmentOption with the given minecraft dir and the default 'java' path.
      * 
-     * @param minecraftDir the .minecraft dir
+     * @param minecraftDir the minecraft dir
      * @throws NullPointerException if <code>minecraftDir==null</code>
      * @see Utils#getJavaPath()
      */
-    public EnvironmentOption(File minecraftDir) {
+    public EnvironmentOption(MinecraftDirectory minecraftDir) {
         this(minecraftDir, Utils.getJavaPath());
     }
 
@@ -49,7 +49,7 @@ public class EnvironmentOption {
      * @see Utils#getJavaPath()
      */
     public EnvironmentOption() {
-        this(new File(".minecraft"), Utils.getJavaPath());
+        this(new MinecraftDirectory(), Utils.getJavaPath());
     }
 
     /**
@@ -57,7 +57,7 @@ public class EnvironmentOption {
      * 
      * @return the .minecraft dir
      */
-    public File getMinecraftDir() {
+    public MinecraftDirectory getMinecraftDir() {
         return minecraftDir;
     }
 
@@ -67,7 +67,7 @@ public class EnvironmentOption {
      * @param minecraftDir the .minecraft dir to set
      * @throws NullPointerException if <code>minecraftDir==null</code>
      */
-    public void setMinecraftDir(File minecraftDir) {
+    public void setMinecraftDir(MinecraftDirectory minecraftDir) {
         Objects.requireNonNull(minecraftDir);
 
         this.minecraftDir = minecraftDir;
