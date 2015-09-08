@@ -81,4 +81,14 @@ public class MinecraftDirectory {
         return new File(rootDir, "assets");
     }
 
+    /**
+     * Gets the base directory of the given version
+     * 
+     * @param version the version
+     * @return the base directory of the given version
+     */
+    public File getVersion(String version) {
+        return new File(getVersions(), version);
+    }
+
 }
