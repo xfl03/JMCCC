@@ -135,4 +135,9 @@ public class Library {
         return new File(minecraftDir.getLibraries(), path).isFile();
     }
 
+    @Override
+    public String toString() {
+        return domain + ":" + name + ":" + version;
+    }
+
 }
