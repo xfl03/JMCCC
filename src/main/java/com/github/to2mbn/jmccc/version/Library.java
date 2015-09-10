@@ -132,7 +132,7 @@ public class Library {
      * @return true if the library is missing in the given minecraft directory
      */
     public boolean isMissing(MinecraftDirectory minecraftDir) {
-        return new File(minecraftDir.getLibraries(), path).isFile();
+        return !new File(minecraftDir.getLibraries(), path).isFile();
     }
 
     @Override
