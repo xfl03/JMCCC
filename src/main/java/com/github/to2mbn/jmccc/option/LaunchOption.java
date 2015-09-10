@@ -53,21 +53,75 @@ public class LaunchOption {
     private List<String> extraArguments;
 
     /**
+     * Creates a LaunchOption with the default JavaOption and MinecraftDirectory.
+     * 
+     * @param version the version to launch
+     * @param authenticator the authenticator
+     * @throws NullPointerException if <code>version==null||authenticator==null</code>
+     */
+    public LaunchOption(Version version, Authenticator authenticator) {
+        this(version, authenticator, new MinecraftDirectory(), new JavaOption());
+    }
+
+    /**
+     * Creates a LaunchOption with the default JavaOption.
+     * 
+     * @param version the version to launch
+     * @param authenticator the authenticator
+     * @param minecraftDir the minecraft directory
+     * @throws NullPointerException if <code>version==null||authenticator==null||minecraftDir==null</code>
+     */
+    public LaunchOption(Version version, Authenticator authenticator, MinecraftDirectory minecraftDir) {
+        this(version, authenticator, minecraftDir, new JavaOption());
+    }
+
+    /**
      * Creates a LaunchOption.
      * 
      * @param version the version to launch
      * @param authenticator the authenticator
+     * @param minecraftDir the minecraft directory
      * @param javaOption the JavaOption
-     * @throws NullPointerException if <code>version==null||authenticator==null</code>
+     * @throws NullPointerException if
+     *             <code>version==null||authenticator==null||minecraftDir==null||javaOption==null</code>
      */
-    public LaunchOption(Version version, Authenticator authenticator, JavaOption javaOption) {
+    public LaunchOption(Version version, Authenticator authenticator, MinecraftDirectory minecraftDir, JavaOption javaOption) {
         Objects.requireNonNull(version);
         Objects.requireNonNull(authenticator);
         Objects.requireNonNull(javaOption);
+        Objects.requireNonNull(minecraftDir);
 
         this.version = version;
         this.authenticator = authenticator;
+        this.minecraftDirectory = minecraftDir;
         this.javaOption = javaOption;
+    }
+
+    /**
+     * Gets the version to launch.
+     * 
+     * @return the version to launch
+     */
+    public Version getVersion() {
+        return version;
+    }
+
+    /**
+     * Gets the authenticator.
+     * 
+     * @return the authenticator
+     */
+    public Authenticator getAuthenticator() {
+        return authenticator;
+    }
+
+    /**
+     * Gets the minecraft directory.
+     * 
+     * @return the minecraft directory
+     */
+    public MinecraftDirectory getMinecraftDirectory() {
+        return minecraftDirectory;
     }
 
     /**
@@ -77,17 +131,6 @@ public class LaunchOption {
      */
     public JavaOption getJavaOption() {
         return javaOption;
-    }
-
-    /**
-     * Sets the JavaOption.
-     * 
-     * @param javaOption the JavaOption to set
-     * @throws NullPointerException if <code>javaOption=null</code>
-     */
-    public void setJavaOption(JavaOption javaOption) {
-        Objects.requireNonNull(javaOption);
-        this.javaOption = javaOption;
     }
 
     /**
@@ -188,44 +231,6 @@ public class LaunchOption {
      */
     public void setExtraArguments(List<String> extraArguments) {
         this.extraArguments = extraArguments;
-    }
-
-    /**
-     * Gets the version to launch.
-     * 
-     * @return the version to launch
-     */
-    public Version getVersion() {
-        return version;
-    }
-
-    /**
-     * Gets the authenticator.
-     * 
-     * @return the authenticator
-     */
-    public Authenticator getAuthenticator() {
-        return authenticator;
-    }
-
-    /**
-     * Gets the minecraft directory.
-     * 
-     * @return the minecraft directory
-     */
-    public MinecraftDirectory getMinecraftDirectory() {
-        return minecraftDirectory;
-    }
-
-    /**
-     * Sets the minecraft directory.
-     * 
-     * @param minecraftDirectory the minecraft directory
-     * @throws NullPointerException if <code>minecraftDirectory==null</code>
-     */
-    public void setMinecraftDirectory(MinecraftDirectory minecraftDirectory) {
-        Objects.requireNonNull(minecraftDirectory);
-        this.minecraftDirectory = minecraftDirectory;
     }
 
 }
