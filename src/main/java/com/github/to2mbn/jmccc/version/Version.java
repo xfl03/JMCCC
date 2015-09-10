@@ -1,6 +1,5 @@
 package com.github.to2mbn.jmccc.version;
 
-import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 import com.github.to2mbn.jmccc.option.MinecraftDirectory;
@@ -11,8 +10,8 @@ public class Version {
     private String mainClass;
     private String assets;
     private String launchArgs;
-    private File jar;
-    private Set<Library> libraries = new HashSet<>();
+    private String jarPath;
+    private Set<Library> libraries;
 
     /**
      * Creates a Version object.
@@ -21,17 +20,17 @@ public class Version {
      * @param mainClass the main class
      * @param assets the assets index name
      * @param launchArgs the launch arguments
-     * @param jar the relative path of the jar file
+     * @param jarPath the relative path of the jar file
      * @param libraries the libraries to add to classpath
      * @throws NullPointerException if
-     *             <code>version==null||mainClass==null||assets==null||launchArgs==null||jar==null||libraries==null</code>
+     *             <code>version==null||mainClass==null||assets==null||launchArgs==null||jarPath==null||libraries==null</code>
      */
-    public Version(String version, String mainClass, String assets, String launchArgs, File jar, Set<Library> libraries) {
+    public Version(String version, String mainClass, String assets, String launchArgs, String jarPath, Set<Library> libraries) {
         this.version = version;
         this.mainClass = mainClass;
         this.assets = assets;
         this.launchArgs = launchArgs;
-        this.jar = jar;
+        this.jarPath = jarPath;
         this.libraries = libraries;
     }
 
@@ -72,12 +71,14 @@ public class Version {
     }
 
     /**
-     * Gets the jar file.
+     * Returns the relative path of the version.
+     * <p>
+     * Use '/' as the separator char, and 'versions' as the base dir.
      * 
      * @return the jar file
      */
-    public File getJar() {
-        return jar;
+    public String getJarPath() {
+        return jarPath;
     }
 
     /**

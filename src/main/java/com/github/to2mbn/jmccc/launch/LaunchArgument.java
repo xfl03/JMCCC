@@ -73,7 +73,7 @@ class LaunchArgument {
         }
 
         // game jar file
-        cpBuilder.append(version.getJar()).append(os.getPathSpearator());
+        cpBuilder.append(new File(launchOption.getMinecraftDirectory().getVersions(), launchOption.getVersion().getJarPath())).append(os.getPathSpearator());
 
         args.add(cpBuilder.toString());
         // ==========END==========

@@ -1,6 +1,5 @@
 package com.github.to2mbn.jmccc.launch;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
@@ -18,19 +17,16 @@ import com.google.gson.JsonParseException;
 public class VersionParser {
 
     public Version parse(MinecraftDirectory minecraftDir, String name) throws IOException, JsonParseException {
-        String version;
-        String assets;
-        String mainClass;
-        String launchArgs;
         Set<Library> libraries = new HashSet<>();
-        File jar;
 
         JsonObject json = Utils.readJson(minecraftDir.getVersionJson(name)).getAsJsonObject();
-        version = json.get("id").getAsString();
-        assets = json.get("assets").getAsString();
-        mainClass = json.get("mainClass").getAsString();
-        launchArgs = json.get("minecraftArguments").getAsString();
+        String version = json.get("id").getAsString();
+        String assets = json.get("assets").getAsString();
+        String mainClass = json.get("mainClass").getAsString();
+        String launchArgs = json.get("minecraftArguments").getAsString();
         loadDepends(json.getAsJsonArray("libraries"), libraries);
+
+        String jarPath;
 
         // used to handle Forge, Liteloader......
         if (json.has("inheritsFrom")) {
@@ -42,12 +38,12 @@ public class VersionParser {
                 json = Utils.readJson(minecraftDir.getVersionJson(inheritsFrom, inheritsJar)).getAsJsonObject();
                 loadDepends(json.getAsJsonArray("libraries"), libraries);
             } while (json.has("inheritsFrom"));
-            jar = minecraftDir.getVersionJar(inheritsFrom, inheritsJar);
+            jarPath = getVersionJarPath(inheritsFrom, inheritsJar);
         } else {
-            jar = minecraftDir.getVersionJar(name);
+            jarPath = getVersionJarPath(name, version);
         }
 
-        return new Version(version, mainClass, assets, launchArgs, jar, libraries);
+        return new Version(version, mainClass, assets, launchArgs, jarPath, libraries);
     }
 
     private void loadDepends(JsonArray librariesList, Collection<Library> libraries) {
@@ -136,6 +132,10 @@ public class VersionParser {
             excludes.add(element.getAsString());
         }
         return excludes;
+    }
+
+    private String getVersionJarPath(String version, String jar) {
+        return version + "/" + jar + ".jar";
     }
 
 }
