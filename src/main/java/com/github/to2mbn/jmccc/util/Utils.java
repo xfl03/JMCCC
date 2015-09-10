@@ -15,6 +15,7 @@ import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 
 public class Utils {
@@ -100,8 +101,9 @@ public class Utils {
      * @param file file to read
      * @return json in the file
      * @throws IOException
+     * @throws JsonParseException
      */
-    public static JsonElement readJson(File file) throws IOException {
+    public static JsonElement readJson(File file) throws IOException, JsonParseException {
         JsonParser parser = new JsonParser();
         try (Reader reader = new InputStreamReader(new BufferedInputStream(new FileInputStream(file)), "UTF-8")) {
             return parser.parse(reader);

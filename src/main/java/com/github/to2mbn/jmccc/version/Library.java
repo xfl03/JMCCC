@@ -1,7 +1,9 @@
 package com.github.to2mbn.jmccc.version;
 
+import java.io.File;
 import java.util.Objects;
 import java.util.Set;
+import com.github.to2mbn.jmccc.option.MinecraftDirectory;
 
 public class Library {
 
@@ -121,6 +123,16 @@ public class Library {
      */
     public boolean isNatives() {
         return natives != null;
+    }
+
+    /**
+     * Checks if the library is missing in the given minecraft directory.
+     * 
+     * @param minecraftDir the minecraft directory to check
+     * @return true if the library is missing in the given minecraft directory
+     */
+    public boolean isMissing(MinecraftDirectory minecraftDir) {
+        return new File(minecraftDir.getLibraries(), path).isFile();
     }
 
 }
