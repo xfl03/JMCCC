@@ -16,7 +16,7 @@ import com.github.to2mbn.jmccc.option.MinecraftDirectory;
 import com.github.to2mbn.jmccc.util.Utils;
 import com.github.to2mbn.jmccc.version.Library;
 import com.github.to2mbn.jmccc.version.Version;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.JsonParseException;
 
 public class Jmccc implements Launcher {
 
@@ -48,12 +48,13 @@ public class Jmccc implements Launcher {
         return new Jmccc(extendedIdentity);
     }
 
+    private Reporter reporter;
+    private VersionParser versionParser = new VersionParser();;
+    private boolean reportmode = true;
+
     private Jmccc(String extendedIdentity) {
         reporter = new Reporter(extendedIdentity);
     }
-
-    private Reporter reporter;
-    private boolean reportmode = true;
 
     @Override
     public LaunchResult launch(LaunchOption option) throws LaunchException {
@@ -72,14 +73,14 @@ public class Jmccc implements Launcher {
     }
 
     @Override
-    public Version getVersion(MinecraftDirectory minecraftDir, String version) throws JsonSyntaxException, IOException {
+    public Version getVersion(MinecraftDirectory minecraftDir, String version) throws JsonParseException, IOException {
         Objects.requireNonNull(minecraftDir);
         if (version == null) {
             return null;
         }
 
         if (doesVersionExists(minecraftDir, version)) {
-            return new Version(minecraftDir, version);
+            return versionParser.parse(minecraftDir, version);
         } else {
             return null;
         }
@@ -143,7 +144,7 @@ public class Jmccc implements Launcher {
 
     private LaunchArgument generateLaunchArgs(LaunchOption option) throws LaunchException {
         // check libraries
-        Set<Library> missing = option.getVersion().findMissingLibraries();
+        Set<Library> missing = option.getVersion().getMissingLibraries(option.getMinecraftDirectory());
         if (!missing.isEmpty()) {
             throw new MissingDependenciesException(missing.toString());
         }

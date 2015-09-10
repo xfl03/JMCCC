@@ -1,183 +1,109 @@
 package com.github.to2mbn.jmccc.version;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import com.github.to2mbn.jmccc.option.MinecraftDirectory;
-import com.github.to2mbn.jmccc.util.OsTypes;
-import com.github.to2mbn.jmccc.util.Utils;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
 
 public class Version {
 
-    private MinecraftDirectory minecraftDir;
     private String version;
     private String mainClass;
     private String assets;
     private String launchArgs;
-    private File jar;
+    private String jarPath;
+    private Set<Library> libraries;
 
-    private Set<Library> libraries = new HashSet<>();
-
-    public Version(MinecraftDirectory minecraftDir, String name) throws JsonSyntaxException, IOException {
-        this.minecraftDir = minecraftDir;
-
-        JsonObject json = Utils.readJson(minecraftDir.getVersionJson(name)).getAsJsonObject();
-
-        version = json.get("id").getAsString();
-        assets = json.get("assets").getAsString();
-        mainClass = json.get("mainClass").getAsString();
-        launchArgs = json.get("minecraftArguments").getAsString();
-        loadDepends(json.getAsJsonArray("libraries"));
-
-        // used to handle Forge, Liteloader......
-        if (json.has("inheritsFrom")) {
-            String inheritsFrom;
-            String inheritsJar;
-            do {
-                inheritsFrom = json.get("inheritsFrom").getAsString();
-                inheritsJar = json.has("jar") ? json.get("jar").getAsString() : inheritsFrom;
-                json = Utils.readJson(minecraftDir.getVersionJson(inheritsFrom, inheritsJar)).getAsJsonObject();
-                loadDepends(json.getAsJsonArray("libraries"));
-            } while (json.has("inheritsFrom"));
-            jar = minecraftDir.getVersionJar(inheritsFrom, inheritsJar);
-        } else {
-            jar = minecraftDir.getVersionJar(name);
-        }
+    /**
+     * Creates a Version object.
+     * 
+     * @param version the version number
+     * @param mainClass the main class
+     * @param assets the assets index name
+     * @param launchArgs the launch arguments
+     * @param jarPath the relative path of the jar file
+     * @param libraries the libraries to add to classpath
+     * @throws NullPointerException if
+     *             <code>version==null||mainClass==null||assets==null||launchArgs==null||jarPath==null||libraries==null</code>
+     */
+    public Version(String version, String mainClass, String assets, String launchArgs, String jarPath, Set<Library> libraries) {
+        this.version = version;
+        this.mainClass = mainClass;
+        this.assets = assets;
+        this.launchArgs = launchArgs;
+        this.jarPath = jarPath;
+        this.libraries = libraries;
     }
 
     /**
-     * Checks the libraries and returns a set of the missing libraries.
-     * <p>
-     * If there's no missing library, this method will return a empty set. This method returns a non-threaded safe,
-     * unordered set.
+     * Gets the version number.
      * 
-     * @return a set of missing libraries
+     * @return the version number
      */
-    public Set<Library> findMissingLibraries() {
-        Set<Library> missing = new HashSet<>();
-        for (Library library : libraries) {
-            if (!new File(minecraftDir.getLibraries(), library.getPath()).exists()) {
-                missing.add(library);
-            }
-        }
-        return missing;
-    }
-
-    private void loadDepends(JsonArray librariesList) {
-        for (JsonElement element : librariesList) {
-            JsonObject library = element.getAsJsonObject();
-
-            if (!IsAllow(library.get("rules"))) {
-                continue;
-            }
-
-            String[] splited = library.get("name").getAsString().split(":", 3);
-            String domain = splited[0];
-            String name = splited[1];
-            String version = splited[2];
-
-            boolean isNative = library.has("natives");
-            if (isNative) {
-                String natives = resolveNatives(library.get("natives"));
-                Set<String> excludes = resolveExtractExclude(library.get("extract"));
-                libraries.add(new Library(domain, name, version, natives, excludes));
-            } else {
-                libraries.add(new Library(domain, name, version));
-            }
-        }
-    }
-
-    private boolean IsAllow(JsonElement rules) {
-        // by default it's allow
-        if (rules == null || rules.getAsJsonArray().size() == 0) {
-            return true;
-        }
-
-        // else it's disallow by default
-        boolean allow = false;
-        for (JsonElement element : rules.getAsJsonArray()) {
-            JsonObject rule = element.getAsJsonObject();
-
-            boolean action = rule.get("action").getAsString().equals("allow");
-
-            // apply by default
-            boolean apply = true;
-
-            if (rule.has("os")) {
-                // don't apply by default if has os rule
-                apply = false;
-
-                JsonObject osRule = rule.getAsJsonObject("os");
-                String name = osRule.get("name").getAsString();
-                String version = osRule.has("version") ? osRule.get("version").getAsString() : null;
-
-                if (OsTypes.CURRENT.name().equalsIgnoreCase(name)) {
-                    if (version == null || System.getProperty("os.version").matches(version)) {
-                        apply = true;
-                    }
-                }
-            }
-
-            if (apply) {
-                allow = action;
-            }
-        }
-
-        return allow;
-    }
-
-    private String resolveNatives(JsonElement nativesList) {
-        if (nativesList == null) {
-            return null;
-        }
-
-        JsonElement nativesElement = nativesList.getAsJsonObject().get(OsTypes.CURRENT.name().toLowerCase());
-        if (nativesElement == null) {
-            return null;
-        } else {
-            return nativesElement.getAsString().replaceAll("\\Q${arch}", System.getProperty("java.vm.name").contains("64") ? "64" : "32");
-        }
-    }
-
-    private Set<String> resolveExtractExclude(JsonElement extract) {
-        if (extract == null || !extract.getAsJsonObject().has("exclude")) {
-            return null;
-        }
-
-        Set<String> excludes = new HashSet<>();
-        for (JsonElement element : extract.getAsJsonObject().getAsJsonArray("exclude")) {
-            excludes.add(element.getAsString());
-        }
-        return excludes;
-    }
-
     public String getVersion() {
         return version;
     }
 
+    /**
+     * Gets the main class.
+     * 
+     * @return the main class
+     */
     public String getMainClass() {
         return mainClass;
     }
 
+    /**
+     * Gets the assets index name.
+     * 
+     * @return the assets index name
+     */
     public String getAssets() {
         return assets;
     }
 
+    /**
+     * Gets the launch arguments.
+     * 
+     * @return the launch arguments
+     */
     public String getLaunchArgs() {
         return launchArgs;
     }
 
-    public File getJar() {
-        return jar;
+    /**
+     * Returns the relative path of the version.
+     * <p>
+     * Use '/' as the separator char, and 'versions' as the base dir.
+     * 
+     * @return the jar file
+     */
+    public String getJarPath() {
+        return jarPath;
     }
 
+    /**
+     * Gets the required libraries.
+     * 
+     * @return the required libraries
+     */
     public Set<Library> getLibraries() {
         return libraries;
+    }
+
+    /**
+     * Returns the missing libraries in the given minecraft directory.
+     * 
+     * @param minecraftDir the minecraft directory to check
+     * @return true the missing libraries in the given minecraft directory, an empty set if no library is missing
+     */
+    public Set<Library> getMissingLibraries(MinecraftDirectory minecraftDir) {
+        Set<Library> missing = new HashSet<>();
+        for (Library library : libraries) {
+            if (library.isMissing(minecraftDir)) {
+                missing.add(library);
+            }
+        }
+        return missing;
     }
 
 }

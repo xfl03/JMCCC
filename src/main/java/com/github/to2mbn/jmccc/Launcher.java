@@ -11,6 +11,7 @@ import com.github.to2mbn.jmccc.launch.LaunchResult;
 import com.github.to2mbn.jmccc.option.LaunchOption;
 import com.github.to2mbn.jmccc.option.MinecraftDirectory;
 import com.github.to2mbn.jmccc.version.Version;
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
 
 /**
@@ -69,12 +70,12 @@ public interface Launcher {
      * @param version the version name
      * @return the Version object, null if <code>version==null</code>, or the version does not exist
      * @throws IOException if an I/O exception has occurred during resolving version
-     * @throws JsonSyntaxException if an JSON syntax exception has occurred during resolving version json
+     * @throws JsonParseException if an JSON syntax exception has occurred during resolving version json
      * @throws NullPointerException if <code>minecraftDir==null</code>
      * @see Version
      * @see Jmccc#getVersions(File)
      */
-    Version getVersion(MinecraftDirectory minecraftDir, String version) throws JsonSyntaxException, IOException;
+    Version getVersion(MinecraftDirectory minecraftDir, String version) throws JsonParseException, IOException;
 
     /**
      * Gets the names of the versions in the given minecraft directory.
