@@ -1,6 +1,5 @@
 package com.github.to2mbn.jmccc;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 import com.github.to2mbn.jmccc.ext.GameProcessMonitor;
@@ -12,7 +11,6 @@ import com.github.to2mbn.jmccc.option.LaunchOption;
 import com.github.to2mbn.jmccc.option.MinecraftDirectory;
 import com.github.to2mbn.jmccc.version.Version;
 import com.google.gson.JsonParseException;
-import com.google.gson.JsonSyntaxException;
 
 /**
  * A <code>Launcher</code> is used to launch minecraft.<br>
@@ -73,7 +71,7 @@ public interface Launcher {
      * @throws JsonParseException if an JSON syntax exception has occurred during resolving version json
      * @throws NullPointerException if <code>minecraftDir==null</code>
      * @see Version
-     * @see Jmccc#getVersions(File)
+     * @see Launcher#getVersions(MinecraftDirectory)
      */
     Version getVersion(MinecraftDirectory minecraftDir, String version) throws JsonParseException, IOException;
 
@@ -85,7 +83,7 @@ public interface Launcher {
      * @param minecraftDir the minecraft directory
      * @return a set of the names of the versions in the given .minecraft dir
      * @throws NullPointerException if <code>minecraftDir==null</code>
-     * @see Jmccc#getVersion(File, String)
+     * @see Launcher#getVersion(MinecraftDirectory, String)
      */
     Set<String> getVersions(MinecraftDirectory minecraftDir);
 

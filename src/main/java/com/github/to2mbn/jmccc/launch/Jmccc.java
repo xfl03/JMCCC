@@ -39,6 +39,7 @@ public class Jmccc implements Launcher {
      * The extended identity is used to identity the caller of JMCCC, default to null. If you want to help us do the
      * statistics better, please set this to the name and the version of your launcher.
      * 
+     * @param extendedIdentity the extended identity
      * @return the launcher
      * @see Jmccc#getLauncher()
      * @see Launcher#setReport(boolean)

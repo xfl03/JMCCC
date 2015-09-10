@@ -41,6 +41,8 @@ class Reporter {
 
     /**
      * Creates a Report with current version and given extended identity
+     * 
+     * @param extendedIdentity the extended identity
      */
     public Reporter(String extendedIdentity) {
         this.extendedIdentity = extendedIdentity;
