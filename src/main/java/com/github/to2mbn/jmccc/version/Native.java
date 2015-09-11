@@ -44,6 +44,11 @@ public class Native extends Library {
     }
 
     @Override
+    public String toString() {
+        return super.toString() + "@" + natives;
+    }
+
+    @Override
     protected String generatePath() {
         return getDomain().replace('.', '/') + "/" + getName() + "/" + getVersion() + "/" + getName() + "-" + getVersion() + "-" + natives + ".jar";
     }
