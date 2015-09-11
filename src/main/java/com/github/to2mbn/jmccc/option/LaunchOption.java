@@ -40,7 +40,12 @@ public class LaunchOption {
     /*
      * The environment option
      */
-    private EnvironmentOption environmentOption;
+    private JavaOption javaOption;
+
+    /**
+     * The minecraft directory
+     */
+    private MinecraftDirectory minecraftDirectory;
 
     /**
      * The extra arguments to append to the command line, defualt to null
@@ -48,41 +53,84 @@ public class LaunchOption {
     private List<String> extraArguments;
 
     /**
+     * Creates a LaunchOption with the default JavaOption and MinecraftDirectory.
+     * 
+     * @param version the version to launch
+     * @param authenticator the authenticator
+     * @throws NullPointerException if <code>version==null||authenticator==null</code>
+     */
+    public LaunchOption(Version version, Authenticator authenticator) {
+        this(version, authenticator, new MinecraftDirectory(), new JavaOption());
+    }
+
+    /**
+     * Creates a LaunchOption with the default JavaOption.
+     * 
+     * @param version the version to launch
+     * @param authenticator the authenticator
+     * @param minecraftDir the minecraft directory
+     * @throws NullPointerException if <code>version==null||authenticator==null||minecraftDir==null</code>
+     */
+    public LaunchOption(Version version, Authenticator authenticator, MinecraftDirectory minecraftDir) {
+        this(version, authenticator, minecraftDir, new JavaOption());
+    }
+
+    /**
      * Creates a LaunchOption.
      * 
      * @param version the version to launch
      * @param authenticator the authenticator
-     * @param environmentOption the EnvironmentOption
-     * @throws NullPointerException if <code>version==null||authenticator==null</code>
+     * @param minecraftDir the minecraft directory
+     * @param javaOption the JavaOption
+     * @throws NullPointerException if
+     *             <code>version==null||authenticator==null||minecraftDir==null||javaOption==null</code>
      */
-    public LaunchOption(Version version, Authenticator authenticator, EnvironmentOption environmentOption) {
+    public LaunchOption(Version version, Authenticator authenticator, MinecraftDirectory minecraftDir, JavaOption javaOption) {
         Objects.requireNonNull(version);
         Objects.requireNonNull(authenticator);
-        Objects.requireNonNull(environmentOption);
+        Objects.requireNonNull(javaOption);
+        Objects.requireNonNull(minecraftDir);
 
         this.version = version;
         this.authenticator = authenticator;
-        this.environmentOption = environmentOption;
+        this.minecraftDirectory = minecraftDir;
+        this.javaOption = javaOption;
     }
 
     /**
-     * Gets the EnvironmentOption.
+     * Gets the version to launch.
      * 
-     * @return the EnvironmentOption
+     * @return the version to launch
      */
-    public EnvironmentOption getEnvironmentOption() {
-        return environmentOption;
+    public Version getVersion() {
+        return version;
     }
 
     /**
-     * Sets the EnvironmentOption.
+     * Gets the authenticator.
      * 
-     * @param environmentOption the EnvironmentOption to set
-     * @throws NullPointerException if <code>environmentOption=null</code>
+     * @return the authenticator
      */
-    public void setEnvironmentOption(EnvironmentOption environmentOption) {
-        Objects.requireNonNull(environmentOption);
-        this.environmentOption = environmentOption;
+    public Authenticator getAuthenticator() {
+        return authenticator;
+    }
+
+    /**
+     * Gets the minecraft directory.
+     * 
+     * @return the minecraft directory
+     */
+    public MinecraftDirectory getMinecraftDirectory() {
+        return minecraftDirectory;
+    }
+
+    /**
+     * Gets the JavaOption.
+     * 
+     * @return the JavaOption
+     */
+    public JavaOption getJavaOption() {
+        return javaOption;
     }
 
     /**
@@ -183,24 +231,6 @@ public class LaunchOption {
      */
     public void setExtraArguments(List<String> extraArguments) {
         this.extraArguments = extraArguments;
-    }
-
-    /**
-     * Gets the version to launch.
-     * 
-     * @return the version to launch
-     */
-    public Version getVersion() {
-        return version;
-    }
-
-    /**
-     * Gets the authenticator.
-     * 
-     * @return the authenticator
-     */
-    public Authenticator getAuthenticator() {
-        return authenticator;
     }
 
 }

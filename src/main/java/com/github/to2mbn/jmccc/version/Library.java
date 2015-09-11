@@ -1,22 +1,14 @@
 package com.github.to2mbn.jmccc.version;
 
+import java.io.File;
 import java.util.Objects;
-import java.util.Set;
+import com.github.to2mbn.jmccc.option.MinecraftDirectory;
 
 public class Library {
-
-    /**
-     * The relative path of the library.
-     * <p>
-     * Use '/' as the separator char, and 'libraries' as the base dir.
-     */
-    private String path;
 
     private String domain;
     private String name;
     private String version;
-    private String natives;
-    private Set<String> extractExcludes;
 
     /**
      * Creates a library.
@@ -27,35 +19,12 @@ public class Library {
      * @throws NullPointerException if <code>domain==null||name==null||version==null</code>
      */
     public Library(String domain, String name, String version) {
-        this(domain, name, version, null, null);
-    }
-
-    /**
-     * Creates a library.
-     * 
-     * @param domain the domain of the library
-     * @param name the name of the library
-     * @param version the version of the library
-     * @param natives the natives the library needs, null if it's not a native library
-     * @param extractExcludes the extract excludes list of the natives, null if no excludes
-     * @throws NullPointerException if <code>domain==null||name==null||version==null</code>
-     */
-    public Library(String domain, String name, String version, String natives, Set<String> extractExcludes) {
         Objects.requireNonNull(domain);
         Objects.requireNonNull(name);
         Objects.requireNonNull(version);
-
-        this.name = name;
         this.domain = domain;
+        this.name = name;
         this.version = version;
-        this.natives = natives;
-        this.extractExcludes = extractExcludes;
-
-        if (natives == null) {
-            path = domain.replace('.', '/') + "/" + name + "/" + version + "/" + name + "-" + version + ".jar";
-        } else {
-            path = domain.replace('.', '/') + "/" + name + "/" + version + "/" + name + "-" + version + "-" + natives + ".jar";
-        }
     }
 
     /**
@@ -66,7 +35,7 @@ public class Library {
      * @return the relative path of the library
      */
     public String getPath() {
-        return path;
+        return domain.replace('.', '/') + "/" + name + "/" + version + "/" + name + "-" + version + ".jar";
     }
 
     /**
@@ -97,30 +66,18 @@ public class Library {
     }
 
     /**
-     * Gets the natives the library needs, null if it's not a native library.
+     * Checks if the library is missing in the given minecraft directory.
      * 
-     * @return the natives the library needs, null if it's not a native library
+     * @param minecraftDir the minecraft directory to check
+     * @return true if the library is missing in the given minecraft directory
      */
-    public String getNatives() {
-        return natives;
+    public boolean isMissing(MinecraftDirectory minecraftDir) {
+        return !new File(minecraftDir.getLibraries(), getPath()).isFile();
     }
 
-    /**
-     * Gets the extract excludes list of the natives, null if it's not a native library or no excludes.
-     * 
-     * @return the extract excludes list of the natives, null if it's not a native library or no excludes
-     */
-    public Set<String> getExtractExcludes() {
-        return extractExcludes;
-    }
-
-    /**
-     * Returns true if the library is a native library.
-     * 
-     * @return true if the library is a native library
-     */
-    public boolean isNatives() {
-        return natives != null;
+    @Override
+    public String toString() {
+        return domain + ":" + name + ":" + version;
     }
 
 }

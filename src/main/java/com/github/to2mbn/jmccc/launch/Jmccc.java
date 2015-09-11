@@ -9,14 +9,17 @@ import java.util.Objects;
 import java.util.Set;
 import com.github.to2mbn.jmccc.Launcher;
 import com.github.to2mbn.jmccc.auth.AuthResult;
-import com.github.to2mbn.jmccc.ext.GameProcessMonitor;
-import com.github.to2mbn.jmccc.ext.IGameListener;
+import com.github.to2mbn.jmccc.exec.DaemonStreamPumpMonitor;
+import com.github.to2mbn.jmccc.exec.LoggingMonitor;
+import com.github.to2mbn.jmccc.exec.GameProcessListener;
+import com.github.to2mbn.jmccc.exec.ProcessMonitor;
 import com.github.to2mbn.jmccc.option.LaunchOption;
 import com.github.to2mbn.jmccc.option.MinecraftDirectory;
 import com.github.to2mbn.jmccc.util.Utils;
 import com.github.to2mbn.jmccc.version.Library;
+import com.github.to2mbn.jmccc.version.Native;
 import com.github.to2mbn.jmccc.version.Version;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.JsonParseException;
 
 public class Jmccc implements Launcher {
 
@@ -39,6 +42,7 @@ public class Jmccc implements Launcher {
      * The extended identity is used to identity the caller of JMCCC, default to null. If you want to help us do the
      * statistics better, please set this to the name and the version of your launcher.
      * 
+     * @param extendedIdentity the extended identity
      * @return the launcher
      * @see Jmccc#getLauncher()
      * @see Launcher#setReport(boolean)
@@ -48,12 +52,13 @@ public class Jmccc implements Launcher {
         return new Jmccc(extendedIdentity);
     }
 
+    private Reporter reporter;
+    private VersionParser versionParser = new VersionParser();;
+    private boolean reportmode = true;
+
     private Jmccc(String extendedIdentity) {
         reporter = new Reporter(extendedIdentity);
     }
-
-    private Reporter reporter;
-    private boolean reportmode = true;
 
     @Override
     public LaunchResult launch(LaunchOption option) throws LaunchException {
@@ -62,7 +67,7 @@ public class Jmccc implements Launcher {
     }
 
     @Override
-    public LaunchResult launch(LaunchOption option, IGameListener listener) throws LaunchException {
+    public LaunchResult launch(LaunchOption option, GameProcessListener listener) throws LaunchException {
         Objects.requireNonNull(option);
         if (reportmode) {
             return launchWithReport(option, listener);
@@ -72,14 +77,14 @@ public class Jmccc implements Launcher {
     }
 
     @Override
-    public Version getVersion(MinecraftDirectory minecraftDir, String version) throws JsonSyntaxException, IOException {
+    public Version getVersion(MinecraftDirectory minecraftDir, String version) throws JsonParseException, IOException {
         Objects.requireNonNull(minecraftDir);
         if (version == null) {
             return null;
         }
 
         if (doesVersionExists(minecraftDir, version)) {
-            return new Version(minecraftDir, version);
+            return versionParser.parse(minecraftDir, version);
         } else {
             return null;
         }
@@ -103,11 +108,11 @@ public class Jmccc implements Launcher {
         reportmode = on;
     }
 
-    public LaunchResult launchWithoutReport(LaunchOption option, IGameListener listener) throws LaunchException {
+    public LaunchResult launchWithoutReport(LaunchOption option, GameProcessListener listener) throws LaunchException {
         return launch(generateLaunchArgs(option), listener);
     }
 
-    public LaunchResult launchWithReport(LaunchOption option, IGameListener listener) throws LaunchException {
+    public LaunchResult launchWithReport(LaunchOption option, GameProcessListener listener) throws LaunchException {
         try {
             LaunchResult result = launchWithoutReport(option, listener);
             reporter.asyncLaunchSuccessfully(option, result);
@@ -122,28 +127,32 @@ public class Jmccc implements Launcher {
         return minecraftDir.getVersionJson(version).isFile();
     }
 
-    private LaunchResult launch(LaunchArgument arg, IGameListener listener) throws LaunchException {
+    private LaunchResult launch(LaunchArgument arg, GameProcessListener listener) throws LaunchException {
         Process process;
+
+        ProcessBuilder processBuilder = new ProcessBuilder(arg.generateCommandline());
+        processBuilder.directory(arg.getLaunchOption().getMinecraftDirectory().getRoot());
+
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder(arg.generateCommandline());
-            processBuilder.directory(arg.getLaunchOption().getEnvironmentOption().getMinecraftDir().getRoot());
             process = processBuilder.start();
         } catch (SecurityException | IOException e) {
             throw new LaunchException("Failed to start process", e);
         }
 
-        GameProcessMonitor monitor = null;
-        if (listener != null) {
-            monitor = new GameProcessMonitor(process, listener);
-            monitor.monitor();
+        ProcessMonitor monitor;
+        if (listener == null) {
+            monitor = new DaemonStreamPumpMonitor(process);
+        } else {
+            monitor = new LoggingMonitor(process, listener);
         }
+        monitor.start();
 
         return new LaunchResult(monitor, process);
     }
 
     private LaunchArgument generateLaunchArgs(LaunchOption option) throws LaunchException {
         // check libraries
-        Set<Library> missing = option.getVersion().findMissingLibraries();
+        Set<Library> missing = option.getVersion().getMissingLibraries(option.getMinecraftDirectory());
         if (!missing.isEmpty()) {
             throw new MissingDependenciesException(missing.toString());
         }
@@ -151,12 +160,12 @@ public class Jmccc implements Launcher {
         AuthResult auth = option.getAuthenticator().auth();
 
         Set<File> javaLibraries = new HashSet<>();
-        File nativesDir = option.getEnvironmentOption().getMinecraftDir().getNatives();
+        File nativesDir = option.getMinecraftDirectory().getNatives();
         for (Library library : option.getVersion().getLibraries()) {
-            File libraryFile = new File(option.getEnvironmentOption().getMinecraftDir().getLibraries(), library.getPath());
-            if (library.isNatives()) {
+            File libraryFile = new File(option.getMinecraftDirectory().getLibraries(), library.getPath());
+            if (library instanceof Native) {
                 try {
-                    Utils.uncompressZipWithExcludes(libraryFile, nativesDir, library.getExtractExcludes());
+                    Utils.uncompressZipWithExcludes(libraryFile, nativesDir, ((Native) library).getExtractExcludes());
                 } catch (IOException e) {
                     throw new UncompressException("Failed to uncompress " + libraryFile, e);
                 }
@@ -176,7 +185,7 @@ public class Jmccc implements Launcher {
         tokens.put("auth_uuid", auth.getUUID());
         tokens.put("user_type", auth.getUserType());
         tokens.put("user_properties", auth.getProperties());
-        return new LaunchArgument(option, tokens, option.getExtraArguments(), Utils.isCGCSupported(), javaLibraries, nativesDir);
+        return new LaunchArgument(option, tokens, option.getExtraArguments(), javaLibraries, nativesDir);
     }
 
 }

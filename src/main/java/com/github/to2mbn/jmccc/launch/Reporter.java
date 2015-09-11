@@ -41,6 +41,8 @@ class Reporter {
 
     /**
      * Creates a Report with current version and given extended identity
+     * 
+     * @param extendedIdentity the extended identity
      */
     public Reporter(String extendedIdentity) {
         this.extendedIdentity = extendedIdentity;
@@ -102,8 +104,8 @@ class Reporter {
         report.put("os_arch", System.getProperty("os.arch"));
         report.put("java_version", System.getProperty("java.version"));
         report.put("game_version", option.getVersion().getVersion());
-        report.put("java_path", option.getEnvironmentOption().getJavaPath().toString());
-        report.put("mc_path", option.getEnvironmentOption().getMinecraftDir().toString());
+        report.put("java_path", option.getJavaOption().getJavaPath().toString());
+        report.put("mc_path", option.getMinecraftDirectory().getRoot().toString());
         report.put("max_memory", String.valueOf(option.getMaxMemory()));
         report.put("min_memory", String.valueOf(option.getMinMemory()));
 

@@ -1,12 +1,14 @@
-package com.github.to2mbn.jmccc.ext;
+package com.github.to2mbn.jmccc.exec;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.Arrays;
+import java.util.Collection;
 import com.github.to2mbn.jmccc.util.OsTypes;
 
-public class GameProcessMonitor {
+public class LoggingMonitor extends ProcessMonitor {
 
     private class LogMonitor implements Runnable {
 
@@ -14,16 +16,21 @@ public class GameProcessMonitor {
          * False for stdout, true for stderr
          */
         private boolean isErr;
+        private InputStream in;
 
-        public LogMonitor(boolean isErr) {
+        public LogMonitor(boolean isErr, InputStream in) {
             this.isErr = isErr;
+            this.in = in;
         }
 
         @Override
         public void run() {
             char[] eol = OsTypes.CURRENT.getLineSpearator().toCharArray();
-            InputStream in = isErr ? stderr : stdout;
-            try (Reader reader = new InputStreamReader(in)) {
+            try {
+                // no need for close this
+                // because we don't need to close the base stream
+                Reader reader = new InputStreamReader(in);
+
                 StringBuilder buffer = new StringBuilder();
                 int ch;
                 while ((ch = reader.read()) != -1) {
@@ -77,62 +84,20 @@ public class GameProcessMonitor {
 
     }
 
-    private Process process;
-    private IGameListener listener;
+    private GameProcessListener listener;
 
-    private InputStream stdout;
-    private InputStream stderr;
-
-    private Thread outThread;
-    private Thread errThread;
-    private Thread exitThread;
-
-    public GameProcessMonitor(Process process) {
-        this.process = process;
-    }
-
-    public GameProcessMonitor(Process process, IGameListener listener) {
-        this(process);
+    public LoggingMonitor(Process process, GameProcessListener listener) {
+        super(process);
         this.listener = listener;
     }
 
-    public IGameListener getListener() {
+    public GameProcessListener getListener() {
         return listener;
     }
 
-    public void monitor() {
-        stdout = process.getInputStream();
-        stderr = process.getErrorStream();
-
-        outThread = new Thread(new LogMonitor(false));
-        errThread = new Thread(new LogMonitor(true));
-        exitThread = new Thread(new ExitMonitor());
-
-        outThread.setName("jmccc stdout monitor");
-        errThread.setName("jmccc stderr monitor");
-        exitThread.setName("jmccc exit monitor");
-
-        outThread.start();
-        errThread.start();
-        exitThread.start();
+    @Override
+    protected Collection<? extends Runnable> createMonitors() {
+        return Arrays.asList(new LogMonitor(false, process.getInputStream()), new LogMonitor(true, process.getErrorStream()), new ExitMonitor());
     }
 
-    public void shutdown() {
-        exitThread.interrupt();
-
-        try {
-            stdout.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            stderr.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        outThread.interrupt();
-        errThread.interrupt();
-    }
 }

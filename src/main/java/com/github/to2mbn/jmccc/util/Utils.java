@@ -15,6 +15,7 @@ import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 
 public class Utils {
@@ -46,7 +47,7 @@ public class Utils {
      * @param zip file to uncompress
      * @param outputDir the output dir
      * @param excludes the excludes list
-     * @throws IOException
+     * @throws IOException if an I/O error occurs
      */
     public static void uncompressZipWithExcludes(File zip, File outputDir, Set<String> excludes) throws IOException {
         if (!outputDir.exists()) {
@@ -99,9 +100,10 @@ public class Utils {
      * 
      * @param file file to read
      * @return json in the file
-     * @throws IOException
+     * @throws IOException an I/O error occurs
+     * @throws JsonParseException a json parsing error occurs
      */
-    public static JsonElement readJson(File file) throws IOException {
+    public static JsonElement readJson(File file) throws IOException, JsonParseException {
         JsonParser parser = new JsonParser();
         try (Reader reader = new InputStreamReader(new BufferedInputStream(new FileInputStream(file)), "UTF-8")) {
             return parser.parse(reader);
