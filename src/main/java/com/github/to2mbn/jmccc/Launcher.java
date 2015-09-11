@@ -2,8 +2,8 @@ package com.github.to2mbn.jmccc;
 
 import java.io.IOException;
 import java.util.Set;
-import com.github.to2mbn.jmccc.exec.GameProcessMonitor;
-import com.github.to2mbn.jmccc.exec.IGameListener;
+import com.github.to2mbn.jmccc.exec.GameProcessListener;
+import com.github.to2mbn.jmccc.exec.ProcessMonitor;
 import com.github.to2mbn.jmccc.launch.Jmccc;
 import com.github.to2mbn.jmccc.launch.LaunchException;
 import com.github.to2mbn.jmccc.launch.LaunchResult;
@@ -28,7 +28,10 @@ public interface Launcher {
     /**
      * Launches the game with the given option.
      * <p>
-     * If we fail to launch the game, we will throw a {@link LaunchException}.
+     * We will create a group of daemon threads to pump the stdout and stderr of the subprocess.<br>
+     * If we fail to launch the game, we will throw a {@link LaunchException}.<br>
+     * We recommend you NOT to call {@link ProcessMonitor#stop()}. This may cause subprocess blocks. You don't need to
+     * stop the monitor threads because they are daemon.
      * 
      * @param option the launching option
      * @return the launching result
@@ -40,26 +43,27 @@ public interface Launcher {
     LaunchResult launch(LaunchOption option) throws LaunchException;
 
     /**
-     * Launches the game with the given option. If <code>listener!=null</code>, JMCCC will create a
-     * {@link GameProcessMonitor} to monitor the game process. The logs will be reported to the given listener.
-     * Else if <code>listener==null</code>, this method won't create a monitor.
+     * Launches the game with the given option.<br>
+     * If <code>listener!=null</code>, we will create a group of non-daemon threads to receive the logs from the
+     * subprocess and reported them to the given listener.
+     * Else if <code>listener==null</code>, we will create a group of daemon threads to pump the stdout and stderr of
+     * the sub process.
      * <p>
-     * The monitor threads won't stop until the game process stops, or {@link GameProcessMonitor#shutdown()} has been
-     * called. Also, the jvm won't exit automatically because the monitor threads are not daemon.<br>
-     * If we fail to launch the game, we will throw a {@link LaunchException}.
+     * We recommend you NOT to call {@link ProcessMonitor#stop()} unless you are going to exit the and
+     * <code>listener!=null</code>. This may cause subprocess blocks.
      * 
      * @param option the launching option
-     * @param listener the game listener to receive logs from the game
+     * @param listener the listener to receive logs from the game
      * @return the launching result
      * @throws LaunchException if we fail to launch the game
      * @throws NullPointerException if <code>option==null</code>
      * @see LaunchResult
-     * @see GameProcessMonitor
-     * @see IGameListener
-     * @see GameProcessMonitor#shutdown()
+     * @see ProcessMonitor
+     * @see GameProcessListener
+     * @see ProcessMonitor#stop()
      * @see LaunchException
      */
-    LaunchResult launch(LaunchOption option, IGameListener listener) throws LaunchException;
+    LaunchResult launch(LaunchOption option, GameProcessListener listener) throws LaunchException;
 
     /**
      * Gets the Version object of the given version in the given minecraft directory.

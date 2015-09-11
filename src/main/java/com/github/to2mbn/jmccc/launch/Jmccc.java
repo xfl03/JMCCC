@@ -9,8 +9,10 @@ import java.util.Objects;
 import java.util.Set;
 import com.github.to2mbn.jmccc.Launcher;
 import com.github.to2mbn.jmccc.auth.AuthResult;
-import com.github.to2mbn.jmccc.exec.GameProcessMonitor;
-import com.github.to2mbn.jmccc.exec.IGameListener;
+import com.github.to2mbn.jmccc.exec.DaemonStreamPumpMonitor;
+import com.github.to2mbn.jmccc.exec.LoggingMonitor;
+import com.github.to2mbn.jmccc.exec.GameProcessListener;
+import com.github.to2mbn.jmccc.exec.ProcessMonitor;
 import com.github.to2mbn.jmccc.option.LaunchOption;
 import com.github.to2mbn.jmccc.option.MinecraftDirectory;
 import com.github.to2mbn.jmccc.util.Utils;
@@ -64,7 +66,7 @@ public class Jmccc implements Launcher {
     }
 
     @Override
-    public LaunchResult launch(LaunchOption option, IGameListener listener) throws LaunchException {
+    public LaunchResult launch(LaunchOption option, GameProcessListener listener) throws LaunchException {
         Objects.requireNonNull(option);
         if (reportmode) {
             return launchWithReport(option, listener);
@@ -105,11 +107,11 @@ public class Jmccc implements Launcher {
         reportmode = on;
     }
 
-    public LaunchResult launchWithoutReport(LaunchOption option, IGameListener listener) throws LaunchException {
+    public LaunchResult launchWithoutReport(LaunchOption option, GameProcessListener listener) throws LaunchException {
         return launch(generateLaunchArgs(option), listener);
     }
 
-    public LaunchResult launchWithReport(LaunchOption option, IGameListener listener) throws LaunchException {
+    public LaunchResult launchWithReport(LaunchOption option, GameProcessListener listener) throws LaunchException {
         try {
             LaunchResult result = launchWithoutReport(option, listener);
             reporter.asyncLaunchSuccessfully(option, result);
@@ -124,21 +126,25 @@ public class Jmccc implements Launcher {
         return minecraftDir.getVersionJson(version).isFile();
     }
 
-    private LaunchResult launch(LaunchArgument arg, IGameListener listener) throws LaunchException {
+    private LaunchResult launch(LaunchArgument arg, GameProcessListener listener) throws LaunchException {
         Process process;
+
+        ProcessBuilder processBuilder = new ProcessBuilder(arg.generateCommandline());
+        processBuilder.directory(arg.getLaunchOption().getMinecraftDirectory().getRoot());
+
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder(arg.generateCommandline());
-            processBuilder.directory(arg.getLaunchOption().getMinecraftDirectory().getRoot());
             process = processBuilder.start();
         } catch (SecurityException | IOException e) {
             throw new LaunchException("Failed to start process", e);
         }
 
-        GameProcessMonitor monitor = null;
-        if (listener != null) {
-            monitor = new GameProcessMonitor(process, listener);
-            monitor.monitor();
+        ProcessMonitor monitor;
+        if (listener == null) {
+            monitor = new DaemonStreamPumpMonitor(process);
+        } else {
+            monitor = new LoggingMonitor(process, listener);
         }
+        monitor.start();
 
         return new LaunchResult(monitor, process);
     }

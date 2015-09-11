@@ -1,6 +1,6 @@
 package com.github.to2mbn.jmccc.launch;
 
-import com.github.to2mbn.jmccc.exec.GameProcessMonitor;
+import com.github.to2mbn.jmccc.exec.ProcessMonitor;
 
 /**
  * The result of launching.
@@ -9,20 +9,20 @@ import com.github.to2mbn.jmccc.exec.GameProcessMonitor;
  */
 public class LaunchResult {
 
-    private GameProcessMonitor monitor;
+    private ProcessMonitor monitor;
     private Process process;
 
-    public LaunchResult(GameProcessMonitor monitor, Process process) {
+    public LaunchResult(ProcessMonitor monitor, Process process) {
         this.monitor = monitor;
         this.process = process;
     }
 
     /**
-     * Gets the game monitor, null if no monitor started
+     * Gets the game process monitor
      * 
-     * @return the game monitor, null if no monitor started
+     * @return the game monitor
      */
-    public GameProcessMonitor getMonitor() {
+    public ProcessMonitor getMonitor() {
         return monitor;
     }
 
