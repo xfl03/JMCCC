@@ -5,7 +5,7 @@ import java.util.Set;
 
 public class Native extends Library {
 
-    private String natives;
+    private String arch;
     private Set<String> extractExcludes;
 
     /**
@@ -14,14 +14,14 @@ public class Native extends Library {
      * @param domain the domain of the native
      * @param name the name of the native
      * @param version the version of the native
-     * @param natives the arch of the native
+     * @param arch the arch of the native
      * @param extractExcludes the extract excludes list of the native, null if no excludes
-     * @throws NullPointerException if <code>domain==null||name==null||version==null||natives==null</code>
+     * @throws NullPointerException if <code>domain==null||name==null||version==null||arch==null</code>
      */
-    public Native(String domain, String name, String version, String natives, Set<String> extractExcludes) {
+    public Native(String domain, String name, String version, String arch, Set<String> extractExcludes) {
         super(domain, name, version);
-        Objects.requireNonNull(natives);
-        this.natives = natives;
+        Objects.requireNonNull(arch);
+        this.arch = arch;
         this.extractExcludes = extractExcludes;
     }
 
@@ -30,8 +30,8 @@ public class Native extends Library {
      * 
      * @return the arch of the native
      */
-    public String getNatives() {
-        return natives;
+    public String getArch() {
+        return arch;
     }
 
     /**
@@ -45,11 +45,11 @@ public class Native extends Library {
 
     @Override
     public String toString() {
-        return super.toString() + "@" + natives;
+        return super.toString() + "@" + arch;
     }
 
     @Override
     protected String generatePath() {
-        return getDomain().replace('.', '/') + "/" + getName() + "/" + getVersion() + "/" + getName() + "-" + getVersion() + "-" + natives + ".jar";
+        return getDomain().replace('.', '/') + "/" + getName() + "/" + getVersion() + "/" + getName() + "-" + getVersion() + "-" + arch + ".jar";
     }
 }
