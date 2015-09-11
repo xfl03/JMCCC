@@ -27,6 +27,15 @@ public class MinecraftDirectory {
      * 
      * @param rootDir the root directory of minecraft (eg. <code>".minecraft"<code>)
      */
+    public MinecraftDirectory(String rootDir) {
+        this(new File(rootDir));
+    }
+
+    /**
+     * Creates a MinecraftDirectory with the given root directory.
+     * 
+     * @param rootDir the root directory of minecraft (eg. <code>".minecraft"<code>)
+     */
     public MinecraftDirectory(File rootDir) {
         Objects.requireNonNull(rootDir);
         this.rootDir = rootDir;
