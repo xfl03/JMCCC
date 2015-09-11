@@ -6,13 +6,6 @@ import com.github.to2mbn.jmccc.option.MinecraftDirectory;
 
 public class Library {
 
-    /**
-     * The relative path of the library.
-     * <p>
-     * Use '/' as the separator char, and 'libraries' as the base dir.
-     */
-    private String path;
-
     private String domain;
     private String name;
     private String version;
@@ -32,8 +25,6 @@ public class Library {
         this.domain = domain;
         this.name = name;
         this.version = version;
-
-        path = generatePath();
     }
 
     /**
@@ -44,7 +35,7 @@ public class Library {
      * @return the relative path of the library
      */
     public String getPath() {
-        return path;
+        return domain.replace('.', '/') + "/" + name + "/" + version + "/" + name + "-" + version + ".jar";
     }
 
     /**
@@ -81,16 +72,12 @@ public class Library {
      * @return true if the library is missing in the given minecraft directory
      */
     public boolean isMissing(MinecraftDirectory minecraftDir) {
-        return !new File(minecraftDir.getLibraries(), path).isFile();
+        return !new File(minecraftDir.getLibraries(), getPath()).isFile();
     }
 
     @Override
     public String toString() {
         return domain + ":" + name + ":" + version;
-    }
-
-    protected String generatePath() {
-        return domain.replace('.', '/') + "/" + name + "/" + version + "/" + name + "-" + version + ".jar";
     }
 
 }

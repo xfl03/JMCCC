@@ -49,7 +49,7 @@ public class Native extends Library {
     }
 
     @Override
-    protected String generatePath() {
+    public String getPath() {
         return getDomain().replace('.', '/') + "/" + getName() + "/" + getVersion() + "/" + getName() + "-" + getVersion() + "-" + arch + ".jar";
     }
 }
