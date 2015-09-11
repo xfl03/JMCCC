@@ -1,4 +1,4 @@
-package com.github.to2mbn.jmccc.ext;
+package com.github.to2mbn.jmccc.exec;
 
 public interface IGameListener {
     void onLog(String log);

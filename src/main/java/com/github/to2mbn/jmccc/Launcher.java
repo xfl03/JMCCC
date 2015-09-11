@@ -2,8 +2,8 @@ package com.github.to2mbn.jmccc;
 
 import java.io.IOException;
 import java.util.Set;
-import com.github.to2mbn.jmccc.ext.GameProcessMonitor;
-import com.github.to2mbn.jmccc.ext.IGameListener;
+import com.github.to2mbn.jmccc.exec.GameProcessMonitor;
+import com.github.to2mbn.jmccc.exec.IGameListener;
 import com.github.to2mbn.jmccc.launch.Jmccc;
 import com.github.to2mbn.jmccc.launch.LaunchException;
 import com.github.to2mbn.jmccc.launch.LaunchResult;

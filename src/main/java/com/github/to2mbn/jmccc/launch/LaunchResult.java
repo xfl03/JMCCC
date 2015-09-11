@@ -1,6 +1,6 @@
 package com.github.to2mbn.jmccc.launch;
 
-import com.github.to2mbn.jmccc.ext.GameProcessMonitor;
+import com.github.to2mbn.jmccc.exec.GameProcessMonitor;
 
 /**
  * The result of launching.
