@@ -149,4 +149,9 @@ public class MinecraftDirectory {
         return new File(getVersion(version), jarName + ".jar");
     }
 
+    @Override
+    public String toString() {
+        return rootDir.toString();
+    }
+
 }
