@@ -17,6 +17,7 @@ import com.github.to2mbn.jmccc.option.LaunchOption;
 import com.github.to2mbn.jmccc.option.MinecraftDirectory;
 import com.github.to2mbn.jmccc.util.Utils;
 import com.github.to2mbn.jmccc.version.Library;
+import com.github.to2mbn.jmccc.version.Native;
 import com.github.to2mbn.jmccc.version.Version;
 import com.google.gson.JsonParseException;
 
@@ -162,9 +163,9 @@ public class Jmccc implements Launcher {
         File nativesDir = option.getMinecraftDirectory().getNatives();
         for (Library library : option.getVersion().getLibraries()) {
             File libraryFile = new File(option.getMinecraftDirectory().getLibraries(), library.getPath());
-            if (library.isNatives()) {
+            if (library instanceof Native) {
                 try {
-                    Utils.uncompressZipWithExcludes(libraryFile, nativesDir, library.getExtractExcludes());
+                    Utils.uncompressZipWithExcludes(libraryFile, nativesDir, ((Native) library).getExtractExcludes());
                 } catch (IOException e) {
                     throw new UncompressException("Failed to uncompress " + libraryFile, e);
                 }

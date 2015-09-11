@@ -8,6 +8,7 @@ import com.github.to2mbn.jmccc.option.MinecraftDirectory;
 import com.github.to2mbn.jmccc.util.OsTypes;
 import com.github.to2mbn.jmccc.util.Utils;
 import com.github.to2mbn.jmccc.version.Library;
+import com.github.to2mbn.jmccc.version.Native;
 import com.github.to2mbn.jmccc.version.Version;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -63,7 +64,7 @@ public class VersionParser {
             if (isNative) {
                 String natives = resolveNatives(library.get("natives"));
                 Set<String> excludes = resolveExtractExclude(library.get("extract"));
-                libraries.add(new Library(domain, name, version, natives, excludes));
+                libraries.add(new Native(domain, name, version, natives, excludes));
             } else {
                 libraries.add(new Library(domain, name, version));
             }
