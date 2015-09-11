@@ -7,8 +7,6 @@ import java.util.concurrent.ThreadFactory;
 
 abstract public class ProcessMonitor {
 
-    private static final long STOP_TIMEOUT = 2000;
-
     protected final Process process;
 
     private Object stateLock = new Object();
@@ -51,43 +49,16 @@ abstract public class ProcessMonitor {
         }
     }
 
-    @SuppressWarnings("deprecation")
-    public void stop() throws InterruptedException {
+    public void stop() {
         synchronized (stateLock) {
             if (!started) {
                 return;
             }
 
-            // interrupt first
             for (Thread t : monitors) {
                 if (t.isAlive()) {
                     t.interrupt();
                 }
-            }
-
-            InterruptedException ex = null;
-            long stopTimeout = System.currentTimeMillis() + STOP_TIMEOUT;
-            for (Thread t : monitors) {
-                if (t.isAlive()) {
-                    long now = System.currentTimeMillis();
-                    if (ex == null && now < stopTimeout) {
-                        // we still have time to wait
-                        try {
-                            t.join(stopTimeout - now);
-                        } catch (InterruptedException e) {
-                            ex = e;
-                        }
-                    }
-
-                    if (t.isAlive()) {
-                        // if still running, force stop
-                        t.stop();
-                    }
-                }
-            }
-
-            if (ex != null) {
-                throw ex;
             }
         }
     }

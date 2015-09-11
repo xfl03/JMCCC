@@ -30,8 +30,8 @@ public interface Launcher {
      * <p>
      * We will create a group of daemon threads to pump the stdout and stderr of the subprocess.<br>
      * If we fail to launch the game, we will throw a {@link LaunchException}.<br>
-     * We recommend you NOT to call {@link ProcessMonitor#stop()}. This may cause subprocess blocks. You don't need to
-     * stop the monitor threads because they are daemon.
+     * We recommend you NOT to call {@link ProcessMonitor#stop()}. This may cause subprocess blocks and it's not always
+     * effective. You don't need to stop the monitor threads because they are daemon.
      * 
      * @param option the launching option
      * @return the launching result
@@ -50,7 +50,7 @@ public interface Launcher {
      * the sub process.
      * <p>
      * We recommend you NOT to call {@link ProcessMonitor#stop()} unless you are going to exit the and
-     * <code>listener!=null</code>. This may cause subprocess blocks.
+     * <code>listener!=null</code>. This may cause subprocess blocks and it's not always effective.
      * 
      * @param option the launching option
      * @param listener the listener to receive logs from the game
