@@ -122,6 +122,9 @@ public class YggdrasilSessionService implements SessionService {
 		} catch (JSONException | IOException e) {
 			throw new AuthenticationException("failed to request", e);
 		}
+		if (response == null) {
+			return null;
+		}
 		checkResponse(response);
 		return new GameProfile(UUIDUtils.fromUUIDString(response.getString("id")), response.getString("name"), false, getProperties(response.getJSONArray("properties"), true));
 	}

@@ -18,11 +18,17 @@ public class JSONHttpRequester extends HttpRequester {
 	}
 
 	public JSONObject jsonPost(String url, Map<String, Object> arguments, JSONObject post) throws JSONException, UnsupportedEncodingException, MalformedURLException, IOException {
-		return new JSONObject(post(url, arguments, post.toString(), "application/json"));
+		return toJson(post(url, arguments, post.toString(), "application/json"));
 	}
 
 	public JSONObject jsonGet(String url, Map<String, Object> arguments) throws JSONException, UnsupportedEncodingException, MalformedURLException, IOException {
-		return new JSONObject(get(url, arguments));
+		return toJson(get(url, arguments));
 	}
 
+	private JSONObject toJson(String json) {
+		if (json == null || json.trim().isEmpty()) {
+			return null;
+		}
+		return new JSONObject(json);
+	}
 }
