@@ -160,7 +160,7 @@ public class Jmccc implements Launcher {
         AuthResult auth = option.getAuthenticator().auth();
 
         Set<File> javaLibraries = new HashSet<>();
-        File nativesDir = option.getMinecraftDirectory().getNatives();
+        File nativesDir = option.getMinecraftDirectory().getNatives(option.getVersion().getVersion());
         for (Library library : option.getVersion().getLibraries()) {
             File libraryFile = new File(option.getMinecraftDirectory().getLibraries(), library.getPath());
             if (library instanceof Native) {

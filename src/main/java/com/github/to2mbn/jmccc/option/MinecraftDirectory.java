@@ -82,10 +82,11 @@ public class MinecraftDirectory {
     /**
      * Gets the natives directory.
      * 
+     * @param version the owner of the natives
      * @return the natives directory
      */
-    public File getNatives() {
-        return new File(rootDir, "natives");
+    public File getNatives(String version) {
+        return new File(getVersion(version), version + "-natives");
     }
 
     /**
