@@ -24,6 +24,7 @@ import com.github.to2mbn.jyal.GameProfile;
 import com.github.to2mbn.jyal.Session;
 import com.github.to2mbn.jyal.SessionService;
 import com.github.to2mbn.jyal.io.JSONHttpRequester;
+import com.github.to2mbn.jyal.util.UUIDUtils;
 
 public class YggdrasilSessionService implements SessionService {
 
@@ -109,7 +110,7 @@ public class YggdrasilSessionService implements SessionService {
 	}
 
 	private GameProfile getGameProfile(JSONObject gameprofileResponse) throws AuthenticationException {
-		return getGameProfile(UUID.fromString(gameprofileResponse.getString("id")));
+		return getGameProfile(UUIDUtils.fromUUIDString(gameprofileResponse.getString("id")));
 	}
 
 	private GameProfile getGameProfile(UUID uuid) throws AuthenticationException {
@@ -122,7 +123,7 @@ public class YggdrasilSessionService implements SessionService {
 			throw new AuthenticationException("failed to request", e);
 		}
 		checkResponse(response);
-		return new GameProfile(UUID.fromString(response.getString("id")), response.getString("name"), false, getProperties(response.getJSONArray("properties"), true));
+		return new GameProfile(UUIDUtils.fromUUIDString(response.getString("id")), response.getString("name"), false, getProperties(response.getJSONArray("properties"), true));
 	}
 
 	private void checkSignature(String key, String value, String signature) throws SignatureException, InvalidKeyException, NoSuchAlgorithmException {
