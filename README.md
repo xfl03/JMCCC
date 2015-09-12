@@ -4,19 +4,18 @@
 An open-source lightweight library for launching Minecraft.<br/>
 
 ### Download
-See [Jenkins](http://ci.infinity-studio.org/job/JMCCCv2/).<br/>
+See [Jenkins](http://ci.infinity-studio.org/job/JMCCC/).<br/>
 Or add this library as a maven dependency.<br/>
 ```xml
 <dependency>
 	<groupId>com.github.to2mbn</groupId>
 	<artifactId>jmccc</artifactId>
-	<version>2.0</version>
+	<version>2.1</version>
 </dependency>
 ```
 
 ### Dependencies
-* gson 2.2.4 https://code.google.com/p/google-gson/
-* (Included) mclaunch-util-lib 0.1 https://github.com/Kronos666/mclaunch-util-lib/tree/master/release/
+* org.json
 
 ### Compile
 Require Maven
@@ -25,9 +24,9 @@ Require Maven
 
 ### Examples
 ```java
-File md = new File("/home/test/.minecraft");
-Launcher launcher = Jmccc.getLauncher("test");
-launcher.launch(new LaunchOption(launcher.getVersion(md, "1.8"), new OfflineAuthenticator("test"), new EnvironmentOption(md)), new IGameListener() {
+MinecraftDirectory dir = new MinecraftDirectory("/home/user/.minecraft");
+Launcher launcher = Jmccc.getLauncher();
+launcher.launch(new LaunchOption(launcher.getVersion(dir, "1.8"), new OfflineAuthenticator("user"), dir), new GameProcessListener() {
 
 	@Override
 	public void onLog(String log) {
@@ -41,16 +40,26 @@ launcher.launch(new LaunchOption(launcher.getVersion(md, "1.8"), new OfflineAuth
 
 	@Override
 	public void onErrorLog(String log) {
-		System.err.println(log);
+		System.out.println(log);
 	}
 });
 ```
-In this example, we use `/home/test/.minecraft` as the .minecraft directory, and launches Minecraft 1.8 with an offline
-account `test`. And the logs from game process will be printed to stdout or stderr. When the game process terminates, 
+In this example, we use `/home/user/.minecraft` as the .minecraft directory, and launches Minecraft 1.8 with an offline
+account `user`. And the logs from game process will be printed to stdout or stderr. When the game process terminates, 
 this program will print `***EXIT <the exit code>***` to the console, and then the monitor threads will terminate.<br/>
 See JavaDoc in the code for more usages.
 
+### Yggdrasil Auth
+If you are looking for Yggdrasil auth, please see https://github.com/to2mbn/jmccc-jyal-authenticator.
+We moved Yggdrasil auth to another repo since 2.1.
+
 ### Change Logs
+##### 2.1
+* Split Yggdrasil auth into repo `jyal` and `jmccc-jyal-authenticator`
+* Use org.json
+* Code refactor
+* Bugs fix
+
 ##### 2.0
 * Code refactor
 
