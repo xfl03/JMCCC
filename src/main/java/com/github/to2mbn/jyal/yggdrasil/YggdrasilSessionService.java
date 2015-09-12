@@ -14,7 +14,6 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -29,7 +28,6 @@ import com.github.to2mbn.jyal.util.UUIDUtils;
 public class YggdrasilSessionService implements SessionService {
 
 	private static final String API_AUTHENTICATE = "https://authserver.mojang.com/authenticate";
-	private static final String API_PROFILE = "https://sessionserver.mojang.com/session/minecraft/profile/";
 
 	private String clientToken;
 	private Agent agent;
@@ -109,24 +107,8 @@ public class YggdrasilSessionService implements SessionService {
 		}
 	}
 
-	private GameProfile getGameProfile(JSONObject gameprofileResponse) throws AuthenticationException {
-		return getGameProfile(UUIDUtils.fromUUIDString(gameprofileResponse.getString("id")), gameprofileResponse.getString("name"));
-	}
-
-	private GameProfile getGameProfile(UUID uuid, String name) throws AuthenticationException {
-		Map<String, Object> arguments = new HashMap<>();
-		arguments.put("unsigned", false);
-		JSONObject response;
-		try {
-			response = requester.jsonGet(API_PROFILE + uuid, arguments);
-		} catch (JSONException | IOException e) {
-			throw new AuthenticationException("failed to request", e);
-		}
-		if (response == null) {
-			return new GameProfile(uuid, name, false, null);
-		}
-		checkResponse(response);
-		return new GameProfile(UUIDUtils.fromUUIDString(response.getString("id")), response.getString("name"), false, getProperties(response.getJSONArray("properties"), true));
+	private GameProfile getGameProfile(JSONObject gameprofileResponse) {
+		return new GameProfile(UUIDUtils.fromUUIDString(gameprofileResponse.getString("id")), gameprofileResponse.getString("name"));
 	}
 
 	private void checkSignature(String key, String value, String signature) throws SignatureException, InvalidKeyException, NoSuchAlgorithmException {
