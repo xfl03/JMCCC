@@ -118,7 +118,7 @@ public class YggdrasilSessionService implements SessionService {
 		arguments.put("unsigned", false);
 		JSONObject response;
 		try {
-			response = requester.jsonGet(API_PROFILE + uuid.toString().replace("-", ""), arguments);
+			response = requester.jsonGet(API_PROFILE + uuid, arguments);
 		} catch (JSONException | IOException e) {
 			throw new AuthenticationException("failed to request", e);
 		}
