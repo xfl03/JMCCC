@@ -86,10 +86,11 @@ public class YggdrasilSessionService implements SessionService {
 		if (!clientToken.equals(response.getString("clientToken"))) {
 			throw new AuthenticationException("clientToken changed from " + clientToken + " to " + response.getString("clientToken"));
 		}
+		JSONObject userjson = response.getJSONObject("user");
 
 		String accessToken = response.getString("accessToken");
-		String userId = response.getJSONObject("user").getString("id");
-		Map<String, String> userProperties = getProperties(response.getJSONObject("user").getJSONArray("properties"), false);
+		String userId = userjson.getString("id");
+		Map<String, String> userProperties = userjson.has("properties") ? getProperties(userjson.getJSONArray("properties"), false) : null;
 		GameProfile selectedProfile = getGameProfile(response.getJSONObject("selectedProfile"));
 
 		JSONArray profilesArray = response.getJSONArray("availableProfiles");
