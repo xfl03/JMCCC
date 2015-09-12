@@ -9,6 +9,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
+import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.HashMap;
@@ -57,11 +58,14 @@ public class YggdrasilSessionService implements SessionService {
 			}
 
 			X509EncodedKeySpec spec = new X509EncodedKeySpec(byteout.toByteArray());
-			KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+			KeyFactory keyFactory;
+
+			keyFactory = KeyFactory.getInstance("RSA");
 			signaturePublicKey = keyFactory.generatePublic(spec);
-		} catch (Exception e) {
-			throw new SecurityException("Missing/invalid yggdrasil public key!");
+		} catch (NoSuchAlgorithmException | InvalidKeySpecException | IOException e) {
+			throw new SecurityException("Missing/invalid yggdrasil public key!", e);
 		}
+
 	}
 
 	@Override
