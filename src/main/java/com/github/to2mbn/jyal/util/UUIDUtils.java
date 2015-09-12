@@ -12,7 +12,7 @@ public final class UUIDUtils {
 		if (uuid.length() == 36) {
 			return UUID.fromString(uuid);
 		} else {
-			return UUID.fromString(uuid.substring(0, 8) + "-" + uuid.substring(8, 4) + "-" + uuid.substring(12, 4) + "-" + uuid.substring(16, 4) + "-" + uuid.substring(20, 12));
+			return UUID.fromString(uuid.substring(0, 8) + "-" + uuid.substring(8, 12) + "-" + uuid.substring(12, 16) + "-" + uuid.substring(16, 20) + "-" + uuid.substring(20, 32));
 		}
 	}
 
