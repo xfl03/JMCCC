@@ -14,7 +14,6 @@ public class GameProfile {
 	public GameProfile(UUID uuid, String name, boolean legacy, Map<String, String> properties) {
 		Objects.requireNonNull(uuid);
 		Objects.requireNonNull(name);
-		Objects.requireNonNull(legacy);
 		Objects.requireNonNull(properties);
 		this.uuid = uuid;
 		this.name = name;
@@ -22,7 +21,7 @@ public class GameProfile {
 		this.properties = properties;
 	}
 
-	public UUID getUuid() {
+	public UUID getUUID() {
 		return uuid;
 	}
 

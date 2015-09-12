@@ -16,6 +16,4 @@ public interface Session {
 
 	GameProfile getSelectedGameProfile();
 
-	void selectGameProfile(GameProfile profile) throws AuthenticationException;
-
 }
