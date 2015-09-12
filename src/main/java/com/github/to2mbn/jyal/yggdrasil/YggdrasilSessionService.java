@@ -110,10 +110,10 @@ public class YggdrasilSessionService implements SessionService {
 	}
 
 	private GameProfile getGameProfile(JSONObject gameprofileResponse) throws AuthenticationException {
-		return getGameProfile(UUIDUtils.fromUUIDString(gameprofileResponse.getString("id")));
+		return getGameProfile(UUIDUtils.fromUUIDString(gameprofileResponse.getString("id")), gameprofileResponse.getString("name"));
 	}
 
-	private GameProfile getGameProfile(UUID uuid) throws AuthenticationException {
+	private GameProfile getGameProfile(UUID uuid, String name) throws AuthenticationException {
 		Map<String, Object> arguments = new HashMap<>();
 		arguments.put("unsigned", false);
 		JSONObject response;
@@ -123,7 +123,7 @@ public class YggdrasilSessionService implements SessionService {
 			throw new AuthenticationException("failed to request", e);
 		}
 		if (response == null) {
-			return null;
+			return new GameProfile(uuid, name, false, null);
 		}
 		checkResponse(response);
 		return new GameProfile(UUIDUtils.fromUUIDString(response.getString("id")), response.getString("name"), false, getProperties(response.getJSONArray("properties"), true));
