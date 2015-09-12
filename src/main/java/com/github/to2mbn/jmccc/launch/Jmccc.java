@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import org.json.JSONException;
 import com.github.to2mbn.jmccc.Launcher;
 import com.github.to2mbn.jmccc.auth.AuthResult;
 import com.github.to2mbn.jmccc.exec.DaemonStreamPumpMonitor;
@@ -19,7 +20,6 @@ import com.github.to2mbn.jmccc.util.Utils;
 import com.github.to2mbn.jmccc.version.Library;
 import com.github.to2mbn.jmccc.version.Native;
 import com.github.to2mbn.jmccc.version.Version;
-import com.google.gson.JsonParseException;
 
 public class Jmccc implements Launcher {
 
@@ -77,7 +77,7 @@ public class Jmccc implements Launcher {
     }
 
     @Override
-    public Version getVersion(MinecraftDirectory minecraftDir, String version) throws JsonParseException, IOException {
+    public Version getVersion(MinecraftDirectory minecraftDir, String version) throws JSONException, IOException {
         Objects.requireNonNull(minecraftDir);
         if (version == null) {
             return null;

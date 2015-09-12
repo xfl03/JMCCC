@@ -14,9 +14,9 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonParser;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 public class Utils {
 
@@ -101,12 +101,11 @@ public class Utils {
      * @param file file to read
      * @return json in the file
      * @throws IOException an I/O error occurs
-     * @throws JsonParseException a json parsing error occurs
+     * @throws JSONException a json parsing error occurs
      */
-    public static JsonElement readJson(File file) throws IOException, JsonParseException {
-        JsonParser parser = new JsonParser();
+    public static JSONObject readJson(File file) throws IOException, JSONException {
         try (Reader reader = new InputStreamReader(new BufferedInputStream(new FileInputStream(file)), "UTF-8")) {
-            return parser.parse(reader);
+            return new JSONObject(new JSONTokener(reader));
         }
     }
 

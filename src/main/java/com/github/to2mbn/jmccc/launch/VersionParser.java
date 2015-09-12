@@ -4,28 +4,27 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import com.github.to2mbn.jmccc.option.MinecraftDirectory;
 import com.github.to2mbn.jmccc.util.OsTypes;
 import com.github.to2mbn.jmccc.util.Utils;
 import com.github.to2mbn.jmccc.version.Library;
 import com.github.to2mbn.jmccc.version.Native;
 import com.github.to2mbn.jmccc.version.Version;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
 
 public class VersionParser {
 
-    public Version parse(MinecraftDirectory minecraftDir, String name) throws IOException, JsonParseException {
+    public Version parse(MinecraftDirectory minecraftDir, String name) throws IOException, JSONException {
         Set<Library> libraries = new HashSet<>();
 
-        JsonObject json = Utils.readJson(minecraftDir.getVersionJson(name)).getAsJsonObject();
-        String version = json.get("id").getAsString();
-        String assets = json.get("assets").getAsString();
-        String mainClass = json.get("mainClass").getAsString();
-        String launchArgs = json.get("minecraftArguments").getAsString();
-        loadDepends(json.getAsJsonArray("libraries"), libraries);
+        JSONObject json = Utils.readJson(minecraftDir.getVersionJson(name));
+        String version = json.getString("id");
+        String assets = json.getString("assets");
+        String mainClass = json.getString("mainClass");
+        String launchArgs = json.getString("minecraftArguments");
+        loadDepends(json.getJSONArray("libraries"), libraries);
 
         String jarPath;
 
@@ -34,10 +33,10 @@ public class VersionParser {
             String inheritsFrom;
             String inheritsJar;
             do {
-                inheritsFrom = json.get("inheritsFrom").getAsString();
-                inheritsJar = json.has("jar") ? json.get("jar").getAsString() : inheritsFrom;
-                json = Utils.readJson(minecraftDir.getVersionJson(inheritsFrom, inheritsJar)).getAsJsonObject();
-                loadDepends(json.getAsJsonArray("libraries"), libraries);
+                inheritsFrom = json.getString("inheritsFrom");
+                inheritsJar = json.has("jar") ? json.getString("jar") : inheritsFrom;
+                json = Utils.readJson(minecraftDir.getVersionJson(inheritsFrom, inheritsJar));
+                loadDepends(json.getJSONArray("libraries"), libraries);
             } while (json.has("inheritsFrom"));
             jarPath = getVersionJarPath(inheritsFrom, inheritsJar);
         } else {
@@ -47,23 +46,23 @@ public class VersionParser {
         return new Version(version, mainClass, assets, launchArgs, jarPath, libraries);
     }
 
-    private void loadDepends(JsonArray librariesList, Collection<Library> libraries) {
-        for (JsonElement element : librariesList) {
-            JsonObject library = element.getAsJsonObject();
+    private void loadDepends(JSONArray librariesList, Collection<Library> libraries) {
+        for (int i = 0; i < librariesList.length(); i++) {
+            JSONObject library = librariesList.getJSONObject(i);
 
-            if (!IsAllow(library.get("rules"))) {
+            if (library.has("rules") && !IsAllow(library.getJSONArray("rules"))) {
                 continue;
             }
 
-            String[] splited = library.get("name").getAsString().split(":", 3);
+            String[] splited = library.getString("name").split(":", 3);
             String domain = splited[0];
             String name = splited[1];
             String version = splited[2];
 
             boolean isNative = library.has("natives");
             if (isNative) {
-                String natives = resolveNatives(library.get("natives"));
-                Set<String> excludes = resolveExtractExclude(library.get("extract"));
+                String natives = resolveNatives(library.getJSONObject("natives"));
+                Set<String> excludes = library.has("extract") ? resolveExtractExclude(library.getJSONObject("extract")) : null;
                 libraries.add(new Native(domain, name, version, natives, excludes));
             } else {
                 libraries.add(new Library(domain, name, version));
@@ -71,18 +70,18 @@ public class VersionParser {
         }
     }
 
-    private boolean IsAllow(JsonElement rules) {
+    private boolean IsAllow(JSONArray rules) {
         // by default it's allow
-        if (rules == null || rules.getAsJsonArray().size() == 0) {
+        if (rules.length() == 0) {
             return true;
         }
 
         // else it's disallow by default
         boolean allow = false;
-        for (JsonElement element : rules.getAsJsonArray()) {
-            JsonObject rule = element.getAsJsonObject();
+        for (int i = 0; i < rules.length(); i++) {
+            JSONObject rule = rules.getJSONObject(i);
 
-            boolean action = rule.get("action").getAsString().equals("allow");
+            boolean action = rule.get("action").equals("allow");
 
             // apply by default
             boolean apply = true;
@@ -91,9 +90,9 @@ public class VersionParser {
                 // don't apply by default if has os rule
                 apply = false;
 
-                JsonObject osRule = rule.getAsJsonObject("os");
-                String name = osRule.get("name").getAsString();
-                String version = osRule.has("version") ? osRule.get("version").getAsString() : null;
+                JSONObject osRule = rule.getJSONObject("os");
+                String name = osRule.getString("name");
+                String version = osRule.has("version") ? osRule.getString("version") : null;
 
                 if (OsTypes.CURRENT.name().equalsIgnoreCase(name)) {
                     if (version == null || System.getProperty("os.version").matches(version)) {
@@ -110,27 +109,25 @@ public class VersionParser {
         return allow;
     }
 
-    private String resolveNatives(JsonElement nativesList) {
-        if (nativesList == null) {
-            return null;
-        }
+    private String resolveNatives(JSONObject natives) {
+        String archName = OsTypes.CURRENT.name().toLowerCase();
 
-        JsonElement nativesElement = nativesList.getAsJsonObject().get(OsTypes.CURRENT.name().toLowerCase());
-        if (nativesElement == null) {
+        if (natives.has(archName)) {
             return null;
         } else {
-            return nativesElement.getAsString().replaceAll("\\Q${arch}", System.getProperty("java.vm.name").contains("64") ? "64" : "32");
+            return natives.getString(archName).replaceAll("\\Q${arch}", System.getProperty("java.vm.name").contains("64") ? "64" : "32");
         }
     }
 
-    private Set<String> resolveExtractExclude(JsonElement extract) {
-        if (extract == null || !extract.getAsJsonObject().has("exclude")) {
+    private Set<String> resolveExtractExclude(JSONObject extract) {
+        if (!extract.has("exclude")) {
             return null;
         }
 
         Set<String> excludes = new HashSet<>();
-        for (JsonElement element : extract.getAsJsonObject().getAsJsonArray("exclude")) {
-            excludes.add(element.getAsString());
+        JSONArray excludesArray = extract.getJSONArray("exclude");
+        for (int i = 0; i < excludesArray.length(); i++) {
+            excludes.add(excludesArray.getString(i));
         }
         return excludes;
     }

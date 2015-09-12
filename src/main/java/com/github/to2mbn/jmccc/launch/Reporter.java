@@ -6,11 +6,11 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import org.json.JSONObject;
 import com.github.to2mbn.jmccc.option.LaunchOption;
 import com.github.to2mbn.jmccc.util.OsTypes;
 import com.github.to2mbn.jmccc.util.References;
 import com.github.to2mbn.jmccc.util.Utils;
-import com.google.gson.Gson;
 
 /**
  * Used to report launch argument for statistics and debugging.
@@ -24,8 +24,6 @@ class Reporter {
      * JMCCC Report API
      */
     private static final String reportLink = "http://yushijinhun.imwork.net:8081/jmccc-reporter-server-2.0/api/report-v2";
-
-    private Gson gson = new Gson();
 
     /**
      * used to identify client
@@ -48,10 +46,10 @@ class Reporter {
         this.extendedIdentity = extendedIdentity;
     }
 
-    private void report(Object data) throws ReportException {
+    private void report(Map<String, Object> data) throws ReportException {
         try {
             // decode data
-            byte[] reportData = gson.toJson(data).getBytes("UTF-8");
+            byte[] reportData = new JSONObject(data).toString().getBytes("UTF-8");
 
             // setup connection
             URL url = new URL(reportLink);
@@ -93,8 +91,8 @@ class Reporter {
         }
     }
 
-    private Map<String, String> generateBaseReport(LaunchOption option) {
-        Map<String, String> report = new HashMap<>();
+    private Map<String, Object> generateBaseReport(LaunchOption option) {
+        Map<String, Object> report = new HashMap<>();
 
         report.put("jmccc_name", References.ID);
         report.put("jmccc_version", References.VERSION);
@@ -116,14 +114,14 @@ class Reporter {
         return report;
     }
 
-    private Map<String, String> generateSuccessfulReport(LaunchOption option, LaunchResult result) {
-        Map<String, String> report = generateBaseReport(option);
+    private Map<String, Object> generateSuccessfulReport(LaunchOption option, LaunchResult result) {
+        Map<String, Object> report = generateBaseReport(option);
         report.put("state", "true");
         return report;
     }
 
-    private Map<String, String> generateUnsuccessfulReport(LaunchOption option, Throwable e) {
-        Map<String, String> report = generateBaseReport(option);
+    private Map<String, Object> generateUnsuccessfulReport(LaunchOption option, Throwable e) {
+        Map<String, Object> report = generateBaseReport(option);
         report.put("state", "false");
         report.put("stack_trace", Utils.getStackTrace(e));
         return report;
