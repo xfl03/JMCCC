@@ -1,4 +1,4 @@
-# JMCCC 2.0
+# JMCCC
 ![](http://i1.tietuku.com/e86de030295d85ac.png)<br/>
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Southern-InfinityStudio/JMCCC?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)<br/>
 An open-source lightweight library for launching Minecraft.<br/>
