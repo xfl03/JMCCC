@@ -29,7 +29,7 @@ import com.github.to2mbn.jyal.util.UUIDUtils;
 public class YggdrasilSessionService implements SessionService {
 
 	private static final String API_AUTHENTICATE = "https://authserver.mojang.com/authenticate";
-	private static final String API_PROFILE = "https://authserver.mojang.com/profile/";
+	private static final String API_PROFILE = "https://sessionserver.mojang.com/session/minecraft/profile/";
 
 	private String clientToken;
 	private Agent agent;
