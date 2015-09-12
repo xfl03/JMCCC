@@ -113,9 +113,9 @@ public class VersionParser {
         String archName = OsTypes.CURRENT.name().toLowerCase();
 
         if (natives.has(archName)) {
-            return null;
-        } else {
             return natives.getString(archName).replaceAll("\\Q${arch}", System.getProperty("java.vm.name").contains("64") ? "64" : "32");
+        } else {
+            return null;
         }
     }
 
