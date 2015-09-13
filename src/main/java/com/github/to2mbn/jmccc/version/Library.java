@@ -1,6 +1,8 @@
 package com.github.to2mbn.jmccc.version;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import com.github.to2mbn.jmccc.option.MinecraftDirectory;
 
@@ -10,6 +12,7 @@ public class Library {
     private String name;
     private String version;
     private String customUrl;
+    private Map<String, String> checksums = new HashMap<>();
 
     /**
      * Creates a library.
@@ -20,19 +23,20 @@ public class Library {
      * @throws NullPointerException if <code>domain==null||name==null||version==null</code>
      */
     public Library(String domain, String name, String version) {
-        this(domain, name, version, null);
+        this(domain, name, version, null, null);
     }
 
     /**
-     * Creates a library with the custom download url.
+     * Creates a library with the custom download url and checksums.
      * 
      * @param domain the domain of the library
      * @param name the name of the library
      * @param version the version of the library
      * @param customUrl the custom maven repository url
+     * @param checksums the checksums
      * @throws NullPointerException if <code>domain==null||name==null||version==null</code>
      */
-    public Library(String domain, String name, String version, String customUrl) {
+    public Library(String domain, String name, String version, String customUrl, Map<String, String> checksums) {
         Objects.requireNonNull(domain);
         Objects.requireNonNull(name);
         Objects.requireNonNull(version);
@@ -40,6 +44,10 @@ public class Library {
         this.name = name;
         this.version = version;
         this.customUrl = customUrl;
+
+        if (checksums != null) {
+            this.checksums.putAll(checksums);
+        }
     }
 
     /**
@@ -87,6 +95,15 @@ public class Library {
      */
     public String getCustomUrl() {
         return customUrl;
+    }
+
+    /**
+     * Returns a map of checksums. Key is the name of the hash algorithm. Value is the hash.
+     * 
+     * @return a map of checksums
+     */
+    public Map<String, String> getChecksums() {
+        return checksums;
     }
 
     /**

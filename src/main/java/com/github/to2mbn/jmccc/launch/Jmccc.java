@@ -2,6 +2,7 @@ package com.github.to2mbn.jmccc.launch;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -16,6 +17,7 @@ import com.github.to2mbn.jmccc.exec.GameProcessListener;
 import com.github.to2mbn.jmccc.exec.ProcessMonitor;
 import com.github.to2mbn.jmccc.option.LaunchOption;
 import com.github.to2mbn.jmccc.option.MinecraftDirectory;
+import com.github.to2mbn.jmccc.util.ChecksumsChecker;
 import com.github.to2mbn.jmccc.util.Utils;
 import com.github.to2mbn.jmccc.version.Library;
 import com.github.to2mbn.jmccc.version.Native;
@@ -54,6 +56,7 @@ public class Jmccc implements Launcher {
 
     private Reporter reporter;
     private VersionParser versionParser = new VersionParser();;
+    private ChecksumsChecker checksumsChecker = new ChecksumsChecker();
     private boolean reportmode = true;
 
     private Jmccc(String extendedIdentity) {
@@ -157,12 +160,11 @@ public class Jmccc implements Launcher {
             throw new MissingDependenciesException(missing.toString());
         }
 
-        AuthResult auth = option.getAuthenticator().auth();
-
         Set<File> javaLibraries = new HashSet<>();
         File nativesDir = option.getMinecraftDirectory().getNatives(option.getVersion().getVersion());
         for (Library library : option.getVersion().getLibraries()) {
             File libraryFile = new File(option.getMinecraftDirectory().getLibraries(), library.getPath());
+            verifyLibraryChecksums(library, libraryFile);
             if (library instanceof Native) {
                 try {
                     Utils.uncompressZipWithExcludes(libraryFile, nativesDir, ((Native) library).getExtractExcludes());
@@ -173,6 +175,8 @@ public class Jmccc implements Launcher {
                 javaLibraries.add(libraryFile);
             }
         }
+
+        AuthResult auth = option.getAuthenticator().auth();
 
         Map<String, String> tokens = new HashMap<String, String>();
         tokens.put("auth_access_token", auth.getToken());
@@ -186,6 +190,16 @@ public class Jmccc implements Launcher {
         tokens.put("user_type", auth.getUserType());
         tokens.put("user_properties", auth.getProperties());
         return new LaunchArgument(option, tokens, option.getExtraArguments(), javaLibraries, nativesDir);
+    }
+
+    private void verifyLibraryChecksums(Library library, File file) throws ChecksumException {
+        try {
+            if (!checksumsChecker.checksums(file, library.getChecksums())) {
+                throw new ChecksumException("checksums mismatch");
+            }
+        } catch (NoSuchAlgorithmException | IOException e) {
+            throw new ChecksumException("failed to verify checksums", e);
+        }
     }
 
 }

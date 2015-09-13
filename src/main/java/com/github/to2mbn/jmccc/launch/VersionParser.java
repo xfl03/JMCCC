@@ -2,7 +2,9 @@ package com.github.to2mbn.jmccc.launch;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -60,14 +62,15 @@ public class VersionParser {
             String version = splited[2];
 
             String url = library.has("url") ? library.getString("url") : null;
+            Map<String, String> checksums = library.has("checksums") ? resolveChecksums(library.getJSONArray("checksums")) : null;
 
             boolean isNative = library.has("natives");
             if (isNative) {
                 String natives = resolveNatives(library.getJSONObject("natives"));
                 Set<String> excludes = library.has("extract") ? resolveExtractExclude(library.getJSONObject("extract")) : null;
-                libraries.add(new Native(domain, name, version, natives, excludes, url));
+                libraries.add(new Native(domain, name, version, natives, excludes, url, checksums));
             } else {
-                libraries.add(new Library(domain, name, version, url));
+                libraries.add(new Library(domain, name, version, url, checksums));
             }
         }
     }
@@ -138,4 +141,28 @@ public class VersionParser {
         return version + "/" + jar + ".jar";
     }
 
+    private Map<String, String> resolveChecksums(JSONArray sumarray) {
+        Map<String, String> checksums = new HashMap<>();
+        for (int i = 0; i < sumarray.length(); i++) {
+            String algorithm = getHashAlgorithmByChecksumIndex(i);
+            if (algorithm == null) {
+                continue;
+            }
+            checksums.put(algorithm, sumarray.getString(i));
+        }
+        return checksums;
+    }
+
+    private String getHashAlgorithmByChecksumIndex(int index) {
+        switch (index) {
+            case 0:
+                return "SHA";
+
+            case 1:
+                return "SHA-1";
+
+            default:
+                return null;
+        }
+    }
 }
