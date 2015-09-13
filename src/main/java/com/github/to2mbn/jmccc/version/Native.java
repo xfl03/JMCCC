@@ -19,7 +19,22 @@ public class Native extends Library {
      * @throws NullPointerException if <code>domain==null||name==null||version==null||arch==null</code>
      */
     public Native(String domain, String name, String version, String arch, Set<String> extractExcludes) {
-        super(domain, name, version);
+        this(domain, name, version, arch, extractExcludes, null);
+    }
+
+    /**
+     * Creates a native with the custom download url.
+     * 
+     * @param domain the domain of the native
+     * @param name the name of the native
+     * @param version the version of the native
+     * @param arch the arch of the native
+     * @param extractExcludes the extract excludes list of the native, null if no excludes
+     * @param customUrl the custom maven repository url
+     * @throws NullPointerException if <code>domain==null||name==null||version==null||arch==null</code>
+     */
+    public Native(String domain, String name, String version, String arch, Set<String> extractExcludes, String customUrl) {
+        super(domain, name, version, customUrl);
         Objects.requireNonNull(arch);
         this.arch = arch;
         this.extractExcludes = extractExcludes;

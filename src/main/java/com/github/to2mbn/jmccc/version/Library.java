@@ -9,6 +9,7 @@ public class Library {
     private String domain;
     private String name;
     private String version;
+    private String customUrl;
 
     /**
      * Creates a library.
@@ -19,12 +20,26 @@ public class Library {
      * @throws NullPointerException if <code>domain==null||name==null||version==null</code>
      */
     public Library(String domain, String name, String version) {
+        this(domain, name, version, null);
+    }
+
+    /**
+     * Creates a library with the custom download url.
+     * 
+     * @param domain the domain of the library
+     * @param name the name of the library
+     * @param version the version of the library
+     * @param customUrl the custom maven repository url
+     * @throws NullPointerException if <code>domain==null||name==null||version==null</code>
+     */
+    public Library(String domain, String name, String version, String customUrl) {
         Objects.requireNonNull(domain);
         Objects.requireNonNull(name);
         Objects.requireNonNull(version);
         this.domain = domain;
         this.name = name;
         this.version = version;
+        this.customUrl = customUrl;
     }
 
     /**
@@ -63,6 +78,15 @@ public class Library {
      */
     public String getVersion() {
         return version;
+    }
+
+    /**
+     * Gets the custom maven repository url, null for default repository.
+     * 
+     * @return the custom maven repository url, null for default repository
+     */
+    public String getCustomUrl() {
+        return customUrl;
     }
 
     /**

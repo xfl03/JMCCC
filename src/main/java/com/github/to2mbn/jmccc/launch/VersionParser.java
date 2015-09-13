@@ -59,13 +59,15 @@ public class VersionParser {
             String name = splited[1];
             String version = splited[2];
 
+            String url = library.has("url") ? library.getString("url") : null;
+
             boolean isNative = library.has("natives");
             if (isNative) {
                 String natives = resolveNatives(library.getJSONObject("natives"));
                 Set<String> excludes = library.has("extract") ? resolveExtractExclude(library.getJSONObject("extract")) : null;
-                libraries.add(new Native(domain, name, version, natives, excludes));
+                libraries.add(new Native(domain, name, version, natives, excludes, url));
             } else {
-                libraries.add(new Library(domain, name, version));
+                libraries.add(new Library(domain, name, version, url));
             }
         }
     }
