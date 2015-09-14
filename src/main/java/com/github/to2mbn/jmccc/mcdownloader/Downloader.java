@@ -29,13 +29,11 @@ public interface Downloader {
 	CompletableFuture<Void> downloadVersion(String version);
 
 	/**
-	 * Downloads the assets asynchronously.
-	 * <p>
-	 * This method will check the hashes of the assets first, and then download the missing or broken assets.
+	 * Downloads the given asset asynchronously.
 	 * 
-	 * @param version the version of the assets
+	 * @param asset the asset to download
 	 * @return void
 	 */
-	CompletableFuture<Void> downloadAssets(String version);
+	CompletableFuture<Void> downloadAsset(Asset asset);
 
 }
