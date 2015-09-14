@@ -10,7 +10,7 @@ public interface Downloader {
 	 * 
 	 * @return the remote versions list
 	 */
-	CompletableFuture<RemoteVersionList> getRemoteVersionList();
+	CompletableFuture<RemoteVersionList> downloadRemoteVersionList();
 
 	/**
 	 * Downloads the given library asynchronously.
