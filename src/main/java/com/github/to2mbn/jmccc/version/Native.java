@@ -1,6 +1,5 @@
 package com.github.to2mbn.jmccc.version;
 
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -35,7 +34,7 @@ public class Native extends Library {
      * @param checksums the checksums
      * @throws NullPointerException if <code>domain==null||name==null||version==null||arch==null</code>
      */
-    public Native(String domain, String name, String version, String arch, Set<String> extractExcludes, String customUrl, Map<String, String> checksums) {
+    public Native(String domain, String name, String version, String arch, Set<String> extractExcludes, String customUrl, String[] checksums) {
         super(domain, name, version, customUrl, checksums);
         Objects.requireNonNull(arch);
         this.arch = arch;

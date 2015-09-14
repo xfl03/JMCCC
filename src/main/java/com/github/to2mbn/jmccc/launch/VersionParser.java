@@ -2,9 +2,7 @@ package com.github.to2mbn.jmccc.launch;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -62,7 +60,7 @@ public class VersionParser {
             String version = splited[2];
 
             String url = library.has("url") ? library.getString("url") : null;
-            Map<String, String> checksums = library.has("checksums") ? resolveChecksums(library.getJSONArray("checksums")) : null;
+            String[] checksums = library.has("checksums") ? resolveChecksums(library.getJSONArray("checksums")) : null;
 
             boolean isNative = library.has("natives");
             if (isNative) {
@@ -141,28 +139,12 @@ public class VersionParser {
         return version + "/" + jar + ".jar";
     }
 
-    private Map<String, String> resolveChecksums(JSONArray sumarray) {
-        Map<String, String> checksums = new HashMap<>();
+    private String[] resolveChecksums(JSONArray sumarray) {
+        String[] checksums = new String[sumarray.length()];
         for (int i = 0; i < sumarray.length(); i++) {
-            String algorithm = getHashAlgorithmByChecksumIndex(i);
-            if (algorithm == null) {
-                continue;
-            }
-            checksums.put(algorithm, sumarray.getString(i));
+            checksums[i] = sumarray.getString(i);
         }
         return checksums;
     }
 
-    private String getHashAlgorithmByChecksumIndex(int index) {
-        switch (index) {
-            case 0:
-                return "SHA";
-
-            case 1:
-                return "SHA-1";
-
-            default:
-                return null;
-        }
-    }
 }

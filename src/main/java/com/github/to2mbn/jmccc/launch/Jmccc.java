@@ -3,6 +3,7 @@ package com.github.to2mbn.jmccc.launch;
 import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -17,7 +18,6 @@ import com.github.to2mbn.jmccc.exec.GameProcessListener;
 import com.github.to2mbn.jmccc.exec.ProcessMonitor;
 import com.github.to2mbn.jmccc.option.LaunchOption;
 import com.github.to2mbn.jmccc.option.MinecraftDirectory;
-import com.github.to2mbn.jmccc.util.ChecksumsChecker;
 import com.github.to2mbn.jmccc.util.Utils;
 import com.github.to2mbn.jmccc.version.Library;
 import com.github.to2mbn.jmccc.version.Native;
@@ -55,8 +55,7 @@ public class Jmccc implements Launcher {
     }
 
     private Reporter reporter;
-    private VersionParser versionParser = new VersionParser();;
-    private ChecksumsChecker checksumsChecker = new ChecksumsChecker();
+    private VersionParser versionParser = new VersionParser();
     private boolean reportmode = true;
 
     private Jmccc(String extendedIdentity) {
@@ -193,13 +192,25 @@ public class Jmccc implements Launcher {
     }
 
     private void verifyLibraryChecksums(Library library, File file) throws ChecksumException {
+        if (library.getChecksums() == null) {
+            return;
+        }
+
+        byte[] sha1sum;
         try {
-            if (!checksumsChecker.checksums(file, library.getChecksums())) {
-                throw new ChecksumException("checksums mismatch");
-            }
+            sha1sum = Utils.hash("SHA-1", file);
         } catch (NoSuchAlgorithmException | IOException e) {
             throw new ChecksumException("failed to verify checksums", e);
         }
+
+        for (String checksum : library.getChecksums()) {
+            if (Arrays.equals(sha1sum, Utils.hexToBytes(checksum))) {
+                return;
+            }
+        }
+
+        throw new ChecksumException("checksums mismatch");
+
     }
 
 }

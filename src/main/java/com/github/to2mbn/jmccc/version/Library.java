@@ -1,8 +1,6 @@
 package com.github.to2mbn.jmccc.version;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 import com.github.to2mbn.jmccc.option.MinecraftDirectory;
 
@@ -12,7 +10,7 @@ public class Library {
     private String name;
     private String version;
     private String customUrl;
-    private Map<String, String> checksums = new HashMap<>();
+    private String[] checksums;
 
     /**
      * Creates a library.
@@ -36,7 +34,7 @@ public class Library {
      * @param checksums the checksums
      * @throws NullPointerException if <code>domain==null||name==null||version==null</code>
      */
-    public Library(String domain, String name, String version, String customUrl, Map<String, String> checksums) {
+    public Library(String domain, String name, String version, String customUrl, String[] checksums) {
         Objects.requireNonNull(domain);
         Objects.requireNonNull(name);
         Objects.requireNonNull(version);
@@ -44,10 +42,7 @@ public class Library {
         this.name = name;
         this.version = version;
         this.customUrl = customUrl;
-
-        if (checksums != null) {
-            this.checksums.putAll(checksums);
-        }
+        this.checksums = checksums;
     }
 
     /**
@@ -98,11 +93,12 @@ public class Library {
     }
 
     /**
-     * Returns a map of checksums. Key is the name of the hash algorithm. Value is the hash.
+     * Returns the sha1 checksums, null if no need to check.<b>
+     * If the sha1 hash of the library matches one of the hashes, this library is valid.
      * 
      * @return a map of checksums
      */
-    public Map<String, String> getChecksums() {
+    public String[] getChecksums() {
         return checksums;
     }
 
