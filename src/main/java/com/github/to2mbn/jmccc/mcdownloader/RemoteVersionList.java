@@ -1,8 +1,33 @@
 package com.github.to2mbn.jmccc.mcdownloader;
 
+import java.util.HashMap;
 import java.util.Map;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class RemoteVersionList {
+
+	public static RemoteVersionList fromJson(JSONObject json) {
+		String latestSnapshot = null;
+		String latestRelease = null;
+		if (json.has("latest")) {
+			JSONObject latest = json.getJSONObject("latest");
+			latestSnapshot = latest.optString("snapshot");
+			latestRelease = latest.optString("release");
+		}
+
+		JSONArray jsonVersions = json.getJSONArray("versions");
+		Map<String, RemoteVersion> versions = new HashMap<>();
+		for (int i = 0; i < jsonVersions.length(); i++) {
+			JSONObject jsonVersion = jsonVersions.getJSONObject(i);
+			String version = jsonVersion.getString("id");
+			String updateTime = jsonVersion.getString("time");
+			String releaseTime = jsonVersion.getString("releaseTime");
+			String type = jsonVersion.getString("type");
+			versions.put(version, new RemoteVersion(version, updateTime, releaseTime, type));
+		}
+		return new RemoteVersionList(latestSnapshot, latestRelease, versions);
+	}
 
 	private String latestSnapshot;
 	private String latestRelease;
