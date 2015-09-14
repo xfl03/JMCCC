@@ -2,25 +2,25 @@ package com.github.to2mbn.jmccc.mcdownloader;
 
 public class RemoteVersion {
 
-	private String verison;
+	private String version;
 	private String updateTime;
 	private String releaseTime;
 	private String type;
 
-	public RemoteVersion(String verison, String updateTime, String releaseTime, String type) {
-		this.verison = verison;
+	public RemoteVersion(String version, String updateTime, String releaseTime, String type) {
+		this.version = version;
 		this.updateTime = updateTime;
 		this.releaseTime = releaseTime;
 		this.type = type;
 	}
 
 	/**
-	 * Gets the verison number.
+	 * Gets the version number.
 	 * 
-	 * @return the verison number
+	 * @return the version number
 	 */
-	public String getVerison() {
-		return verison;
+	public String getVersion() {
+		return version;
 	}
 
 	/**
