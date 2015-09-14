@@ -2,16 +2,16 @@ package com.github.to2mbn.jmccc.mcdownloader;
 
 import java.util.Set;
 
-public class AssetIndex {
+public class AssetsIndex {
 
 	private Set<Asset> assets;
 
 	/**
-	 * Creates an AssetIndex.
+	 * Creates an AssetsIndex.
 	 * 
 	 * @param assets the assets
 	 */
-	public AssetIndex(Set<Asset> assets) {
+	public AssetsIndex(Set<Asset> assets) {
 		this.assets = assets;
 	}
 

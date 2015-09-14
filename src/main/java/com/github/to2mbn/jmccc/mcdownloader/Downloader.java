@@ -37,11 +37,11 @@ public interface Downloader {
 	CompletableFuture<Void> downloadAsset(Asset asset);
 
 	/**
-	 * Downloads the given asset index asynchronously.
+	 * Downloads the given assets index asynchronously.
 	 * 
-	 * @param version the version of the asset index to download
+	 * @param version the version of the assets index to download
 	 * @return the asset index
 	 */
-	CompletableFuture<AssetIndex> downloadAssetIndex(String version);
+	CompletableFuture<AssetsIndex> downloadAssetsIndex(String version);
 
 }
