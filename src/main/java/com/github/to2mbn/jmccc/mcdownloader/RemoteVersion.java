@@ -1,5 +1,7 @@
 package com.github.to2mbn.jmccc.mcdownloader;
 
+import java.util.Objects;
+
 public class RemoteVersion {
 
 	private String version;
@@ -7,7 +9,17 @@ public class RemoteVersion {
 	private String releaseTime;
 	private String type;
 
+	/**
+	 * Creates a RemoteVersion.
+	 * 
+	 * @param version the version number
+	 * @param updateTime the update time
+	 * @param releaseTime the release time
+	 * @param type the version type
+	 * @throws NullPointerException if <code>version==null<code>
+	 */
 	public RemoteVersion(String version, String updateTime, String releaseTime, String type) {
+		Objects.requireNonNull(version);
 		this.version = version;
 		this.updateTime = updateTime;
 		this.releaseTime = releaseTime;

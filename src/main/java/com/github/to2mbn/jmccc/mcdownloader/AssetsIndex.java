@@ -1,6 +1,7 @@
 package com.github.to2mbn.jmccc.mcdownloader;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import org.json.JSONObject;
 
@@ -24,8 +25,10 @@ public class AssetsIndex {
 	 * Creates an AssetsIndex.
 	 * 
 	 * @param assets the assets
+	 * @throws NullPointerException <code>assets==null</code>
 	 */
 	public AssetsIndex(Set<Asset> assets) {
+		Objects.requireNonNull(assets);
 		this.assets = assets;
 	}
 

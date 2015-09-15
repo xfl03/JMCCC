@@ -2,6 +2,7 @@ package com.github.to2mbn.jmccc.mcdownloader;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -39,8 +40,10 @@ public class RemoteVersionList {
 	 * @param latestSnapshot the version of the latest snapshot
 	 * @param latestRelease the version of the latestrelease
 	 * @param versions the versions
+	 * @throws NullPointerException <code>versions==null</code>
 	 */
 	public RemoteVersionList(String latestSnapshot, String latestRelease, Map<String, RemoteVersion> versions) {
+		Objects.requireNonNull(versions);
 		this.latestSnapshot = latestSnapshot;
 		this.latestRelease = latestRelease;
 		this.versions = versions;
