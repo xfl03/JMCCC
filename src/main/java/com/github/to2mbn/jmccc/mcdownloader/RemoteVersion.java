@@ -60,4 +60,9 @@ public class RemoteVersion {
 		return type;
 	}
 
+	@Override
+	public String toString() {
+		return "[version=" + version + ", updateTime=" + updateTime + ", releaseTime=" + releaseTime + ", type=" + type + "]";
+	}
+
 }

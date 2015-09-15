@@ -46,4 +46,9 @@ public class Asset {
 		return size;
 	}
 
+	@Override
+	public String toString() {
+		return "[path=" + virtualPath + ", hash=" + hash + ", size=" + size + "]";
+	}
+
 }

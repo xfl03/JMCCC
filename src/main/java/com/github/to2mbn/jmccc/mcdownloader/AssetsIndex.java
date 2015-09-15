@@ -38,4 +38,9 @@ public class AssetsIndex {
 		return assets;
 	}
 
+	@Override
+	public String toString() {
+		return assets.toString();
+	}
+
 }

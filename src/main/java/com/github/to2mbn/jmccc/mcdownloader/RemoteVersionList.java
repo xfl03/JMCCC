@@ -73,4 +73,9 @@ public class RemoteVersionList {
 		return versions;
 	}
 
+	@Override
+	public String toString() {
+		return "[latestSnapshot=" + latestSnapshot + ", latestRelease=" + latestRelease + ", versions=" + versions + "]";
+	}
+
 }
