@@ -51,4 +51,15 @@ public class Asset {
 		return "[path=" + virtualPath + ", hash=" + hash + ", size=" + size + "]";
 	}
 
+	/**
+	 * Returns the abstract path of the asset in hash directory structure.
+	 * <p>
+	 * The path is <code>hash.substring(0, 2) + "/" + hash</code>.
+	 * 
+	 * @return the abstract path of the asset in hash directory structure
+	 */
+	public String getHashPath() {
+		return hash.substring(0, 2) + "/" + hash;
+	}
+
 }
