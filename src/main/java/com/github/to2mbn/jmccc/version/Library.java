@@ -93,7 +93,7 @@ public class Library {
     }
 
     /**
-     * Returns the sha1 checksums, null if no need to check.<b>
+     * Returns the sha1 checksums, null if no need to check.<br>
      * If the sha1 hash of the library matches one of the hashes, this library is valid.
      * 
      * @return a map of checksums
