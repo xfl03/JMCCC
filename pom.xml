@@ -7,6 +7,11 @@
 	<name>JMCCC</name>
 	<description>An open-source lightweight library for launching Minecraft.</description>
 	<url>https://github.com/to2mbn/JMCCC</url>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<jar.source>1.7</jar.source>
+		<jar.target>1.7</jar.target>
+	</properties>
 	<issueManagement>
 		<url>https://github.com/to2mbn/JMCCC/issues</url>
 		<system>GitHub Issues</system>
@@ -103,6 +108,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-gpg-plugin</artifactId>
+				<version>1.6</version>
 				<executions>
 					<execution>
 						<id>sign-artifacts</id>
