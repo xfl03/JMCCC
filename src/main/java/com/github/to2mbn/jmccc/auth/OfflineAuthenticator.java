@@ -38,4 +38,26 @@ public class OfflineAuthenticator implements Authenticator {
     private UUID generateUUID() throws UnsupportedEncodingException {
         return UUID.nameUUIDFromBytes(("OfflinePlayer:" + playerName).getBytes("UTF-8"));
     }
+
+    @Override
+    public String toString() {
+        return "OfflineAuthenticator[" + playerName + "]";
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj instanceof OfflineAuthenticator) {
+            OfflineAuthenticator another = (OfflineAuthenticator) obj;
+            return playerName.equals(another.playerName);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return playerName.hashCode();
+    }
 }

@@ -62,6 +62,11 @@ public class ServerInfo {
         this.address = address;
     }
 
+    @Override
+    public String toString() {
+        return address + ':' + port;
+    }
+
     /**
      * Gets the server port
      * 
@@ -83,6 +88,23 @@ public class ServerInfo {
         }
 
         this.port = port;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj instanceof ServerInfo) {
+            ServerInfo another = (ServerInfo) obj;
+            return port == another.port && address.equals(another.address);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(address, port);
     }
 
 }

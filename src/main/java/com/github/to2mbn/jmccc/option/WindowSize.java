@@ -1,5 +1,7 @@
 package com.github.to2mbn.jmccc.option;
 
+import java.util.Objects;
+
 public class WindowSize {
 
     /**
@@ -103,6 +105,28 @@ public class WindowSize {
         }
 
         this.height = height;
+    }
+
+    @Override
+    public String toString() {
+        return fullSize ? "Fullsize" : String.valueOf(width) + 'x' + String.valueOf(height);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj instanceof WindowSize) {
+            WindowSize another = (WindowSize) obj;
+            return (fullSize == another.fullSize) || (width == another.width && height == another.height);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return fullSize ? 1 : Objects.hash(width, height);
     }
 
 }

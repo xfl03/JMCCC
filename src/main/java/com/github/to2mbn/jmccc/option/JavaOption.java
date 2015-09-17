@@ -83,4 +83,30 @@ public class JavaOption {
         this.cgc = cgc;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(javaPath.toString());
+        if (cgc) {
+            sb.append(" [CGC on]");
+        }
+        return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj instanceof JavaOption) {
+            JavaOption another = (JavaOption) obj;
+            return cgc == another.cgc && javaPath.equals(another.javaPath);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(javaPath, cgc);
+    }
+
 }

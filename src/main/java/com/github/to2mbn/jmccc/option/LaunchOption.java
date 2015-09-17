@@ -233,4 +233,26 @@ public class LaunchOption {
         this.extraArguments = extraArguments;
     }
 
+    @Override
+    public String toString() {
+        return "[maxMemory=" + maxMemory + ", minMemory=" + minMemory + ", version=" + version + ", authenticator=" + authenticator + ", serverInfo=" + serverInfo + ", windowSize=" + windowSize + ", javaOption=" + javaOption + ", minecraftDirectory=" + minecraftDirectory + ", extraArguments=" + extraArguments + "]";
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj instanceof LaunchOption) {
+            LaunchOption another = (LaunchOption) obj;
+            return maxMemory == another.maxMemory && minMemory == another.minMemory && version.equals(another.version) && authenticator.equals(another.authenticator) && minecraftDirectory.equals(another.minecraftDirectory) && javaOption.equals(another.javaOption) && Objects.equals(serverInfo, another.serverInfo) && Objects.equals(windowSize, another.windowSize) && Objects.equals(extraArguments, another.extraArguments);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(maxMemory, minMemory, version, authenticator, minecraftDirectory, javaOption, serverInfo, windowSize, extraArguments);
+    }
+
 }

@@ -155,4 +155,21 @@ public class MinecraftDirectory {
         return rootDir.toString();
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj instanceof MinecraftDirectory) {
+            MinecraftDirectory another = (MinecraftDirectory) obj;
+            return rootDir.equals(another.rootDir);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return rootDir.hashCode();
+    }
+
 }

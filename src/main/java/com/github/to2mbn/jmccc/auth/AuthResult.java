@@ -80,4 +80,26 @@ public class AuthResult {
         return userType;
     }
 
+    @Override
+    public String toString() {
+        return "[username=" + username + ", token=" + token + ", uuid=" + uuid + ", properties=" + properties + ", userType=" + userType + "]";
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj instanceof AuthResult) {
+            AuthResult another = (AuthResult) obj;
+            return username.equals(another.username) && token.equals(another.token) && uuid.equals(another.uuid) && properties.equals(another.properties) && userType.equals(another.userType);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(username, token, uuid, properties, userType);
+    }
+
 }

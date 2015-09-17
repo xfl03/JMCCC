@@ -68,4 +68,16 @@ public class Native extends Library {
     public String getPath() {
         return getDomain().replace('.', '/') + "/" + getName() + "/" + getVersion() + "/" + getName() + "-" + getVersion() + "-" + arch + ".jar";
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj instanceof Native && super.equals(obj)) {
+            Native another = (Native) obj;
+            return arch.equals(another.arch) && Objects.equals(extractExcludes, another.extractExcludes);
+        }
+        return false;
+    }
 }

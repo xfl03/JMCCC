@@ -1,6 +1,7 @@
 package com.github.to2mbn.jmccc.version;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Objects;
 import com.github.to2mbn.jmccc.option.MinecraftDirectory;
 
@@ -115,6 +116,23 @@ public class Library {
     @Override
     public String toString() {
         return domain + ":" + name + ":" + version;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj instanceof Library) {
+            Library another = (Library) obj;
+            return domain.equals(another.domain) && name.equals(another.name) && version.equals(another.version) && Objects.equals(customUrl, another.customUrl) && Arrays.equals(checksums, another.checksums);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.deepHashCode(new Object[] { domain, name, version, customUrl, checksums });
     }
 
 }

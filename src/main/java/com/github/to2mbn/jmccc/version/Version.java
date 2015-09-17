@@ -1,6 +1,7 @@
 package com.github.to2mbn.jmccc.version;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import com.github.to2mbn.jmccc.option.MinecraftDirectory;
 
@@ -104,6 +105,23 @@ public class Version {
             }
         }
         return missing;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj instanceof Version) {
+            Version another = (Version) obj;
+            return version.equals(another.version) && mainClass.equals(another.mainClass) && assets.equals(another.assets) && launchArgs.equals(another.launchArgs) && jarPath.equals(another.jarPath) && libraries.equals(another.libraries);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(version, mainClass, assets, launchArgs, jarPath, libraries);
     }
 
 }
