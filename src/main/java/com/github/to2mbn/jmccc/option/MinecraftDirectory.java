@@ -38,7 +38,7 @@ public class MinecraftDirectory {
      */
     public MinecraftDirectory(File rootDir) {
         Objects.requireNonNull(rootDir);
-        this.rootDir = rootDir;
+        this.rootDir = rootDir.getAbsoluteFile();
     }
 
     /**
