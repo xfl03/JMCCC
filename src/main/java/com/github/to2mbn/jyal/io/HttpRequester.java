@@ -41,6 +41,13 @@ public class HttpRequester {
 			try (InputStream in = connection.getInputStream()) {
 				return read(in);
 			}
+		} catch (IOException e) {
+			try (InputStream in = connection.getErrorStream()) {
+				return read(in);
+			} catch (IOException e1) {
+				e1.addSuppressed(e);
+				throw e;
+			}
 		} finally {
 			connection.disconnect();
 		}
@@ -62,6 +69,13 @@ public class HttpRequester {
 			}
 			try (InputStream in = connection.getInputStream()) {
 				return read(in);
+			}
+		} catch (IOException e) {
+			try (InputStream in = connection.getErrorStream()) {
+				return read(in);
+			} catch (IOException e1) {
+				e1.addSuppressed(e);
+				throw e;
 			}
 		} finally {
 			connection.disconnect();

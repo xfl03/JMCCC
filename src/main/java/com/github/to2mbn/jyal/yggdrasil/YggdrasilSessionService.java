@@ -102,7 +102,16 @@ public class YggdrasilSessionService implements SessionService {
 
 	private void checkResponse(JSONObject response) throws AuthenticationException {
 		if (response.has("error") && !response.getString("error").isEmpty()) {
-			throw new AuthenticationException("remote server error: " + response.getString("error") + ":" + (response.has("errorMessage") ? response.getString("errorMessage") : null) + ":" + (response.has("cause") ? response.getString("cause") : null));
+			StringBuilder sb = new StringBuilder(response.getString("error"));
+			if (response.has("errorMessage")) {
+				sb.append(": ");
+				sb.append(response.getString("errorMessage"));
+			}
+			if (response.has("cause")) {
+				sb.append(": ");
+				sb.append(response.getString("cause"));
+			}
+			throw new AuthenticationException(sb.toString());
 		}
 	}
 
