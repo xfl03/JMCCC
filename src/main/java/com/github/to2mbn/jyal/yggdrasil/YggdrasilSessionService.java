@@ -28,6 +28,7 @@ import com.github.to2mbn.jyal.util.UUIDUtils;
 public class YggdrasilSessionService implements SessionService {
 
 	private static final String API_AUTHENTICATE = "https://authserver.mojang.com/authenticate";
+	private static final String API_REFRESH = "https://authserver.mojang.com/refresh";
 
 	private String clientToken;
 	private Agent agent;
@@ -81,24 +82,22 @@ public class YggdrasilSessionService implements SessionService {
 		} catch (JSONException | IOException e) {
 			throw new AuthenticationException("failed to request", e);
 		}
-		checkResponse(response);
-		if (!clientToken.equals(response.getString("clientToken"))) {
-			throw new AuthenticationException("clientToken changed from " + clientToken + " to " + response.getString("clientToken"));
+		return handleAuthResponse(response);
+	}
+
+	@Override
+	public Session loginWithToken(String username, String token) throws AuthenticationException {
+		Map<String, Object> request = new HashMap<>();
+		request.put("clientToken", clientToken);
+		request.put("accessToken", token);
+		request.put("requestUser", true);
+		JSONObject response;
+		try {
+			response = requester.jsonPost(API_REFRESH, null, new JSONObject(request));
+		} catch (JSONException | IOException e) {
+			throw new AuthenticationException("failed to request", e);
 		}
-		JSONObject userjson = response.getJSONObject("user");
-
-		String accessToken = response.getString("accessToken");
-		String userId = userjson.getString("id");
-		Map<String, String> userProperties = userjson.has("properties") ? getProperties(userjson.getJSONArray("properties"), false) : null;
-		GameProfile selectedProfile = getGameProfile(response.getJSONObject("selectedProfile"));
-
-		JSONArray profilesArray = response.getJSONArray("availableProfiles");
-		GameProfile[] availableProfiles = new GameProfile[profilesArray.length()];
-		for (int i = 0; i < profilesArray.length(); i++) {
-			availableProfiles[i] = getGameProfile(profilesArray.getJSONObject(i));
-		}
-
-		return new YggdrasilSession(userId, userProperties, accessToken, availableProfiles, selectedProfile);
+		return handleAuthResponse(response);
 	}
 
 	private void checkResponse(JSONObject response) throws AuthenticationException {
@@ -108,6 +107,9 @@ public class YggdrasilSessionService implements SessionService {
 	}
 
 	private GameProfile getGameProfile(JSONObject gameprofileResponse) {
+		if (gameprofileResponse == null) {
+			return null;
+		}
 		return new GameProfile(UUIDUtils.fromUUIDString(gameprofileResponse.getString("id")), gameprofileResponse.getString("name"));
 	}
 
@@ -121,6 +123,10 @@ public class YggdrasilSessionService implements SessionService {
 	}
 
 	private Map<String, String> getProperties(JSONArray props, boolean forceSignature) throws AuthenticationException {
+		if (props == null) {
+			return null;
+		}
+
 		Map<String, String> properties = new HashMap<>();
 		for (int i = 0; i < props.length(); i++) {
 			JSONObject prop = props.getJSONObject(i);
@@ -151,4 +157,31 @@ public class YggdrasilSessionService implements SessionService {
 		return agent;
 	}
 
+	private Session handleAuthResponse(JSONObject response) throws JSONException, AuthenticationException {
+		checkResponse(response);
+		if (!clientToken.equals(response.getString("clientToken"))) {
+			throw new AuthenticationException("clientToken changed from " + clientToken + " to " + response.getString("clientToken"));
+		}
+
+		String accessToken = response.getString("accessToken");
+
+		JSONObject userjson = response.getJSONObject("user");
+		String userId = userjson.getString("id");
+		Map<String, String> userProperties = getProperties(userjson.optJSONArray("properties"), false);
+
+		GameProfile selectedProfile = getGameProfile(response.optJSONObject("selectedProfile"));
+
+		JSONArray profilesArray = response.optJSONArray("availableProfiles");
+		GameProfile[] availableProfiles;
+		if (profilesArray == null) {
+			availableProfiles = null;
+		} else {
+			availableProfiles = new GameProfile[profilesArray.length()];
+			for (int i = 0; i < profilesArray.length(); i++) {
+				availableProfiles[i] = getGameProfile(profilesArray.getJSONObject(i));
+			}
+		}
+
+		return new YggdrasilSession(userId, userProperties, accessToken, availableProfiles, selectedProfile);
+	}
 }
