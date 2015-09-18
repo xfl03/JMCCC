@@ -6,4 +6,6 @@ public interface SessionService {
 
 	Session loginWithToken(String username, String token) throws AuthenticationException;
 
+	boolean isValid(String token) throws AuthenticationException;
+
 }
