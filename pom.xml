@@ -11,6 +11,8 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jar.source>1.7</jar.source>
 		<jar.target>1.7</jar.target>
+		<references.src>src/main/java/com/github/to2mbn/jmccc/util/References.java</references.src>
+		<references.target>target/replace-backup/src/main/java/com/github/to2mbn/jmccc/util/References.java</references.target>
 	</properties>
 	<issueManagement>
 		<url>https://github.com/to2mbn/JMCCC/issues</url>
@@ -102,7 +104,7 @@
 				<configuration>
 					<source>1.7</source>
 					<target>1.7</target>
-					<encoding>UTF8</encoding>
+					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -123,6 +125,62 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-release-plugin</artifactId>
 				<version>2.5.2</version>
+			</plugin>
+			<plugin>
+				<groupId>com.google.code.maven-replacer-plugin</groupId>
+				<artifactId>replacer</artifactId>
+				<version>1.5.3</version>
+				<!--
+					Backup ${references.src} to ${references.target}.
+					Replace project infomation in ${references.src}.
+					Restore ${references.src} from ${references.target}.
+				-->
+				<executions>
+					<execution>
+						<id>backup-source</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>replace</goal>
+						</goals>
+						<configuration>
+							<file>${references.src}</file>
+							<outputFile>${references.target}</outputFile>
+							<replacements></replacements>
+						</configuration>
+					</execution>
+					<execution>
+						<id>replace-source</id>
+						<phase>process-sources</phase>
+						<goals>
+							<goal>replace</goal>
+						</goals>
+						<configuration>
+							<file>${references.src}</file>
+							<replacements>
+								<replacement>
+									<token>@NAME@</token>
+									<value>${project.groupId}:${project.artifactId}</value>
+								</replacement>
+								<replacement>
+									<token>@VERSION@</token>
+									<value>${project.version}</value>
+								</replacement>
+							</replacements>
+						</configuration>
+					</execution>
+					<execution>
+						<id>post-integration-test</id>
+						<phase>package</phase>
+						<goals>
+							<goal>replace</goal>
+						</goals>
+						<configuration>
+							<outputFile>${references.src}</outputFile>
+							<file>${references.target}</file>
+							<replacements></replacements>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
