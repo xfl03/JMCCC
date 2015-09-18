@@ -27,6 +27,12 @@ public class Version {
      *             <code>version==null||mainClass==null||assets==null||launchArgs==null||jarPath==null||libraries==null</code>
      */
     public Version(String version, String mainClass, String assets, String launchArgs, String jarPath, Set<Library> libraries) {
+        Objects.requireNonNull(version);
+        Objects.requireNonNull(mainClass);
+        Objects.requireNonNull(assets);
+        Objects.requireNonNull(launchArgs);
+        Objects.requireNonNull(jarPath);
+        Objects.requireNonNull(libraries);
         this.version = version;
         this.mainClass = mainClass;
         this.assets = assets;
