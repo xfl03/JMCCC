@@ -21,7 +21,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-public class Utils {
+public final class Utils {
 
     /**
      * Gets the current 'java' path.
@@ -185,4 +185,6 @@ public class Utils {
         return (byte) ((hexChar - 'a') + 10);
     }
 
+    private Utils() {
+    }
 }
