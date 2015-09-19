@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Objects;
+import java.util.UUID;
 import org.json.JSONObject;
 import com.github.to2mbn.jmccc.launch.AuthenticationException;
 import com.github.to2mbn.jyal.Agent;
@@ -29,7 +30,7 @@ public class YggdrasilTokenAuthenticator implements Authenticator, Externalizabl
 
 	private SessionService sessionService;
 
-	private String clientToken;
+	private UUID clientToken;
 	private String accessToken;
 
 	/**
@@ -38,7 +39,7 @@ public class YggdrasilTokenAuthenticator implements Authenticator, Externalizabl
 	 * @param clientToken the given client token
 	 * @param accessToken the given access token
 	 */
-	public YggdrasilTokenAuthenticator(String clientToken, String accessToken) {
+	public YggdrasilTokenAuthenticator(UUID clientToken, String accessToken) {
 		Objects.requireNonNull(clientToken);
 		Objects.requireNonNull(accessToken);
 		this.clientToken = clientToken;
@@ -94,31 +95,30 @@ public class YggdrasilTokenAuthenticator implements Authenticator, Externalizabl
 	/**
 	 * Gets the client token.
 	 * <p>
-	 * A client token should match <code>^[0-9abcdef]{32}</code>.<br>
 	 * You should use the same client token as previous authentication if you want to auth with access token. The client
 	 * token should be generated randomly, you shouldn't always use the same client token.
 	 * 
 	 * @return the client token
 	 */
-	public String getClientToken() {
+	public UUID getClientToken() {
 		return clientToken;
 	}
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 		out.writeObject(getClientToken());
-		out.writeObject(accessToken);
+		out.writeUTF(accessToken);
 	}
 
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		clientToken = in.readUTF();
+		clientToken = (UUID) in.readObject();
 		accessToken = in.readUTF();
 		createSessionService();
 	}
 
 	private void createSessionService() {
-		sessionService = new YggdrasilSessionService(getClientToken(), Agent.MINECRAFT);
+		sessionService = new YggdrasilSessionService(UUIDUtils.toUnsignedUUIDString(clientToken), Agent.MINECRAFT);
 	}
 
 }
