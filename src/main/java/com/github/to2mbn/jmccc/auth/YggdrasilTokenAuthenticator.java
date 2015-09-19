@@ -91,9 +91,22 @@ public class YggdrasilTokenAuthenticator implements Authenticator, Externalizabl
 		}
 	}
 
+	/**
+	 * Gets the client token.
+	 * <p>
+	 * A client token should match <code>^[0-9abcdef]{32}</code>.<br>
+	 * You should use the same client token as previous authentication if you want to auth with access token. The client
+	 * token should be generated randomly, you shouldn't always use the same client token.
+	 * 
+	 * @return the client token
+	 */
+	public String getClientToken() {
+		return clientToken;
+	}
+
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
-		out.writeObject(clientToken);
+		out.writeObject(getClientToken());
 		out.writeObject(accessToken);
 	}
 
@@ -105,7 +118,7 @@ public class YggdrasilTokenAuthenticator implements Authenticator, Externalizabl
 	}
 
 	private void createSessionService() {
-		sessionService = new YggdrasilSessionService(clientToken, Agent.MINECRAFT);
+		sessionService = new YggdrasilSessionService(getClientToken(), Agent.MINECRAFT);
 	}
 
 }
