@@ -10,6 +10,10 @@ import com.github.to2mbn.jyal.Session;
 import com.github.to2mbn.jyal.util.UUIDUtils;
 import com.github.to2mbn.jyal.yggdrasil.YggdrasilSessionService;
 
+/**
+ * @deprecated this class will be removed in future versions
+ */
+@Deprecated
 public class YggdrasilAuthenticator implements Authenticator {
 
 	private String email;
