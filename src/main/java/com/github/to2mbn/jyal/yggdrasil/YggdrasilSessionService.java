@@ -87,7 +87,7 @@ public class YggdrasilSessionService implements SessionService {
 	}
 
 	@Override
-	public Session loginWithToken(String username, String token) throws AuthenticationException {
+	public Session loginWithToken(String token) throws AuthenticationException {
 		Map<String, Object> request = new HashMap<>();
 		request.put("clientToken", clientToken);
 		request.put("accessToken", token);
