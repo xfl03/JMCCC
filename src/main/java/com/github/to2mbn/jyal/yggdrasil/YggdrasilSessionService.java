@@ -29,6 +29,7 @@ public class YggdrasilSessionService implements SessionService {
 
 	private static final String API_AUTHENTICATE = "https://authserver.mojang.com/authenticate";
 	private static final String API_REFRESH = "https://authserver.mojang.com/refresh";
+	private static final String API_VALIDATE = "https://authserver.mojang.com/validate";
 
 	private String clientToken;
 	private Agent agent;
@@ -101,6 +102,9 @@ public class YggdrasilSessionService implements SessionService {
 	}
 
 	private void checkResponse(JSONObject response) throws AuthenticationException {
+		if (response == null) {
+			throw new AuthenticationException("empty response");
+		}
 		if (response.has("error") && !response.getString("error").isEmpty()) {
 			StringBuilder sb = new StringBuilder(response.getString("error"));
 			if (response.has("errorMessage")) {
@@ -192,5 +196,30 @@ public class YggdrasilSessionService implements SessionService {
 		}
 
 		return new YggdrasilSession(userId, userProperties, accessToken, availableProfiles, selectedProfile);
+	}
+
+	@Override
+	public boolean isValid(String token) throws AuthenticationException {
+		Map<String, Object> request = new HashMap<>();
+		request.put("clientToken", clientToken);
+		request.put("accessToken", token);
+		JSONObject response;
+		try {
+			response = requester.jsonPost(API_VALIDATE, null, new JSONObject(request));
+		} catch (JSONException | IOException e) {
+			throw new AuthenticationException("failed to request", e);
+		}
+		if (response == null) {
+			return true;
+		} else if ("ForbiddenOperationException".equals(response.optString("error"))) {
+			return false;
+		} else {
+			// try to handle this response as a remote exception
+			checkResponse(response);
+
+			// invalid response
+			// it isn't null and doesn't include any error message
+			throw new AuthenticationException("invalid response: " + response);
+		}
 	}
 }
