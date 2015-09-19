@@ -1,9 +1,6 @@
 package com.github.to2mbn.jmccc.auth;
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 import org.json.JSONObject;
@@ -29,7 +26,9 @@ import com.github.to2mbn.jyal.yggdrasil.YggdrasilSessionService;
  * 
  * @author yushijinhun
  */
-public class YggdrasilTokenAuthenticator implements Authenticator, Externalizable {
+public class YggdrasilTokenAuthenticator implements Authenticator, Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * Login with password and create a YggdrasilTokenAuthenticator.
@@ -82,7 +81,7 @@ public class YggdrasilTokenAuthenticator implements Authenticator, Externalizabl
 		return new YggdrasilTokenAuthenticator(clientToken, new YggdrasilPasswordAuthenticator(email, password, characterSelector, clientToken).auth().getToken());
 	}
 
-	private SessionService sessionService;
+	private transient SessionService sessionService;
 
 	private UUID clientToken;
 	private String accessToken;
@@ -98,7 +97,6 @@ public class YggdrasilTokenAuthenticator implements Authenticator, Externalizabl
 		Objects.requireNonNull(accessToken);
 		this.clientToken = clientToken;
 		this.accessToken = accessToken;
-		createSessionService();
 	}
 
 	/**
@@ -108,6 +106,7 @@ public class YggdrasilTokenAuthenticator implements Authenticator, Externalizabl
 	 */
 	@Override
 	public AuthResult auth() throws AuthenticationException {
+		checkAndCreateSessionService();
 		Session session;
 		try {
 			session = sessionService.loginWithToken(accessToken);
@@ -139,6 +138,7 @@ public class YggdrasilTokenAuthenticator implements Authenticator, Externalizabl
 	 * @throws AuthenticationException if an error has occurred during validating
 	 */
 	public boolean isValid() throws AuthenticationException {
+		checkAndCreateSessionService();
 		try {
 			return sessionService.isValid(accessToken);
 		} catch (com.github.to2mbn.jyal.AuthenticationException e) {
@@ -158,21 +158,10 @@ public class YggdrasilTokenAuthenticator implements Authenticator, Externalizabl
 		return clientToken;
 	}
 
-	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
-		out.writeObject(getClientToken());
-		out.writeUTF(accessToken);
-	}
-
-	@Override
-	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		clientToken = (UUID) in.readObject();
-		accessToken = in.readUTF();
-		createSessionService();
-	}
-
-	private void createSessionService() {
-		sessionService = new YggdrasilSessionService(UUIDUtils.toUnsignedUUIDString(clientToken), Agent.MINECRAFT);
+	private void checkAndCreateSessionService() {
+		if (sessionService == null) {
+			sessionService = new YggdrasilSessionService(UUIDUtils.toUnsignedUUIDString(clientToken), Agent.MINECRAFT);
+		}
 	}
 
 }
