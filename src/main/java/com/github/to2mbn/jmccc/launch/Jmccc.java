@@ -3,7 +3,6 @@ package com.github.to2mbn.jmccc.launch;
 import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -158,12 +157,20 @@ public class Jmccc implements Launcher {
         if (!missing.isEmpty()) {
             throw new MissingDependenciesException(missing.toString());
         }
+        Set<Library> brokens;
+        try {
+            brokens = option.getVersion().getBrokenLibraries(option.getMinecraftDirectory());
+        } catch (NoSuchAlgorithmException | IOException e) {
+            throw new ChecksumException("failed to verify checksums", e);
+        }
+        if (!missing.isEmpty()) {
+            throw new ChecksumException(brokens.toString());
+        }
 
         Set<File> javaLibraries = new HashSet<>();
         File nativesDir = option.getMinecraftDirectory().getNatives(option.getVersion().getVersion());
         for (Library library : option.getVersion().getLibraries()) {
             File libraryFile = new File(option.getMinecraftDirectory().getLibraries(), library.getPath());
-            verifyLibraryChecksums(library, libraryFile);
             if (library instanceof Native) {
                 try {
                     Utils.uncompressZipWithExcludes(libraryFile, nativesDir, ((Native) library).getExtractExcludes());
@@ -189,28 +196,6 @@ public class Jmccc implements Launcher {
         tokens.put("user_type", auth.getUserType());
         tokens.put("user_properties", auth.getProperties());
         return new LaunchArgument(option, tokens, option.getExtraArguments(), javaLibraries, nativesDir);
-    }
-
-    private void verifyLibraryChecksums(Library library, File file) throws ChecksumException {
-        if (library.getChecksums() == null) {
-            return;
-        }
-
-        byte[] sha1sum;
-        try {
-            sha1sum = Utils.hash("SHA-1", file);
-        } catch (NoSuchAlgorithmException | IOException e) {
-            throw new ChecksumException("failed to verify checksums", e);
-        }
-
-        for (String checksum : library.getChecksums()) {
-            if (Arrays.equals(sha1sum, Utils.hexToBytes(checksum))) {
-                return;
-            }
-        }
-
-        throw new ChecksumException("checksums mismatch");
-
     }
 
 }
