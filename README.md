@@ -11,7 +11,7 @@ Or add this library as a maven dependency.<br/>
 <dependency>
 	<groupId>com.github.to2mbn</groupId>
 	<artifactId>jmccc</artifactId>
-	<version>2.1</version>
+	<version>2.1.1</version>
 </dependency>
 ```
 
