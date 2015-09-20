@@ -4,7 +4,6 @@ import java.io.BufferedInputStream;
 import java.io.CharArrayWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -134,10 +133,9 @@ public final class Utils {
      * @param file the file
      * @return the hash
      * @throws NoSuchAlgorithmException if the algorithm does not exist
-     * @throws FileNotFoundException if the file not found
      * @throws IOException if an I/O error occurs
      */
-    public static byte[] hash(String algorithm, File file) throws NoSuchAlgorithmException, FileNotFoundException, IOException {
+    public static byte[] hash(String algorithm, File file) throws NoSuchAlgorithmException, IOException {
         try (InputStream in = new FileInputStream(file)) {
             return hash(algorithm, in);
         }
