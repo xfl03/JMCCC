@@ -1,7 +1,5 @@
 package com.github.to2mbn.jmccc.version;
 
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -113,25 +111,6 @@ public class Version {
             }
         }
         return missing;
-    }
-
-    /**
-     * Returns the hash mismatched libraries in the given minecraft directory, exculding missing libraries.
-     * 
-     * @param minecraftDir the minecraft directory to check
-     * @return the hash mismatched libraries in the given minecraft directory,an empty set if no library is broken,
-     *         exculding missing libraries
-     * @throws NoSuchAlgorithmException if the required hash algorithm is missing
-     * @throws IOException if an I/O error occures
-     */
-    public Set<Library> getBrokenLibraries(MinecraftDirectory minecraftDir) throws NoSuchAlgorithmException, IOException {
-        Set<Library> brokens = new HashSet<>();
-        for (Library library : libraries) {
-            if (!library.isMissing(minecraftDir) && library.checkHash(minecraftDir)) {
-                brokens.add(library);
-            }
-        }
-        return brokens;
     }
 
     @Override
