@@ -64,7 +64,6 @@ option.setExtraArguments(Arrays.asList(ExtraArgumentsTempletes.FML_IGNORE_INVALI
 
 ### Change Logs
 ##### 2.1.1
-* Add hash verifying for libraries
 * Add toString(), hashCode(), equals() overrides
 * Add null checks
 * Fix using relative path in the constructor of `MinecraftDirectory` causes classpath error
