@@ -54,6 +54,14 @@ See JavaDoc in the code for more usages.
 If you are looking for Yggdrasil auth, please see https://github.com/to2mbn/jmccc-jyal-authenticator.
 We moved Yggdrasil auth to another repo since 2.1.
 
+### Forge
+JMCCC won't add `-Dfml.ignoreInvalidMinecraftCertificates=true` and `-Dfml.ignorePatchDiscrepancies=true` to the command line  automatically.
+If you have problems launching forge, you need to add these arguments manually.
+These arguments are already defined in `ExtraArgumentsTempletes`.<br/>
+```java
+option.setExtraArguments(Arrays.asList(ExtraArgumentsTempletes.FML_IGNORE_INVALID_MINECRAFT_CERTIFICATES, ExtraArgumentsTempletes.FML_IGNORE_PATCH_DISCREPANCISE));
+```
+
 ### Change Logs
 ##### 2.1
 * Split Yggdrasil auth into repo `jyal` and `jmccc-jyal-authenticator`
