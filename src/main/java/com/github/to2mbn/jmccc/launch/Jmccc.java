@@ -2,7 +2,6 @@ package com.github.to2mbn.jmccc.launch;
 
 import java.io.File;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -156,15 +155,6 @@ public class Jmccc implements Launcher {
         Set<Library> missing = option.getVersion().getMissingLibraries(option.getMinecraftDirectory());
         if (!missing.isEmpty()) {
             throw new MissingDependenciesException(missing.toString());
-        }
-        Set<Library> brokens;
-        try {
-            brokens = option.getVersion().getBrokenLibraries(option.getMinecraftDirectory());
-        } catch (NoSuchAlgorithmException | IOException e) {
-            throw new ChecksumException("failed to verify checksums", e);
-        }
-        if (!missing.isEmpty()) {
-            throw new ChecksumException(brokens.toString());
         }
 
         Set<File> javaLibraries = new HashSet<>();

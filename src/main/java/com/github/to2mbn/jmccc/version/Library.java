@@ -1,13 +1,9 @@
 package com.github.to2mbn.jmccc.version;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Objects;
 import com.github.to2mbn.jmccc.option.MinecraftDirectory;
-import com.github.to2mbn.jmccc.util.Utils;
 
 public class Library {
 
@@ -115,29 +111,6 @@ public class Library {
      */
     public boolean isMissing(MinecraftDirectory minecraftDir) {
         return !new File(minecraftDir.getLibraries(), getPath()).isFile();
-    }
-
-    /**
-     * Checks the hash of the library, returns false if hash mismatches.
-     * 
-     * @param minecraftDir the minecraft directory to check
-     * @return false if hash mismatches
-     * @throws NoSuchAlgorithmException if the required hash algorithm is missing
-     * @throws FileNotFoundException if the library file not found
-     * @throws IOException if an I/O error occures
-     */
-    public boolean checkHash(MinecraftDirectory minecraftDir) throws NoSuchAlgorithmException, FileNotFoundException, IOException {
-        if (checksums == null || checksums.length == 0) {
-            return true;
-        }
-
-        byte[] sha1sum = Utils.hash("SHA-1", new File(minecraftDir.getLibraries(), getPath()));
-        for (String checksum : checksums) {
-            if (Arrays.equals(sha1sum, Utils.hexToBytes(checksum))) {
-                return true;
-            }
-        }
-        return false;
     }
 
     @Override

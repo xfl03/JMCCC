@@ -4,16 +4,12 @@ import java.io.BufferedInputStream;
 import java.io.CharArrayWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Set;
 import java.util.UUID;
 import java.util.zip.ZipEntry;
@@ -125,66 +121,6 @@ public final class Utils {
         e.printStackTrace(pw);
         pw.close();
         return cw.toString();
-    }
-
-    /**
-     * Calculates the hash of the given file using the given algorithm.
-     * 
-     * @param algorithm the hash algorithm
-     * @param file the file
-     * @return the hash
-     * @throws NoSuchAlgorithmException if the algorithm does not exist
-     * @throws FileNotFoundException if the file not found
-     * @throws IOException if an I/O error occurs
-     */
-    public static byte[] hash(String algorithm, File file) throws NoSuchAlgorithmException, FileNotFoundException, IOException {
-        try (InputStream in = new FileInputStream(file)) {
-            return hash(algorithm, in);
-        }
-    }
-
-    /**
-     * Reads the data from the given InputStream and calculates the hash using the given algorithm until reaches EOF.
-     * 
-     * @param algorithm the hash algorithm
-     * @param in the input stream
-     * @return the hash
-     * @throws NoSuchAlgorithmException if the algorithm does not exist
-     * @throws IOException if an I/O error occurs
-     */
-    public static byte[] hash(String algorithm, InputStream in) throws NoSuchAlgorithmException, IOException {
-        MessageDigest digest = MessageDigest.getInstance(algorithm);
-        byte[] buffer = new byte[8192];
-        int read;
-        while ((read = in.read(buffer)) != -1) {
-            digest.update(buffer, 0, read);
-        }
-        return digest.digest();
-    }
-
-    /**
-     * Converts the given hex string to byte array.
-     * <p>
-     * <code>hex</code> must match <code>^[0-9AaBbCcDdEeFf]*$</code>, or this method may return unexpected value.
-     * 
-     * @param hex the hex string
-     * @return the byte array
-     */
-    public static byte[] hexToBytes(String hex) {
-        char[] chars = hex.toLowerCase().toCharArray();
-        byte[] bytes = new byte[chars.length / 2];
-        for (int i = 0; i < bytes.length; i++) {
-            int pos = i * 2;
-            bytes[i] = (byte) ((hexToByte(chars[pos]) << 4) | hexToByte(chars[pos + 1]));
-        }
-        return bytes;
-    }
-
-    private static byte hexToByte(char hexChar) {
-        if (hexChar <= '9') {
-            return (byte) (hexChar - '0');
-        }
-        return (byte) ((hexChar - 'a') + 10);
     }
 
     private Utils() {
