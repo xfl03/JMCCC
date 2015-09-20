@@ -63,6 +63,13 @@ option.setExtraArguments(Arrays.asList(ExtraArgumentsTempletes.FML_IGNORE_INVALI
 ```
 
 ### Change Logs
+##### 2.1.1
+* Add hash verifying for libraries
+* Add toString(), hashCode(), equals() overrides
+* Add null checks
+* Fix using relative path in the constructor of `MinecraftDirectory` causes classpath error
+* Fix compatible problems with java 7
+
 ##### 2.1
 * Split Yggdrasil auth into repo `jyal` and `jmccc-jyal-authenticator`
 * Use org.json
