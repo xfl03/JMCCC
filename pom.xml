@@ -1,9 +1,8 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.to2mbn</groupId>
 	<artifactId>jmccc</artifactId>
-	<version>2.1.1-SNAPSHOT</version>
+	<version>2.1.1</version>
 	<name>JMCCC</name>
 	<description>An open-source lightweight library for launching Minecraft.</description>
 	<url>https://github.com/to2mbn/JMCCC</url>
@@ -29,7 +28,8 @@
 		<url>https://github.com/to2mbn/JMCCC</url>
 		<connection>scm:git:git://github.com/to2mbn/JMCCC.git</connection>
 		<developerConnection>scm:git:git@github.com:to2mbn/JMCCC.git</developerConnection>
-	</scm>
+	  <tag>2.1.1</tag>
+  </scm>
 	<ciManagement>
 		<system>Jenkins</system>
 		<url>http://ci.infinity-studio.org/job/JMCCCv2/</url>
@@ -145,7 +145,7 @@
 						<configuration>
 							<file>${references.src}</file>
 							<outputFile>${references.target}</outputFile>
-							<replacements></replacements>
+							<replacements />
 						</configuration>
 					</execution>
 					<execution>
@@ -177,7 +177,7 @@
 						<configuration>
 							<outputFile>${references.src}</outputFile>
 							<file>${references.target}</file>
-							<replacements></replacements>
+							<replacements />
 						</configuration>
 					</execution>
 				</executions>
