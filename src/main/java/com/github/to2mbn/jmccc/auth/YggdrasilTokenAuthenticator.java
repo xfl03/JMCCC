@@ -102,7 +102,7 @@ public class YggdrasilTokenAuthenticator implements Authenticator, Serializable 
 	/**
 	 * {@inheritDoc}
 	 * <p>
-	 * This method will update the stored access token after authentication.
+	 * This method will send a refresh request, and update the stored access token after authentication.
 	 */
 	@Override
 	public AuthResult auth() throws AuthenticationException {
