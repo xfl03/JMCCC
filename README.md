@@ -7,7 +7,7 @@ Maven dependency.<br/>
 <dependency>
 	<groupId>com.github.to2mbn</groupId>
 	<artifactId>jyal</artifactId>
-	<version>1.0</version>
+	<version>1.1.1</version>
 </dependency>
 ```
 
