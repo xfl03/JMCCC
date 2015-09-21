@@ -22,7 +22,7 @@ Require Maven
 ### Usage
 For password login:<br/>
 ```java
-new YggdrasilAuthenticator("<email>", "<password>");
+new YggdrasilPasswordAuthenticator("<email>", "<password>");
 ```
 <p/>
 For token login:
