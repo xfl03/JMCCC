@@ -6,6 +6,11 @@
 	<name>jmccc-jyal-authenticator</name>
 	<description>JMCCC yggdrasil authenticator using jyal</description>
 	<url>https://github.com/to2mbn/jmccc-jyal-authenticator</url>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<jar.source>1.7</jar.source>
+		<jar.target>1.7</jar.target>
+	</properties>
 	<issueManagement>
 		<url>https://github.com/to2mbn/jmccc-jyal-authenticator/issues</url>
 		<system>GitHub Issues</system>
@@ -86,7 +91,7 @@
 				<configuration>
 					<source>1.7</source>
 					<target>1.7</target>
-					<encoding>UTF8</encoding>
+					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -117,3 +122,4 @@
 		</dependency>
 	</dependencies>
 </project>
+
