@@ -28,8 +28,7 @@
 		<url>https://github.com/to2mbn/JMCCC</url>
 		<connection>scm:git:git://github.com/to2mbn/JMCCC.git</connection>
 		<developerConnection>scm:git:git@github.com:to2mbn/JMCCC.git</developerConnection>
-	  <tag>HEAD</tag>
-  </scm>
+	</scm>
 	<ciManagement>
 		<system>Jenkins</system>
 		<url>http://ci.infinity-studio.org/job/JMCCCv2/</url>
