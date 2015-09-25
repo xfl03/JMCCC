@@ -5,15 +5,21 @@ public enum OsTypes {
     LINUX,
     OSX,
     UNKNOWN;
-    
+
     public static final OsTypes CURRENT = getCurrent();
-    
+
     private static OsTypes getCurrent() {
-        String name = System.getProperty("os.name").toLowerCase();
-        if (name.contains("win")) return WINDOWS;
-        else if (name.contains("linux")) return LINUX;
-        else if (name.contains("osx")) return OSX;
-        else return UNKNOWN;
+        String osName = System.getProperty("os.name");
+
+        if (osName.equals("Linux")) {
+            return LINUX;
+        } else if (osName.startsWith("Windows")) {
+            return WINDOWS;
+        } else if (osName.equals("Mac OS X")) {
+            return OSX;
+        } else {
+            return OsTypes.UNKNOWN;
+        }
     }
 
     public String getFileSpearator() {
@@ -23,7 +29,7 @@ public enum OsTypes {
     public String getPathSpearator() {
         return System.getProperty("path.separator");
     }
-    
+
     public String getLineSpearator() {
         return System.getProperty("line.separator");
     }
