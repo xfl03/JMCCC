@@ -121,7 +121,9 @@
 				<updatePolicy>always</updatePolicy>
 			</snapshots>
 			<releases>
-				<enabled>false</enabled>
+				<enabled>true</enabled>
+				<checksumPolicy>fail</checksumPolicy>
+				<updatePolicy>always</updatePolicy>
 			</releases>
 		</repository>
 	</repositories>
