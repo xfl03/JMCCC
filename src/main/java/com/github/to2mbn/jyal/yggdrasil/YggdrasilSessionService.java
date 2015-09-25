@@ -11,7 +11,6 @@ import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import org.json.JSONArray;
@@ -23,6 +22,7 @@ import com.github.to2mbn.jyal.GameProfile;
 import com.github.to2mbn.jyal.Session;
 import com.github.to2mbn.jyal.SessionService;
 import com.github.to2mbn.jyal.io.JSONHttpRequester;
+import com.github.to2mbn.jyal.util.Base64;
 import com.github.to2mbn.jyal.util.UUIDUtils;
 
 public class YggdrasilSessionService implements SessionService {
@@ -130,7 +130,7 @@ public class YggdrasilSessionService implements SessionService {
 		Signature verifier = Signature.getInstance("SHA1withRSA");
 		verifier.initVerify(signaturePublicKey);
 		verifier.update(value.getBytes());
-		if (!verifier.verify(Base64.getDecoder().decode(signature))) {
+		if (!verifier.verify(Base64.decode(signature.toCharArray()))) {
 			throw new SignatureException("signature verify failed");
 		}
 	}
