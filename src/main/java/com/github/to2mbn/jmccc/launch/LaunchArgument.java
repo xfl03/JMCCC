@@ -31,7 +31,6 @@ class LaunchArgument {
 
     public String[] generateCommandline() {
         List<String> args = new ArrayList<>();
-        OsTypes os = OsTypes.CURRENT;
         Version version = launchOption.getVersion();
 
         // java pach
@@ -69,11 +68,11 @@ class LaunchArgument {
 
         // libraries
         for (File lib : libraries) {
-            cpBuilder.append(lib).append(os.getPathSpearator());
+            cpBuilder.append(lib).append(OsTypes.getPathSpearator());
         }
 
         // game jar file
-        cpBuilder.append(new File(launchOption.getMinecraftDirectory().getVersions(), launchOption.getVersion().getJarPath())).append(os.getPathSpearator());
+        cpBuilder.append(new File(launchOption.getMinecraftDirectory().getVersions(), launchOption.getVersion().getJarPath())).append(OsTypes.getPathSpearator());
 
         args.add(cpBuilder.toString());
         // ==========END==========

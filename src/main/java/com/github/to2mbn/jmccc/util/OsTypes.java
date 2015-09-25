@@ -6,6 +6,42 @@ public enum OsTypes {
     OSX,
     UNKNOWN;
 
+    /**
+     * Returns the file separator on the current platform.
+     * <p>
+     * This method refers to <code>System.getProperty("file.separator")</code>
+     * 
+     * @return the file separator on the current platform
+     */
+    public static String getFileSpearator() {
+        return System.getProperty("file.separator");
+    }
+
+    /**
+     * Returns the path separator on the current platform.
+     * <p>
+     * This method refers to <code>System.getProperty("path.separator")</code>
+     * 
+     * @return the path separator on the current platform
+     */
+    public static String getPathSpearator() {
+        return System.getProperty("path.separator");
+    }
+
+    /**
+     * Returns the line separator on the current platform.
+     * <p>
+     * This method refers to <code>System.getProperty("line.separator")</code>
+     * 
+     * @return the line separator on the current platform
+     */
+    public static String getLineSpearator() {
+        return System.getProperty("line.separator");
+    }
+
+    /**
+     * The current platform, {@link OsTypes#UNKNOWN} if the current platform cannot be identified.
+     */
     public static final OsTypes CURRENT = getCurrent();
 
     private static OsTypes getCurrent() {
@@ -22,15 +58,4 @@ public enum OsTypes {
         }
     }
 
-    public String getFileSpearator() {
-        return System.getProperty("file.separator");
-    }
-
-    public String getPathSpearator() {
-        return System.getProperty("path.separator");
-    }
-
-    public String getLineSpearator() {
-        return System.getProperty("line.separator");
-    }
 }
