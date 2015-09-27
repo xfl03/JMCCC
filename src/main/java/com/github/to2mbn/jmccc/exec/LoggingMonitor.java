@@ -36,23 +36,25 @@ public class LoggingMonitor extends ProcessMonitor {
                 while ((ch = reader.read()) != -1) {
                     buffer.append((char) ch);
 
-                    // check eol
-                    boolean isEOL = true;
-                    for (int i = 0; i < eol.length; i++) {
-                        if (eol[i] != buffer.charAt(buffer.length() - 1 - i)) {
-                            isEOL = false;
-                            break;
+                    if (buffer.length() >= eol.length) {
+                        // check eol
+                        boolean isEOL = true;
+                        for (int i = 0; i < eol.length; i++) {
+                            if (eol[i] != buffer.charAt(buffer.length() - eol.length + i)) {
+                                isEOL = false;
+                                break;
+                            }
                         }
-                    }
 
-                    if (isEOL) {
-                        buffer.delete(buffer.length() - eol.length, buffer.length());
-                        String log = buffer.toString();
-                        buffer.delete(0, buffer.length());
-                        if (isErr) {
-                            listener.onErrorLog(log);
-                        } else {
-                            listener.onLog(log);
+                        if (isEOL) {
+                            buffer.delete(buffer.length() - eol.length, buffer.length());
+                            String log = buffer.toString();
+                            buffer.delete(0, buffer.length());
+                            if (isErr) {
+                                listener.onErrorLog(log);
+                            } else {
+                                listener.onLog(log);
+                            }
                         }
                     }
 
