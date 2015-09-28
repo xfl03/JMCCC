@@ -31,7 +31,7 @@
 	</scm>
 	<ciManagement>
 		<system>Jenkins</system>
-		<url>http://ci.infinity-studio.org/job/JMCCCv2/</url>
+		<url>http://ci.infinity-studio.org/job/JMCCC/</url>
 	</ciManagement>
 	<distributionManagement>
 		<snapshotRepository>
