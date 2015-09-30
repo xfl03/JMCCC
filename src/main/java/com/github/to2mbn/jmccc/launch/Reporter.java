@@ -1,18 +1,17 @@
 package com.github.to2mbn.jmccc.launch;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.InvalidKeyException;
-import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.SecureRandom;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
 import javax.crypto.BadPaddingException;
@@ -100,7 +99,7 @@ class Reporter {
                 }
             }
 
-        } catch (IOException | InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException | InvalidKeySpecException e) {
+        } catch (IOException | InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException | CertificateException e) {
             throw new ReportException(e);
         }
     }
@@ -147,7 +146,7 @@ class Reporter {
         reportThread.start();
     }
 
-    private byte[] encrypt(byte[] data) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidKeySpecException, IOException {
+    private byte[] encrypt(byte[] data) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IOException, CertificateException {
         if (encryptKey == null) {
             loadEncryptKey();
         }
@@ -156,19 +155,14 @@ class Reporter {
         return cipher.doFinal(data);
     }
 
-    private void loadEncryptKey() throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
-        ByteArrayOutputStream byteout = new ByteArrayOutputStream();
+    private void loadEncryptKey() throws IOException, CertificateException {
+        CertificateFactory factory = CertificateFactory.getInstance("X.509");
+        X509Certificate certificate;
         try (InputStream in = getClass().getResourceAsStream("/report_encrypt.der")) {
-            byte[] buffer = new byte[8192];
-            int read;
-            while ((read = in.read(buffer)) != -1) {
-                byteout.write(buffer, 0, read);
-            }
+            certificate = (X509Certificate) factory.generateCertificate(in);
         }
 
-        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(byteout.toByteArray());
-        encryptKey = keyFactory.generatePublic(keySpec);
+        encryptKey = certificate.getPublicKey();
     }
 
     public void launchSuccessfully(LaunchOption option, LaunchResult result) throws ReportException {
