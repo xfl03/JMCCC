@@ -1,11 +1,23 @@
 package com.github.to2mbn.jmccc.launch;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import org.json.JSONObject;
 import com.github.to2mbn.jmccc.option.LaunchOption;
 import com.github.to2mbn.jmccc.util.OsTypes;
@@ -30,6 +42,8 @@ class Reporter {
      */
     private String extendedIdentity;
 
+    private PublicKey encryptKey;
+
     /**
      * Creates a Report with current version and no extended identity
      */
@@ -49,7 +63,7 @@ class Reporter {
     private void report(Map<String, Object> data) throws ReportException {
         try {
             // decode data
-            byte[] reportData = new JSONObject(data).toString().getBytes("UTF-8");
+            byte[] reportData = encrypt(new JSONObject(data).toString().getBytes("UTF-8"));
 
             // setup connection
             URL url = new URL(reportLink);
@@ -64,10 +78,9 @@ class Reporter {
                 connection.setConnectTimeout(10 * 1000);
                 connection.setReadTimeout(10 * 1000);
                 connection.setRequestProperty("Connection", "Keep-Alive");
-                connection.setRequestProperty("Charset", "UTF-8");
-                connection.setRequestProperty("User-Agent", References.ID + "/" + References.VERSION + "@" + extendedIdentity);
                 connection.setRequestProperty("Content-length", String.valueOf(reportData.length));
-                connection.setRequestProperty("Content-Type", "application/json");
+                connection.setRequestProperty("Content-Type", "application/octet-stream");
+                connection.setRequestProperty("Encrypted", "True");
 
                 connection.connect();
 
@@ -86,7 +99,7 @@ class Reporter {
                 }
             }
 
-        } catch (IOException e) {
+        } catch (IOException | InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException | CertificateException e) {
             throw new ReportException(e);
         }
     }
@@ -131,6 +144,25 @@ class Reporter {
         Thread reportThread = new Thread(runnable);
         reportThread.setName("jmccc report thread");
         reportThread.start();
+    }
+
+    private byte[] encrypt(byte[] data) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IOException, CertificateException {
+        if (encryptKey == null) {
+            loadEncryptKey();
+        }
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.ENCRYPT_MODE, encryptKey, new SecureRandom());
+        return cipher.doFinal(data);
+    }
+
+    private void loadEncryptKey() throws IOException, CertificateException {
+        CertificateFactory factory = CertificateFactory.getInstance("X.509");
+        X509Certificate certificate;
+        try (InputStream in = getClass().getResourceAsStream("/report_encrypt.der")) {
+            certificate = (X509Certificate) factory.generateCertificate(in);
+        }
+
+        encryptKey = certificate.getPublicKey();
     }
 
     public void launchSuccessfully(LaunchOption option, LaunchResult result) throws ReportException {
