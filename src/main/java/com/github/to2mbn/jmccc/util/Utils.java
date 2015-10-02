@@ -89,7 +89,9 @@ public final class Utils {
      * Java 1.8 and higher versions don't support CGC.
      * 
      * @return true if the current java is supported CGC
+     * @deprecated cgc will be removed in future java version
      */
+    @Deprecated
     public static boolean isCGCSupported() {
         String javaVersion = System.getProperty("java.version");
         return !(javaVersion.contains("1.8.") || javaVersion.contains("1.9."));

@@ -30,14 +30,11 @@ public class JavaOption {
 
     /**
      * Creates a JavaOption with the default 'java' path.
-     * <p>
-     * This constructor will turn on cgc if the default jvm supports cgc.
      * 
      * @see Utils#getJavaPath()
      */
     public JavaOption() {
         this(Utils.getJavaPath());
-        cgc = Utils.isCGCSupported();
     }
 
     /**
@@ -74,8 +71,7 @@ public class JavaOption {
     /**
      * Sets to true to turn on cgc.
      * <p>
-     * It's only effective when the target jvm supports cgc.<br>
-     * If the target jvm doesn't support cgc option, this may cause some errors.
+     * If the target jvm doesn't support cgc option, turning this on may cause some errors.
      * 
      * @param cgc true to turn on cgc, false to turn off
      */
