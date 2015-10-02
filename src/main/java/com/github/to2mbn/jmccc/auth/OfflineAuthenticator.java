@@ -1,12 +1,15 @@
 package com.github.to2mbn.jmccc.auth;
 
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.Objects;
 import java.util.UUID;
 import com.github.to2mbn.jmccc.launch.AuthenticationException;
 import com.github.to2mbn.jmccc.util.Utils;
 
-public class OfflineAuthenticator implements Authenticator {
+public class OfflineAuthenticator implements Authenticator, Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private String playerName;
 
