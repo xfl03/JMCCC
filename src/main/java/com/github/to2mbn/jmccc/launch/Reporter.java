@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
@@ -152,7 +153,16 @@ class Reporter {
         }
         Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(Cipher.ENCRYPT_MODE, encryptKey, new SecureRandom());
-        return cipher.doFinal(data);
+        int chunks = data.length / 501;
+        if (chunks * 501 < data.length) {
+            chunks++;
+        }
+        byte[] out = new byte[512 * chunks];
+        for (int i = 0; i < chunks; i++) {
+            byte[] chunkOut = cipher.doFinal(data, 501 * i, Math.min(501, data.length - 501 * i));
+            System.arraycopy(chunkOut, 0, out, 512 * i, 512);
+        }
+        return out;
     }
 
     private void loadEncryptKey() throws IOException, CertificateException {
