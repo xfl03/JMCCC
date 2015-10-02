@@ -5,7 +5,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.Objects;
 import java.util.UUID;
 import com.github.to2mbn.jmccc.launch.AuthenticationException;
-import com.github.to2mbn.jmccc.util.Utils;
 
 public class OfflineAuthenticator implements Authenticator, Serializable {
 
@@ -32,7 +31,7 @@ public class OfflineAuthenticator implements Authenticator, Serializable {
     @Override
     public AuthResult auth() throws AuthenticationException {
         try {
-            return new AuthResult(playerName, Utils.generateRandomToken(), generateUUID().toString().replace("-", ""), "{}", "mojang");
+            return new AuthResult(playerName, unsign(UUID.randomUUID()), unsign(generateUUID()), "{}", "mojang");
         } catch (UnsupportedEncodingException e) {
             throw new AuthenticationException("UTF-8 is not supported", e);
         }
@@ -40,6 +39,10 @@ public class OfflineAuthenticator implements Authenticator, Serializable {
 
     private UUID generateUUID() throws UnsupportedEncodingException {
         return UUID.nameUUIDFromBytes(("OfflinePlayer:" + playerName).getBytes("UTF-8"));
+    }
+
+    private String unsign(UUID uuid) {
+        return uuid.toString().replace("-", "");
     }
 
     @Override

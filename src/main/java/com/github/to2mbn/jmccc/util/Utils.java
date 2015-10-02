@@ -11,7 +11,6 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.util.Set;
-import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import org.json.JSONException;
@@ -30,15 +29,6 @@ public final class Utils {
      */
     public static File getJavaPath() {
         return new File(System.getProperty("java.home"), "bin/java" + (OsTypes.CURRENT == OsTypes.WINDOWS ? ".exe" : ""));
-    }
-
-    /**
-     * Generate a random minecraft token
-     * 
-     * @return a random minecraft token
-     */
-    public static String generateRandomToken() {
-        return UUID.randomUUID().toString().replace("-", "");
     }
 
     /**
