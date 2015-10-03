@@ -135,12 +135,12 @@
 		<dependency>
 			<groupId>com.github.to2mbn</groupId>
 			<artifactId>jmccc</artifactId>
-			<version>2.2-SNAPSHOT</version>
+			<version>2.2</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.to2mbn</groupId>
 			<artifactId>jyal</artifactId>
-			<version>1.2-SNAPSHOT</version>
+			<version>1.2</version>
 		</dependency>
 	</dependencies>
 </project>
