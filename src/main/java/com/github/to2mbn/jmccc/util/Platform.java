@@ -1,5 +1,7 @@
 package com.github.to2mbn.jmccc.util;
 
+import java.nio.charset.Charset;
+
 public enum Platform {
     WINDOWS,
     LINUX,
@@ -42,12 +44,13 @@ public enum Platform {
     /**
      * Returns the default encoding on the current platform.
      * <p>
-     * This method refers to <code>System.getProperty("sun.jnu.encoding")</code>
+     * This method refers to <code>System.getProperty("sun.jnu.encoding")</code>. If this property does not exist, the
+     * method will returns <code>Charset.defaultCharset()</code>.
      * 
      * @return the default encoding on the current platform
      */
     public static String getEncoding() {
-        return System.getProperty("sun.jnu.encoding");
+        return System.getProperty("sun.jnu.encoding", Charset.defaultCharset().name());
     }
 
     /**
