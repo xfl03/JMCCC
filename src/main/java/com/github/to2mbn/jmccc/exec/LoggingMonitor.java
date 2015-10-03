@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collection;
+
 import com.github.to2mbn.jmccc.util.OsTypes;
 
 public class LoggingMonitor extends ProcessMonitor {
@@ -29,7 +31,7 @@ public class LoggingMonitor extends ProcessMonitor {
             try {
                 // no need for close this
                 // because we don't need to close the base stream
-                Reader reader = new InputStreamReader(in);
+                Reader reader = new InputStreamReader(in, OsTypes.getEncoding());
 
                 StringBuilder buffer = new StringBuilder();
                 int ch;
