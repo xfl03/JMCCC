@@ -133,4 +133,9 @@ public class Version implements Serializable {
         return Objects.hash(version, mainClass, assets, launchArgs, jarPath, libraries);
     }
 
+    @Override
+    public String toString() {
+        return version;
+    }
+
 }
