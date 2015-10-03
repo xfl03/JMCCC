@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.to2mbn</groupId>
 	<artifactId>jyal</artifactId>
-	<version>1.2.1-SNAPSHOT</version>
+	<version>1.2-SNAPSHOT</version>
 	<name>jyal</name>
 	<description>Java Yggdrasil Authentication Library</description>
 	<url>https://github.com/to2mbn/jyal</url>
@@ -26,7 +26,7 @@
 		<url>https://github.com/to2mbn/jyal</url>
 		<connection>scm:git:git://github.com/to2mbn/jyal.git</connection>
 		<developerConnection>scm:git:git@github.com:to2mbn/jyal.git</developerConnection>
-		<tag>longteam-1D.2.x</tag>
+		<tag>HEAD</tag>
 	</scm>
 	<distributionManagement>
 		<snapshotRepository>
