@@ -26,6 +26,7 @@
 		<url>https://github.com/to2mbn/jmccc-jyal-authenticator</url>
 		<connection>scm:git:git://github.com/to2mbn/jmccc-jyal-authenticator.git</connection>
 		<developerConnection>scm:git:git@github.com:to2mbn/jmccc-jyal-authenticator.git</developerConnection>
+		<tag>HEAD</tag>
 	</scm>
 	<distributionManagement>
 		<snapshotRepository>
@@ -37,6 +38,10 @@
 			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 		</repository>
 	</distributionManagement>
+	<ciManagement>
+		<system>Jenkins</system>
+		<url>http://ci.infinity-studio.org/job/jmccc-jyal-authenticator/</url>
+	</ciManagement>
 	<developers>
 		<developer>
 			<email>yushijinhun@gmail.com</email>
