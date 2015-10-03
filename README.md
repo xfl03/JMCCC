@@ -22,9 +22,9 @@ Or see [Jenkins](http://ci.infinity-studio.org/job/JMCCC/).
 * org.json
 
 ### Compile
-Require Maven
-
-	mvn clean install
+```
+mvn clean install
+```
 
 ### Examples
 ```java
@@ -32,26 +32,27 @@ MinecraftDirectory dir = new MinecraftDirectory("/home/user/.minecraft");
 Launcher launcher = Jmccc.getLauncher();
 launcher.launch(new LaunchOption(launcher.getVersion(dir, "1.8"), new OfflineAuthenticator("user"), dir), new GameProcessListener() {
 
-	@Override
-	public void onLog(String log) {
-		System.out.println(log);
-	}
+    @Override
+    public void onLog(String log) {
+        System.out.println(log);
+    }
+    
+    @Override
+    public void onErrorLog(String log) {
+        System.err.println(log);
+    }
 
-	@Override
-	public void onExit(int code) {
-		System.err.println("***EXIT " + code + "***");
-	}
-
-	@Override
-	public void onErrorLog(String log) {
-		System.out.println(log);
-	}
+    @Override
+    public void onExit(int code) {
+        System.err.println("***EXIT " + code + "***");
+    }
 });
 ```
 In this example, we use `/home/user/.minecraft` as the .minecraft directory, and launches Minecraft 1.8 with an offline
 account `user`. And the logs from game process will be printed to stdout and stderr. When the game process terminates, 
-this program will print `***EXIT <the exit code>***` to the console, and then the monitor threads will terminate.<br/>
-See JavaDoc in the code for more usages.
+this program will print `***EXIT <the exit code>***` to stderr, and then the monitor threads terminate.
+
+See JavaDoc for more usages.
 
 ### Yggdrasil Auth
 If you are looking for Yggdrasil auth, please see [jmccc-jyal-authenticator](https://github.com/to2mbn/jmccc-jyal-authenticator).
@@ -60,7 +61,7 @@ We splitted yggdrasil auth into another repo since 2.1.
 ### Forge
 JMCCC won't add fml options (such as `-Dfml.ignoreInvalidMinecraftCertificates=true` and `-Dfml.ignorePatchDiscrepancies=true`) to the command line automatically.
 If you have problems launching forge, you may need to add these arguments manually.
-These arguments are already defined in `ExtraArgumentsTempletes`.<br/>
+These arguments are already defined in `ExtraArgumentsTempletes`.
 ```java
 option.setExtraArguments(Arrays.asList(ExtraArgumentsTempletes.FML_IGNORE_INVALID_MINECRAFT_CERTIFICATES, ExtraArgumentsTempletes.FML_IGNORE_PATCH_DISCREPANCISE));
 ```
