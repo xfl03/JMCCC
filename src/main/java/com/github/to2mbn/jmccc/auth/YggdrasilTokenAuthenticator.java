@@ -3,14 +3,9 @@ package com.github.to2mbn.jmccc.auth;
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
-import org.json.JSONObject;
 import com.github.to2mbn.jmccc.launch.AuthenticationException;
-import com.github.to2mbn.jyal.Agent;
 import com.github.to2mbn.jyal.GameProfile;
 import com.github.to2mbn.jyal.Session;
-import com.github.to2mbn.jyal.SessionService;
-import com.github.to2mbn.jyal.util.UUIDUtils;
-import com.github.to2mbn.jyal.yggdrasil.YggdrasilSessionService;
 
 /**
  * Yggdrasil authenticator using token.
@@ -26,7 +21,7 @@ import com.github.to2mbn.jyal.yggdrasil.YggdrasilSessionService;
  * 
  * @author yushijinhun
  */
-public class YggdrasilTokenAuthenticator implements Authenticator, Serializable {
+public class YggdrasilTokenAuthenticator extends YggdrasilAuthenticator implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -81,9 +76,6 @@ public class YggdrasilTokenAuthenticator implements Authenticator, Serializable 
 		return new YggdrasilTokenAuthenticator(clientToken, new YggdrasilPasswordAuthenticator(email, password, characterSelector, clientToken).auth().getToken());
 	}
 
-	private transient SessionService sessionService;
-
-	private UUID clientToken;
 	private String accessToken;
 
 	/**
@@ -91,41 +83,12 @@ public class YggdrasilTokenAuthenticator implements Authenticator, Serializable 
 	 * 
 	 * @param clientToken the given client token
 	 * @param accessToken the given access token
+	 * @throws NullPointerException if <code>clientToken==null</code>
 	 */
 	public YggdrasilTokenAuthenticator(UUID clientToken, String accessToken) {
-		Objects.requireNonNull(clientToken);
+		super(clientToken);
 		Objects.requireNonNull(accessToken);
-		this.clientToken = clientToken;
 		this.accessToken = accessToken;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * <p>
-	 * This method will send a refresh request, and update the stored access token after authentication.
-	 */
-	@Override
-	public AuthResult auth() throws AuthenticationException {
-		checkAndCreateSessionService();
-		Session session;
-		try {
-			session = sessionService.loginWithToken(accessToken);
-		} catch (com.github.to2mbn.jyal.AuthenticationException e) {
-			throw new AuthenticationException(e);
-		}
-
-		accessToken = session.getAccessToken();
-
-		GameProfile profile = session.getSelectedGameProfile();
-
-		String properties;
-		if (session.getUserProperties() == null) {
-			properties = "{}";
-		} else {
-			properties = new JSONObject(session.getUserProperties()).toString();
-		}
-
-		return new AuthResult(profile.getName(), session.getAccessToken(), UUIDUtils.toUnsignedUUIDString(profile.getUUID()), properties, session.getUserType().getName());
 	}
 
 	/**
@@ -138,30 +101,16 @@ public class YggdrasilTokenAuthenticator implements Authenticator, Serializable 
 	 * @throws AuthenticationException if an error has occurred during validating
 	 */
 	public boolean isValid() throws AuthenticationException {
-		checkAndCreateSessionService();
 		try {
-			return sessionService.isValid(accessToken);
+			return getSessionService().isValid(accessToken);
 		} catch (com.github.to2mbn.jyal.AuthenticationException e) {
 			throw new AuthenticationException("failed to valid access token", e);
 		}
 	}
 
-	/**
-	 * Gets the client token.
-	 * <p>
-	 * You should use the same client token as previous authentication if you want to auth with access token. The client
-	 * token should be generated randomly, you shouldn't always use the same client token.
-	 * 
-	 * @return the client token
-	 */
-	public UUID getClientToken() {
-		return clientToken;
-	}
-
-	private void checkAndCreateSessionService() {
-		if (sessionService == null) {
-			sessionService = new YggdrasilSessionService(UUIDUtils.toUnsignedUUIDString(clientToken), Agent.MINECRAFT);
-		}
+	@Override
+	protected Session createSession() throws com.github.to2mbn.jyal.AuthenticationException {
+		return getSessionService().loginWithToken(accessToken);
 	}
 
 }
