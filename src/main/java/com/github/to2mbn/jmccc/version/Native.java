@@ -5,6 +5,8 @@ import java.util.Set;
 
 public class Native extends Library {
 
+    private static final long serialVersionUID = 1L;
+
     private String arch;
     private Set<String> extractExcludes;
 

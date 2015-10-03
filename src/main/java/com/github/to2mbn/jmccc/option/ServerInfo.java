@@ -1,8 +1,11 @@
 package com.github.to2mbn.jmccc.option;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class ServerInfo {
+public class ServerInfo implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * The address of the server, cannot be null

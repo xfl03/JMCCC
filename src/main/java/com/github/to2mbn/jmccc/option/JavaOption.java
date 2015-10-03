@@ -1,10 +1,13 @@
 package com.github.to2mbn.jmccc.option;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.Objects;
 import com.github.to2mbn.jmccc.util.Platform;
 
-public class JavaOption {
+public class JavaOption implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * Gets the current 'java' path.

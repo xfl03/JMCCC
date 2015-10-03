@@ -1,8 +1,11 @@
 package com.github.to2mbn.jmccc.option;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class WindowSize {
+public class WindowSize implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * Ture if game window is fullsize

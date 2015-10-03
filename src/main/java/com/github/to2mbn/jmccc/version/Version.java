@@ -1,11 +1,14 @@
 package com.github.to2mbn.jmccc.version;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import com.github.to2mbn.jmccc.option.MinecraftDirectory;
 
-public class Version {
+public class Version implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private String version;
     private String mainClass;

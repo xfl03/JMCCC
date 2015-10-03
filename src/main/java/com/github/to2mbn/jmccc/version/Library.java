@@ -1,11 +1,14 @@
 package com.github.to2mbn.jmccc.version;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Objects;
 import com.github.to2mbn.jmccc.option.MinecraftDirectory;
 
-public class Library {
+public class Library implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private String domain;
     private String name;

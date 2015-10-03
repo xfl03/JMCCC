@@ -1,8 +1,11 @@
 package com.github.to2mbn.jmccc.auth;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class AuthResult {
+public class AuthResult implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private String username;
     private String token;

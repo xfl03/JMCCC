@@ -1,11 +1,20 @@
 package com.github.to2mbn.jmccc.option;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 import com.github.to2mbn.jmccc.auth.Authenticator;
 import com.github.to2mbn.jmccc.version.Version;
 
-public class LaunchOption {
+/**
+ * Notes for serialization:<br>
+ * Make sure the authenticator implements <code>Serializable</code>, or an error will occur during serialization.
+ * 
+ * @author yushijinhun
+ */
+public class LaunchOption implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * The max memory of game JVM(MB), default to 1024
