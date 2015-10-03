@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Arrays;
 import java.util.Collection;
-import com.github.to2mbn.jmccc.util.OsTypes;
+import com.github.to2mbn.jmccc.util.Platform;
 
 public class LoggingMonitor extends ProcessMonitor {
 
@@ -25,7 +25,7 @@ public class LoggingMonitor extends ProcessMonitor {
 
         @Override
         public void run() {
-            char[] eol = OsTypes.getLineSpearator().toCharArray();
+            char[] eol = Platform.getLineSpearator().toCharArray();
             try {
                 // no need for close this
                 // because we don't need to close the base stream

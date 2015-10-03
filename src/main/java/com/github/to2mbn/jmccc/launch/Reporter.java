@@ -23,7 +23,7 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import org.json.JSONObject;
 import com.github.to2mbn.jmccc.option.LaunchOption;
-import com.github.to2mbn.jmccc.util.OsTypes;
+import com.github.to2mbn.jmccc.util.Platform;
 import com.github.to2mbn.jmccc.util.References;
 
 /**
@@ -111,7 +111,7 @@ class Reporter {
 
         report.put("jmccc_name", References.ID);
         report.put("jmccc_version", References.VERSION);
-        report.put("os", OsTypes.CURRENT.name());
+        report.put("os", Platform.CURRENT.name());
         report.put("os_version", System.getProperty("os.version"));
         report.put("os_name", System.getProperty("os.name"));
         report.put("os_arch", System.getProperty("os.arch"));

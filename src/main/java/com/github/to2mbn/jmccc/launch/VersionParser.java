@@ -14,7 +14,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import com.github.to2mbn.jmccc.option.MinecraftDirectory;
-import com.github.to2mbn.jmccc.util.OsTypes;
+import com.github.to2mbn.jmccc.util.Platform;
 import com.github.to2mbn.jmccc.version.Library;
 import com.github.to2mbn.jmccc.version.Native;
 import com.github.to2mbn.jmccc.version.Version;
@@ -102,7 +102,7 @@ class VersionParser {
                 String name = osRule.getString("name");
                 String version = osRule.has("version") ? osRule.getString("version") : null;
 
-                if (OsTypes.CURRENT.name().equalsIgnoreCase(name)) {
+                if (Platform.CURRENT.name().equalsIgnoreCase(name)) {
                     if (version == null || System.getProperty("os.version").matches(version)) {
                         apply = true;
                     }
@@ -118,7 +118,7 @@ class VersionParser {
     }
 
     private String resolveNatives(JSONObject natives) {
-        String archName = OsTypes.CURRENT.name().toLowerCase();
+        String archName = Platform.CURRENT.name().toLowerCase();
 
         if (natives.has(archName)) {
             return natives.getString(archName).replaceAll("\\Q${arch}", System.getProperty("os.arch").contains("64") ? "64" : "32");

@@ -1,6 +1,6 @@
 package com.github.to2mbn.jmccc.util;
 
-public enum OsTypes {
+public enum Platform {
     WINDOWS,
     LINUX,
     OSX,
@@ -40,11 +40,11 @@ public enum OsTypes {
     }
 
     /**
-     * The current platform, {@link OsTypes#UNKNOWN} if the current platform cannot be identified.
+     * The current platform, {@link Platform#UNKNOWN} if the current platform cannot be identified.
      */
-    public static final OsTypes CURRENT = getCurrent();
+    public static final Platform CURRENT = getCurrent();
 
-    private static OsTypes getCurrent() {
+    private static Platform getCurrent() {
         String osName = System.getProperty("os.name");
 
         if (osName.equals("Linux")) {
@@ -54,7 +54,7 @@ public enum OsTypes {
         } else if (osName.equals("Mac OS X")) {
             return OSX;
         } else {
-            return OsTypes.UNKNOWN;
+            return Platform.UNKNOWN;
         }
     }
 

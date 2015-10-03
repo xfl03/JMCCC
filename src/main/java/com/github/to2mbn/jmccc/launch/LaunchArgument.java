@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import com.github.to2mbn.jmccc.option.LaunchOption;
-import com.github.to2mbn.jmccc.util.OsTypes;
+import com.github.to2mbn.jmccc.util.Platform;
 import com.github.to2mbn.jmccc.version.Version;
 
 /**
@@ -68,11 +68,11 @@ class LaunchArgument {
 
         // libraries
         for (File lib : libraries) {
-            cpBuilder.append(lib).append(OsTypes.getPathSpearator());
+            cpBuilder.append(lib).append(Platform.getPathSpearator());
         }
 
         // game jar file
-        cpBuilder.append(new File(launchOption.getMinecraftDirectory().getVersions(), launchOption.getVersion().getJarPath())).append(OsTypes.getPathSpearator());
+        cpBuilder.append(new File(launchOption.getMinecraftDirectory().getVersions(), launchOption.getVersion().getJarPath())).append(Platform.getPathSpearator());
 
         args.add(cpBuilder.toString());
         // ==========END==========

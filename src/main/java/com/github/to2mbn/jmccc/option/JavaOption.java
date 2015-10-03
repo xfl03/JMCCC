@@ -2,7 +2,7 @@ package com.github.to2mbn.jmccc.option;
 
 import java.io.File;
 import java.util.Objects;
-import com.github.to2mbn.jmccc.util.OsTypes;
+import com.github.to2mbn.jmccc.util.Platform;
 
 public class JavaOption {
 
@@ -15,7 +15,7 @@ public class JavaOption {
      * @return the current 'java' path
      */
     public static File getCurrentJavaPath() {
-        return new File(System.getProperty("java.home"), "bin/java" + (OsTypes.CURRENT == OsTypes.WINDOWS ? ".exe" : ""));
+        return new File(System.getProperty("java.home"), "bin/java" + (Platform.CURRENT == Platform.WINDOWS ? ".exe" : ""));
     }
 
     /**
