@@ -1,12 +1,17 @@
 package com.github.to2mbn.jmccc.launch;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import org.json.JSONException;
 import com.github.to2mbn.jmccc.Launcher;
 import com.github.to2mbn.jmccc.auth.AuthResult;
@@ -16,7 +21,6 @@ import com.github.to2mbn.jmccc.exec.GameProcessListener;
 import com.github.to2mbn.jmccc.exec.ProcessMonitor;
 import com.github.to2mbn.jmccc.option.LaunchOption;
 import com.github.to2mbn.jmccc.option.MinecraftDirectory;
-import com.github.to2mbn.jmccc.util.Utils;
 import com.github.to2mbn.jmccc.version.Library;
 import com.github.to2mbn.jmccc.version.Native;
 import com.github.to2mbn.jmccc.version.Version;
@@ -163,7 +167,7 @@ public class Jmccc implements Launcher {
             File libraryFile = new File(option.getMinecraftDirectory().getLibraries(), library.getPath());
             if (library instanceof Native) {
                 try {
-                    Utils.uncompressZipWithExcludes(libraryFile, nativesDir, ((Native) library).getExtractExcludes());
+                    uncompressZipWithExcludes(libraryFile, nativesDir, ((Native) library).getExtractExcludes());
                 } catch (IOException e) {
                     throw new UncompressException("Failed to uncompress " + libraryFile, e);
                 }
@@ -186,6 +190,40 @@ public class Jmccc implements Launcher {
         tokens.put("user_type", auth.getUserType());
         tokens.put("user_properties", auth.getProperties());
         return new LaunchArgument(option, tokens, option.getExtraArguments(), javaLibraries, nativesDir);
+    }
+
+    private void uncompressZipWithExcludes(File zip, File outputDir, Set<String> excludes) throws IOException {
+        if (!outputDir.exists()) {
+            outputDir.mkdirs();
+        }
+
+        byte[] buffer = new byte[8192];
+        int read;
+
+        try (ZipInputStream in = new ZipInputStream(new FileInputStream(zip))) {
+            ZipEntry entry;
+            while ((entry = in.getNextEntry()) != null) {
+                boolean excluded = false;
+                if (excludes != null) {
+                    for (String exclude : excludes) {
+                        if (entry.getName().startsWith(exclude)) {
+                            excluded = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!excluded) {
+                    try (OutputStream out = new FileOutputStream(new File(outputDir, entry.getName()))) {
+                        while ((read = in.read(buffer)) != -1) {
+                            out.write(buffer, 0, read);
+                        }
+                    }
+                }
+
+                in.closeEntry();
+            }
+        }
     }
 
 }

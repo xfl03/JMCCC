@@ -4,15 +4,10 @@ import java.io.BufferedInputStream;
 import java.io.CharArrayWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
-import java.util.Set;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -29,48 +24,6 @@ public final class Utils {
      */
     public static File getJavaPath() {
         return new File(System.getProperty("java.home"), "bin/java" + (OsTypes.CURRENT == OsTypes.WINDOWS ? ".exe" : ""));
-    }
-
-    /**
-     * Uncompresses the given zip to the given output dir
-     * 
-     * @param zip file to uncompress
-     * @param outputDir the output dir
-     * @param excludes the excludes list
-     * @throws IOException if an I/O error occurs
-     */
-    public static void uncompressZipWithExcludes(File zip, File outputDir, Set<String> excludes) throws IOException {
-        if (!outputDir.exists()) {
-            outputDir.mkdirs();
-        }
-
-        byte[] buffer = new byte[8192];
-        int read;
-
-        try (ZipInputStream in = new ZipInputStream(new FileInputStream(zip))) {
-            ZipEntry entry;
-            while ((entry = in.getNextEntry()) != null) {
-                boolean excluded = false;
-                if (excludes != null) {
-                    for (String exclude : excludes) {
-                        if (entry.getName().startsWith(exclude)) {
-                            excluded = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (!excluded) {
-                    try (OutputStream out = new FileOutputStream(new File(outputDir, entry.getName()))) {
-                        while ((read = in.read(buffer)) != -1) {
-                            out.write(buffer, 0, read);
-                        }
-                    }
-                }
-
-                in.closeEntry();
-            }
-        }
     }
 
     /**
