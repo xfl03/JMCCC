@@ -3,6 +3,7 @@ package com.github.to2mbn.jyal.yggdrasil;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -22,6 +23,7 @@ import com.github.to2mbn.jyal.GameProfile;
 import com.github.to2mbn.jyal.PlayerTextures;
 import com.github.to2mbn.jyal.Session;
 import com.github.to2mbn.jyal.SessionService;
+import com.github.to2mbn.jyal.Texture;
 import com.github.to2mbn.jyal.io.JSONHttpRequester;
 import com.github.to2mbn.jyal.util.Base64;
 import com.github.to2mbn.jyal.util.UUIDUtils;
@@ -31,6 +33,7 @@ public class YggdrasilSessionService implements SessionService {
 	private static final String API_AUTHENTICATE = "https://authserver.mojang.com/authenticate";
 	private static final String API_REFRESH = "https://authserver.mojang.com/refresh";
 	private static final String API_VALIDATE = "https://authserver.mojang.com/validate";
+	private static final String API_PROFILE = "https://sessionserver.mojang.com/session/minecraft/profile/";
 
 	private String clientToken;
 	private Agent agent;
@@ -226,13 +229,50 @@ public class YggdrasilSessionService implements SessionService {
 
 	@Override
 	public Map<String, String> getProfileProperties(GameProfile profile) throws AuthenticationException {
-		// TODO Auto-generated method stub
-		return null;
+		Map<String, Object> arguments = new HashMap<>();
+		arguments.put("unsigned", "false");
+		JSONObject response;
+		try {
+			response = requester.jsonGet(API_PROFILE + UUIDUtils.toUnsignedUUIDString(profile.getUUID()), arguments);
+		} catch (JSONException | IOException e) {
+			throw new AuthenticationException("failed to request", e);
+		}
+		checkResponse(response);
+		return getProperties(response.optJSONArray("properties"), true);
 	}
 
 	@Override
 	public PlayerTextures getTextures(Map<String, String> profileProperties) throws AuthenticationException {
-		// TODO Auto-generated method stub
-		return null;
+		String encodedTextures = profileProperties.get("textures");
+		if (encodedTextures == null) {
+			return null;
+		}
+		JSONObject response;
+		try {
+			response = new JSONObject(new String(Base64.decode(encodedTextures.toCharArray()), "UTF-8"));
+		} catch (JSONException | UnsupportedEncodingException e) {
+			throw new AuthenticationException("failed to resolve response", e);
+		}
+		JSONObject textures = response.getJSONObject("textures");
+		return new PlayerTextures(getTexture(textures.optJSONObject("SKIN")), getTexture(textures.optJSONObject("CAPE")));
+	}
+
+	private Texture getTexture(JSONObject json) {
+		if (json == null) {
+			return null;
+		}
+
+		String url = json.getString("url");
+		Map<String, String> metadata = null;
+		if (json.has("metadata")) {
+			metadata = new HashMap<>();
+			JSONObject metadataJson = json.getJSONObject("metadata");
+			for (Object rawtypeKey : metadataJson.keySet()) {
+				String key = (String) rawtypeKey;
+				String value = metadataJson.getString(key);
+				metadata.put(key, value);
+			}
+		}
+		return new Texture(url, metadata);
 	}
 }
