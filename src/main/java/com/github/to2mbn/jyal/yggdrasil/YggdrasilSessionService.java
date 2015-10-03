@@ -14,6 +14,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,12 +41,12 @@ public class YggdrasilSessionService implements SessionService {
 	private JSONHttpRequester requester;
 	private PublicKey signaturePublicKey;
 
-	public YggdrasilSessionService(String clientToken, Agent agent) {
+	public YggdrasilSessionService(UUID clientToken, Agent agent) {
 		this(clientToken, agent, new JSONHttpRequester());
 	}
 
-	public YggdrasilSessionService(String clientToken, Agent agent, JSONHttpRequester requester) {
-		this.clientToken = clientToken;
+	public YggdrasilSessionService(UUID clientToken, Agent agent, JSONHttpRequester requester) {
+		this.clientToken = UUIDUtils.toUnsignedUUIDString(clientToken);
 		this.agent = agent;
 		this.requester = requester;
 		loadSignaturePublicKey();
