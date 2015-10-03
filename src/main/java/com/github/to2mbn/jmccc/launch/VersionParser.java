@@ -1,15 +1,20 @@
 package com.github.to2mbn.jmccc.launch;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 import com.github.to2mbn.jmccc.option.MinecraftDirectory;
 import com.github.to2mbn.jmccc.util.OsTypes;
-import com.github.to2mbn.jmccc.util.Utils;
 import com.github.to2mbn.jmccc.version.Library;
 import com.github.to2mbn.jmccc.version.Native;
 import com.github.to2mbn.jmccc.version.Version;
@@ -19,7 +24,7 @@ class VersionParser {
     public Version parse(MinecraftDirectory minecraftDir, String name) throws IOException, JSONException {
         Set<Library> libraries = new HashSet<>();
 
-        JSONObject json = Utils.readJson(minecraftDir.getVersionJson(name));
+        JSONObject json = readJson(minecraftDir.getVersionJson(name));
         String version = json.getString("id");
         String assets = json.getString("assets");
         String mainClass = json.getString("mainClass");
@@ -35,7 +40,7 @@ class VersionParser {
             do {
                 inheritsFrom = json.getString("inheritsFrom");
                 inheritsJar = json.has("jar") ? json.getString("jar") : inheritsFrom;
-                json = Utils.readJson(minecraftDir.getVersionJson(inheritsFrom, inheritsJar));
+                json = readJson(minecraftDir.getVersionJson(inheritsFrom, inheritsJar));
                 loadDepends(json.getJSONArray("libraries"), libraries);
             } while (json.has("inheritsFrom"));
             jarPath = getVersionJarPath(inheritsFrom, inheritsJar);
@@ -147,4 +152,9 @@ class VersionParser {
         return checksums;
     }
 
+    private JSONObject readJson(File file) throws IOException, JSONException {
+        try (Reader reader = new InputStreamReader(new BufferedInputStream(new FileInputStream(file)), "UTF-8")) {
+            return new JSONObject(new JSONTokener(reader));
+        }
+    }
 }

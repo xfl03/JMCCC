@@ -2,9 +2,21 @@ package com.github.to2mbn.jmccc.option;
 
 import java.io.File;
 import java.util.Objects;
-import com.github.to2mbn.jmccc.util.Utils;
+import com.github.to2mbn.jmccc.util.OsTypes;
 
 public class JavaOption {
+
+    /**
+     * Gets the current 'java' path.
+     * <p>
+     * On *nix systems it's <code>$java.home/bin/java</code>.<br>
+     * On Windows it's <code>$java.home\bin\java.exe</code>.
+     * 
+     * @return the current 'java' path
+     */
+    public static File getCurrentJavaPath() {
+        return new File(System.getProperty("java.home"), "bin/java" + (OsTypes.CURRENT == OsTypes.WINDOWS ? ".exe" : ""));
+    }
 
     /**
      * the 'java' executable file
@@ -21,7 +33,6 @@ public class JavaOption {
      * 
      * @param javaPath the 'java' executable file
      * @throws NullPointerException if <code>minecraftDir==null||javaPath==null</code>
-     * @see Utils#getJavaPath()
      */
     public JavaOption(File javaPath) {
         Objects.requireNonNull(javaPath);
@@ -31,10 +42,10 @@ public class JavaOption {
     /**
      * Creates a JavaOption with the default 'java' path.
      * 
-     * @see Utils#getJavaPath()
+     * @see JavaOption#getCurrentJavaPath()
      */
     public JavaOption() {
-        this(Utils.getJavaPath());
+        this(getCurrentJavaPath());
     }
 
     /**

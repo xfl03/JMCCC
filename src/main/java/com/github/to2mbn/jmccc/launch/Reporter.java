@@ -1,8 +1,10 @@
 package com.github.to2mbn.jmccc.launch;
 
+import java.io.CharArrayWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.GeneralSecurityException;
@@ -23,7 +25,6 @@ import org.json.JSONObject;
 import com.github.to2mbn.jmccc.option.LaunchOption;
 import com.github.to2mbn.jmccc.util.OsTypes;
 import com.github.to2mbn.jmccc.util.References;
-import com.github.to2mbn.jmccc.util.Utils;
 
 /**
  * Used to report launch argument for statistics and debugging.
@@ -137,8 +138,16 @@ class Reporter {
     private Map<String, Object> generateUnsuccessfulReport(LaunchOption option, Throwable e) {
         Map<String, Object> report = generateBaseReport(option);
         report.put("state", "false");
-        report.put("stack_trace", Utils.getStackTrace(e));
+        report.put("stack_trace", getStackTrace(e));
         return report;
+    }
+
+    private String getStackTrace(Throwable e) {
+        CharArrayWriter cw = new CharArrayWriter();
+        PrintWriter pw = new PrintWriter(cw);
+        e.printStackTrace(pw);
+        pw.close();
+        return cw.toString();
     }
 
     private void asyncReport(Runnable runnable) {
