@@ -38,6 +38,17 @@ public enum Platform {
     public static String getLineSpearator() {
         return System.getProperty("line.separator");
     }
+    
+    /**
+     * Returns the default encoding on the current platform.
+     * <p>
+     * This method refers to <code>System.getProperty("sun.jnu.encoding")</code>
+     * 
+     * @return the default encoding on the current platform
+     */
+    public static String getEncoding() {
+        return System.getProperty("sun.jnu.encoding");
+    }
 
     /**
      * The current platform, {@link Platform#UNKNOWN} if the current platform cannot be identified.

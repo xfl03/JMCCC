@@ -29,7 +29,7 @@ public class LoggingMonitor extends ProcessMonitor {
             try {
                 // no need for close this
                 // because we don't need to close the base stream
-                Reader reader = new InputStreamReader(in);
+                Reader reader = new InputStreamReader(in, Platform.getEncoding());
 
                 StringBuilder buffer = new StringBuilder();
                 int ch;
