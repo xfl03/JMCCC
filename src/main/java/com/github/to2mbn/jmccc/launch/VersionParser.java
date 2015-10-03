@@ -14,7 +14,7 @@ import com.github.to2mbn.jmccc.version.Library;
 import com.github.to2mbn.jmccc.version.Native;
 import com.github.to2mbn.jmccc.version.Version;
 
-public class VersionParser {
+class VersionParser {
 
     public Version parse(MinecraftDirectory minecraftDir, String name) throws IOException, JSONException {
         Set<Library> libraries = new HashSet<>();
