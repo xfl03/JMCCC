@@ -1,19 +1,22 @@
 # JMCCC
-![](http://i1.tietuku.com/e86de030295d85ac.png)<br/>
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Southern-InfinityStudio/JMCCC?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)<br/>
-An open-source lightweight library for launching Minecraft.<br/>
-Thanks @Hookan for testing.
+An open-source lightweight library for launching Minecraft.
 
 ### Download
-See [Jenkins](http://ci.infinity-studio.org/job/JMCCC/).<br/>
-Or add this library as a maven dependency.<br/>
+You can get the latest maven release from [here](https://search.maven.org/#search|ga|1|g%3A%22com.github.to2mbn%22%20a%3A%22jmccc%22).
+
+The snapshot repository:
 ```xml
-<dependency>
-	<groupId>com.github.to2mbn</groupId>
-	<artifactId>jmccc</artifactId>
-	<version>2.1.3</version>
-</dependency>
+<repository>
+	<id>ossrh</id>
+	<url>https://oss.sonatype.org/content/groups/public/</url>
+	<snapshots>
+		<enabled>true</enabled>
+	</snapshots>
+</repository>
 ```
+Or see [Jenkins](http://ci.infinity-studio.org/job/JMCCC/).
+
 
 ### Dependencies
 * org.json
@@ -46,56 +49,21 @@ launcher.launch(new LaunchOption(launcher.getVersion(dir, "1.8"), new OfflineAut
 });
 ```
 In this example, we use `/home/user/.minecraft` as the .minecraft directory, and launches Minecraft 1.8 with an offline
-account `user`. And the logs from game process will be printed to stdout or stderr. When the game process terminates, 
+account `user`. And the logs from game process will be printed to stdout and stderr. When the game process terminates, 
 this program will print `***EXIT <the exit code>***` to the console, and then the monitor threads will terminate.<br/>
 See JavaDoc in the code for more usages.
 
 ### Yggdrasil Auth
-If you are looking for Yggdrasil auth, please see https://github.com/to2mbn/jmccc-jyal-authenticator.
-We moved Yggdrasil auth to another repo since 2.1.
+If you are looking for Yggdrasil auth, please see [jmccc-jyal-authenticator](https://github.com/to2mbn/jmccc-jyal-authenticator).
+We splitted yggdrasil auth into another repo since 2.1.
 
 ### Forge
-JMCCC won't add `-Dfml.ignoreInvalidMinecraftCertificates=true` and `-Dfml.ignorePatchDiscrepancies=true` to the command line  automatically.
-If you have problems launching forge, you need to add these arguments manually.
+JMCCC won't add fml options (such as `-Dfml.ignoreInvalidMinecraftCertificates=true` and `-Dfml.ignorePatchDiscrepancies=true`) to the command line automatically.
+If you have problems launching forge, you may need to add these arguments manually.
 These arguments are already defined in `ExtraArgumentsTempletes`.<br/>
 ```java
 option.setExtraArguments(Arrays.asList(ExtraArgumentsTempletes.FML_IGNORE_INVALID_MINECRAFT_CERTIFICATES, ExtraArgumentsTempletes.FML_IGNORE_PATCH_DISCREPANCISE));
 ```
 
 ### Change Logs
-##### 2.1.1
-* Add toString(), hashCode(), equals() overrides
-* Add null checks
-* Fix using relative path in the constructor of `MinecraftDirectory` causes classpath error
-* Fix compatible problems with java 7
-
-##### 2.1
-* Split Yggdrasil auth into repo `jyal` and `jmccc-jyal-authenticator`
-* Use org.json
-* Code refactor
-* Bugs fix
-
-##### 2.0
-* Code refactor
-
-##### 1.4
-* Readd `IGameListener`
-* Complete Linux/Osx Support
-* Bugs fixing.
-
-##### 1.3
-* Bugs fixing.
-* `Jmccc.VERSION` -> `Reporter.version`
-
-##### 1.2
-* Bugs fixing.
-
-##### 1.1
-* Bugs fixing.
-* Added method `VersionsHandler.getVersionById(String id)`.
-
-##### 1.0.6
-* Removed Lombok dependency.
-* Bugs fixing.
-* `IGameListener` is still WIP.
-
+See [wiki](https://github.com/to2mbn/JMCCC/wiki/Change-logs).
