@@ -5,7 +5,7 @@ package com.github.to2mbn.jmccc.launch;
  * 
  * @author yushijinhun
  */
-public class ReportException extends Exception {
+class ReportException extends Exception {
 
     private static final long serialVersionUID = 1L;
 
