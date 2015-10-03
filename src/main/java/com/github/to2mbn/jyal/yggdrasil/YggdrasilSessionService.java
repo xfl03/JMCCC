@@ -19,6 +19,7 @@ import org.json.JSONObject;
 import com.github.to2mbn.jyal.Agent;
 import com.github.to2mbn.jyal.AuthenticationException;
 import com.github.to2mbn.jyal.GameProfile;
+import com.github.to2mbn.jyal.PlayerTextures;
 import com.github.to2mbn.jyal.Session;
 import com.github.to2mbn.jyal.SessionService;
 import com.github.to2mbn.jyal.io.JSONHttpRequester;
@@ -221,5 +222,17 @@ public class YggdrasilSessionService implements SessionService {
 			// it isn't null and doesn't include any error message
 			throw new AuthenticationException("invalid response: " + response);
 		}
+	}
+
+	@Override
+	public Map<String, String> getProfileProperties(GameProfile profile) throws AuthenticationException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PlayerTextures getTextures(Map<String, String> profileProperties) throws AuthenticationException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
