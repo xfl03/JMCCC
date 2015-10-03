@@ -27,7 +27,7 @@ public class PlayerTextures {
 
 	@Override
 	public int hashCode() {
-		return skin.hashCode() ^ cape.hashCode();
+		return Objects.hash(skin, cape);
 	}
 
 	@Override

@@ -30,11 +30,7 @@ public class GameProfile {
 
 	@Override
 	public int hashCode() {
-		int prime = 31;
-		int result = 1;
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + ((uuid == null) ? 0 : uuid.hashCode());
-		return result;
+		return Objects.hash(uuid, name);
 	}
 
 	@Override
