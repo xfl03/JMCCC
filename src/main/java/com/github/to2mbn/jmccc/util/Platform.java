@@ -31,14 +31,14 @@ public enum Platform {
     /**
      * Returns the line separator on the current platform.
      * <p>
-     * This method refers to <code>System.getProperty("line.separator")</code>
+     * This method refers to <code>System.lineSeparator()</code>
      * 
      * @return the line separator on the current platform
      */
     public static String getLineSpearator() {
-        return System.getProperty("line.separator");
+        return System.lineSeparator();
     }
-    
+
     /**
      * Returns the default encoding on the current platform.
      * <p>
