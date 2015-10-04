@@ -107,7 +107,9 @@ public class YggdrasilTokenAuthenticator extends YggdrasilAuthenticator {
 
 	@Override
 	protected Session createSession() throws com.github.to2mbn.jyal.AuthenticationException {
-		return getSessionService().loginWithToken(accessToken);
+		Session session = getSessionService().loginWithToken(accessToken);
+		accessToken = session.getAccessToken();
+		return session;
 	}
 
 }
