@@ -18,29 +18,16 @@ abstract public class YggdrasilAuthenticator implements Authenticator, Serializa
 
 	private UUID clientToken;
 	private transient SessionService sessionService;
-	private transient CharacterSelector characterSelector;
-
-	/**
-	 * Creates a YggdrasilAuthenticator with default character.
-	 * 
-	 * @param clientToken the client token
-	 * @throws NullPointerException if <code>clientToken==null</code>
-	 */
-	public YggdrasilAuthenticator(UUID clientToken) {
-		this(clientToken, null);
-	}
 
 	/**
 	 * Creates a YggdrasilAuthenticator.
 	 * 
 	 * @param clientToken the client token
-	 * @param characterSelector call when selecting character, null if use the default character
 	 * @throws NullPointerException if <code>clientToken==null</code>
 	 */
-	public YggdrasilAuthenticator(UUID clientToken, CharacterSelector characterSelector) {
+	public YggdrasilAuthenticator(UUID clientToken) {
 		Objects.requireNonNull(clientToken);
 		this.clientToken = clientToken;
-		this.characterSelector = characterSelector;
 	}
 
 	/**
@@ -50,15 +37,6 @@ abstract public class YggdrasilAuthenticator implements Authenticator, Serializa
 	 */
 	public UUID getClientToken() {
 		return clientToken;
-	}
-
-	/**
-	 * Gets the character selector, null if no character selector.
-	 * 
-	 * @return the character selector, null if no character selector
-	 */
-	public CharacterSelector getCharacterSelector() {
-		return characterSelector;
 	}
 
 	/**
@@ -76,13 +54,7 @@ abstract public class YggdrasilAuthenticator implements Authenticator, Serializa
 			throw new AuthenticationException(e);
 		}
 
-		GameProfile selected;
-		if (characterSelector == null) {
-			// select the default character
-			selected = session.getSelectedGameProfile();
-		} else {
-			selected = characterSelector.select(session.getSelectedGameProfile(), session.getGameProfiles());
-		}
+		GameProfile selected = selectCharacter(session.getSelectedGameProfile(), session.getGameProfiles());
 		if (selected == null) {
 			throw new AuthenticationException("no character selected");
 		}
@@ -117,6 +89,20 @@ abstract public class YggdrasilAuthenticator implements Authenticator, Serializa
 			sessionService = new YggdrasilSessionService(clientToken, Agent.MINECRAFT);
 		}
 		return sessionService;
+	}
+
+	/**
+	 * Selects one of the given characters to login.
+	 * <p>
+	 * This method will be called during authentication. The default implementation returns <code>selected</code>. An
+	 * {@link AuthenticationException} will occur if this method returns <code>null</code>.
+	 * 
+	 * @param selected the default character
+	 * @param availableProfiles the available characters
+	 * @return the character to login
+	 */
+	protected GameProfile selectCharacter(GameProfile selected, GameProfile[] availableProfiles) {
+		return selected;
 	}
 
 }

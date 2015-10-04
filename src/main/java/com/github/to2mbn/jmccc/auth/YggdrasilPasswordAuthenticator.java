@@ -7,6 +7,7 @@ import java.io.ObjectOutputStream;
 import java.util.Objects;
 import java.util.UUID;
 import com.github.to2mbn.jyal.AuthenticationException;
+import com.github.to2mbn.jyal.GameProfile;
 import com.github.to2mbn.jyal.Session;
 
 public class YggdrasilPasswordAuthenticator extends YggdrasilAuthenticator {
@@ -15,6 +16,7 @@ public class YggdrasilPasswordAuthenticator extends YggdrasilAuthenticator {
 
 	private String email;
 	private transient String password;
+	private transient CharacterSelector characterSelector;
 
 	/**
 	 * Creates a YggdrasilPasswordAuthenticator.
@@ -49,16 +51,49 @@ public class YggdrasilPasswordAuthenticator extends YggdrasilAuthenticator {
 	 * @throws NullPointerException if <code>email==null||password==null||clientToken==null</code>
 	 */
 	public YggdrasilPasswordAuthenticator(String email, String password, CharacterSelector characterSelector, UUID clientToken) {
-		super(clientToken, characterSelector);
+		super(clientToken);
 		Objects.requireNonNull(email);
 		Objects.requireNonNull(password);
 		this.email = email;
 		this.password = password;
+		this.characterSelector = characterSelector;
 	}
 
 	@Override
 	protected Session createSession() throws AuthenticationException {
 		return getSessionService().login(email, password);
+	}
+
+	@Override
+	protected GameProfile selectCharacter(GameProfile selected, GameProfile[] availableProfiles) {
+		if (characterSelector == null) {
+			return super.selectCharacter(selected, availableProfiles);
+		} else {
+			return characterSelector.select(selected, availableProfiles);
+		}
+	}
+
+	/**
+	 * Gets the character selector, null for default character selector.
+	 * <p>
+	 * Notes: the character selector won't be serialized, you need to call
+	 * {@link #setCharacterSelector(CharacterSelector)} manually after deserialization.
+	 * 
+	 * @return the character selector, null for default character selector
+	 */
+	public CharacterSelector getCharacterSelector() {
+		return characterSelector;
+	}
+
+	/**
+	 * Sets the character selector, null for default character selector.
+	 * <p>
+	 * Notes: the character selector won't be serialized, you need to call this method manually after deserialization.
+	 * 
+	 * @param characterSelector the character selector to set, null for default character selector
+	 */
+	public void setCharacterSelector(CharacterSelector characterSelector) {
+		this.characterSelector = characterSelector;
 	}
 
 	/**
