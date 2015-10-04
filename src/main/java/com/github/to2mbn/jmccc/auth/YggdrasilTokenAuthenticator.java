@@ -1,6 +1,5 @@
 package com.github.to2mbn.jmccc.auth;
 
-import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 import com.github.to2mbn.jmccc.launch.AuthenticationException;
@@ -21,7 +20,7 @@ import com.github.to2mbn.jyal.Session;
  * 
  * @author yushijinhun
  */
-public class YggdrasilTokenAuthenticator extends YggdrasilAuthenticator implements Serializable {
+public class YggdrasilTokenAuthenticator extends YggdrasilAuthenticator {
 
 	private static final long serialVersionUID = 1L;
 
