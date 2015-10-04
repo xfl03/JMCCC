@@ -6,6 +6,8 @@ import java.util.UUID;
 
 public class PropertiesGameProfile extends GameProfile {
 
+	private static final long serialVersionUID = 1L;
+
 	private Map<String, String> properties;
 
 	public PropertiesGameProfile(UUID uuid, String name, Map<String, String> properties) {

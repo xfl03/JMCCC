@@ -1,8 +1,11 @@
 package com.github.to2mbn.jyal;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class PlayerTextures {
+public class PlayerTextures implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private Texture skin;
 	private Texture cape;

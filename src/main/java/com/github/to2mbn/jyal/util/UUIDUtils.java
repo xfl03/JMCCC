@@ -4,11 +4,11 @@ import java.util.UUID;
 
 public final class UUIDUtils {
 
-	public static String toUnsignedUUIDString(UUID uuid) {
+	public static String unsign(UUID uuid) {
 		return uuid.toString().replace("-", "");
 	}
 
-	public static UUID fromUUIDString(String uuid) {
+	public static UUID fromString(String uuid) {
 		if (uuid.length() == 36) {
 			return UUID.fromString(uuid);
 		} else {

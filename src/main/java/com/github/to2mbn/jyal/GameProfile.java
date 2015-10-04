@@ -1,9 +1,12 @@
 package com.github.to2mbn.jyal;
 
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 
-public class GameProfile {
+public class GameProfile implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private UUID uuid;
 	private String name;

@@ -1,9 +1,12 @@
 package com.github.to2mbn.jyal;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.Objects;
 
-public class Texture {
+public class Texture implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private String url;
 	private Map<String, String> metadata;
