@@ -21,27 +21,30 @@ Or see [Jenkins](http://ci.infinity-studio.org/job/jmccc-jyal-authenticator/).
 
 ### Compile
 ```
-	mvn clean install
+mvn clean install
 ```
 
 ### Usage
-For password login:<br/>
+For password login:
 ```java
 new YggdrasilPasswordAuthenticator("<email>", "<password>");
 ```
 <p/>
+
 For token login:
-<br/>
 ```java
 new YggdrasilTokenAuthenticator(<clientToken>, "<accessToken>");
 ```
 <p/>
+
 `YggdrasilTokenAuthenticator` is serializable. If you want to save the authentication (aka 'remember password'),
-just save this YggdrasilTokenAuthenticator object.
+just save the YggdrasilTokenAuthenticator object.
 We recommend you to use YggdrasilTokenAuthenticator because YggdrasilTokenAuthenticator only saves the access token.
-It's much safer.<br/>
+It's much safer.
+
 You should call `YggdrasilTokenAuthenticator.isValid()` first to check if the access token is valid.
-If this method returns false, you should ask the user to login with password again.<br/>
+If this method returns false, you should ask the user to login with password again.
+
 ```java
 File passwordFile = new File("passwd.dat");
 YggdrasilTokenAuthenticator authenticator = null;
@@ -63,5 +66,4 @@ try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(passwo
 	out.writeObject(authenticator);
 }
 ```
-<p/>
 
