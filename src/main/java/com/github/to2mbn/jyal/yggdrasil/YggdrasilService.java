@@ -3,6 +3,7 @@ package com.github.to2mbn.jyal.yggdrasil;
 import org.json.JSONException;
 import org.json.JSONObject;
 import com.github.to2mbn.jyal.AuthenticationException;
+import com.github.to2mbn.jyal.RemoteAuthenticationException;
 import com.github.to2mbn.jyal.io.JSONHttpRequester;
 
 abstract public class YggdrasilService {
@@ -16,16 +17,7 @@ abstract public class YggdrasilService {
 
 		try {
 			if (response.has("error") && !response.getString("error").isEmpty()) {
-				StringBuilder sb = new StringBuilder(response.getString("error"));
-				if (response.has("errorMessage")) {
-					sb.append(": ");
-					sb.append(response.getString("errorMessage"));
-				}
-				if (response.has("cause")) {
-					sb.append(": ");
-					sb.append(response.getString("cause"));
-				}
-				throw new AuthenticationException(sb.toString());
+				throw new RemoteAuthenticationException(response.getString("error"), response.optString("errorMessage"), response.optString("cause"));
 			}
 		} catch (JSONException e) {
 			throw newResponseFormatException(e);
