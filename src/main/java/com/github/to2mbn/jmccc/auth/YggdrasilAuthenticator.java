@@ -91,14 +91,14 @@ abstract public class YggdrasilAuthenticator implements Authenticator {
 			properties = new JSONObject(session.getUserProperties()).toString();
 		}
 
-		return new AuthResult(selected.getName(), session.getAccessToken(), UUIDUtils.toUnsignedUUIDString(selected.getUUID()), properties, session.getUserType().getName());
+		return new AuthResult(selected.getName(), session.getAccessToken(), UUIDUtils.unsign(selected.getUUID()), properties, session.getUserType().getName());
 	}
 
 	abstract protected Session createSession() throws com.github.to2mbn.jyal.AuthenticationException;
 
 	protected SessionService getSessionService() {
 		if (sessionService == null) {
-			sessionService = new YggdrasilSessionService(UUIDUtils.toUnsignedUUIDString(clientToken), Agent.MINECRAFT);
+			sessionService = new YggdrasilSessionService(clientToken, Agent.MINECRAFT);
 		}
 		return sessionService;
 	}
