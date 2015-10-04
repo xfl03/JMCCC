@@ -43,7 +43,7 @@ public class YggdrasilPasswordAuthenticator extends YggdrasilAuthenticator {
 	 * @throws NullPointerException if <code>email==null||password==null||clientToken==null</code>
 	 */
 	public YggdrasilPasswordAuthenticator(String email, String password, CharacterSelector characterSelector, UUID clientToken) {
-		super(clientToken);
+		super(clientToken, characterSelector);
 		Objects.requireNonNull(email);
 		Objects.requireNonNull(password);
 		this.email = email;
