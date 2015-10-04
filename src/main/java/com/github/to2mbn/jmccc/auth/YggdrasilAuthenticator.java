@@ -42,8 +42,7 @@ abstract public class YggdrasilAuthenticator implements Authenticator, Serializa
 	/**
 	 * {@inheritDoc}
 	 * <p>
-	 * If <code>characterSelector!=null</code>, {@link CharacterSelector#select(GameProfile, GameProfile[])} will be
-	 * called during authentication.
+	 * {@link #selectCharacter(GameProfile, GameProfile[])} will be called during the authentication.
 	 */
 	@Override
 	public AuthResult auth() throws AuthenticationException {
