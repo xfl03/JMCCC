@@ -17,7 +17,7 @@ abstract public class YggdrasilService {
 
 		try {
 			if (response.has("error") && !response.getString("error").isEmpty()) {
-				throw new RemoteAuthenticationException(response.getString("error"), response.optString("errorMessage"), response.optString("cause"));
+				throw new RemoteAuthenticationException(response.getString("error"), response.optString("errorMessage", null), response.optString("cause", null));
 			}
 		} catch (JSONException e) {
 			throw newResponseFormatException(e);
