@@ -13,10 +13,8 @@ import com.github.to2mbn.jyal.Session;
  * the password, just save this YggdrasilTokenAuthenticator object. It's safer because YggdrasilTokenAuthenticator only
  * saves the access token.
  * <p>
- * Use {@link YggdrasilTokenAuthenticator#loginWithToken(String, String)},
- * {@link YggdrasilTokenAuthenticator#loginWithToken(String, String, CharacterSelector)}, or
- * {@link YggdrasilTokenAuthenticator#loginWithToken(String, String, CharacterSelector, UUID)} to create an
- * instance.
+ * Use {@link #loginWithToken(String, String)}, {@link #loginWithToken(String, String, CharacterSelector)}, or
+ * {@link #loginWithToken(String, String, CharacterSelector, UUID)} to create an instance.
  * 
  * @author yushijinhun
  */
@@ -59,8 +57,8 @@ public class YggdrasilTokenAuthenticator extends YggdrasilAuthenticator {
 	/**
 	 * Login with password and create a YggdrasilTokenAuthenticator.
 	 * <p>
-	 * If <code>characterSelector!=null</code>, {@link CharacterSelector#select(GameProfile, GameProfile[])}
-	 * will be called during the authentication.
+	 * If <code>characterSelector!=null</code>, {@link CharacterSelector#select(GameProfile, GameProfile[])} will be
+	 * called during the authentication.
 	 * 
 	 * @param email the email of the account
 	 * @param password the password

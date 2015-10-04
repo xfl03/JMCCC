@@ -10,6 +10,22 @@ import com.github.to2mbn.jyal.AuthenticationException;
 import com.github.to2mbn.jyal.GameProfile;
 import com.github.to2mbn.jyal.Session;
 
+/**
+ * Yggdrasil authenticator using password.
+ * <p>
+ * This class is serializable, but we recommend you NOT to serialize this. If you want to recommend the password, please
+ * use {@link YggdrasilTokenAuthenticator} instead of this.
+ * <p>
+ * Notes for serialization:<br>
+ * The character selector won't be serialized, you need to call {@link #setCharacterSelector(CharacterSelector)}
+ * manually after deserialization.<br>
+ * The default implementations of {@link #readEncryptedPassword(ObjectInputStream)} and
+ * {@link #writeEncryptedPassword(ObjectOutputStream, String)} throws a <code>NotSerializableException</code> because of
+ * security. You need to override these methods manually. See
+ * {@link #writeEncryptedPassword(ObjectOutputStream, String)}.
+ * 
+ * @author yushijinhun
+ */
 public class YggdrasilPasswordAuthenticator extends YggdrasilAuthenticator {
 
 	private static final long serialVersionUID = 1L;
