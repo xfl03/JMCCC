@@ -1,5 +1,6 @@
 package com.github.to2mbn.jmccc.auth;
 
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 import org.json.JSONObject;
@@ -11,7 +12,9 @@ import com.github.to2mbn.jyal.SessionService;
 import com.github.to2mbn.jyal.util.UUIDUtils;
 import com.github.to2mbn.jyal.yggdrasil.YggdrasilSessionService;
 
-abstract public class YggdrasilAuthenticator implements Authenticator {
+abstract public class YggdrasilAuthenticator implements Authenticator, Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private UUID clientToken;
 	private transient SessionService sessionService;
@@ -61,8 +64,8 @@ abstract public class YggdrasilAuthenticator implements Authenticator {
 	/**
 	 * {@inheritDoc}
 	 * <p>
-	 * If <code>characterSelector!=null</code>, {@link CharacterSelector#select(GameProfile, GameProfile[])}
-	 * will be called during authentication.
+	 * If <code>characterSelector!=null</code>, {@link CharacterSelector#select(GameProfile, GameProfile[])} will be
+	 * called during authentication.
 	 */
 	@Override
 	public AuthResult auth() throws AuthenticationException {
@@ -94,8 +97,21 @@ abstract public class YggdrasilAuthenticator implements Authenticator {
 		return new AuthResult(selected.getName(), session.getAccessToken(), UUIDUtils.unsign(selected.getUUID()), properties, session.getUserType().getName());
 	}
 
+	/**
+	 * Creates a session for authentication.
+	 * 
+	 * @return the session
+	 * @throws com.github.to2mbn.jyal.AuthenticationException if an authentication error has occurred
+	 */
 	abstract protected Session createSession() throws com.github.to2mbn.jyal.AuthenticationException;
 
+	/**
+	 * Gets the session service.
+	 * <p>
+	 * This is a lazy method. The session service will be created when the first time the method has been called.
+	 * 
+	 * @return the session service
+	 */
 	protected SessionService getSessionService() {
 		if (sessionService == null) {
 			sessionService = new YggdrasilSessionService(clientToken, Agent.MINECRAFT);
