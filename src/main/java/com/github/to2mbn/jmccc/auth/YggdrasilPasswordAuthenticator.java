@@ -29,7 +29,7 @@ public class YggdrasilPasswordAuthenticator extends YggdrasilAuthenticator {
 	 * @param characterSelector call when selecting character, null if use the default character
 	 * @throws NullPointerException if <code>email==null||password==null</code>
 	 */
-	public YggdrasilPasswordAuthenticator(String email, String password, YggdrasilCharacterSelector characterSelector) {
+	public YggdrasilPasswordAuthenticator(String email, String password, CharacterSelector characterSelector) {
 		this(email, password, null, UUID.randomUUID());
 	}
 
@@ -42,7 +42,7 @@ public class YggdrasilPasswordAuthenticator extends YggdrasilAuthenticator {
 	 * @param clientToken the client token
 	 * @throws NullPointerException if <code>email==null||password==null||clientToken==null</code>
 	 */
-	public YggdrasilPasswordAuthenticator(String email, String password, YggdrasilCharacterSelector characterSelector, UUID clientToken) {
+	public YggdrasilPasswordAuthenticator(String email, String password, CharacterSelector characterSelector, UUID clientToken) {
 		super(clientToken);
 		Objects.requireNonNull(email);
 		Objects.requireNonNull(password);

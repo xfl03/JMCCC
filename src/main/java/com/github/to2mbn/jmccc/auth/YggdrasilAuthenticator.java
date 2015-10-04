@@ -15,7 +15,7 @@ abstract public class YggdrasilAuthenticator implements Authenticator {
 
 	private UUID clientToken;
 	private transient SessionService sessionService;
-	private transient YggdrasilCharacterSelector characterSelector;
+	private transient CharacterSelector characterSelector;
 
 	/**
 	 * Creates a YggdrasilAuthenticator with default character.
@@ -34,7 +34,7 @@ abstract public class YggdrasilAuthenticator implements Authenticator {
 	 * @param characterSelector call when selecting character, null if use the default character
 	 * @throws NullPointerException if <code>clientToken==null</code>
 	 */
-	public YggdrasilAuthenticator(UUID clientToken, YggdrasilCharacterSelector characterSelector) {
+	public YggdrasilAuthenticator(UUID clientToken, CharacterSelector characterSelector) {
 		Objects.requireNonNull(clientToken);
 		this.clientToken = clientToken;
 		this.characterSelector = characterSelector;
@@ -54,14 +54,14 @@ abstract public class YggdrasilAuthenticator implements Authenticator {
 	 * 
 	 * @return the character selector, null if no character selector
 	 */
-	public YggdrasilCharacterSelector getCharacterSelector() {
+	public CharacterSelector getCharacterSelector() {
 		return characterSelector;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 * <p>
-	 * If <code>characterSelector!=null</code>, {@link YggdrasilCharacterSelector#select(GameProfile, GameProfile[])}
+	 * If <code>characterSelector!=null</code>, {@link CharacterSelector#select(GameProfile, GameProfile[])}
 	 * will be called during authentication.
 	 */
 	@Override

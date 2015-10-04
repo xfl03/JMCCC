@@ -15,8 +15,8 @@ import com.github.to2mbn.jyal.Session;
  * saves the access token.
  * <p>
  * Use {@link YggdrasilTokenAuthenticator#loginWithToken(String, String)},
- * {@link YggdrasilTokenAuthenticator#loginWithToken(String, String, YggdrasilCharacterSelector)}, or
- * {@link YggdrasilTokenAuthenticator#loginWithToken(String, String, YggdrasilCharacterSelector, UUID)} to create an
+ * {@link YggdrasilTokenAuthenticator#loginWithToken(String, String, CharacterSelector)}, or
+ * {@link YggdrasilTokenAuthenticator#loginWithToken(String, String, CharacterSelector, UUID)} to create an
  * instance.
  * 
  * @author yushijinhun
@@ -44,7 +44,7 @@ public class YggdrasilTokenAuthenticator extends YggdrasilAuthenticator implemen
 	 * Login with password and create a YggdrasilTokenAuthenticator.
 	 * <p>
 	 * This method uses a randomized client token. If <code>characterSelector!=null</code>,
-	 * {@link YggdrasilCharacterSelector#select(GameProfile, GameProfile[])} will be called during the authentication.
+	 * {@link CharacterSelector#select(GameProfile, GameProfile[])} will be called during the authentication.
 	 * 
 	 * @param email the email of the account
 	 * @param password the password
@@ -53,14 +53,14 @@ public class YggdrasilTokenAuthenticator extends YggdrasilAuthenticator implemen
 	 * @throws AuthenticationException if an exception has occurred during the authentication
 	 * @throws NullPointerException if <code>email==null||password==null||clientToken==null</code>
 	 */
-	public static YggdrasilTokenAuthenticator loginWithToken(String email, String password, YggdrasilCharacterSelector characterSelector) throws AuthenticationException {
+	public static YggdrasilTokenAuthenticator loginWithToken(String email, String password, CharacterSelector characterSelector) throws AuthenticationException {
 		return loginWithToken(email, password, characterSelector, UUID.randomUUID());
 	}
 
 	/**
 	 * Login with password and create a YggdrasilTokenAuthenticator.
 	 * <p>
-	 * If <code>characterSelector!=null</code>, {@link YggdrasilCharacterSelector#select(GameProfile, GameProfile[])}
+	 * If <code>characterSelector!=null</code>, {@link CharacterSelector#select(GameProfile, GameProfile[])}
 	 * will be called during the authentication.
 	 * 
 	 * @param email the email of the account
@@ -71,7 +71,7 @@ public class YggdrasilTokenAuthenticator extends YggdrasilAuthenticator implemen
 	 * @throws AuthenticationException if an exception has occurred during the authentication
 	 * @throws NullPointerException if <code>email==null||password==null||clientToken==null</code>
 	 */
-	public static YggdrasilTokenAuthenticator loginWithToken(String email, String password, YggdrasilCharacterSelector characterSelector, UUID clientToken) throws AuthenticationException {
+	public static YggdrasilTokenAuthenticator loginWithToken(String email, String password, CharacterSelector characterSelector, UUID clientToken) throws AuthenticationException {
 		// no need for null checks, YggdrasilPasswordAuthenticator.<init> does this
 		return new YggdrasilTokenAuthenticator(clientToken, new YggdrasilPasswordAuthenticator(email, password, characterSelector, clientToken).auth().getToken());
 	}

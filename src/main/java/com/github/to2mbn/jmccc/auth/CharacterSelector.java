@@ -3,7 +3,7 @@ package com.github.to2mbn.jmccc.auth;
 import com.github.to2mbn.jmccc.launch.AuthenticationException;
 import com.github.to2mbn.jyal.GameProfile;
 
-public interface YggdrasilCharacterSelector {
+public interface CharacterSelector {
 
 	/**
 	 * Selects a character from the given characters.
