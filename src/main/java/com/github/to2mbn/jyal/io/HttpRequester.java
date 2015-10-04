@@ -43,13 +43,7 @@ public class HttpRequester {
 			}
 		} catch (IOException e) {
 			try (InputStream in = connection.getErrorStream()) {
-				if (in == null) {
-					throw e;
-				}
-				return read(in);
-			} catch (IOException e1) {
-				e1.addSuppressed(e);
-				throw e;
+				return readErrorStream(in, e);
 			}
 		} finally {
 			connection.disconnect();
@@ -75,16 +69,24 @@ public class HttpRequester {
 			}
 		} catch (IOException e) {
 			try (InputStream in = connection.getErrorStream()) {
-				if (in == null) {
-					throw e;
-				}
-				return read(in);
-			} catch (IOException e1) {
-				e1.addSuppressed(e);
-				throw e;
+				return readErrorStream(in, e);
 			}
 		} finally {
 			connection.disconnect();
+		}
+	}
+
+	private String readErrorStream(InputStream in, IOException e) throws IOException {
+		if (in == null) {
+			throw e;
+		}
+		try {
+			return read(in);
+		} catch (IOException e1) {
+			if (e != e1) {
+				e1.addSuppressed(e);
+			}
+			throw e1;
 		}
 	}
 
