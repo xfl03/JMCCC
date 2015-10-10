@@ -160,7 +160,7 @@ class Reporter {
         if (encryptKey == null) {
             loadEncryptKey();
         }
-        Cipher cipher = Cipher.getInstance("RSA");
+        Cipher cipher = Cipher.getInstance("RSA/None/PKCS1Padding");
         cipher.init(Cipher.ENCRYPT_MODE, encryptKey, new SecureRandom());
         int chunks = data.length / 501;
         if (chunks * 501 < data.length) {
