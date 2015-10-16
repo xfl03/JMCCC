@@ -6,6 +6,11 @@
 	<name>jmccc-mcdownloader</name>
 	<description>Minecraft Game&amp;Assets Downloader Library for JMCCC</description>
 	<url>https://github.com/to2mbn/jmccc-mcdownloader</url>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<jar.source>1.7</jar.source>
+		<jar.target>1.7</jar.target>
+	</properties>
 	<issueManagement>
 		<url>https://github.com/to2mbn/jmccc-mcdownloader/issues</url>
 		<system>GitHub Issues</system>
@@ -88,9 +93,9 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.3</version>
 				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
-					<encoding>UTF8</encoding>
+					<source>1.7</source>
+					<target>1.7</target>
+					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
 			<plugin>
