@@ -74,7 +74,24 @@ public class RemoteVersion {
 
 	@Override
 	public String toString() {
-		return "[version=" + version + ", updateTime=" + updateTime + ", releaseTime=" + releaseTime + ", type=" + type + "]";
+		return version + " [updateTime=" + updateTime + ", releaseTime=" + releaseTime + ", type=" + type + "]";
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(version, updateTime, releaseTime, type);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == this) {
+			return true;
+		}
+		if (obj instanceof RemoteVersion) {
+			RemoteVersion another = (RemoteVersion) obj;
+			return version.equals(another.version) && Objects.equals(releaseTime, another.releaseTime) && Objects.equals(updateTime, another.updateTime) && Objects.equals(type, another.type);
+		}
+		return false;
 	}
 
 }

@@ -81,4 +81,20 @@ public class RemoteVersionList {
 		return "[latestSnapshot=" + latestSnapshot + ", latestRelease=" + latestRelease + ", versions=" + versions + "]";
 	}
 
+	@Override
+	public int hashCode() {
+		return Objects.hash(latestSnapshot, latestRelease, versions);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == this) {
+			return true;
+		}
+		if (obj instanceof RemoteVersionList) {
+			RemoteVersionList another = (RemoteVersionList) obj;
+			return versions.equals(another.versions) && Objects.equals(latestRelease, another.latestRelease) && Objects.equals(latestSnapshot, another.latestSnapshot);
+		}
+		return false;
+	}
 }

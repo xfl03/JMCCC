@@ -58,7 +58,7 @@ public class Asset {
 
 	@Override
 	public String toString() {
-		return "[path=" + virtualPath + ", hash=" + hash + ", size=" + size + "]";
+		return virtualPath + " [hash=" + hash + ", size=" + size + "]";
 	}
 
 	/**
@@ -70,6 +70,23 @@ public class Asset {
 	 */
 	public String getHashPath() {
 		return hash.substring(0, 2) + "/" + hash;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(virtualPath, hash, size);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj instanceof Asset) {
+			Asset another = (Asset) obj;
+			return virtualPath.equals(another.virtualPath) && hash.equals(another.hash) && size == another.size;
+		}
+		return false;
 	}
 
 }

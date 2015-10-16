@@ -10,7 +10,8 @@ public class AssetsIndex {
 	public static AssetsIndex fromJson(JSONObject json) {
 		JSONObject objects = json.getJSONObject("objects");
 		Set<Asset> assets = new HashSet<>();
-		for (String virtualPath : objects.keySet()) {
+		for (Object oVirtualPath : objects.keySet()) {
+			String virtualPath = (String) oVirtualPath;
 			JSONObject object = objects.getJSONObject(virtualPath);
 			String hash = object.getString("hash");
 			int size = object.getInt("size");
@@ -44,6 +45,23 @@ public class AssetsIndex {
 	@Override
 	public String toString() {
 		return assets.toString();
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(assets);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == this) {
+			return true;
+		}
+		if (obj instanceof AssetsIndex) {
+			AssetsIndex another = (AssetsIndex) obj;
+			return assets.equals(another.assets);
+		}
+		return false;
 	}
 
 }
