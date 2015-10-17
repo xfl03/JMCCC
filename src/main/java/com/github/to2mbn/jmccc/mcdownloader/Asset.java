@@ -1,6 +1,15 @@
 package com.github.to2mbn.jmccc.mcdownloader;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Objects;
+import com.github.to2mbn.jmccc.mcdownloader.util.HexUtils;
+import com.github.to2mbn.jmccc.option.MinecraftDirectory;
 
 public class Asset {
 
@@ -61,16 +70,33 @@ public class Asset {
 		return virtualPath + " [hash=" + hash + ", size=" + size + "]";
 	}
 
-	/**
-	 * Returns the abstract path of the asset in hash directory structure.
-	 * <p>
-	 * The path is <code>hash.substring(0, 2) + "/" + hash</code>.
-	 * 
-	 * @return the abstract path of the asset in hash directory structure
-	 */
-	public String getHashPath() {
-		return hash.substring(0, 2) + "/" + hash;
+	public File locate(MinecraftDirectory dir) {
+		String subpath = "objects/" + hash.substring(0, 2) + "/" + hash;
+		return new File(dir.getAssets(), subpath);
 	}
+
+	public boolean isValid(MinecraftDirectory dir) throws IOException, NoSuchAlgorithmException {
+		File file = locate(dir);
+		if (!file.isFile()) {
+			return false;
+		}
+
+		if (file.length() != size) {
+			return false;
+		}
+
+		MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
+		try (InputStream in = new FileInputStream(file)) {
+			byte[] buffer = new byte[8192];
+			int read;
+			while ((read = in.read(buffer)) != -1) {
+				sha1.update(buffer, 0, read);
+			}
+		}
+
+		return Arrays.equals(sha1.digest(), HexUtils.hexToBytes(hash));
+	}
+
 
 	@Override
 	public int hashCode() {
