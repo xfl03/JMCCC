@@ -4,11 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class RemoteVersionList {
 
-	public static RemoteVersionList fromJson(JSONObject json) {
+	public static RemoteVersionList fromJson(JSONObject json) throws JSONException {
 		String latestSnapshot = null;
 		String latestRelease = null;
 		if (json.has("latest")) {
@@ -38,7 +39,7 @@ public class RemoteVersionList {
 	 * Creates a RemoteVersionList.
 	 * 
 	 * @param latestSnapshot the version of the latest snapshot
-	 * @param latestRelease the version of the latestrelease
+	 * @param latestRelease the version of the latest release
 	 * @param versions the versions
 	 * @throws NullPointerException <code>versions==null</code>
 	 */

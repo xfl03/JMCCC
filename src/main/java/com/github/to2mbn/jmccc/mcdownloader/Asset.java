@@ -70,13 +70,41 @@ public class Asset {
 		return virtualPath + " [hash=" + hash + ", size=" + size + "]";
 	}
 
-	public File locate(MinecraftDirectory dir) {
-		String subpath = "objects/" + hash.substring(0, 2) + "/" + hash;
-		return new File(dir.getAssets(), subpath);
+	/**
+	 * Gets the relative path of the asset.
+	 * <p>
+	 * This method uses '/' as the separator char, and 'assets' as the base dir.<br>
+	 * The asset file is located at:
+	 * 
+	 * <pre>
+	 * ${mcdir}/assets/objects/${2-character-prefix of hash}/${hash}
+	 * </pre>
+	 * 
+	 * So the format of the return value is:
+	 * 
+	 * <pre>
+	 * objects/${2-character-prefix of hash}/${hash}
+	 * </pre>
+	 * 
+	 * @return the relative path of the asset
+	 */
+	public String getPath() {
+		return "objects/" + hash.substring(0, 2) + "/" + hash;
 	}
 
+	/**
+	 * Validates the asset in the given mcdir.
+	 * <p>
+	 * This method checks the size, hash of the asset. If, one of them mismatches, or the asset file doesn't exist, this
+	 * method will return false. Or this method will return true.
+	 * 
+	 * @param dir the mcdir where the asset is in
+	 * @return true if the asset is valid
+	 * @throws IOException if an i/o error occurs
+	 * @throws NoSuchAlgorithmException if the default hash algorithm SHA-1 doesn't exist
+	 */
 	public boolean isValid(MinecraftDirectory dir) throws IOException, NoSuchAlgorithmException {
-		File file = locate(dir);
+		File file = new File(dir.getAssets(), getPath());
 		if (!file.isFile()) {
 			return false;
 		}
@@ -96,7 +124,6 @@ public class Asset {
 
 		return Arrays.equals(sha1.digest(), HexUtils.hexToBytes(hash));
 	}
-
 
 	@Override
 	public int hashCode() {
