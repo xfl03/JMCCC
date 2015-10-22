@@ -1,11 +1,11 @@
 package com.github.to2mbn.jmccc.mcdownloader.download;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URL;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.Objects;
 
 /**
@@ -57,8 +57,36 @@ public class FileDownloadTask extends DownloadTask {
 	}
 
 	@Override
-	public OutputStream openStream() throws IOException {
-		return new BufferedOutputStream(new FileOutputStream(target));
+	public DownloadSession createSession() throws IOException {
+		final FileOutputStream out = new FileOutputStream(target);
+		final FileChannel channel = out.getChannel();
+
+		return new DownloadSession() {
+
+			@Override
+			public void receiveData(ByteBuffer data) throws IOException {
+				channel.write(data);
+			}
+
+			@Override
+			public void failed(Throwable e) throws IOException {
+				close();
+			}
+
+			@Override
+			public void completed() throws IOException {
+				close();
+			}
+
+			@Override
+			public void cancelled() throws IOException {
+				close();
+			}
+
+			private void close() throws IOException {
+				out.close();
+			}
+		};
 	}
 
 }

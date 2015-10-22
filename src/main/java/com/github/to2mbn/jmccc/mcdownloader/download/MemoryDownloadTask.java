@@ -2,8 +2,10 @@ package com.github.to2mbn.jmccc.mcdownloader.download;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URL;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.WritableByteChannel;
 import java.util.Objects;
 
 /**
@@ -29,14 +31,37 @@ public class MemoryDownloadTask extends DownloadTask {
 	}
 
 	@Override
-	public OutputStream openStream() throws IOException {
-		return new ByteArrayOutputStream() {
+	public DownloadSession createSession() throws IOException {
+		return new DownloadSession() {
+
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			WritableByteChannel channel = Channels.newChannel(out);
 
 			@Override
-			public void close() throws IOException {
-				callback.downloaded(toByteArray());
+			public void receiveData(ByteBuffer data) throws IOException {
+				channel.write(data);
 			}
 
+			@Override
+			public void failed(Throwable e) throws IOException {
+				close();
+			}
+
+			@Override
+			public void completed() throws IOException {
+				callback.downloaded(out.toByteArray());
+				close();
+			}
+
+			@Override
+			public void cancelled() throws IOException {
+				close();
+			}
+
+			private void close() {
+				channel = null;
+				out = null;
+			}
 		};
 	}
 

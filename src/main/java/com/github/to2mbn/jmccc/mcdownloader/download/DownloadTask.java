@@ -1,7 +1,6 @@
 package com.github.to2mbn.jmccc.mcdownloader.download;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URL;
 import java.util.Objects;
 
@@ -54,15 +53,11 @@ abstract public class DownloadTask {
 	}
 
 	/**
-	 * Opens a output stream to the target.
-	 * <p>
-	 * This method will be called when the download starts. The downloaded data will be written to the output stream.
-	 * The output stream can be a file, a buffer or a socket. When the download finished, failed, or cancelled. The
-	 * <code>close()</code> of the stream will be called.
+	 * Calls when the download task begins.
 	 * 
-	 * @return a output stream to the target
-	 * @throws IOException if an i/o error occurs
+	 * @return a new download session
+	 * @throws IOException if an I/O error occurs
 	 */
-	abstract public OutputStream openStream() throws IOException;
+	abstract public DownloadSession createSession() throws IOException;
 
 }
