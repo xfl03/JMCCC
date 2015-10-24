@@ -16,6 +16,8 @@ public interface MinecraftDownloader {
 
 	/**
 	 * Returns an asset index download task.
+	 * <p>
+	 * The asset index will also be saved to <code>${mcdir}/indexes/${version}.json</code>.
 	 * 
 	 * @param mcdir the minecraft dir
 	 * @param version the asset index version
