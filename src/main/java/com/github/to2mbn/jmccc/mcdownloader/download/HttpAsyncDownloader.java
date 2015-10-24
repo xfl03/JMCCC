@@ -173,7 +173,27 @@ public class HttpAsyncDownloader implements Downloader {
 	}
 
 	@Override
-	public <T> Future<T> download(DownloadTask<T> task, final DownloadTaskListener<T> listener) {
+	public <T> Future<T> download(DownloadTask<T> task, DownloadTaskListener<T> listener) {
+		if (listener == null) {
+			listener = new DownloadTaskListener<T>() {
+
+				@Override
+				public void done(T result) {
+				}
+
+				@Override
+				public void failed(Throwable e) {
+				}
+
+				@Override
+				public void cancelled() {
+				}
+
+				@Override
+				public void updateProgress(long done, long total) {
+				}
+			};
+		}
 		Lock lock = shutdownLock.readLock();
 		lock.lock();
 		try {
