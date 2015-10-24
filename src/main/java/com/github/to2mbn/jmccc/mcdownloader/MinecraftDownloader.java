@@ -38,6 +38,18 @@ public interface MinecraftDownloader {
 	DownloadTask<?> gameJar(MinecraftDirectory mcdir, String version);
 
 	/**
+	 * Returns a game version json download task.
+	 * <p>
+	 * The version json is saved to <code>${mcdir}/versions/${version}/${version}.json</code>. If the file already
+	 * exists, this method will overwrite the file.
+	 * 
+	 * @param mcdir the minecraft dir
+	 * @param version the game version
+	 * @return a version json download task
+	 */
+	DownloadTask<?> gameVersionJson(MinecraftDirectory mcdir, String version);
+
+	/**
 	 * Returns a library download task.
 	 * <p>
 	 * The library is saved to <code>${mcdir}/libraries/${library.getPath()}</code>. If the file already exists, this
