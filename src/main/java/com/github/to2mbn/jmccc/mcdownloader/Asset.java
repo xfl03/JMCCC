@@ -89,7 +89,7 @@ public class Asset {
 	/**
 	 * Gets the relative path of the asset.
 	 * <p>
-	 * This method uses '/' as the separator char, and 'assets' as the base dir.<br>
+	 * This method uses '/' as the separator char, and 'assets/objects' as the base dir.<br>
 	 * The asset file is located at:
 	 * 
 	 * <pre>
@@ -99,13 +99,13 @@ public class Asset {
 	 * So the format of the return value is:
 	 * 
 	 * <pre>
-	 * objects/${2-character-prefix of hash}/${hash}
+	 * ${2-character-prefix of hash}/${hash}
 	 * </pre>
 	 * 
 	 * @return the relative path of the asset
 	 */
 	public String getPath() {
-		return "objects/" + hash.substring(0, 2) + "/" + hash;
+		return hash.substring(0, 2) + "/" + hash;
 	}
 
 	/**
