@@ -1,5 +1,6 @@
 package com.github.to2mbn.jmccc.mcdownloader;
 
+import java.util.Set;
 import com.github.to2mbn.jmccc.mcdownloader.download.DownloadTask;
 import com.github.to2mbn.jmccc.option.MinecraftDirectory;
 import com.github.to2mbn.jmccc.version.Library;
@@ -20,7 +21,7 @@ public interface MinecraftDownloader {
 	 * @param version the asset index version
 	 * @return an asset index download task
 	 */
-	DownloadTask<AssetsIndex> assetsIndex(MinecraftDirectory mcdir, String version);
+	DownloadTask<Set<Asset>> assetsIndex(MinecraftDirectory mcdir, String version);
 
 	/**
 	 * Returns a game jar download task.

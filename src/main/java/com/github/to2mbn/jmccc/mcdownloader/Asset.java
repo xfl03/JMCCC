@@ -7,11 +7,27 @@ import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
+import org.json.JSONObject;
 import com.github.to2mbn.jmccc.mcdownloader.util.HexUtils;
 import com.github.to2mbn.jmccc.option.MinecraftDirectory;
 
 public class Asset {
+
+	public static Set<Asset> fromJson(JSONObject json) {
+		JSONObject objects = json.getJSONObject("objects");
+		Set<Asset> assets = new HashSet<>();
+		for (Object oVirtualPath : objects.keySet()) {
+			String virtualPath = (String) oVirtualPath;
+			JSONObject object = objects.getJSONObject(virtualPath);
+			String hash = object.getString("hash");
+			int size = object.getInt("size");
+			assets.add(new Asset(virtualPath, hash, size));
+		}
+		return assets;
+	}
 
 	private String virtualPath;
 	private String hash;
