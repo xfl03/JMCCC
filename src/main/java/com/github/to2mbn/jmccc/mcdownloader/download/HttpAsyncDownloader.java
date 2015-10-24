@@ -62,6 +62,10 @@ public class HttpAsyncDownloader implements Downloader {
 				proxied.cancelled();
 			}
 
+			public void done(R result) {
+				proxied.done(result);
+			}
+
 		}
 
 		DownloadTask<T> task;
@@ -70,7 +74,8 @@ public class HttpAsyncDownloader implements Downloader {
 		DownloadSession<T> session;
 		DownloadTaskListener<T> listener;
 		Future<T> downloadFuture;
-		Future<?> bootstrapFuture;
+		volatile boolean cancelled;
+		volatile boolean mayInterruptIfRunning;
 
 		TaskHandler(DownloadTask<T> task, DownloadTaskListener<T> listener) {
 			this.task = task;
@@ -80,80 +85,92 @@ public class HttpAsyncDownloader implements Downloader {
 		}
 
 		void start() {
-			bootstrapFuture = bootstrapPool.submit(this);
+			bootstrapPool.submit(this);
 		}
 
 		@Override
 		public void run() {
-			Lock lock = shutdownLock.readLock();
-			lock.lock();
 			try {
-				if (Thread.interrupted()) {
-					lifecycle.cancelled();
-					return;
-				}
-
-				downloadFuture = httpClient.execute(HttpAsyncMethods.createGet(task.getURI()), new AsyncByteConsumer<T>() {
-
-					long contextLength = -1;
-					long received = 0;
-
-					@Override
-					protected void onByteReceived(ByteBuffer buf, IOControl ioctrl) throws IOException {
-						if (session == null) {
-							session = task.createSession(8192);
-						}
-						received += buf.remaining();
-						session.receiveData(buf);
-						listener.updateProgress(received, contextLength);
-					}
-
-					@Override
-					protected void onResponseReceived(HttpResponse response) throws HttpException, IOException {
-						if (session == null) {
-							HttpEntity httpEntity = response.getEntity();
-							if (httpEntity != null) {
-								long contextLength = httpEntity.getContentLength();
-								if (contextLength >= 0) {
-									this.contextLength = contextLength;
-								}
-							}
-							session = task.createSession(contextLength > 0 ? contextLength : 8192);
-						}
-					}
-
-					@Override
-					protected T buildResult(HttpContext context) throws Exception {
-						return session.completed();
-					}
-
-				}, new FutureCallback<T>() {
-
-					@Override
-					public void completed(T result) {
-						listener.done(result);
-					}
-
-					@Override
-					public void failed(Exception e) {
-						lifecycle.failed(e);
-					}
-
-					@Override
-					public void cancelled() {
+				Lock lock = shutdownLock.readLock();
+				lock.lock();
+				try {
+					if (shutdown) {
 						lifecycle.cancelled();
 					}
-				});
-			} finally {
-				lock.unlock();
+
+					downloadFuture = httpClient.execute(HttpAsyncMethods.createGet(task.getURI()), new AsyncByteConsumer<T>() {
+
+						long contextLength = -1;
+						long received = 0;
+
+						@Override
+						protected void onByteReceived(ByteBuffer buf, IOControl ioctrl) throws IOException {
+							if (session == null) {
+								session = task.createSession(8192);
+							}
+							received += buf.remaining();
+							session.receiveData(buf);
+							listener.updateProgress(received, contextLength);
+						}
+
+						@Override
+						protected void onResponseReceived(HttpResponse response) throws HttpException, IOException {
+							if (response.getStatusLine() != null) {
+								int statusCode = response.getStatusLine().getStatusCode();
+								if (statusCode < 200 || statusCode > 299) { // not 2xx
+									throw new IOException("Illegal http response code: " + statusCode);
+								}
+							}
+							if (session == null) {
+								HttpEntity httpEntity = response.getEntity();
+								if (httpEntity != null) {
+									long contextLength = httpEntity.getContentLength();
+									if (contextLength >= 0) {
+										this.contextLength = contextLength;
+									}
+								}
+								session = task.createSession(contextLength > 0 ? contextLength : 8192);
+							}
+						}
+
+						@Override
+						protected T buildResult(HttpContext context) throws Exception {
+							return session.completed();
+						}
+
+					}, new FutureCallback<T>() {
+
+						@Override
+						public void completed(T result) {
+							lifecycle.done(result);
+						}
+
+						@Override
+						public void failed(Exception e) {
+							lifecycle.failed(e);
+						}
+
+						@Override
+						public void cancelled() {
+							lifecycle.cancelled();
+						}
+					});
+
+					if (cancelled) {
+						downloadFuture.cancel(mayInterruptIfRunning);
+					}
+				} finally {
+					lock.unlock();
+				}
+			} catch (Throwable e) {
+				lifecycle.failed(e);
 			}
 		}
 
 		@Override
 		public boolean cancel(boolean mayInterruptIfRunning) {
-			if (bootstrapFuture != null) {
-				bootstrapFuture.cancel(mayInterruptIfRunning);
-			}
+			cancelled = true;
+			this.mayInterruptIfRunning = mayInterruptIfRunning;
 			if (downloadFuture != null) {
 				downloadFuture.cancel(mayInterruptIfRunning);
 			}
@@ -170,6 +187,7 @@ public class HttpAsyncDownloader implements Downloader {
 	public HttpAsyncDownloader() {
 		httpClient = HttpAsyncClientBuilder.create().build();
 		bootstrapPool = new ThreadPoolExecutor(0, Runtime.getRuntime().availableProcessors(), 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
+		httpClient.start();
 	}
 
 	@Override
@@ -183,6 +201,7 @@ public class HttpAsyncDownloader implements Downloader {
 
 				@Override
 				public void failed(Throwable e) {
+					e.printStackTrace();
 				}
 
 				@Override
