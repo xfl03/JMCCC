@@ -3,7 +3,7 @@ package com.github.to2mbn.jmccc.mcdownloader.download;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URL;
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.Objects;
@@ -13,19 +13,19 @@ import java.util.Objects;
  * 
  * @author yushijinhun
  */
-public class FileDownloadTask extends DownloadTask {
+public class FileDownloadTask extends DownloadTask<Object> {
 
 	private File target;
 
 	/**
 	 * Creates a FileDownloadTask.
 	 * 
-	 * @param url the url of the resource to download
+	 * @param uri the uri of the resource to download
 	 * @param target where to save the file
-	 * @throws NullPointerException if <code>url==null||target==null</code>
+	 * @throws NullPointerException if <code>uri==null||target==null</code>
 	 */
-	public FileDownloadTask(URL url, File target) {
-		super(url);
+	public FileDownloadTask(URI uri, File target) {
+		super(uri);
 		Objects.requireNonNull(target);
 		this.target = target;
 	}
@@ -57,11 +57,11 @@ public class FileDownloadTask extends DownloadTask {
 	}
 
 	@Override
-	public DownloadSession createSession() throws IOException {
+	public DownloadSession<Object> createSession() throws IOException {
 		final FileOutputStream out = new FileOutputStream(target);
 		final FileChannel channel = out.getChannel();
 
-		return new DownloadSession() {
+		return new DownloadSession<Object>() {
 
 			@Override
 			public void receiveData(ByteBuffer data) throws IOException {
@@ -74,8 +74,9 @@ public class FileDownloadTask extends DownloadTask {
 			}
 
 			@Override
-			public void completed() throws IOException {
+			public Object completed() throws IOException {
 				close();
+				return null;
 			}
 
 			@Override

@@ -1,34 +1,14 @@
 package com.github.to2mbn.jmccc.mcdownloader.download;
 
-public interface DownloadTaskListener {
+import com.github.to2mbn.jmccc.mcdownloader.download.concurrent.AsyncCallback;
 
-	/**
-	 * Calls when the download operation started.
-	 */
-	void started();
-
-	/**
-	 * Calls when the download operation completed successfully.
-	 */
-	void completed();
-
-	/**
-	 * Calls when the download operation failed.
-	 * 
-	 * @param e the thrown exception
-	 */
-	void failed(Throwable e);
-
-	/**
-	 * Calls when the download operation has been cancelled.
-	 */
-	void cancelled();
+public interface DownloadTaskListener<T> extends AsyncCallback<T> {
 
 	/**
 	 * Calls when the progress of the download operation has been updated.
 	 * 
 	 * @param done the downloaded bytes
-	 * @param total the total bytes
+	 * @param total the total bytes, -1 if unknown
 	 */
 	void updateProgress(long done, long total);
 

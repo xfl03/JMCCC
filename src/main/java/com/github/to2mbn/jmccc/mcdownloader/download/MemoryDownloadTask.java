@@ -2,39 +2,33 @@ package com.github.to2mbn.jmccc.mcdownloader.download;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.URL;
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
-import java.util.Objects;
 
 /**
  * A download-to-memory task.
  * 
  * @author yushijinhun
  */
-public class MemoryDownloadTask extends DownloadTask {
-
-	private MemoryDownloadCallback callback;
+public class MemoryDownloadTask extends DownloadTask<byte[]> {
 
 	/**
 	 * Creates a MemoryDownloadTask.
 	 * 
-	 * @param url the url of the resource to download
-	 * @param callback the download callback
-	 * @throws NullPointerException if <code>url==null||callback==null</code>
+	 * @param uri the uri of the resource to download
+	 * @throws NullPointerException if <code>uri==null</code>
 	 */
-	public MemoryDownloadTask(URL url, MemoryDownloadCallback callback) {
-		super(url);
-		Objects.requireNonNull(callback);
-		this.callback = callback;
+	public MemoryDownloadTask(URI uri) {
+		super(uri);
 	}
 
 	@Override
-	public DownloadSession createSession() throws IOException {
-		return new DownloadSession() {
+	public DownloadSession<byte[]> createSession(final long length) throws IOException {
+		return new DownloadSession<byte[]>() {
 
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			ByteArrayOutputStream out = new ByteArrayOutputStream((int) length);
 			WritableByteChannel channel = Channels.newChannel(out);
 
 			@Override
@@ -48,9 +42,10 @@ public class MemoryDownloadTask extends DownloadTask {
 			}
 
 			@Override
-			public void completed() throws IOException {
-				callback.downloaded(out.toByteArray());
+			public byte[] completed() throws IOException {
+				byte[] data = out.toByteArray();
 				close();
+				return data;
 			}
 
 			@Override
@@ -63,6 +58,11 @@ public class MemoryDownloadTask extends DownloadTask {
 				out = null;
 			}
 		};
+	}
+
+	@Override
+	public DownloadSession<byte[]> createSession() throws IOException {
+		return createSession(8192);
 	}
 
 }

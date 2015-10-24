@@ -10,9 +10,10 @@ import java.nio.ByteBuffer;
  * download session has been created, one of the following methods {@link #completed()}, {@link #failed(Throwable)} or
  * {@link #cancelled()} must be called.
  * 
+ * @param <T> the type of result
  * @author yushijinhun
  */
-public interface DownloadSession {
+public interface DownloadSession<T> {
 
 	/**
 	 * Calls when receiving a part of data.
@@ -27,9 +28,10 @@ public interface DownloadSession {
 	 * <p>
 	 * Notes for implementation: In this method you should close the opened resources.
 	 * 
+	 * @return the result
 	 * @throws IOException if an I/O error occurs
 	 */
-	void completed() throws IOException;
+	T completed() throws IOException;
 
 	/**
 	 * Calls when an error occurs during downloading.
