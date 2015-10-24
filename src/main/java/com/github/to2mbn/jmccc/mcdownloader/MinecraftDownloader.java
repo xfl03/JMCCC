@@ -26,16 +26,17 @@ public interface MinecraftDownloader {
 	DownloadTask<Set<Asset>> assetsIndex(MinecraftDirectory mcdir, String version);
 
 	/**
-	 * Returns a game jar download task.
+	 * Returns a game download task.
 	 * <p>
-	 * The jar is saved to <code>${mcdir}/versions/${version}/${version}.jar</code>. If the file already exists, this
-	 * method will overwrite the file.
+	 * The jar is saved to <code>${mcdir}/versions/${version}/${version}.jar</code>. The version json is saved to
+	 * <code>${mcdir}/versions/${version}/${version}.json</code>. If the file already exists, this method will overwrite
+	 * the file.
 	 * 
 	 * @param mcdir the minecraft dir
 	 * @param version the game version
-	 * @return a game jar download task
+	 * @return a game download task
 	 */
-	DownloadTask<?> gameJar(MinecraftDirectory mcdir, String version);
+	DownloadTask<?> game(MinecraftDirectory mcdir, String version);
 
 	/**
 	 * Returns a library download task.
