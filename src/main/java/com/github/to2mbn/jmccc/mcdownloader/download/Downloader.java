@@ -11,7 +11,7 @@ public interface Downloader {
 	 * @param task the download task
 	 * @param listener download callback
 	 * @return future representing pending completion of the download
-	 * @throws NullPointerException <code>task==null || listener==null</code>
+	 * @throws NullPointerException <code>task==null</code>
 	 * @throws IllegalStateException if the downloader has been shutdown
 	 */
 	<T> Future<T> download(DownloadTask<T> task, DownloadTaskListener<T> listener);
