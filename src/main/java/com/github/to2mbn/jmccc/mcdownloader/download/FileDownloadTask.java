@@ -58,6 +58,12 @@ public class FileDownloadTask extends DownloadTask<Object> {
 
 	@Override
 	public DownloadSession<Object> createSession() throws IOException {
+		// creates the parent dir
+		File parent = target.getParentFile();
+		if (parent != null && !parent.exists()) {
+			parent.mkdirs();
+		}
+
 		final FileOutputStream out = new FileOutputStream(target);
 		final FileChannel channel = out.getChannel();
 
