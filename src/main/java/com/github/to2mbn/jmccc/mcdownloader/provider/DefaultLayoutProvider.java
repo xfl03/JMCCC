@@ -18,7 +18,7 @@ abstract public class DefaultLayoutProvider implements MinecraftDownloadProvider
 		}
 		String url = baseurl + library.getPath();
 		if (library.getChecksums() != null) {
-			url = url.substring(0, url.length() - 3) + ".pack"; // replace .jar with .pack
+			url += ".pack.xz";
 		}
 		return toURI(url);
 	}
