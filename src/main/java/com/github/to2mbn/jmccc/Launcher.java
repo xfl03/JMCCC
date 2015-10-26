@@ -14,14 +14,7 @@ import com.github.to2mbn.jmccc.version.Version;
 
 /**
  * A <code>Launcher</code> is used to launch minecraft.<br>
- * You can use {@link Jmccc#getLauncher()} or {@link Jmccc#getLauncher(String)} to get a Launcher object.
- * <p>
- * We recommend you to use {@link Jmccc#getLauncher(String)} with the name and the version of your launcher as the
- * argument (extended identity). Then if the report mode is on, the report data will include the extended identity, so
- * we can distinguish the different launchers.
- * <p>
- * By default, we will send the launching data to our server to for statistics and debugging. If you don't want this,
- * you can use <code>launcher.setReport(false)</code> to turn off this.
+ * You can use {@link Jmccc#getLauncher()} to get a Launcher object.
  */
 public interface Launcher {
 
@@ -90,32 +83,5 @@ public interface Launcher {
      * @see Launcher#getVersion(MinecraftDirectory, String)
      */
     Set<String> getVersions(MinecraftDirectory minecraftDir);
-
-    /**
-     * Sets the report mode to on or off.
-     * <p>
-     * By default the report mode is on. You can use <code>launcher.setReport(false)</code> to turn off the report mode.
-     * <br>
-     * If the report mode is on, we will send the following data to our server to for statistics and debugging:<br>
-     * 
-     * <pre>
-     * the timestamp of launching
-     * the version of JMCCC
-     * the extended id
-     * the operating system version
-     * the java version
-     * the version of the launching game
-     * the path of java
-     * the path of .minecraft
-     * the max memory of the game
-     * the min memory of the game
-     * the stack trace (if launching failed)
-     * </pre>
-     * 
-     * @param on the new state of the reporter
-     * @see Jmccc#getLauncher()
-     * @see Jmccc#getLauncher(String)
-     */
-    void setReport(boolean on);
 
 }

@@ -28,56 +28,20 @@ import com.github.to2mbn.jmccc.version.Version;
 public class Jmccc implements Launcher {
 
     /**
-     * Gets a Launcher object with no extended identity.
+     * Gets a launcher.
      * 
      * @return the launcher
-     * @see Jmccc#getLauncher(String)
-     * @see Launcher#setReport(boolean)
-     * @see Reporter
      */
     public static Launcher getLauncher() {
-        return getLauncher(null);
+        return new Jmccc();
     }
 
-    /**
-     * Gets a Launcher object with the given extended identity.
-     * <p>
-     * If <code>extendedIdentity==null</code>, this launcher won't have any extended identity.<br>
-     * The extended identity is used to identity the caller of JMCCC, default to null. If you want to help us do the
-     * statistics better, please set this to the name and the version of your launcher.
-     * 
-     * @param extendedIdentity the extended identity
-     * @return the launcher
-     * @see Jmccc#getLauncher()
-     * @see Launcher#setReport(boolean)
-     * @see Reporter
-     */
-    public static Launcher getLauncher(String extendedIdentity) {
-        return new Jmccc(extendedIdentity);
-    }
-
-    private Reporter reporter;
     private VersionParser versionParser = new VersionParser();
-    private boolean reportmode = true;
-
-    private Jmccc(String extendedIdentity) {
-        reporter = new Reporter(extendedIdentity);
-    }
 
     @Override
     public LaunchResult launch(LaunchOption option) throws LaunchException {
         Objects.requireNonNull(option);
         return launch(option, null);
-    }
-
-    @Override
-    public LaunchResult launch(LaunchOption option, GameProcessListener listener) throws LaunchException {
-        Objects.requireNonNull(option);
-        if (reportmode) {
-            return launchWithReport(option, listener);
-        } else {
-            return launchWithoutReport(option, listener);
-        }
     }
 
     @Override
@@ -108,23 +72,8 @@ public class Jmccc implements Launcher {
     }
 
     @Override
-    public void setReport(boolean on) {
-        reportmode = on;
-    }
-
-    public LaunchResult launchWithoutReport(LaunchOption option, GameProcessListener listener) throws LaunchException {
+    public LaunchResult launch(LaunchOption option, GameProcessListener listener) throws LaunchException {
         return launch(generateLaunchArgs(option), listener);
-    }
-
-    public LaunchResult launchWithReport(LaunchOption option, GameProcessListener listener) throws LaunchException {
-        try {
-            LaunchResult result = launchWithoutReport(option, listener);
-            reporter.asyncLaunchSuccessfully(option, result);
-            return result;
-        } catch (Throwable e) {
-            reporter.asyncLaunchUnsuccessfully(option, e);
-            throw e;
-        }
     }
 
     private boolean doesVersionExists(MinecraftDirectory minecraftDir, String version) {
