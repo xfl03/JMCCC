@@ -120,7 +120,7 @@ public class Asset {
 	 * @throws NoSuchAlgorithmException if the default hash algorithm SHA-1 doesn't exist
 	 */
 	public boolean isValid(MinecraftDirectory dir) throws IOException, NoSuchAlgorithmException {
-		File file = new File(dir.getAssets(), getPath());
+		File file = new File(dir.getAssets(), "objects/" + getPath());
 		if (!file.isFile()) {
 			return false;
 		}
