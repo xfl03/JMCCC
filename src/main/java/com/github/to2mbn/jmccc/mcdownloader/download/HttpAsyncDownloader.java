@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
@@ -26,6 +26,9 @@ import com.github.to2mbn.jmccc.mcdownloader.download.concurrent.AsyncFuture;
 import com.github.to2mbn.jmccc.mcdownloader.download.concurrent.Cancellable;
 
 public class HttpAsyncDownloader implements Downloader {
+
+	private static final int DEFAULT_MAX_CONNECTIONS = 50;
+	private static final int DEFAULT_MAX_CONNECTIONS_PRE_ROUTER = 10;
 
 	private class TaskHandler<T> implements Runnable, Cancellable {
 
@@ -185,8 +188,8 @@ public class HttpAsyncDownloader implements Downloader {
 	private boolean shutdown = false;
 
 	public HttpAsyncDownloader() {
-		httpClient = HttpAsyncClientBuilder.create().build();
-		bootstrapPool = new ThreadPoolExecutor(0, Runtime.getRuntime().availableProcessors(), 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
+		httpClient = HttpAsyncClientBuilder.create().setMaxConnPerRoute(DEFAULT_MAX_CONNECTIONS_PRE_ROUTER).setMaxConnTotal(DEFAULT_MAX_CONNECTIONS).build();
+		bootstrapPool = new ThreadPoolExecutor(0, Runtime.getRuntime().availableProcessors(), 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
 		httpClient.start();
 	}
 
