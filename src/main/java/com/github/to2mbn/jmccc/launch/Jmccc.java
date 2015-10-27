@@ -1,9 +1,11 @@
 package com.github.to2mbn.jmccc.launch;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -145,14 +147,12 @@ public class Jmccc implements Launcher {
         if (!outputDir.exists()) {
             outputDir.mkdirs();
         }
-
-        byte[] buffer = new byte[8192];
-        int read;
-
         try (ZipInputStream in = new ZipInputStream(new FileInputStream(zip))) {
             ZipEntry entry;
+            byte[] buf = null;
+
             while ((entry = in.getNextEntry()) != null) {
-                boolean excluded = false;
+                boolean excluded = false; // true if the file is in excludes list
                 if (excludes != null) {
                     for (String exclude : excludes) {
                         if (entry.getName().startsWith(exclude)) {
@@ -163,9 +163,42 @@ public class Jmccc implements Launcher {
                 }
 
                 if (!excluded) {
-                    try (OutputStream out = new FileOutputStream(new File(outputDir, entry.getName()))) {
-                        while ((read = in.read(buffer)) != -1) {
-                            out.write(buffer, 0, read);
+                    // 1 unused byte for sentinel
+                    if (buf == null || buf.length < entry.getSize() - 1) {
+                        buf = new byte[(int) entry.getSize() + 1];
+                    }
+                    int len = 0;
+                    int read;
+                    // read the zipped data fully
+                    while ((read = in.read(buf, len, buf.length - len)) != -1) {
+                        if (read == 0) {
+                            // reach the sentinel
+                            throw new IOException("actual length and entry length mismatch");
+                        }
+                        len += read;
+                    }
+
+                    File outFile = new File(outputDir, entry.getName());
+                    boolean match; // true if two files are the same
+                    if (outFile.isFile() && outFile.length() == entry.getSize()) {
+                        // same length, check the content
+                        match = true;
+                        try (InputStream targetin = new BufferedInputStream(new FileInputStream(outFile))) {
+                            for (int i = 0; i < len; i++) {
+                                if (buf[i] != (byte) targetin.read()) {
+                                    match = false;
+                                    break;
+                                }
+                            }
+                        }
+                    } else {
+                        // different length
+                        match = false;
+                    }
+
+                    if (!match) {
+                        try (OutputStream out = new FileOutputStream(outFile)) {
+                            out.write(buf, 0, len);
                         }
                     }
                 }
@@ -173,6 +206,7 @@ public class Jmccc implements Launcher {
                 in.closeEntry();
             }
         }
+
     }
 
 }
