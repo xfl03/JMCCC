@@ -77,6 +77,7 @@ public class FileDownloadTask extends DownloadTask<Object> {
 			@Override
 			public void failed(Throwable e) throws IOException {
 				close();
+				target.delete();
 			}
 
 			@Override
@@ -88,6 +89,7 @@ public class FileDownloadTask extends DownloadTask<Object> {
 			@Override
 			public void cancelled() throws IOException {
 				close();
+				target.delete();
 			}
 
 			private void close() throws IOException {
