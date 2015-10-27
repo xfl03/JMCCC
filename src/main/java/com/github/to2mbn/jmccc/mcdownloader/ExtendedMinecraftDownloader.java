@@ -35,22 +35,22 @@ public class ExtendedMinecraftDownloader implements MinecraftDownloader {
 	}
 
 	@Override
-	public DownloadTask<?> gameJar(MinecraftDirectory mcdir, String version) {
+	public DownloadTask<Object> gameJar(MinecraftDirectory mcdir, String version) {
 		return proxied.gameJar(mcdir, version);
 	}
 
 	@Override
-	public DownloadTask<?> gameVersionJson(MinecraftDirectory mcdir, String version) {
+	public DownloadTask<Object> gameVersionJson(MinecraftDirectory mcdir, String version) {
 		return proxied.gameVersionJson(mcdir, version);
 	}
 
 	@Override
-	public DownloadTask<?> library(MinecraftDirectory mcdir, Library library) {
+	public DownloadTask<Object> library(MinecraftDirectory mcdir, Library library) {
 		return proxied.library(mcdir, library);
 	}
 
 	@Override
-	public DownloadTask<?> asset(MinecraftDirectory mcdir, Asset asset) {
+	public DownloadTask<Object> asset(MinecraftDirectory mcdir, Asset asset) {
 		return proxied.asset(mcdir, asset);
 	}
 

@@ -9,7 +9,7 @@ import com.github.to2mbn.jmccc.version.Library;
 public class JarLibraryDownloadHandler implements LibraryDownloadHandler {
 
 	@Override
-	public DownloadTask<?> createDownloadTask(File target, Library library, URI libraryUri) {
+	public DownloadTask<Object> createDownloadTask(File target, Library library, URI libraryUri) {
 		return new FileDownloadTask(libraryUri, target);
 	}
 

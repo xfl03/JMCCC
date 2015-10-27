@@ -16,6 +16,6 @@ import com.github.to2mbn.jmccc.version.Library;
  */
 public interface LibraryDownloadHandler {
 
-	DownloadTask<?> createDownloadTask(File target, Library library, URI libraryUri);
+	DownloadTask<Object> createDownloadTask(File target, Library library, URI libraryUri);
 
 }

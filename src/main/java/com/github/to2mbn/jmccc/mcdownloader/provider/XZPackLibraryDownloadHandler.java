@@ -14,7 +14,7 @@ import com.github.to2mbn.jmccc.version.Library;
 public class XZPackLibraryDownloadHandler implements LibraryDownloadHandler {
 
 	@Override
-	public DownloadTask<?> createDownloadTask(File target, Library library, URI libraryUri) {
+	public DownloadTask<Object> createDownloadTask(File target, Library library, URI libraryUri) {
 		return new MemoryDownloadTask(libraryUri).andThen(new ResultProcessor<byte[], byte[]>() {
 
 			@Override

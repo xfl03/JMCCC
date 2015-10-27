@@ -35,7 +35,7 @@ public interface MinecraftDownloader {
 	 * @param version the game version
 	 * @return a game jar download task
 	 */
-	DownloadTask<?> gameJar(MinecraftDirectory mcdir, String version);
+	DownloadTask<Object> gameJar(MinecraftDirectory mcdir, String version);
 
 	/**
 	 * Returns a game version json download task.
@@ -47,7 +47,7 @@ public interface MinecraftDownloader {
 	 * @param version the game version
 	 * @return a version json download task
 	 */
-	DownloadTask<?> gameVersionJson(MinecraftDirectory mcdir, String version);
+	DownloadTask<Object> gameVersionJson(MinecraftDirectory mcdir, String version);
 
 	/**
 	 * Returns a library download task.
@@ -59,7 +59,7 @@ public interface MinecraftDownloader {
 	 * @param library the library to download
 	 * @return a library download task
 	 */
-	DownloadTask<?> library(MinecraftDirectory mcdir, Library library);
+	DownloadTask<Object> library(MinecraftDirectory mcdir, Library library);
 
 	/**
 	 * Returns an asset download task.
@@ -71,6 +71,6 @@ public interface MinecraftDownloader {
 	 * @param asset the asset to download
 	 * @return an asset download task
 	 */
-	DownloadTask<?> asset(MinecraftDirectory mcdir, Asset asset);
+	DownloadTask<Object> asset(MinecraftDirectory mcdir, Asset asset);
 
 }

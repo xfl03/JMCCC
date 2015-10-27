@@ -82,17 +82,17 @@ public class ProvidedMinecraftDownloader implements MinecraftDownloader {
 	}
 
 	@Override
-	public DownloadTask<?> gameJar(MinecraftDirectory mcdir, String version) {
+	public DownloadTask<Object> gameJar(MinecraftDirectory mcdir, String version) {
 		return new FileDownloadTask(provider.getGameJar(version), mcdir.getVersionJar(version));
 	}
 
 	@Override
-	public DownloadTask<?> gameVersionJson(MinecraftDirectory mcdir, String version) {
+	public DownloadTask<Object> gameVersionJson(MinecraftDirectory mcdir, String version) {
 		return new FileDownloadTask(provider.getGameVersionJson(version), mcdir.getVersionJson(version));
 	}
 
 	@Override
-	public DownloadTask<?> library(MinecraftDirectory mcdir, Library library) {
+	public DownloadTask<Object> library(MinecraftDirectory mcdir, Library library) {
 		URI uri = provider.getLibrary(library);
 		String path = uri.getPath();
 		LibraryDownloadHandler handler = null;
@@ -109,7 +109,7 @@ public class ProvidedMinecraftDownloader implements MinecraftDownloader {
 	}
 
 	@Override
-	public DownloadTask<?> asset(MinecraftDirectory mcdir, Asset asset) {
+	public DownloadTask<Object> asset(MinecraftDirectory mcdir, Asset asset) {
 		return new FileDownloadTask(provider.getAsset(asset), new File(mcdir.getAssets(), "objects/" + asset.getPath()));
 	}
 
