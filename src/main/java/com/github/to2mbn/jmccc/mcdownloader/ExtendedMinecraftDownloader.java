@@ -65,8 +65,8 @@ public class ExtendedMinecraftDownloader implements MinecraftDownloader {
 	 * @throws IOException if an I/O exception occurs during calling {@link Asset#isValid(MinecraftDirectory)}
 	 * @throws NoSuchAlgorithmException if the default hash algorithm SHA-1 doesn't exist
 	 */
-	public Set<DownloadTask<?>> missingAssets(MinecraftDirectory mcdir, Set<Asset> assets) throws IOException, NoSuchAlgorithmException {
-		Set<DownloadTask<?>> result = new HashSet<>();
+	public Set<DownloadTask<Object>> missingAssets(MinecraftDirectory mcdir, Set<Asset> assets) throws IOException, NoSuchAlgorithmException {
+		Set<DownloadTask<Object>> result = new HashSet<>();
 		for (Asset asset : assets) {
 			if (!asset.isValid(mcdir)) {
 				result.add(asset(mcdir, asset));
@@ -84,8 +84,8 @@ public class ExtendedMinecraftDownloader implements MinecraftDownloader {
 	 * @param libraries the libraries to check
 	 * @return a set of download tasks of the missing libraries
 	 */
-	public Set<DownloadTask<?>> missingLibraries(MinecraftDirectory mcdir, Set<Library> libraries) {
-		Set<DownloadTask<?>> result = new HashSet<>();
+	public Set<DownloadTask<Object>> missingLibraries(MinecraftDirectory mcdir, Set<Library> libraries) {
+		Set<DownloadTask<Object>> result = new HashSet<>();
 		for (Library library : libraries) {
 			if (library.isMissing(mcdir)) {
 				result.add(library(mcdir, library));
@@ -103,7 +103,7 @@ public class ExtendedMinecraftDownloader implements MinecraftDownloader {
 	 * @param version the version to check
 	 * @return a set of download tasks of the missing libraries
 	 */
-	public Set<DownloadTask<?>> missingLibraries(MinecraftDirectory mcdir, Version version) {
+	public Set<DownloadTask<Object>> missingLibraries(MinecraftDirectory mcdir, Version version) {
 		return missingLibraries(mcdir, version.getLibraries());
 	}
 
@@ -116,8 +116,8 @@ public class ExtendedMinecraftDownloader implements MinecraftDownloader {
 	 * @param version the game version
 	 * @return a set including a game jar download task and a version json download task
 	 */
-	public Set<DownloadTask<?>> game(MinecraftDirectory mcdir, String version) {
-		Set<DownloadTask<?>> result = new HashSet<>();
+	public Set<DownloadTask<Object>> game(MinecraftDirectory mcdir, String version) {
+		Set<DownloadTask<Object>> result = new HashSet<>();
 		result.add(gameVersionJson(mcdir, version));
 		result.add(gameJar(mcdir, version));
 		return result;
