@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
@@ -27,20 +28,54 @@ import com.github.to2mbn.jmccc.mcdownloader.download.concurrent.Cancellable;
 
 public class HttpAsyncDownloader implements Downloader {
 
+	private static class NullDownloadTaskListener<T> implements DownloadTaskListener<T> {
+
+		@Override
+		public void done(T result) {
+		}
+
+		@Override
+		public void failed(Throwable e) {
+			synchronized (System.err) {
+				System.err.println("Uncaught async download exception:");
+				e.printStackTrace();
+			}
+		}
+
+		@Override
+		public void cancelled() {
+		}
+
+		@Override
+		public void updateProgress(long done, long total) {
+		}
+
+		@Override
+		public void retry(Throwable e, int current, int max) {
+		}
+
+	}
+
+	private static interface RetryHandler {
+
+		boolean doRetry(Throwable e);
+
+	}
+
 	private static final int DEFAULT_MAX_CONNECTIONS = 50;
 	private static final int DEFAULT_MAX_CONNECTIONS_PRE_ROUTER = 10;
 
 	private class TaskHandler<T> implements Runnable, Cancellable {
 
-		private class LifeCycleHandler<R> {
+		class LifeCycleHandler<R> {
 
-			private AsyncCallback<R> proxied;
+			AsyncCallback<R> proxied;
 
-			public LifeCycleHandler(AsyncCallback<R> proxied) {
+			LifeCycleHandler(AsyncCallback<R> proxied) {
 				this.proxied = proxied;
 			}
 
-			public void failed(Throwable e) {
+			void failed(Throwable e) {
 				if (session != null) {
 					try {
 						session.failed(e);
@@ -50,10 +85,16 @@ public class HttpAsyncDownloader implements Downloader {
 						}
 					}
 				}
-				proxied.failed(e);
+				if (retryHandler != null && retryHandler.doRetry(e)) {
+					downloadFuture = null;
+					session = null;
+					start();
+				} else {
+					proxied.failed(e);
+				}
 			}
 
-			public void cancelled() {
+			void cancelled() {
 				if (session != null) {
 					try {
 						session.cancelled();
@@ -65,7 +106,7 @@ public class HttpAsyncDownloader implements Downloader {
 				proxied.cancelled();
 			}
 
-			public void done(R result) {
+			void done(R result) {
 				proxied.done(result);
 			}
 
@@ -77,14 +118,16 @@ public class HttpAsyncDownloader implements Downloader {
 		DownloadSession<T> session;
 		DownloadTaskListener<T> listener;
 		Future<T> downloadFuture;
+		RetryHandler retryHandler;
 		volatile boolean cancelled;
 		volatile boolean mayInterruptIfRunning;
 
-		TaskHandler(DownloadTask<T> task, DownloadTaskListener<T> listener) {
+		TaskHandler(DownloadTask<T> task, DownloadTaskListener<T> listener, RetryHandler retryHandler) {
 			this.task = task;
 			this.listener = listener;
 			this.futuer = new AsyncFuture<>(this);
 			this.lifecycle = new LifeCycleHandler<>(AsyncCallbackGroup.group(futuer, listener));
+			this.retryHandler = retryHandler;
 		}
 
 		void start() {
@@ -182,6 +225,29 @@ public class HttpAsyncDownloader implements Downloader {
 
 	}
 
+	private class RetryHandlerImpl implements RetryHandler {
+
+		DownloadTaskListener<?> proxied;
+		int max;
+		int current = 0;
+
+		RetryHandlerImpl(DownloadTaskListener<?> proxied, int max) {
+			this.proxied = proxied;
+			this.max = max;
+		}
+
+		@Override
+		public boolean doRetry(Throwable e) {
+			current++;
+			if (e instanceof IOException && current <= max) {
+				proxied.retry(e, current, max);
+				return true;
+			}
+			return false;
+		}
+
+	}
+
 	private CloseableHttpAsyncClient httpClient;
 	private ExecutorService bootstrapPool;
 	private ReadWriteLock shutdownLock = new ReentrantReadWriteLock();
@@ -196,38 +262,17 @@ public class HttpAsyncDownloader implements Downloader {
 	@Override
 	public <T> Future<T> download(DownloadTask<T> task, DownloadTaskListener<T> listener) {
 		if (listener == null) {
-			listener = new DownloadTaskListener<T>() {
-
-				@Override
-				public void done(T result) {
-				}
-
-				@Override
-				public void failed(Throwable e) {
-					e.printStackTrace();
-				}
-
-				@Override
-				public void cancelled() {
-				}
-
-				@Override
-				public void updateProgress(long done, long total) {
-				}
-			};
+			listener = new NullDownloadTaskListener<>();
 		}
-		Lock lock = shutdownLock.readLock();
-		lock.lock();
-		try {
-			if (shutdown) {
-				throw new IllegalStateException("already shutdown");
-			}
-			TaskHandler<T> handler = new TaskHandler<>(task, listener);
-			handler.start();
-			return handler.futuer;
-		} finally {
-			lock.unlock();
+		return download0(task, listener, null);
+	}
+
+	@Override
+	public <T> Future<T> download(DownloadTask<T> task, DownloadTaskListener<T> listener, int retries) {
+		if (listener == null) {
+			listener = new NullDownloadTaskListener<>();
 		}
+		return download0(task, listener, new RetryHandlerImpl(listener, retries));
 	}
 
 	@Override
@@ -247,6 +292,21 @@ public class HttpAsyncDownloader implements Downloader {
 	@Override
 	public boolean isShutdown() {
 		return shutdown;
+	}
+
+	private <T> Future<T> download0(DownloadTask<T> task, DownloadTaskListener<T> listener, RetryHandler retryHandler) {
+		Lock lock = shutdownLock.readLock();
+		lock.lock();
+		try {
+			if (shutdown) {
+				throw new RejectedExecutionException("already shutdown");
+			}
+			TaskHandler<T> handler = new TaskHandler<>(task, listener, retryHandler);
+			handler.start();
+			return handler.futuer;
+		} finally {
+			lock.unlock();
+		}
 	}
 
 }
