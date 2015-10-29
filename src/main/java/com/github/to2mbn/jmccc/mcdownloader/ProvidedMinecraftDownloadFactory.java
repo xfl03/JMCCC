@@ -24,10 +24,10 @@ import com.github.to2mbn.jmccc.mcdownloader.provider.XZPackLibraryDownloadHandle
 import com.github.to2mbn.jmccc.option.MinecraftDirectory;
 import com.github.to2mbn.jmccc.version.Library;
 
-public class ProvidedMinecraftDownloader implements MinecraftDownloader {
+public class ProvidedMinecraftDownloadFactory implements MinecraftDownloadFactory {
 
-	public static ProvidedMinecraftDownloader buildDefault() {
-		ProvidedMinecraftDownloader downloader = new ProvidedMinecraftDownloader(new MojangDownloadProvider());
+	public static ProvidedMinecraftDownloadFactory buildDefault() {
+		ProvidedMinecraftDownloadFactory downloader = new ProvidedMinecraftDownloadFactory(new MojangDownloadProvider());
 		downloader.registerLibraryDownloadHandler(".jar", new JarLibraryDownloadHandler());
 		downloader.registerLibraryDownloadHandler(".pack", new PackLibraryDownloadHandler());
 		downloader.registerLibraryDownloadHandler(".pack.xz", new XZPackLibraryDownloadHandler());
@@ -47,7 +47,7 @@ public class ProvidedMinecraftDownloader implements MinecraftDownloader {
 		}
 	});
 
-	public ProvidedMinecraftDownloader(MinecraftDownloadProvider provider) {
+	public ProvidedMinecraftDownloadFactory(MinecraftDownloadProvider provider) {
 		Objects.requireNonNull(provider);
 		this.provider = provider;
 	}

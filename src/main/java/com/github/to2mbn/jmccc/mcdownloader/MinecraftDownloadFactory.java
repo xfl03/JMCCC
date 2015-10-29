@@ -5,7 +5,7 @@ import com.github.to2mbn.jmccc.mcdownloader.download.DownloadTask;
 import com.github.to2mbn.jmccc.option.MinecraftDirectory;
 import com.github.to2mbn.jmccc.version.Library;
 
-public interface MinecraftDownloader {
+public interface MinecraftDownloadFactory {
 
 	/**
 	 * Returns a version list download task.
