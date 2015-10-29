@@ -2,12 +2,16 @@ package com.github.to2mbn.jmccc.mcdownloader.download;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Collections;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -62,8 +66,8 @@ public class HttpAsyncDownloader implements Downloader {
 
 	}
 
-	private static final int DEFAULT_MAX_CONNECTIONS = 50;
-	private static final int DEFAULT_MAX_CONNECTIONS_PRE_ROUTER = 10;
+	private static final int DEFAULT_MAX_CONNECTIONS = 200;
+	private static final int DEFAULT_MAX_CONNECTIONS_PRE_ROUTER = 20;
 
 	private class TaskHandler<T> implements Runnable, Cancellable {
 
@@ -85,13 +89,21 @@ public class HttpAsyncDownloader implements Downloader {
 						}
 					}
 				}
-				if (retryHandler != null && retryHandler.doRetry(e)) {
-					downloadFuture = null;
-					session = null;
-					start();
-				} else {
-					proxied.failed(e);
+				if (retryHandler != null) {
+					Lock lock = shutdownLock.readLock();
+					lock.lock();
+					try {
+						if (!shutdown && retryHandler.doRetry(e)) {
+							downloadFuture = null;
+							session = null;
+							start();
+							return;
+						}
+					} finally {
+						lock.unlock();
+					}
 				}
+				proxied.failed(e);
 			}
 
 			void cancelled() {
@@ -108,6 +120,51 @@ public class HttpAsyncDownloader implements Downloader {
 
 			void done(R result) {
 				proxied.done(result);
+			}
+		}
+
+		class Inactiver implements AsyncCallback<T> {
+
+			@Override
+			public void done(T result) {
+				inactive();
+			}
+
+			@Override
+			public void failed(Throwable e) {
+				inactive();
+			}
+
+			@Override
+			public void cancelled() {
+				inactive();
+			}
+
+			void inactive() {
+				boolean tryCleanup = false;
+				Lock lock = shutdownLock.readLock();
+				lock.lock();
+				try {
+					activeTasks.remove(TaskHandler.this);
+					if (shutdown && !shutdownComplete && activeTasksCounter.decrementAndGet() == 0) {
+						tryCleanup = true;
+					}
+				} finally {
+					lock.unlock();
+				}
+
+				if (tryCleanup) {
+					Lock wlock = shutdownLock.writeLock();
+					wlock.lock();
+					try {
+						if (!shutdownComplete) {
+							shutdownComplete = true;
+							asyncCompleteShutdown();
+						}
+					} finally {
+						wlock.unlock();
+					}
+				}
 			}
 
 		}
@@ -126,7 +183,7 @@ public class HttpAsyncDownloader implements Downloader {
 			this.task = task;
 			this.listener = listener;
 			this.futuer = new AsyncFuture<>(this);
-			this.lifecycle = new LifeCycleHandler<>(AsyncCallbackGroup.group(futuer, listener));
+			this.lifecycle = new LifeCycleHandler<>(AsyncCallbackGroup.group(new Inactiver(), futuer, listener));
 			this.retryHandler = retryHandler;
 		}
 
@@ -140,7 +197,7 @@ public class HttpAsyncDownloader implements Downloader {
 				Lock lock = shutdownLock.readLock();
 				lock.lock();
 				try {
-					if (shutdown) {
+					if (cancelled) {
 						lifecycle.cancelled();
 					}
 
@@ -201,12 +258,12 @@ public class HttpAsyncDownloader implements Downloader {
 							lifecycle.cancelled();
 						}
 					});
-
-					if (cancelled) {
-						downloadFuture.cancel(mayInterruptIfRunning);
-					}
 				} finally {
 					lock.unlock();
+				}
+
+				if (cancelled) {
+					downloadFuture.cancel(mayInterruptIfRunning);
 				}
 			} catch (Throwable e) {
 				lifecycle.failed(e);
@@ -251,7 +308,10 @@ public class HttpAsyncDownloader implements Downloader {
 	private CloseableHttpAsyncClient httpClient;
 	private ExecutorService bootstrapPool;
 	private ReadWriteLock shutdownLock = new ReentrantReadWriteLock();
-	private boolean shutdown = false;
+	private volatile boolean shutdown = false;
+	private volatile boolean shutdownComplete = false;
+	private Set<TaskHandler<?>> activeTasks = Collections.newSetFromMap(new ConcurrentHashMap<TaskHandler<?>, Boolean>());
+	private AtomicInteger activeTasksCounter = new AtomicInteger();
 
 	public HttpAsyncDownloader() {
 		httpClient = HttpAsyncClientBuilder.create().setMaxConnPerRoute(DEFAULT_MAX_CONNECTIONS_PRE_ROUTER).setMaxConnTotal(DEFAULT_MAX_CONNECTIONS).build();
@@ -276,15 +336,23 @@ public class HttpAsyncDownloader implements Downloader {
 	}
 
 	@Override
-	public void shutdown() throws IOException {
+	public void shutdown() {
 		Lock lock = shutdownLock.writeLock();
 		lock.lock();
 		try {
-			bootstrapPool.shutdownNow();
-			httpClient.close();
+			// stop accepting new tasks
+			shutdown = true;
+			bootstrapPool.shutdown();
+
+			if (activeTasksCounter.get() == 0) {
+				shutdownComplete = true;
+				asyncCompleteShutdown();
+			} else {
+				for (TaskHandler<?> handler : activeTasks) {
+					handler.futuer.cancel(true);
+				}
+			}
 		} finally {
-			bootstrapPool = null;
-			httpClient = null;
 			lock.unlock();
 		}
 	}
@@ -302,11 +370,34 @@ public class HttpAsyncDownloader implements Downloader {
 				throw new RejectedExecutionException("already shutdown");
 			}
 			TaskHandler<T> handler = new TaskHandler<>(task, listener, retryHandler);
+			activeTasks.add(handler);
+			activeTasksCounter.getAndIncrement();
 			handler.start();
 			return handler.futuer;
 		} finally {
 			lock.unlock();
 		}
+	}
+
+	private void asyncCompleteShutdown() {
+		Thread t = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				try {
+					httpClient.close();
+				} catch (IOException e) {
+					synchronized (System.err) {
+						System.err.println("Uncaught async shutdown exception:");
+						e.printStackTrace();
+					}
+				}
+				bootstrapPool = null;
+				httpClient = null;
+			}
+		});
+		t.setName("async-http-client-shutdown-thread");
+		t.start();
 	}
 
 }

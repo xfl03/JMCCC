@@ -1,10 +1,10 @@
 package com.github.to2mbn.jmccc.mcdownloader.download;
 
-import java.io.IOException;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
+import com.github.to2mbn.jmccc.mcdownloader.download.concurrent.Shutdownable;
 
-public interface Downloader {
+public interface Downloader extends Shutdownable {
 
 	/**
 	 * Submits a download task asynchronously.
@@ -35,18 +35,6 @@ public interface Downloader {
 	 */
 	<T> Future<T> download(DownloadTask<T> task, DownloadTaskListener<T> listener, int retries);
 
-	/**
-	 * Shutdowns the downloader and interrupts all the tasks.
-	 * 
-	 * @throws IOException if an I/O error occurs during shutdown
-	 */
-	void shutdown() throws IOException;
 
-	/**
-	 * Returns true if this executor has been shutdown.
-	 *
-	 * @return true if this executor has been shutdown
-	 */
-	boolean isShutdown();
 
 }
