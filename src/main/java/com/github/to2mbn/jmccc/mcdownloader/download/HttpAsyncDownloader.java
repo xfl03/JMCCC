@@ -65,6 +65,28 @@ public class HttpAsyncDownloader implements Downloader {
 
 	}
 
+	private static class RetryHandlerImpl implements RetryHandler {
+
+		DownloadCallback<?> proxied;
+		int max;
+		int current = 1;
+
+		RetryHandlerImpl(DownloadCallback<?> proxied, int max) {
+			this.proxied = proxied;
+			this.max = max;
+		}
+
+		@Override
+		public boolean doRetry(Throwable e) {
+			if (e instanceof IOException && current < max) {
+				proxied.retry(e, current++, max);
+				return true;
+			}
+			return false;
+		}
+
+	}
+
 	private static final int DEFAULT_MAX_CONNECTIONS = 200;
 	private static final int DEFAULT_MAX_CONNECTIONS_PRE_ROUTER = 20;
 
@@ -279,28 +301,6 @@ public class HttpAsyncDownloader implements Downloader {
 				downloadFuture.cancel(mayInterruptIfRunning);
 			}
 			return true;
-		}
-
-	}
-
-	private class RetryHandlerImpl implements RetryHandler {
-
-		DownloadCallback<?> proxied;
-		int max;
-		int current = 1;
-
-		RetryHandlerImpl(DownloadCallback<?> proxied, int max) {
-			this.proxied = proxied;
-			this.max = max;
-		}
-
-		@Override
-		public boolean doRetry(Throwable e) {
-			if (e instanceof IOException && current < max) {
-				proxied.retry(e, current++, max);
-				return true;
-			}
-			return false;
 		}
 
 	}

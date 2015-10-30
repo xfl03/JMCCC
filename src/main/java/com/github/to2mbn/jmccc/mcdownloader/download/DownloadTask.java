@@ -3,7 +3,6 @@ package com.github.to2mbn.jmccc.mcdownloader.download;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.ByteBuffer;
-import java.util.Objects;
 
 /**
  * Describes a download task.
@@ -54,7 +53,7 @@ abstract public class DownloadTask<T> {
 		DownloadTask<R> proxied;
 
 		AppendedDownloadTask(ResultProcessor<R, S> processor, DownloadTask<R> proxied) {
-			super(proxied.uri);
+			super(proxied.getURI());
 			this.processor = processor;
 			this.proxied = proxied;
 		}
@@ -90,23 +89,6 @@ abstract public class DownloadTask<T> {
 	 */
 	public URI getURI() {
 		return uri;
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(uri);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (obj == this) {
-			return true;
-		}
-		if (obj instanceof DownloadTask) {
-			DownloadTask<?> another = (DownloadTask<?>) obj;
-			return uri.equals(another.uri);
-		}
-		return false;
 	}
 
 	/**
