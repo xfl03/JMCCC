@@ -55,7 +55,7 @@ class VersionParser {
         for (int i = 0; i < librariesList.length(); i++) {
             JSONObject library = librariesList.getJSONObject(i);
 
-            if (library.has("rules") && !IsAllow(library.getJSONArray("rules"))) {
+            if (library.has("rules") && !isAllow(library.getJSONArray("rules"))) {
                 continue;
             }
 
@@ -78,7 +78,7 @@ class VersionParser {
         }
     }
 
-    private boolean IsAllow(JSONArray rules) {
+    private boolean isAllow(JSONArray rules) {
         // by default it's allow
         if (rules.length() == 0) {
             return true;
