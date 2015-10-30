@@ -31,7 +31,7 @@ import com.github.to2mbn.jmccc.mcdownloader.download.concurrent.AsyncCallbackGro
 import com.github.to2mbn.jmccc.mcdownloader.download.concurrent.AsyncFuture;
 import com.github.to2mbn.jmccc.mcdownloader.download.concurrent.Cancellable;
 
-public class HttpAsyncDownloader implements Downloader {
+public class HttpAsyncDownloader implements DownloaderService {
 
 	private static final Log LOGGER = LogFactory.getLog(HttpAsyncDownloader.class);
 

@@ -2,9 +2,8 @@ package com.github.to2mbn.jmccc.mcdownloader.download;
 
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
-import com.github.to2mbn.jmccc.mcdownloader.download.concurrent.Shutdownable;
 
-public interface Downloader extends Shutdownable {
+public interface Downloader {
 
 	/**
 	 * Submits a download task asynchronously.
