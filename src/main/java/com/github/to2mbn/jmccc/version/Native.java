@@ -82,4 +82,9 @@ public class Native extends Library {
         }
         return false;
     }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), arch, extractExcludes);
+    }
 }
