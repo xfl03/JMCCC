@@ -7,10 +7,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -21,7 +18,6 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
-import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.nio.client.methods.AsyncByteConsumer;
 import org.apache.http.nio.client.methods.HttpAsyncMethods;
@@ -86,9 +82,6 @@ public class HttpAsyncDownloader implements DownloaderService {
 		}
 
 	}
-
-	private static final int DEFAULT_MAX_CONNECTIONS = 200;
-	private static final int DEFAULT_MAX_CONNECTIONS_PRE_ROUTER = 20;
 
 	private class TaskHandler<T> implements Runnable, Cancellable {
 
@@ -313,9 +306,9 @@ public class HttpAsyncDownloader implements DownloaderService {
 	// lock for shutdown, shutdownComplete, activeTasks
 	private ReadWriteLock shutdownLock = new ReentrantReadWriteLock();
 
-	public HttpAsyncDownloader() {
-		httpClient = HttpAsyncClientBuilder.create().setMaxConnPerRoute(DEFAULT_MAX_CONNECTIONS_PRE_ROUTER).setMaxConnTotal(DEFAULT_MAX_CONNECTIONS).build();
-		bootstrapPool = new ThreadPoolExecutor(0, Runtime.getRuntime().availableProcessors(), 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+	public HttpAsyncDownloader(CloseableHttpAsyncClient httpClient,ExecutorService bootstrapPool) {
+		this.httpClient=httpClient;
+		this.bootstrapPool=bootstrapPool;
 		httpClient.start();
 	}
 
