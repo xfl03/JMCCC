@@ -20,9 +20,8 @@ public interface DownloadTaskListener<T> extends AsyncCallback<T> {
 	 * {@link #failed(Throwable)}.
 	 * 
 	 * @param e the cause of download failure
-	 * @param current the current retry count (for example, <code>current=1</code> for the first retry,
-	 *        <code>current=max</code> for the last retry)
-	 * @param max the max retry count
+	 * @param current the retry count (1 for the first, max-1 for the latest)
+	 * @param max the max number of tries
 	 */
 	void retry(Throwable e, int current, int max);
 

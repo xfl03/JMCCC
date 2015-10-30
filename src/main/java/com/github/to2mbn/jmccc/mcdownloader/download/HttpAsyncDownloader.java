@@ -11,10 +11,11 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
@@ -32,6 +33,8 @@ import com.github.to2mbn.jmccc.mcdownloader.download.concurrent.Cancellable;
 
 public class HttpAsyncDownloader implements Downloader {
 
+	private static final Log LOGGER = LogFactory.getLog(HttpAsyncDownloader.class);
+
 	private static class NullDownloadTaskListener<T> implements DownloadTaskListener<T> {
 
 		@Override
@@ -40,10 +43,6 @@ public class HttpAsyncDownloader implements Downloader {
 
 		@Override
 		public void failed(Throwable e) {
-			synchronized (System.err) {
-				System.err.println("Uncaught async download exception:");
-				e.printStackTrace();
-			}
 		}
 
 		@Override
@@ -141,28 +140,29 @@ public class HttpAsyncDownloader implements Downloader {
 			}
 
 			void inactive() {
-				boolean tryCleanup = false;
 				Lock lock = shutdownLock.readLock();
 				lock.lock();
 				try {
 					activeTasks.remove(TaskHandler.this);
-					if (shutdown && !shutdownComplete && activeTasksCounter.decrementAndGet() == 0) {
-						tryCleanup = true;
-					}
 				} finally {
 					lock.unlock();
 				}
 
-				if (tryCleanup) {
+				if (shutdown & !shutdownComplete) {
+					boolean doShutdown = false;
 					Lock wlock = shutdownLock.writeLock();
 					wlock.lock();
 					try {
 						if (!shutdownComplete) {
 							shutdownComplete = true;
-							asyncCompleteShutdown();
+							doShutdown = true;
 						}
 					} finally {
 						wlock.unlock();
+					}
+
+					if (doShutdown) {
+						completeShutdown();
 					}
 				}
 			}
@@ -197,8 +197,9 @@ public class HttpAsyncDownloader implements Downloader {
 				Lock lock = shutdownLock.readLock();
 				lock.lock();
 				try {
-					if (cancelled) {
+					if (shutdown || cancelled) {
 						lifecycle.cancelled();
+						return;
 					}
 
 					downloadFuture = httpClient.execute(HttpAsyncMethods.createGet(task.getURI()), new AsyncByteConsumer<T>() {
@@ -273,7 +274,7 @@ public class HttpAsyncDownloader implements Downloader {
 		@Override
 		public boolean cancel(boolean mayInterruptIfRunning) {
 			cancelled = true;
-			this.mayInterruptIfRunning = mayInterruptIfRunning;
+			this.mayInterruptIfRunning |= mayInterruptIfRunning;
 			if (downloadFuture != null) {
 				downloadFuture.cancel(mayInterruptIfRunning);
 			}
@@ -286,7 +287,7 @@ public class HttpAsyncDownloader implements Downloader {
 
 		DownloadTaskListener<?> proxied;
 		int max;
-		int current = 0;
+		int current = 1;
 
 		RetryHandlerImpl(DownloadTaskListener<?> proxied, int max) {
 			this.proxied = proxied;
@@ -295,9 +296,8 @@ public class HttpAsyncDownloader implements Downloader {
 
 		@Override
 		public boolean doRetry(Throwable e) {
-			current++;
-			if (e instanceof IOException && current <= max) {
-				proxied.retry(e, current, max);
+			if (e instanceof IOException && current < max) {
+				proxied.retry(e, current++, max);
 				return true;
 			}
 			return false;
@@ -307,11 +307,11 @@ public class HttpAsyncDownloader implements Downloader {
 
 	private CloseableHttpAsyncClient httpClient;
 	private ExecutorService bootstrapPool;
-	private ReadWriteLock shutdownLock = new ReentrantReadWriteLock();
 	private volatile boolean shutdown = false;
 	private volatile boolean shutdownComplete = false;
 	private Set<TaskHandler<?>> activeTasks = Collections.newSetFromMap(new ConcurrentHashMap<TaskHandler<?>, Boolean>());
-	private AtomicInteger activeTasksCounter = new AtomicInteger();
+	// lock for shutdown, shutdownComplete, activeTasks
+	private ReadWriteLock shutdownLock = new ReentrantReadWriteLock();
 
 	public HttpAsyncDownloader() {
 		httpClient = HttpAsyncClientBuilder.create().setMaxConnPerRoute(DEFAULT_MAX_CONNECTIONS_PRE_ROUTER).setMaxConnTotal(DEFAULT_MAX_CONNECTIONS).build();
@@ -321,18 +321,13 @@ public class HttpAsyncDownloader implements Downloader {
 
 	@Override
 	public <T> Future<T> download(DownloadTask<T> task, DownloadTaskListener<T> listener) {
-		if (listener == null) {
-			listener = new NullDownloadTaskListener<>();
-		}
-		return download0(task, listener, null);
+		return download0(task, nonNullDownloadListener(listener), null);
 	}
 
 	@Override
-	public <T> Future<T> download(DownloadTask<T> task, DownloadTaskListener<T> listener, int retries) {
-		if (listener == null) {
-			listener = new NullDownloadTaskListener<>();
-		}
-		return download0(task, listener, new RetryHandlerImpl(listener, retries));
+	public <T> Future<T> download(DownloadTask<T> task, DownloadTaskListener<T> listener, int tries) {
+		listener = nonNullDownloadListener(listener);
+		return download0(task, listener, new RetryHandlerImpl(listener, tries));
 	}
 
 	@Override
@@ -340,21 +335,25 @@ public class HttpAsyncDownloader implements Downloader {
 		Lock lock = shutdownLock.writeLock();
 		lock.lock();
 		try {
-			// stop accepting new tasks
 			shutdown = true;
-			bootstrapPool.shutdown();
-
-			if (activeTasksCounter.get() == 0) {
-				shutdownComplete = true;
-				asyncCompleteShutdown();
-			} else {
-				for (TaskHandler<?> handler : activeTasks) {
-					handler.futuer.cancel(true);
-				}
-			}
 		} finally {
 			lock.unlock();
 		}
+
+		bootstrapPool.shutdown();
+		bootstrapPool = null;
+
+		if (activeTasks.isEmpty()) {
+			// cleanup in current thread
+			shutdownComplete = true;
+			completeShutdown();
+		} else {
+			// cancel all the tasks and let the latest task cleanup
+			for (TaskHandler<?> task : activeTasks) {
+				task.cancel(true);
+			}
+		}
+
 	}
 
 	@Override
@@ -371,7 +370,6 @@ public class HttpAsyncDownloader implements Downloader {
 			}
 			TaskHandler<T> handler = new TaskHandler<>(task, listener, retryHandler);
 			activeTasks.add(handler);
-			activeTasksCounter.getAndIncrement();
 			handler.start();
 			return handler.futuer;
 		} finally {
@@ -379,25 +377,17 @@ public class HttpAsyncDownloader implements Downloader {
 		}
 	}
 
-	private void asyncCompleteShutdown() {
-		Thread t = new Thread(new Runnable() {
+	private <T> DownloadTaskListener<T> nonNullDownloadListener(DownloadTaskListener<T> o) {
+		return o == null ? new NullDownloadTaskListener<T>() : o;
+	}
 
-			@Override
-			public void run() {
-				try {
-					httpClient.close();
-				} catch (IOException e) {
-					synchronized (System.err) {
-						System.err.println("Uncaught async shutdown exception:");
-						e.printStackTrace();
-					}
-				}
-				bootstrapPool = null;
-				httpClient = null;
-			}
-		});
-		t.setName("async-http-client-shutdown-thread");
-		t.start();
+	private void completeShutdown() {
+		try {
+			httpClient.close();
+		} catch (IOException e) {
+			LOGGER.error("an exception occurred during shutdown http client", e);
+		}
+		httpClient = null;
 	}
 
 }
