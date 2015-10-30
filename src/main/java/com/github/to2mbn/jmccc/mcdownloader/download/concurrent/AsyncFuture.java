@@ -57,7 +57,9 @@ public class AsyncFuture<T> implements Future<T>, AsyncCallback<T> {
 	@Override
 	public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
 		if (state == RUNNING) {
-			latch.await(timeout, unit);
+			if (!latch.await(timeout, unit)) {
+				throw new TimeoutException();
+			}
 		}
 		return getResult();
 	}
