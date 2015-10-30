@@ -63,11 +63,15 @@ public class Jmccc implements Launcher {
     @Override
     public Set<String> getVersions(MinecraftDirectory minecraftDir) {
         Objects.requireNonNull(minecraftDir);
-
         Set<String> versions = new HashSet<>();
-        for (File file : minecraftDir.getVersions().listFiles()) {
-            if (file.isDirectory() && doesVersionExists(minecraftDir, file.getName())) {
-                versions.add(file.getName());
+
+        // null if the 'versions' dir not exists
+        File[] subdirs = minecraftDir.getVersions().listFiles();
+        if (subdirs != null) {
+            for (File file : subdirs) {
+                if (file.isDirectory() && doesVersionExists(minecraftDir, file.getName())) {
+                    versions.add(file.getName());
+                }
             }
         }
         return versions;
