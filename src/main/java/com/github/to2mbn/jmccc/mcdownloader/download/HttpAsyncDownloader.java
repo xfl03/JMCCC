@@ -35,7 +35,7 @@ public class HttpAsyncDownloader implements Downloader {
 
 	private static final Log LOGGER = LogFactory.getLog(HttpAsyncDownloader.class);
 
-	private static class NullDownloadTaskListener<T> implements DownloadTaskListener<T> {
+	private static class NullDownloadCallback<T> implements DownloadCallback<T> {
 
 		@Override
 		public void done(T result) {
@@ -173,17 +173,17 @@ public class HttpAsyncDownloader implements Downloader {
 		AsyncFuture<T> futuer;
 		LifeCycleHandler<T> lifecycle;
 		DownloadSession<T> session;
-		DownloadTaskListener<T> listener;
+		DownloadCallback<T> callback;
 		Future<T> downloadFuture;
 		RetryHandler retryHandler;
 		volatile boolean cancelled;
 		volatile boolean mayInterruptIfRunning;
 
-		TaskHandler(DownloadTask<T> task, DownloadTaskListener<T> listener, RetryHandler retryHandler) {
+		TaskHandler(DownloadTask<T> task, DownloadCallback<T> callback, RetryHandler retryHandler) {
 			this.task = task;
-			this.listener = listener;
+			this.callback = callback;
 			this.futuer = new AsyncFuture<>(this);
-			this.lifecycle = new LifeCycleHandler<>(AsyncCallbackGroup.group(new Inactiver(), futuer, listener));
+			this.lifecycle = new LifeCycleHandler<>(AsyncCallbackGroup.group(new Inactiver(), futuer, callback));
 			this.retryHandler = retryHandler;
 		}
 
@@ -214,7 +214,7 @@ public class HttpAsyncDownloader implements Downloader {
 							}
 							received += buf.remaining();
 							session.receiveData(buf);
-							listener.updateProgress(received, contextLength);
+							callback.updateProgress(received, contextLength);
 						}
 
 						@Override
@@ -285,11 +285,11 @@ public class HttpAsyncDownloader implements Downloader {
 
 	private class RetryHandlerImpl implements RetryHandler {
 
-		DownloadTaskListener<?> proxied;
+		DownloadCallback<?> proxied;
 		int max;
 		int current = 1;
 
-		RetryHandlerImpl(DownloadTaskListener<?> proxied, int max) {
+		RetryHandlerImpl(DownloadCallback<?> proxied, int max) {
 			this.proxied = proxied;
 			this.max = max;
 		}
@@ -320,14 +320,14 @@ public class HttpAsyncDownloader implements Downloader {
 	}
 
 	@Override
-	public <T> Future<T> download(DownloadTask<T> task, DownloadTaskListener<T> listener) {
-		return download0(task, nonNullDownloadListener(listener), null);
+	public <T> Future<T> download(DownloadTask<T> task, DownloadCallback<T> callback) {
+		return download0(task, nonNullDownloadListener(callback), null);
 	}
 
 	@Override
-	public <T> Future<T> download(DownloadTask<T> task, DownloadTaskListener<T> listener, int tries) {
-		listener = nonNullDownloadListener(listener);
-		return download0(task, listener, new RetryHandlerImpl(listener, tries));
+	public <T> Future<T> download(DownloadTask<T> task, DownloadCallback<T> callback, int tries) {
+		callback = nonNullDownloadListener(callback);
+		return download0(task, callback, new RetryHandlerImpl(callback, tries));
 	}
 
 	@Override
@@ -361,14 +361,14 @@ public class HttpAsyncDownloader implements Downloader {
 		return shutdown;
 	}
 
-	private <T> Future<T> download0(DownloadTask<T> task, DownloadTaskListener<T> listener, RetryHandler retryHandler) {
+	private <T> Future<T> download0(DownloadTask<T> task, DownloadCallback<T> callback, RetryHandler retryHandler) {
 		Lock lock = shutdownLock.readLock();
 		lock.lock();
 		try {
 			if (shutdown) {
 				throw new RejectedExecutionException("already shutdown");
 			}
-			TaskHandler<T> handler = new TaskHandler<>(task, listener, retryHandler);
+			TaskHandler<T> handler = new TaskHandler<>(task, callback, retryHandler);
 			activeTasks.add(handler);
 			handler.start();
 			return handler.futuer;
@@ -377,8 +377,8 @@ public class HttpAsyncDownloader implements Downloader {
 		}
 	}
 
-	private <T> DownloadTaskListener<T> nonNullDownloadListener(DownloadTaskListener<T> o) {
-		return o == null ? new NullDownloadTaskListener<T>() : o;
+	private <T> DownloadCallback<T> nonNullDownloadListener(DownloadCallback<T> o) {
+		return o == null ? new NullDownloadCallback<T>() : o;
 	}
 
 	private void completeShutdown() {

@@ -12,12 +12,12 @@ public interface Downloader extends Shutdownable {
 	 * The task won't be retried if the download failed.
 	 * 
 	 * @param task the download task
-	 * @param listener download callback
+	 * @param callback download callback
 	 * @return future representing pending completion of the download
 	 * @throws NullPointerException <code>task == null</code>
 	 * @throws RejectedExecutionException if the downloader has been shutdown
 	 */
-	<T> Future<T> download(DownloadTask<T> task, DownloadTaskListener<T> listener);
+	<T> Future<T> download(DownloadTask<T> task, DownloadCallback<T> callback);
 
 	/**
 	 * Submits a download task asynchronously.
@@ -27,13 +27,13 @@ public interface Downloader extends Shutdownable {
 	 * (try 1 time, retry 0 time); If <code>tries==5</code>, the download be retry at most 4 times.
 	 * 
 	 * @param task the download task
-	 * @param listener download callback
+	 * @param callback download callback
 	 * @param tries the max number of tries
 	 * @return future representing pending completion of the download
 	 * @throws NullPointerException <code>task == null</code>
 	 * @throws IllegalArgumentException if <code>tries < 1</code>
 	 * @throws RejectedExecutionException if the downloader has been shutdown
 	 */
-	<T> Future<T> download(DownloadTask<T> task, DownloadTaskListener<T> listener, int tries);
+	<T> Future<T> download(DownloadTask<T> task, DownloadCallback<T> callback, int tries);
 
 }

@@ -2,7 +2,7 @@ package com.github.to2mbn.jmccc.mcdownloader.download;
 
 import com.github.to2mbn.jmccc.mcdownloader.download.concurrent.AsyncCallback;
 
-public interface DownloadTaskListener<T> extends AsyncCallback<T> {
+public interface DownloadCallback<T> extends AsyncCallback<T> {
 
 	/**
 	 * Calls when the progress of the download operation has been updated.
