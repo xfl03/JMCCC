@@ -13,6 +13,7 @@ public interface Downloader extends Shutdownable {
 	 * 
 	 * @param task the download task
 	 * @param callback download callback
+	 * @param <T> the result of the task
 	 * @return future representing pending completion of the download
 	 * @throws NullPointerException <code>task == null</code>
 	 * @throws RejectedExecutionException if the downloader has been shutdown
@@ -29,9 +30,10 @@ public interface Downloader extends Shutdownable {
 	 * @param task the download task
 	 * @param callback download callback
 	 * @param tries the max number of tries
+	 * @param <T> the result of the task
 	 * @return future representing pending completion of the download
 	 * @throws NullPointerException <code>task == null</code>
-	 * @throws IllegalArgumentException if <code>tries < 1</code>
+	 * @throws IllegalArgumentException if <code>tries &lt; 1</code>
 	 * @throws RejectedExecutionException if the downloader has been shutdown
 	 */
 	<T> Future<T> download(DownloadTask<T> task, DownloadCallback<T> callback, int tries);

@@ -16,7 +16,7 @@ public class RemoteVersion {
 	 * @param updateTime the update time
 	 * @param releaseTime the release time
 	 * @param type the version type
-	 * @throws NullPointerException if <code>version==null<code>
+	 * @throws NullPointerException if <code>version==null</code>
 	 */
 	public RemoteVersion(String version, String updateTime, String releaseTime, String type) {
 		Objects.requireNonNull(version);
