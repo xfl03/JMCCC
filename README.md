@@ -1,2 +1,2 @@
 # jmccc-mcdownloader
-Minecraft Game&amp;Assets Downloader Library for JMCCC
+Minecraft Downloader Library for JMCCC
