@@ -14,7 +14,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import org.json.JSONException;
 import com.github.to2mbn.jmccc.Launcher;
 import com.github.to2mbn.jmccc.auth.AuthInfo;
 import com.github.to2mbn.jmccc.exec.DaemonStreamPumpMonitor;
@@ -22,10 +21,8 @@ import com.github.to2mbn.jmccc.exec.LoggingMonitor;
 import com.github.to2mbn.jmccc.exec.GameProcessListener;
 import com.github.to2mbn.jmccc.exec.ProcessMonitor;
 import com.github.to2mbn.jmccc.option.LaunchOption;
-import com.github.to2mbn.jmccc.option.MinecraftDirectory;
 import com.github.to2mbn.jmccc.version.Library;
 import com.github.to2mbn.jmccc.version.Native;
-import com.github.to2mbn.jmccc.version.Version;
 
 public class Jmccc implements Launcher {
 
@@ -38,7 +35,8 @@ public class Jmccc implements Launcher {
         return new Jmccc();
     }
 
-    private VersionParser versionParser = new VersionParser();
+    private Jmccc() {
+    }
 
     @Override
     public LaunchResult launch(LaunchOption option) throws LaunchException {
@@ -47,43 +45,8 @@ public class Jmccc implements Launcher {
     }
 
     @Override
-    public Version getVersion(MinecraftDirectory minecraftDir, String version) throws JSONException, IOException {
-        Objects.requireNonNull(minecraftDir);
-        if (version == null) {
-            return null;
-        }
-
-        if (doesVersionExists(minecraftDir, version)) {
-            return versionParser.parse(minecraftDir, version);
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public Set<String> getVersions(MinecraftDirectory minecraftDir) {
-        Objects.requireNonNull(minecraftDir);
-        Set<String> versions = new HashSet<>();
-
-        // null if the 'versions' dir not exists
-        File[] subdirs = minecraftDir.getVersions().listFiles();
-        if (subdirs != null) {
-            for (File file : subdirs) {
-                if (file.isDirectory() && doesVersionExists(minecraftDir, file.getName())) {
-                    versions.add(file.getName());
-                }
-            }
-        }
-        return versions;
-    }
-
-    @Override
     public LaunchResult launch(LaunchOption option, GameProcessListener listener) throws LaunchException {
         return launch(generateLaunchArgs(option), listener);
-    }
-
-    private boolean doesVersionExists(MinecraftDirectory minecraftDir, String version) {
-        return minecraftDir.getVersionJson(version).isFile();
     }
 
     private LaunchResult launch(LaunchArgument arg, GameProcessListener listener) throws LaunchException {

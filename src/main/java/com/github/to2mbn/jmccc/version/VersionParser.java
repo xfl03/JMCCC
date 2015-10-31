@@ -1,4 +1,4 @@
-package com.github.to2mbn.jmccc.launch;
+package com.github.to2mbn.jmccc.version;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -15,9 +15,6 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 import com.github.to2mbn.jmccc.option.MinecraftDirectory;
 import com.github.to2mbn.jmccc.util.Platform;
-import com.github.to2mbn.jmccc.version.Library;
-import com.github.to2mbn.jmccc.version.Native;
-import com.github.to2mbn.jmccc.version.Version;
 
 class VersionParser {
 

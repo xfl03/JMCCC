@@ -1,16 +1,11 @@
 package com.github.to2mbn.jmccc;
 
-import java.io.IOException;
-import java.util.Set;
-import org.json.JSONException;
 import com.github.to2mbn.jmccc.exec.GameProcessListener;
 import com.github.to2mbn.jmccc.exec.ProcessMonitor;
 import com.github.to2mbn.jmccc.launch.Jmccc;
 import com.github.to2mbn.jmccc.launch.LaunchException;
 import com.github.to2mbn.jmccc.launch.LaunchResult;
 import com.github.to2mbn.jmccc.option.LaunchOption;
-import com.github.to2mbn.jmccc.option.MinecraftDirectory;
-import com.github.to2mbn.jmccc.version.Version;
 
 /**
  * A <code>Launcher</code> is used to launch minecraft.<br>
@@ -57,31 +52,5 @@ public interface Launcher {
      * @see LaunchException
      */
     LaunchResult launch(LaunchOption option, GameProcessListener listener) throws LaunchException;
-
-    /**
-     * Gets the Version object of the given version in the given minecraft directory.
-     * 
-     * @param minecraftDir the minecraft directory
-     * @param version the version name
-     * @return the Version object, null if <code>version==null</code>, or the version does not exist
-     * @throws IOException if an I/O exception has occurred during resolving version
-     * @throws JSONException if an JSON syntax exception has occurred during resolving version json
-     * @throws NullPointerException if <code>minecraftDir==null</code>
-     * @see Version
-     * @see Launcher#getVersions(MinecraftDirectory)
-     */
-    Version getVersion(MinecraftDirectory minecraftDir, String version) throws JSONException, IOException;
-
-    /**
-     * Gets the names of the versions in the given minecraft directory.
-     * <p>
-     * This method returns a non-threaded safe, unordered set.
-     * 
-     * @param minecraftDir the minecraft directory
-     * @return a set of the names of the versions in the given .minecraft dir
-     * @throws NullPointerException if <code>minecraftDir==null</code>
-     * @see Launcher#getVersion(MinecraftDirectory, String)
-     */
-    Set<String> getVersions(MinecraftDirectory minecraftDir);
 
 }
