@@ -22,7 +22,7 @@ The snapshot repository:
 
 ### Compile
 ```
-mvn clean install
+mvn clean package
 ```
 
 ### Examples
@@ -55,14 +55,13 @@ See JavaDoc for more usages.
 
 ### Yggdrasil Auth
 If you are looking for Yggdrasil auth, please see [jmccc-jyal-authenticator](https://github.com/to2mbn/jmccc-jyal-authenticator).
-We splitted yggdrasil auth into another repo since 2.1.
 
 ### Forge
 JMCCC won't add fml options (such as `-Dfml.ignoreInvalidMinecraftCertificates=true` and `-Dfml.ignorePatchDiscrepancies=true`) to the command line automatically.
 If you have problems launching forge, you may need to add these arguments manually.
-These arguments are already defined in `ExtraArgumentsTempletes`.
+These arguments are already defined in `ExtraArgumentsTemplates`.
 ```java
-option.setExtraArguments(Arrays.asList(ExtraArgumentsTempletes.FML_IGNORE_INVALID_MINECRAFT_CERTIFICATES, ExtraArgumentsTempletes.FML_IGNORE_PATCH_DISCREPANCISE));
+option.setExtraArguments(Arrays.asList(ExtraArgumentsTemplates.FML_IGNORE_INVALID_MINECRAFT_CERTIFICATES, ExtraArgumentsTemplates.FML_IGNORE_PATCH_DISCREPANCISE));
 ```
 
 ### Change Logs
