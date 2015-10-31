@@ -98,14 +98,15 @@ class LaunchArgument {
         if (launchOption.getWindowSize() != null) {
             if (launchOption.getWindowSize().isFullScreen()) {
                 args.add("--fullscreen");
-            }
-            if (launchOption.getWindowSize().getHeight() != 0) {
-                args.add("--height");
-                args.add(String.valueOf(launchOption.getWindowSize().getHeight()));
-            }
-            if (launchOption.getWindowSize().getWidth() != 0) {
-                args.add("--width");
-                args.add(String.valueOf(launchOption.getWindowSize().getWidth()));
+            } else {
+                if (launchOption.getWindowSize().getHeight() != 0) {
+                    args.add("--height");
+                    args.add(String.valueOf(launchOption.getWindowSize().getHeight()));
+                }
+                if (launchOption.getWindowSize().getWidth() != 0) {
+                    args.add("--width");
+                    args.add(String.valueOf(launchOption.getWindowSize().getWidth()));
+                }
             }
         }
 
