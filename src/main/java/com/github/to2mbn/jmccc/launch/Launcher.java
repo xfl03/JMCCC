@@ -1,15 +1,12 @@
-package com.github.to2mbn.jmccc;
+package com.github.to2mbn.jmccc.launch;
 
 import com.github.to2mbn.jmccc.exec.GameProcessListener;
 import com.github.to2mbn.jmccc.exec.ProcessMonitor;
-import com.github.to2mbn.jmccc.launch.Jmccc;
-import com.github.to2mbn.jmccc.launch.LaunchException;
-import com.github.to2mbn.jmccc.launch.LaunchResult;
 import com.github.to2mbn.jmccc.option.LaunchOption;
 
 /**
  * A <code>Launcher</code> is used to launch minecraft.<br>
- * You can use {@link Jmccc#getLauncher()} to get a Launcher object.
+ * You can use {@link Jmccc#getLauncher()} to get a launcher object.
  */
 public interface Launcher {
 
@@ -33,11 +30,11 @@ public interface Launcher {
     /**
      * Launches the game with the given option.<br>
      * If <code>listener!=null</code>, we will create a group of non-daemon threads to receive the logs from the
-     * subprocess and reported them to the given listener.
+     * subprocess and report them to the given listener.
      * Else if <code>listener==null</code>, we will create a group of daemon threads to pump the stdout and stderr of
      * the sub process.
      * <p>
-     * We recommend you NOT to call {@link ProcessMonitor#stop()} unless you are going to exit the and
+     * We recommend you NOT to call {@link ProcessMonitor#stop()} unless you are going to exit the jvm and
      * <code>listener!=null</code>. This may cause subprocess blocks and it's not always effective.
      * 
      * @param option the launching option

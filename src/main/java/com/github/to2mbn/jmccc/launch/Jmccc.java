@@ -14,7 +14,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import com.github.to2mbn.jmccc.Launcher;
 import com.github.to2mbn.jmccc.auth.AuthInfo;
 import com.github.to2mbn.jmccc.exec.DaemonStreamPumpMonitor;
 import com.github.to2mbn.jmccc.exec.LoggingMonitor;
