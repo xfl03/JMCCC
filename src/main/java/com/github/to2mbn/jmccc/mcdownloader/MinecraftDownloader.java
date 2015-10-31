@@ -27,6 +27,7 @@ public interface MinecraftDownloader extends Shutdownable {
 	 * 
 	 * @param callback the callback
 	 * @return future representing pending completion of the operation
+	 * @throws RejectedExecutionException if the downloader has been shutdown
 	 */
 	Future<RemoteVersionList> fetchRemoteVersionList(MultipleDownloadCallback<RemoteVersionList> callback);
 
