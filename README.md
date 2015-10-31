@@ -29,7 +29,7 @@ mvn clean install
 ```java
 MinecraftDirectory dir = new MinecraftDirectory("/home/user/.minecraft");
 Launcher launcher = Jmccc.getLauncher();
-launcher.launch(new LaunchOption(launcher.getVersion(dir, "1.8"), new OfflineAuthenticator("user"), dir), new GameProcessListener() {
+launcher.launch(new LaunchOption(Versions.resolveVersion(dir, "1.8"), new OfflineAuthenticator("user"), dir), new GameProcessListener() {
 
     @Override
     public void onLog(String log) {
