@@ -14,9 +14,9 @@ public class AsyncFuture<T> implements Future<T>, AsyncCallback<T> {
 	private static final int FAILED = 2;
 	private static final int CANCELLED = 3;
 
-	private int state = RUNNING;
-	private Throwable e;
-	private T result;
+	private volatile int state = RUNNING;
+	private volatile Throwable e;
+	private volatile T result;
 	private CountDownLatch latch = new CountDownLatch(1);
 	private Cancellable cancellable;
 
