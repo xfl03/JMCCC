@@ -15,7 +15,6 @@ The snapshot repository:
 	</snapshots>
 </repository>
 ```
-Or see [Jenkins](http://ci.infinity-studio.org/job/JMCCC/).
 
 
 ### Dependencies
