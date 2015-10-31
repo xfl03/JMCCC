@@ -19,6 +19,7 @@ public class AsyncFuture<T> implements Future<T>, AsyncCallback<T> {
 	private volatile T result;
 	private CountDownLatch latch = new CountDownLatch(1);
 	private Cancellable cancellable;
+	private Object stateLock = new Object();
 
 	public AsyncFuture() {
 		this(null);
@@ -66,24 +67,30 @@ public class AsyncFuture<T> implements Future<T>, AsyncCallback<T> {
 
 	@Override
 	public void done(T result) {
-		checkUpdateState();
-		this.result = result;
-		state = DONE;
+		synchronized (stateLock) {
+			checkUpdateState();
+			this.result = result;
+			state = DONE;
+		}
 		terminated();
 	}
 
 	@Override
 	public void failed(Throwable e) {
-		checkUpdateState();
-		this.e = e;
-		state = FAILED;
+		synchronized (stateLock) {
+			checkUpdateState();
+			this.e = e;
+			state = FAILED;
+		}
 		terminated();
 	}
 
 	@Override
 	public void cancelled() {
-		checkUpdateState();
-		state = CANCELLED;
+		synchronized (stateLock) {
+			checkUpdateState();
+			state = CANCELLED;
+		}
 		terminated();
 	}
 
