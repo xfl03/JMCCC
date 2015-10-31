@@ -306,9 +306,9 @@ public class HttpAsyncDownloader implements DownloaderService {
 	// lock for shutdown, shutdownComplete, activeTasks
 	private ReadWriteLock shutdownLock = new ReentrantReadWriteLock();
 
-	public HttpAsyncDownloader(CloseableHttpAsyncClient httpClient,ExecutorService bootstrapPool) {
-		this.httpClient=httpClient;
-		this.bootstrapPool=bootstrapPool;
+	public HttpAsyncDownloader(CloseableHttpAsyncClient httpClient, ExecutorService bootstrapPool) {
+		this.httpClient = httpClient;
+		this.bootstrapPool = bootstrapPool;
 		httpClient.start();
 	}
 
@@ -325,28 +325,29 @@ public class HttpAsyncDownloader implements DownloaderService {
 
 	@Override
 	public void shutdown() {
-		Lock lock = shutdownLock.writeLock();
-		lock.lock();
-		try {
-			shutdown = true;
-		} finally {
-			lock.unlock();
-		}
+		if (!shutdown) {
+			Lock lock = shutdownLock.writeLock();
+			lock.lock();
+			try {
+				shutdown = true;
+			} finally {
+				lock.unlock();
+			}
 
-		bootstrapPool.shutdown();
-		bootstrapPool = null;
+			bootstrapPool.shutdown();
+			bootstrapPool = null;
 
-		if (activeTasks.isEmpty()) {
-			// cleanup in current thread
-			shutdownComplete = true;
-			completeShutdown();
-		} else {
-			// cancel all the tasks and let the latest task cleanup
-			for (TaskHandler<?> task : activeTasks) {
-				task.cancel(true);
+			if (activeTasks.isEmpty()) {
+				// cleanup in current thread
+				shutdownComplete = true;
+				completeShutdown();
+			} else {
+				// cancel all the tasks and let the latest task cleanup
+				for (TaskHandler<?> task : activeTasks) {
+					task.cancel(true);
+				}
 			}
 		}
-
 	}
 
 	@Override
