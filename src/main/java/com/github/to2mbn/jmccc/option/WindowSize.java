@@ -5,6 +5,27 @@ import java.util.Objects;
 
 public class WindowSize implements Serializable {
 
+    /**
+     * A factory method for creating fullscreen WindowSize. Returns a fullscreen WindowSize.
+     * 
+     * @return a fullscreen WindowSize
+     */
+    public static WindowSize fullscreen() {
+        return new WindowSize();
+    }
+
+    /**
+     * A factory method for creating non-fullscreen WindowSize. Returns a WindowSize with the given height and width.
+     * 
+     * @param width the width
+     * @param height the height
+     * @return a WindowSize with the given height and width
+     * @throws IllegalArgumentException if <code>width&lt;0||height&lt;0</code>
+     */
+    public static WindowSize window(int width, int height) {
+        return new WindowSize(width, height);
+    }
+
     private static final long serialVersionUID = 1L;
 
     /**
