@@ -33,7 +33,6 @@ class VersionParser {
 
         String jarPath;
 
-        // used to handle Forge, Liteloader......
         if (json.has("inheritsFrom")) {
             String inheritsFrom;
             String inheritsJar;

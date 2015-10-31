@@ -8,66 +8,66 @@ public class ServerInfo implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * The address of the server, cannot be null
+     * The host, cannot be null
      */
-    private String address;
+    private String host;
 
     /**
-     * The port of the server, default to 25565
+     * The port, default to 25565
      */
     private int port;
 
     /**
-     * Creates a ServerInfo with the given address and default port 25565
+     * Creates a ServerInfo with the given host and default port 25565.
      * 
-     * @param address the address of the server
-     * @throws NullPointerException if <code>address==null</code>
+     * @param host the host of the server
+     * @throws NullPointerException if <code>host==null</code>
      */
-    public ServerInfo(String address) {
-        this(address, 25565);
+    public ServerInfo(String host) {
+        this(host, 25565);
     }
 
     /**
-     * Creates a ServerInfo with the given address and the given port
+     * Creates a ServerInfo with the given host and port.
      * 
-     * @param address the address of the server
-     * @param port the port of the server
-     * @throws NullPointerException if <code>address==null</code>
+     * @param host the host
+     * @param port the port
+     * @throws NullPointerException if <code>host==null</code>
      * @throws IllegalArgumentException if <code>port&lt;0</code>
      */
-    public ServerInfo(String address, int port) {
-        Objects.requireNonNull(address);
+    public ServerInfo(String host, int port) {
+        Objects.requireNonNull(host);
         if (port < 0) {
             throw new IllegalArgumentException("port<0");
         }
 
-        this.address = address;
+        this.host = host;
         this.port = port;
     }
 
     /**
-     * Gets the server address
+     * Gets the host.
      * 
-     * @return the address
+     * @return the host
      */
-    public String getAddress() {
-        return address;
+    public String getHost() {
+        return host;
     }
 
     /**
-     * Sets the server address
+     * Sets the host.
      * 
-     * @param address the address to set
-     * @throws NullPointerException if <code>address==null</code>
+     * @param host the host to set
+     * @throws NullPointerException if <code>host==null</code>
      */
-    public void setAddress(String address) {
-        Objects.requireNonNull(address);
-        this.address = address;
+    public void setHost(String host) {
+        Objects.requireNonNull(host);
+        this.host = host;
     }
 
     @Override
     public String toString() {
-        return address + ':' + port;
+        return host + ':' + port;
     }
 
     /**
@@ -80,7 +80,7 @@ public class ServerInfo implements Serializable {
     }
 
     /**
-     * Sets the server port
+     * Sets the port.
      * 
      * @param port the port to set
      * @throws IllegalArgumentException if <code>port&lt;0</code>
@@ -100,14 +100,14 @@ public class ServerInfo implements Serializable {
         }
         if (obj instanceof ServerInfo) {
             ServerInfo another = (ServerInfo) obj;
-            return port == another.port && address.equals(another.address);
+            return port == another.port && host.equals(another.host);
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(address, port);
+        return Objects.hash(host, port);
     }
 
 }

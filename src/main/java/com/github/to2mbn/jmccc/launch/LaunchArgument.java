@@ -11,7 +11,7 @@ import com.github.to2mbn.jmccc.util.Platform;
 import com.github.to2mbn.jmccc.version.Version;
 
 /**
- * Used to generate launching command line.
+ * To generate launching command line.
  */
 class LaunchArgument {
 
@@ -33,7 +33,7 @@ class LaunchArgument {
         List<String> args = new ArrayList<>();
         Version version = launchOption.getVersion();
 
-        // java pach
+        // java path
         args.add(launchOption.getJavaOption().getJavaPath().toString());
 
         // cgc
@@ -80,13 +80,13 @@ class LaunchArgument {
         // main class
         args.add(version.getMainClass());
 
-        // templete arguments
+        // template arguments
         args.addAll(getFormattedTokens());
 
         // server
-        if (launchOption.getServerInfo() != null && launchOption.getServerInfo().getAddress() != null && !launchOption.getServerInfo().getAddress().equals("")) {
+        if (launchOption.getServerInfo() != null && launchOption.getServerInfo().getHost() != null && !launchOption.getServerInfo().getHost().equals("")) {
             args.add("--server");
-            args.add(launchOption.getServerInfo().getAddress());
+            args.add(launchOption.getServerInfo().getHost());
 
             if (launchOption.getServerInfo().getPort() == 0) {
                 args.add("--port");
@@ -96,7 +96,7 @@ class LaunchArgument {
 
         // window size settings
         if (launchOption.getWindowSize() != null) {
-            if (launchOption.getWindowSize().isFullSize()) {
+            if (launchOption.getWindowSize().isFullScreen()) {
                 args.add("--fullscreen");
             }
             if (launchOption.getWindowSize().getHeight() != 0) {

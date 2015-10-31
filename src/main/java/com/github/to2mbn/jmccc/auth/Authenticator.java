@@ -10,6 +10,6 @@ public interface Authenticator {
      * @return the authentication
      * @throws AuthenticationException if an exception has occurred during authentication
      */
-    AuthResult auth() throws AuthenticationException;
+    AuthInfo auth() throws AuthenticationException;
 
 }

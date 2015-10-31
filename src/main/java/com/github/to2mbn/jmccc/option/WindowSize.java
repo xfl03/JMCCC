@@ -8,29 +8,29 @@ public class WindowSize implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * Ture if game window is fullsize
+     * True if the window is fullscreen
      */
-    private boolean fullSize;
+    private boolean fullscreen;
 
     /**
-     * Width of game window, default to 0
+     * Width of the window, default to 0
      */
     private int width;
 
     /**
-     * Height of game window, default to 0
+     * Height of the window, default to 0
      */
     private int height;
 
     /**
-     * Creates a fullsize WindowSize.
+     * Creates a full-screen WindowSize.
      */
     public WindowSize() {
-        this.fullSize = true;
+        this.fullscreen = true;
     }
 
     /**
-     * Creates a WindowSize with given height and width.
+     * Creates a WindowSize with the given height and width.
      * 
      * @param width the width
      * @param height the height
@@ -41,31 +41,31 @@ public class WindowSize implements Serializable {
             throw new IllegalArgumentException("width<0||height<0");
         }
 
-        this.fullSize = false;
+        this.fullscreen = false;
         this.width = width;
         this.height = height;
     }
 
     /**
-     * Returns ture if game window is fullsize.
+     * Returns true if the window is fullscreen.
      * 
-     * @return ture if game window is fullsize
+     * @return true if the window is fullscreen
      */
-    public boolean isFullSize() {
-        return fullSize;
+    public boolean isFullScreen() {
+        return fullscreen;
     }
 
     /**
-     * Sets the fullSize.
+     * Sets the window size to fullscreen or not.
      * 
-     * @param fullSize true to set the game window to fullsize
+     * @param fullscreen true to set the window to fullscreen
      */
-    public void setFullSize(boolean fullSize) {
-        this.fullSize = fullSize;
+    public void setFullScreen(boolean fullscreen) {
+        this.fullscreen = fullscreen;
     }
 
     /**
-     * Gets the width
+     * Gets the width.
      * 
      * @return the width
      */
@@ -112,7 +112,7 @@ public class WindowSize implements Serializable {
 
     @Override
     public String toString() {
-        return fullSize ? "Fullsize" : String.valueOf(width) + 'x' + String.valueOf(height);
+        return fullscreen ? "Fullscreen" : String.valueOf(width) + 'x' + String.valueOf(height);
     }
 
     @Override
@@ -122,14 +122,14 @@ public class WindowSize implements Serializable {
         }
         if (obj instanceof WindowSize) {
             WindowSize another = (WindowSize) obj;
-            return (fullSize == another.fullSize) || (width == another.width && height == another.height);
+            return (fullscreen == another.fullscreen) || (width == another.width && height == another.height);
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return fullSize ? 1 : Objects.hash(width, height);
+        return fullscreen ? 1 : Objects.hash(width, height);
     }
 
 }

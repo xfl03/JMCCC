@@ -29,9 +29,9 @@ public class OfflineAuthenticator implements Authenticator, Serializable {
     }
 
     @Override
-    public AuthResult auth() throws AuthenticationException {
+    public AuthInfo auth() throws AuthenticationException {
         try {
-            return new AuthResult(playerName, unsign(UUID.randomUUID()), unsign(generateUUID()), "{}", "mojang");
+            return new AuthInfo(playerName, unsign(UUID.randomUUID()), unsign(generateUUID()), "{}", "mojang");
         } catch (UnsupportedEncodingException e) {
             throw new AuthenticationException("UTF-8 is not supported", e);
         }

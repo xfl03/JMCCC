@@ -16,7 +16,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import org.json.JSONException;
 import com.github.to2mbn.jmccc.Launcher;
-import com.github.to2mbn.jmccc.auth.AuthResult;
+import com.github.to2mbn.jmccc.auth.AuthInfo;
 import com.github.to2mbn.jmccc.exec.DaemonStreamPumpMonitor;
 import com.github.to2mbn.jmccc.exec.LoggingMonitor;
 import com.github.to2mbn.jmccc.exec.GameProcessListener;
@@ -131,7 +131,7 @@ public class Jmccc implements Launcher {
             }
         }
 
-        AuthResult auth = option.getAuthenticator().auth();
+        AuthInfo auth = option.getAuthenticator().auth();
 
         Map<String, String> tokens = new HashMap<String, String>();
         tokens.put("auth_access_token", auth.getToken());

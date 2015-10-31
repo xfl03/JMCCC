@@ -3,7 +3,7 @@ package com.github.to2mbn.jmccc.auth;
 import java.io.Serializable;
 import java.util.Objects;
 
-public class AuthResult implements Serializable {
+public class AuthInfo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -14,7 +14,7 @@ public class AuthResult implements Serializable {
     private String userType;
 
     /**
-     * Creates an AuthResult.
+     * Creates an AuthInfo.
      * 
      * @param username the username
      * @param token the access token
@@ -24,7 +24,7 @@ public class AuthResult implements Serializable {
      * @throws NullPointerException if
      *             <code>username==null||token==null||uuid==null||properties==null||userType==null</code>
      */
-    public AuthResult(String username, String token, String uuid, String properties, String userType) {
+    public AuthInfo(String username, String token, String uuid, String properties, String userType) {
         Objects.requireNonNull(username);
         Objects.requireNonNull(uuid);
         Objects.requireNonNull(token);
@@ -93,8 +93,8 @@ public class AuthResult implements Serializable {
         if (obj == this) {
             return true;
         }
-        if (obj instanceof AuthResult) {
-            AuthResult another = (AuthResult) obj;
+        if (obj instanceof AuthInfo) {
+            AuthInfo another = (AuthInfo) obj;
             return username.equals(another.username) && token.equals(another.token) && uuid.equals(another.uuid) && properties.equals(another.properties) && userType.equals(another.userType);
         }
         return false;

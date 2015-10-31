@@ -57,7 +57,7 @@ public class LaunchOption implements Serializable {
     private MinecraftDirectory minecraftDirectory;
 
     /**
-     * The extra arguments to append to the command line, defualt to null
+     * The extra arguments to append to the command line, default to null
      */
     private List<String> extraArguments;
 

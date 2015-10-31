@@ -3,14 +3,14 @@ package com.github.to2mbn.jmccc.exec;
 public interface GameProcessListener {
 
     /**
-     * Calls when recieves a log from stdout.
+     * Calls when receives a log from stdout.
      * 
      * @param log the log
      */
     void onLog(String log);
 
     /**
-     * Calls when recieves a log from stderr
+     * Calls when receives a log from stderr
      * 
      * @param log the log
      */
