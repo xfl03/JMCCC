@@ -11,7 +11,7 @@ public interface MinecraftDownloader extends Shutdownable {
 	/**
 	 * Downloads a minecraft version incrementally and asynchronously.
 	 * <p>
-	 * This methods checks assets, libraries, game jars. And downloads the missing or broken files.
+	 * This method checks assets, libraries, game jars. And downloads the missing or broken files.
 	 * 
 	 * @param dir the minecraft dir
 	 * @param version the version to download
@@ -21,5 +21,13 @@ public interface MinecraftDownloader extends Shutdownable {
 	 * @throws RejectedExecutionException if the downloader has been shutdown
 	 */
 	Future<Object> downloadIncrementally(MinecraftDirectory dir, String version, MultipleDownloadCallback<Object> callback);
+
+	/**
+	 * Fetches the remote version list asynchronously.
+	 * 
+	 * @param callback the callback
+	 * @return future representing pending completion of the operation
+	 */
+	Future<RemoteVersionList> fetchRemoteVersionList(MultipleDownloadCallback<RemoteVersionList> callback);
 
 }
