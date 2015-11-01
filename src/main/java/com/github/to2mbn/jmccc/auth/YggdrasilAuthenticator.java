@@ -45,7 +45,7 @@ abstract public class YggdrasilAuthenticator implements Authenticator, Serializa
 	 * {@link #selectCharacter(GameProfile, GameProfile[])} will be called during the authentication.
 	 */
 	@Override
-	public AuthResult auth() throws AuthenticationException {
+	public AuthInfo auth() throws AuthenticationException {
 		Session session;
 		try {
 			session = createSession();
@@ -65,7 +65,7 @@ abstract public class YggdrasilAuthenticator implements Authenticator, Serializa
 			properties = new JSONObject(session.getUserProperties()).toString();
 		}
 
-		return new AuthResult(selected.getName(), session.getAccessToken(), UUIDUtils.unsign(selected.getUUID()), properties, session.getUserType().getName());
+		return new AuthInfo(selected.getName(), session.getAccessToken(), UUIDUtils.unsign(selected.getUUID()), properties, session.getUserType().getName());
 	}
 
 	/**
