@@ -13,7 +13,6 @@ The snapshot repository:
 	</snapshots>
 </repository>
 ```
-Or see [Jenkins](http://ci.infinity-studio.org/job/jmccc-jyal-authenticator/).
 
 ### Dependencies
 * jmccc
@@ -21,7 +20,7 @@ Or see [Jenkins](http://ci.infinity-studio.org/job/jmccc-jyal-authenticator/).
 
 ### Compile
 ```
-mvn clean install
+mvn clean package
 ```
 
 ### Usage
@@ -60,6 +59,8 @@ if (authenticator == null || !authenticator.isValid()) {
 	// ...... - ask user to login with password
 	authenticator = YggdrasilTokenAuthenticator.loginWithToken("<email>", "<password>");
 }
+
+// ...... - use the authenticator (such as launching minecraft)
 
 // store the token
 try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(passwordFile))) {

@@ -38,10 +38,6 @@
 			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 		</repository>
 	</distributionManagement>
-	<ciManagement>
-		<system>Jenkins</system>
-		<url>http://ci.infinity-studio.org/job/jmccc-jyal-authenticator/</url>
-	</ciManagement>
 	<developers>
 		<developer>
 			<email>yushijinhun@gmail.com</email>
