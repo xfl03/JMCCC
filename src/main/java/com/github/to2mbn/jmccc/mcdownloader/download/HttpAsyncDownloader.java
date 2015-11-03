@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.locks.Lock;
@@ -18,6 +18,7 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
+import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.nio.client.methods.AsyncByteConsumer;
 import org.apache.http.nio.client.methods.HttpAsyncMethods;
@@ -203,7 +204,7 @@ public class HttpAsyncDownloader implements DownloaderService {
 		}
 
 		void start() {
-			bootstrapPool.submit(this);
+			bootstrapPool.execute(this);
 		}
 
 		@Override
@@ -299,16 +300,16 @@ public class HttpAsyncDownloader implements DownloaderService {
 	}
 
 	private CloseableHttpAsyncClient httpClient;
-	private ExecutorService bootstrapPool;
+	private Executor bootstrapPool;
 	private volatile boolean shutdown = false;
 	private volatile boolean shutdownComplete = false;
 	private Set<TaskHandler<?>> activeTasks = Collections.newSetFromMap(new ConcurrentHashMap<TaskHandler<?>, Boolean>());
 	// lock for shutdown, shutdownComplete, activeTasks
 	private ReadWriteLock shutdownLock = new ReentrantReadWriteLock();
 
-	public HttpAsyncDownloader(CloseableHttpAsyncClient httpClient, ExecutorService bootstrapPool) {
-		this.httpClient = httpClient;
+	public HttpAsyncDownloader(HttpAsyncClientBuilder builder, Executor bootstrapPool) {
 		this.bootstrapPool = bootstrapPool;
+		httpClient = builder.build();
 		httpClient.start();
 	}
 
@@ -334,7 +335,6 @@ public class HttpAsyncDownloader implements DownloaderService {
 				lock.unlock();
 			}
 
-			bootstrapPool.shutdown();
 			bootstrapPool = null;
 
 			if (activeTasks.isEmpty()) {
