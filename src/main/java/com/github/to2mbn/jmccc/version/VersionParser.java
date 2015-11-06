@@ -23,7 +23,8 @@ class VersionParser {
 
         JSONObject json = readJson(minecraftDir.getVersionJson(name));
         String version = json.getString("id");
-        String assets = json.getString("assets");
+        // see https://github.com/to2mbn/JMCCC/issues/8
+        String assets = json.optString("assets", "legacy");
         String mainClass = json.getString("mainClass");
         String launchArgs = json.getString("minecraftArguments");
         loadDepends(json.getJSONArray("libraries"), libraries);
