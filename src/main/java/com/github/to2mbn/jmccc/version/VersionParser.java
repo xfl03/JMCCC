@@ -45,7 +45,7 @@ class VersionParser {
             jarPath = getVersionJarPath(name, version);
         }
 
-        return new Version(version, mainClass, assets, launchArgs, jarPath, libraries);
+        return new Version(version, mainClass, assets, launchArgs, jarPath, libraries, assets.equals("legacy"));
     }
 
     private void loadDepends(JSONArray librariesList, Collection<Library> libraries) {
