@@ -45,7 +45,10 @@ public class WindowSize implements Serializable {
 
     /**
      * Creates a full-screen WindowSize.
+     * 
+     * @deprecated This may cause ambiguity. Use {@link #fullscreen()}.
      */
+    @Deprecated
     public WindowSize() {
         this.fullscreen = true;
     }
