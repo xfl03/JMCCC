@@ -127,7 +127,7 @@ public class Jmccc implements Launcher {
         Set<Asset> assets = Versions.resolveAssets(mcdir, version.getAssets());
         if (assets != null) {
             for (Asset asset : assets) {
-                copyIfDifferent(new File(mcdir.getAssetObjects(), asset.getPath()), new File(mcdir.getVirtualLegacyAssets(), asset.getVirtualPath()));
+                copyFile(new File(mcdir.getAssetObjects(), asset.getPath()), new File(mcdir.getVirtualLegacyAssets(), asset.getVirtualPath()));
             }
         }
     }
@@ -198,26 +198,16 @@ public class Jmccc implements Launcher {
 
     }
 
-    private void copyIfDifferent(File src, File target) throws IOException {
-        boolean rebuild = true;
-
-        if (target.isFile() && target.length() == src.length()) {
-            // it's too slow to check the content
-            // just check the length
-            rebuild = false;
+    private void copyFile(File src, File target) throws IOException {
+        File parent = target.getParentFile();
+        if (!parent.exists()) {
+            parent.mkdirs();
         }
 
-        if (rebuild) {
-            File parent = target.getParentFile();
-            if (!parent.exists()) {
-                parent.mkdirs();
-            }
-
-            try (FileInputStream in = new FileInputStream(src); FileOutputStream out = new FileOutputStream(target)) {
-                FileChannel chin = in.getChannel();
-                FileChannel chout = out.getChannel();
-                chin.transferTo(0, chin.size(), chout);
-            }
+        try (FileInputStream in = new FileInputStream(src); FileOutputStream out = new FileOutputStream(target)) {
+            FileChannel chin = in.getChannel();
+            FileChannel chout = out.getChannel();
+            chin.transferTo(0, chin.size(), chout);
         }
     }
 
