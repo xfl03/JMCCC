@@ -27,6 +27,7 @@ public class Version implements Serializable {
      * @param launchArgs the launch arguments
      * @param jarPath the relative path of the jar file
      * @param libraries the libraries to add to classpath
+     * @param legacy true if this version is lower than 1.7.10, as well as using the legacy assets index
      * @throws NullPointerException if an argument == null
      */
     public Version(String version, String mainClass, String assets, String launchArgs, String jarPath, Set<Library> libraries, boolean legacy) {
@@ -66,8 +67,11 @@ public class Version implements Serializable {
 
     /**
      * Gets the assets index name.
+     * <p>
+     * Returns <code>"legacy"</code> if it's a legacy version.
      * 
      * @return the assets index name
+     * @see #isLegacy()
      */
     public String getAssets() {
         return assets;
