@@ -57,6 +57,11 @@ public class LaunchOption implements Serializable {
     private MinecraftDirectory minecraftDirectory;
 
     /**
+     * The game directory
+     */
+    private MinecraftDirectory gameDirectory;
+
+    /**
      * The extra arguments to append to the command line, default to null
      */
     private List<String> extraArguments;
@@ -104,6 +109,7 @@ public class LaunchOption implements Serializable {
         this.authenticator = authenticator;
         this.minecraftDirectory = minecraftDir;
         this.javaOption = javaOption;
+        this.gameDirectory = minecraftDir;
     }
 
     /**
@@ -240,6 +246,33 @@ public class LaunchOption implements Serializable {
      */
     public void setExtraArguments(List<String> extraArguments) {
         this.extraArguments = extraArguments;
+    }
+
+    /**
+     * Gets the game directory.
+     * <p>
+     * By default, <code>game directory</code> is the same as <code>minecraft directory</code>.
+     * <code>minecraft directory</code> contains libraries, versions, assets, and so on. <code>game directory</code>
+     * contains saves, resourcepacks, screenshots, and so on.<br>
+     * For example, if you want to execute different versions in their own directories (except versions, assets and
+     * libraries), you can set this to where you want.
+     * 
+     * @return the game directory
+     */
+    public MinecraftDirectory getGameDirectory() {
+        return gameDirectory;
+    }
+
+    /**
+     * Sets the game directory.
+     * 
+     * @param gameDirectory the game directory
+     * @throws NullPointerException <code>gameDirectory=null</code>
+     * @see #getGameDirectory()
+     */
+    public void setGameDirectory(MinecraftDirectory gameDirectory) {
+        Objects.requireNonNull(gameDirectory);
+        this.gameDirectory = gameDirectory;
     }
 
     @Override
