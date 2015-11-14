@@ -94,7 +94,7 @@ public class Jmccc implements Launcher {
                 try {
                     uncompressZipWithExcludes(libraryFile, nativesDir, ((Native) library).getExtractExcludes());
                 } catch (IOException e) {
-                    throw new UncompressException("Failed to uncompress " + libraryFile, e);
+                    throw new LaunchException("Failed to uncompress " + libraryFile, e);
                 }
             } else {
                 javaLibraries.add(libraryFile);
