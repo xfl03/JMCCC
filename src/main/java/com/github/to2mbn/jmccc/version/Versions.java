@@ -22,17 +22,15 @@ public final class Versions {
      * 
      * @param minecraftDir the minecraft directory
      * @param version the version name
-     * @return the version object, null if <code>version==null</code>, or the version does not exist
+     * @return the version object, null if the version does not exist
      * @throws IOException if an I/O error has occurred during resolving version
-     * @throws NullPointerException if <code>minecraftDir==null</code>
+     * @throws NullPointerException if <code>minecraftDir==null||version==null</code>
      */
     public static Version resolveVersion(MinecraftDirectory minecraftDir, String version) throws IOException {
         Objects.requireNonNull(minecraftDir);
-        if (version == null) {
-            return null;
-        }
+        Objects.requireNonNull(version);
 
-        if (doesVersionExists(minecraftDir, version)) {
+        if (doesVersionExist(minecraftDir, version)) {
             try {
                 return PARSER.parseVersion(minecraftDir, version);
             } catch (JSONException e) {
@@ -60,7 +58,7 @@ public final class Versions {
         File[] subdirs = minecraftDir.getVersions().listFiles();
         if (subdirs != null) {
             for (File file : subdirs) {
-                if (file.isDirectory() && doesVersionExists(minecraftDir, file.getName())) {
+                if (file.isDirectory() && doesVersionExist(minecraftDir, file.getName())) {
                     versions.add(file.getName());
                 }
             }
@@ -75,11 +73,12 @@ public final class Versions {
      * @param assets the name of the asset index, you can get this via {@link Version#getAssets()}
      * @return the asset index
      * @throws IOException if an I/O error has occurred during resolving asset index
-     * @throws NullPointerException <code>minecraftDir==null</code>
+     * @throws NullPointerException <code>minecraftDir==null||assets==null</code>
      */
     public static Set<Asset> resolveAssets(MinecraftDirectory minecraftDir, String assets) throws IOException {
         Objects.requireNonNull(minecraftDir);
-        if (assets == null || !minecraftDir.getAssetIndex(assets).isFile()) {
+        Objects.requireNonNull(assets);
+        if (!minecraftDir.getAssetIndex(assets).isFile()) {
             return null;
         }
 
@@ -90,7 +89,7 @@ public final class Versions {
         }
     }
 
-    private static boolean doesVersionExists(MinecraftDirectory minecraftDir, String version) {
+    private static boolean doesVersionExist(MinecraftDirectory minecraftDir, String version) {
         return minecraftDir.getVersionJson(version).isFile();
     }
 
