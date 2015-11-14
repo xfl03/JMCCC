@@ -77,16 +77,19 @@ public class Jmccc implements Launcher {
     }
 
     private LaunchArgument generateLaunchArgs(LaunchOption option) throws LaunchException {
+        MinecraftDirectory mcdir = option.getMinecraftDirectory();
+        Version version = option.getVersion();
+
         // check libraries
-        Set<Library> missing = option.getVersion().getMissingLibraries(option.getMinecraftDirectory());
+        Set<Library> missing = version.getMissingLibraries(mcdir);
         if (!missing.isEmpty()) {
             throw new MissingDependenciesException(missing.toString());
         }
 
         Set<File> javaLibraries = new HashSet<>();
-        File nativesDir = option.getMinecraftDirectory().getNatives(option.getVersion().getVersion());
-        for (Library library : option.getVersion().getLibraries()) {
-            File libraryFile = new File(option.getMinecraftDirectory().getLibraries(), library.getPath());
+        File nativesDir = mcdir.getNatives(version.getVersion());
+        for (Library library : version.getLibraries()) {
+            File libraryFile = new File(mcdir.getLibraries(), library.getPath());
             if (library instanceof Native) {
                 try {
                     uncompressZipWithExcludes(libraryFile, nativesDir, ((Native) library).getExtractExcludes());
@@ -98,9 +101,9 @@ public class Jmccc implements Launcher {
             }
         }
 
-        if (option.getVersion().isLegacy()) {
+        if (version.isLegacy()) {
             try {
-                buildLegacyAssets(option.getMinecraftDirectory(), option.getVersion());
+                buildLegacyAssets(mcdir, version);
             } catch (IOException e) {
                 throw new LaunchException("Failed to build virtual assets", e);
             }
@@ -109,17 +112,19 @@ public class Jmccc implements Launcher {
         AuthInfo auth = option.getAuthenticator().auth();
 
         Map<String, String> tokens = new HashMap<String, String>();
-        tokens.put("auth_access_token", auth.getToken());
-        tokens.put("auth_session", auth.getToken());
+        String token = auth.getToken();
+        String assetsDir = version.isLegacy() ? mcdir.getVirtualLegacyAssets().toString() : mcdir.getAssets().toString();
+        tokens.put("assets_root", assetsDir);
+        tokens.put("game_assets", assetsDir);
+        tokens.put("auth_access_token", token);
+        tokens.put("auth_session", token);
         tokens.put("auth_player_name", auth.getUsername());
-        tokens.put("version_name", option.getVersion().getVersion());
-        tokens.put("game_directory", option.getMinecraftDirectory().getRoot().toString());
-        tokens.put("assets_root", option.getVersion().isLegacy() ? option.getMinecraftDirectory().getVirtualLegacyAssets().toString() : option.getMinecraftDirectory().getAssets().toString());
-        tokens.put("game_assets", option.getVersion().isLegacy() ? option.getMinecraftDirectory().getVirtualLegacyAssets().toString() : option.getMinecraftDirectory().getAssets().toString());
-        tokens.put("assets_index_name", option.getVersion().getAssets());
         tokens.put("auth_uuid", auth.getUUID());
         tokens.put("user_type", auth.getUserType());
         tokens.put("user_properties", auth.getProperties());
+        tokens.put("version_name", version.getVersion());
+        tokens.put("assets_index_name", version.getAssets());
+        tokens.put("game_directory", mcdir.getRoot().toString());
         return new LaunchArgument(option, tokens, option.getExtraArguments(), javaLibraries, nativesDir);
     }
 
