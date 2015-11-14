@@ -57,7 +57,7 @@ public class Jmccc implements Launcher {
         Process process;
 
         ProcessBuilder processBuilder = new ProcessBuilder(arg.generateCommandline());
-        processBuilder.directory(arg.getLaunchOption().getMinecraftDirectory().getRoot());
+        processBuilder.directory(arg.getLaunchOption().getGameDirectory().getRoot());
 
         try {
             process = processBuilder.start();
