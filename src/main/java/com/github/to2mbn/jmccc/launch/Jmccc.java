@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.channels.FileChannel;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -20,8 +21,12 @@ import com.github.to2mbn.jmccc.exec.LoggingMonitor;
 import com.github.to2mbn.jmccc.exec.GameProcessListener;
 import com.github.to2mbn.jmccc.exec.ProcessMonitor;
 import com.github.to2mbn.jmccc.option.LaunchOption;
+import com.github.to2mbn.jmccc.option.MinecraftDirectory;
+import com.github.to2mbn.jmccc.version.Asset;
 import com.github.to2mbn.jmccc.version.Library;
 import com.github.to2mbn.jmccc.version.Native;
+import com.github.to2mbn.jmccc.version.Version;
+import com.github.to2mbn.jmccc.version.Versions;
 
 public class Jmccc implements Launcher {
 
@@ -93,6 +98,14 @@ public class Jmccc implements Launcher {
             }
         }
 
+        if (option.getVersion().isLegacy()) {
+            try {
+                buildLegacyAssets(option.getMinecraftDirectory(), option.getVersion());
+            } catch (IOException e) {
+                throw new LaunchException("Failed to build virtual assets", e);
+            }
+        }
+
         AuthInfo auth = option.getAuthenticator().auth();
 
         Map<String, String> tokens = new HashMap<String, String>();
@@ -100,13 +113,23 @@ public class Jmccc implements Launcher {
         tokens.put("auth_session", auth.getToken());
         tokens.put("auth_player_name", auth.getUsername());
         tokens.put("version_name", option.getVersion().getVersion());
-        tokens.put("game_directory", ".");
-        tokens.put("assets_root", "assets");
+        tokens.put("game_directory", option.getMinecraftDirectory().getRoot().toString());
+        tokens.put("assets_root", option.getVersion().isLegacy() ? option.getMinecraftDirectory().getVirtualLegacyAssets().toString() : option.getMinecraftDirectory().getAssets().toString());
+        tokens.put("game_assets", option.getVersion().isLegacy() ? option.getMinecraftDirectory().getVirtualLegacyAssets().toString() : option.getMinecraftDirectory().getAssets().toString());
         tokens.put("assets_index_name", option.getVersion().getAssets());
         tokens.put("auth_uuid", auth.getUUID());
         tokens.put("user_type", auth.getUserType());
         tokens.put("user_properties", auth.getProperties());
         return new LaunchArgument(option, tokens, option.getExtraArguments(), javaLibraries, nativesDir);
+    }
+
+    private void buildLegacyAssets(MinecraftDirectory mcdir, Version version) throws IOException {
+        Set<Asset> assets = Versions.resolveAssets(mcdir, version.getAssets());
+        if (assets != null) {
+            for (Asset asset : assets) {
+                copyIfDifferent(new File(mcdir.getAssetObjects(), asset.getPath()), new File(mcdir.getVirtualLegacyAssets(), asset.getVirtualPath()));
+            }
+        }
     }
 
     private void uncompressZipWithExcludes(File zip, File outputDir, Set<String> excludes) throws IOException {
@@ -173,6 +196,29 @@ public class Jmccc implements Launcher {
             }
         }
 
+    }
+
+    private void copyIfDifferent(File src, File target) throws IOException {
+        boolean rebuild = true;
+
+        if (target.isFile() && target.length() == src.length()) {
+            // it's too slow to check the content
+            // just check the length
+            rebuild = false;
+        }
+
+        if (rebuild) {
+            File parent = target.getParentFile();
+            if (!parent.exists()) {
+                parent.mkdirs();
+            }
+
+            try (FileInputStream in = new FileInputStream(src); FileOutputStream out = new FileOutputStream(target)) {
+                FileChannel chin = in.getChannel();
+                FileChannel chout = out.getChannel();
+                chin.transferTo(0, chin.size(), chout);
+            }
+        }
     }
 
 }

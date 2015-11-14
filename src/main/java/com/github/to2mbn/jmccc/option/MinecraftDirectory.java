@@ -111,6 +111,15 @@ public class MinecraftDirectory implements Serializable {
     }
 
     /**
+     * Gets the virtual legacy assets directory.
+     * 
+     * @return the virtual legacy assets directory
+     */
+    public File getVirtualLegacyAssets() {
+        return new File(getVirtualAssets(), "legacy");
+    }
+
+    /**
      * Gets the object assets directory.
      * 
      * @return the object assets directory
