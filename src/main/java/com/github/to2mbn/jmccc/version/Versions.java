@@ -34,7 +34,7 @@ public final class Versions {
 
         if (doesVersionExists(minecraftDir, version)) {
             try {
-                return PARSER.parse(minecraftDir, version);
+                return PARSER.parseVersion(minecraftDir, version);
             } catch (JSONException e) {
                 throw new IOException("unable to resolve json", e);
             }
@@ -66,6 +66,28 @@ public final class Versions {
             }
         }
         return versions;
+    }
+
+    /**
+     * Resolves the asset index.
+     * 
+     * @param minecraftDir the minecraft directory
+     * @param assets the name of the asset index, you can get this via {@link Version#getAssets()}
+     * @return the asset index
+     * @throws IOException if an I/O error has occurred during resolving asset index
+     * @throws NullPointerException <code>minecraftDir==null</code>
+     */
+    public static Set<Asset> resolveAssets(MinecraftDirectory minecraftDir, String assets) throws IOException {
+        Objects.requireNonNull(minecraftDir);
+        if (assets == null || !minecraftDir.getAssetIndex(assets).isFile()) {
+            return null;
+        }
+
+        try {
+            return PARSER.parseAssets(minecraftDir, assets);
+        } catch (JSONException e) {
+            throw new IOException("unable to resolve json", e);
+        }
     }
 
     private static boolean doesVersionExists(MinecraftDirectory minecraftDir, String version) {
