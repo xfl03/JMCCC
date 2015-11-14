@@ -18,7 +18,7 @@ import com.github.to2mbn.jmccc.util.Platform;
 
 class VersionParser {
 
-    public Version parse(MinecraftDirectory minecraftDir, String name) throws IOException, JSONException {
+    public Version parseVersion(MinecraftDirectory minecraftDir, String name) throws IOException, JSONException {
         Set<Library> libraries = new HashSet<>();
 
         JSONObject json = readJson(minecraftDir.getVersionJson(name));
@@ -45,6 +45,20 @@ class VersionParser {
         }
 
         return new Version(version, mainClass, assets, launchArgs, jarPath, libraries, assets.equals("legacy"));
+    }
+
+    public Set<Asset> parseAssets(MinecraftDirectory minecraftDir, String name) throws IOException, JSONException {
+        JSONObject json = readJson(minecraftDir.getAssetIndex(name));
+        JSONObject objects = json.getJSONObject("objects");
+        Set<Asset> assets = new HashSet<>();
+        for (Object oVirtualPath : objects.keySet()) {
+            String virtualPath = (String) oVirtualPath;
+            JSONObject object = objects.getJSONObject(virtualPath);
+            String hash = object.getString("hash");
+            int size = object.getInt("size");
+            assets.add(new Asset(virtualPath, hash, size));
+        }
+        return assets;
     }
 
     private void loadDepends(JSONArray librariesList, Collection<Library> libraries) {

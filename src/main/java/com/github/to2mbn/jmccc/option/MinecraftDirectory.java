@@ -102,6 +102,43 @@ public class MinecraftDirectory implements Serializable {
     }
 
     /**
+     * Gets the virtual assets directory.
+     * 
+     * @return the virtual assets directory
+     */
+    public File getVirtualAssets() {
+        return new File(getAssets(), "virtual");
+    }
+
+    /**
+     * Gets the object assets directory.
+     * 
+     * @return the object assets directory
+     */
+    public File getAssetObjects() {
+        return new File(getAssets(), "objects");
+    }
+
+    /**
+     * Gets the asset indexes directory.
+     * 
+     * @return the asset indexes directory
+     */
+    public File getAssetIndexes() {
+        return new File(getAssets(), "indexes");
+    }
+
+    /**
+     * Gets the asset index file.
+     * 
+     * @param assets the name of the asset index
+     * @return the asset index file
+     */
+    public File getAssetIndex(String assets) {
+        return new File(getAssetIndexes(), assets + ".json");
+    }
+
+    /**
      * Gets the base directory of the given version
      * 
      * @param version the version
