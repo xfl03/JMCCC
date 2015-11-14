@@ -16,6 +16,7 @@ public class Version implements Serializable {
     private String launchArgs;
     private String jarPath;
     private Set<Library> libraries;
+    private boolean legacy;
 
     /**
      * Creates a Version object.
@@ -26,22 +27,23 @@ public class Version implements Serializable {
      * @param launchArgs the launch arguments
      * @param jarPath the relative path of the jar file
      * @param libraries the libraries to add to classpath
-     * @throws NullPointerException if
-     *             <code>version==null||mainClass==null||assets==null||launchArgs==null||jarPath==null||libraries==null</code>
+     * @throws NullPointerException if an argument == null
      */
-    public Version(String version, String mainClass, String assets, String launchArgs, String jarPath, Set<Library> libraries) {
+    public Version(String version, String mainClass, String assets, String launchArgs, String jarPath, Set<Library> libraries, boolean legacy) {
         Objects.requireNonNull(version);
         Objects.requireNonNull(mainClass);
         Objects.requireNonNull(assets);
         Objects.requireNonNull(launchArgs);
         Objects.requireNonNull(jarPath);
         Objects.requireNonNull(libraries);
+        Objects.requireNonNull(legacy);
         this.version = version;
         this.mainClass = mainClass;
         this.assets = assets;
         this.launchArgs = launchArgs;
         this.jarPath = jarPath;
         this.libraries = libraries;
+        this.legacy = legacy;
     }
 
     /**
@@ -116,6 +118,15 @@ public class Version implements Serializable {
         return missing;
     }
 
+    /**
+     * Returns true if this version is lower than 1.7.10
+     *
+     * @return true if this version is lower than 1.7.10, as well as using the legacy assets index
+     */
+    public boolean isLegacy() {
+        return legacy;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == this) {
@@ -123,14 +134,14 @@ public class Version implements Serializable {
         }
         if (obj instanceof Version) {
             Version another = (Version) obj;
-            return version.equals(another.version) && mainClass.equals(another.mainClass) && assets.equals(another.assets) && launchArgs.equals(another.launchArgs) && jarPath.equals(another.jarPath) && libraries.equals(another.libraries);
+            return version.equals(another.version) && mainClass.equals(another.mainClass) && assets.equals(another.assets) && launchArgs.equals(another.launchArgs) && jarPath.equals(another.jarPath) && libraries.equals(another.libraries) && legacy == another.legacy;
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(version, mainClass, assets, launchArgs, jarPath, libraries);
+        return Objects.hash(version, mainClass, assets, launchArgs, jarPath, libraries, legacy);
     }
 
     @Override
