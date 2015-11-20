@@ -3,7 +3,7 @@ package com.github.to2mbn.jmccc.mcdownloader;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import com.github.to2mbn.jmccc.mcdownloader.download.concurrent.Shutdownable;
-import com.github.to2mbn.jmccc.mcdownloader.download.group.MultipleDownloadCallback;
+import com.github.to2mbn.jmccc.mcdownloader.download.multiple.MultipleDownloadCallback;
 import com.github.to2mbn.jmccc.option.MinecraftDirectory;
 
 public interface MinecraftDownloader extends Shutdownable {

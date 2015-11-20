@@ -1,4 +1,4 @@
-package com.github.to2mbn.jmccc.mcdownloader.download.group;
+package com.github.to2mbn.jmccc.mcdownloader.download.multiple;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
