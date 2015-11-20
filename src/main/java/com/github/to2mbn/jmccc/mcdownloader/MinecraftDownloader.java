@@ -2,12 +2,14 @@ package com.github.to2mbn.jmccc.mcdownloader;
 
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
+import com.github.to2mbn.jmccc.mcdownloader.download.DownloaderService;
 import com.github.to2mbn.jmccc.mcdownloader.download.concurrent.Shutdownable;
 import com.github.to2mbn.jmccc.mcdownloader.download.multiple.MultipleDownloadCallback;
+import com.github.to2mbn.jmccc.mcdownloader.download.multiple.MultipleDownloader;
 import com.github.to2mbn.jmccc.option.MinecraftDirectory;
 import com.github.to2mbn.jmccc.version.Version;
 
-public interface MinecraftDownloader extends Shutdownable {
+public interface MinecraftDownloader extends Shutdownable, DownloaderService, MultipleDownloader {
 
 	/**
 	 * Downloads a minecraft version incrementally and asynchronously.
