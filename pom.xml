@@ -17,8 +17,8 @@
 	</issueManagement>
 	<licenses>
 		<license>
-			<name>MIT License</name>
-			<url>http://www.opensource.org/licenses/mit-license.php</url>
+			<name>Unlicense</name>
+			<url>http://unlicense.org/UNLICENSE</url>
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
