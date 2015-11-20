@@ -3,6 +3,7 @@ package com.github.to2mbn.jmccc.mcdownloader.download;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
@@ -315,11 +316,16 @@ public class HttpAsyncDownloader implements DownloaderService {
 
 	@Override
 	public <T> Future<T> download(DownloadTask<T> task, DownloadCallback<T> callback) {
+		Objects.requireNonNull(task);
 		return download0(task, nonNullDownloadListener(callback), null);
 	}
 
 	@Override
 	public <T> Future<T> download(DownloadTask<T> task, DownloadCallback<T> callback, int tries) {
+		Objects.requireNonNull(task);
+		if (tries < 1) {
+			throw new IllegalArgumentException("tries < 1");
+		}
 		callback = nonNullDownloadListener(callback);
 		return download0(task, callback, new RetryHandlerImpl(callback, tries));
 	}
