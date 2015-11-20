@@ -1,9 +1,8 @@
 package com.github.to2mbn.jmccc.mcdownloader.download.group;
 
 import java.util.concurrent.Future;
-import com.github.to2mbn.jmccc.mcdownloader.download.DownloaderService;
 
-public interface MultipleDownloader extends DownloaderService {
+public interface MultipleDownloader {
 
 	/**
 	 * Submits a multiple download task asynchronously.
