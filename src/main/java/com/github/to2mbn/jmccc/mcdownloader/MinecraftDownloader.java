@@ -5,6 +5,7 @@ import java.util.concurrent.RejectedExecutionException;
 import com.github.to2mbn.jmccc.mcdownloader.download.concurrent.Shutdownable;
 import com.github.to2mbn.jmccc.mcdownloader.download.multiple.MultipleDownloadCallback;
 import com.github.to2mbn.jmccc.option.MinecraftDirectory;
+import com.github.to2mbn.jmccc.version.Version;
 
 public interface MinecraftDownloader extends Shutdownable {
 
@@ -20,7 +21,7 @@ public interface MinecraftDownloader extends Shutdownable {
 	 * @throws NullPointerException if <code>dir==null || version==null</code>
 	 * @throws RejectedExecutionException if the downloader has been shutdown
 	 */
-	Future<Object> downloadIncrementally(MinecraftDirectory dir, String version, MultipleDownloadCallback<Object> callback);
+	Future<Version> downloadIncrementally(MinecraftDirectory dir, String version, MultipleDownloadCallback<Version> callback);
 
 	/**
 	 * Fetches the remote version list asynchronously.

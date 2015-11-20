@@ -3,6 +3,7 @@ package com.github.to2mbn.jmccc.mcdownloader;
 import java.util.Set;
 import com.github.to2mbn.jmccc.mcdownloader.download.DownloadTask;
 import com.github.to2mbn.jmccc.option.MinecraftDirectory;
+import com.github.to2mbn.jmccc.version.Asset;
 import com.github.to2mbn.jmccc.version.Library;
 
 public interface MinecraftDownloadFactory {

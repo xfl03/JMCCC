@@ -1,7 +1,6 @@
 package com.github.to2mbn.jmccc.mcdownloader;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Comparator;
@@ -22,7 +21,9 @@ import com.github.to2mbn.jmccc.mcdownloader.provider.MojangDownloadProvider;
 import com.github.to2mbn.jmccc.mcdownloader.provider.PackLibraryDownloadHandler;
 import com.github.to2mbn.jmccc.mcdownloader.provider.XZPackLibraryDownloadHandler;
 import com.github.to2mbn.jmccc.option.MinecraftDirectory;
+import com.github.to2mbn.jmccc.version.Asset;
 import com.github.to2mbn.jmccc.version.Library;
+import com.github.to2mbn.jmccc.version.Versions;
 
 public class ProvidedMinecraftDownloadFactory implements MinecraftDownloadFactory {
 
@@ -65,18 +66,11 @@ public class ProvidedMinecraftDownloadFactory implements MinecraftDownloadFactor
 
 	@Override
 	public DownloadTask<Set<Asset>> assetsIndex(final MinecraftDirectory mcdir, final String version) {
-		return new MemoryDownloadTask(provider.getAssetIndex(version)).andThen(new ResultProcessor<byte[], Set<Asset>>() {
+		return new FileDownloadTask(provider.getAssetIndex(version), mcdir.getAssetIndex(version)).andThen(new ResultProcessor<Object, Set<Asset>>() {
 
 			@Override
-			public Set<Asset> process(byte[] arg) throws IOException {
-				File indexDir = new File(mcdir.getAssets(), "indexes");
-				if (!indexDir.exists()) {
-					indexDir.mkdirs();
-				}
-				try (FileOutputStream out = new FileOutputStream(new File(indexDir, version + ".json"))) {
-					out.write(arg);
-				}
-				return Asset.fromJson(new JSONObject(new String(arg, "UTF-8")));
+			public Set<Asset> process(Object arg) throws IOException {
+				return Versions.resolveAssets(mcdir, version);
 			}
 		});
 	}
@@ -110,7 +104,7 @@ public class ProvidedMinecraftDownloadFactory implements MinecraftDownloadFactor
 
 	@Override
 	public DownloadTask<Object> asset(MinecraftDirectory mcdir, Asset asset) {
-		return new FileDownloadTask(provider.getAsset(asset), new File(mcdir.getAssets(), "objects/" + asset.getPath()));
+		return new FileDownloadTask(provider.getAsset(asset), new File(mcdir.getAssetObjects(), asset.getPath()));
 	}
 
 	public MinecraftDownloadProvider getProvider() {

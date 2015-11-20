@@ -2,7 +2,7 @@ package com.github.to2mbn.jmccc.mcdownloader.provider;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import com.github.to2mbn.jmccc.mcdownloader.Asset;
+import com.github.to2mbn.jmccc.version.Asset;
 import com.github.to2mbn.jmccc.version.Library;
 
 abstract public class DefaultLayoutProvider implements MinecraftDownloadProvider {
