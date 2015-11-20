@@ -1,6 +1,7 @@
 package com.github.to2mbn.jmccc.mcdownloader.download.group;
 
 import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
 
 public interface MultipleDownloader {
 
@@ -11,6 +12,9 @@ public interface MultipleDownloader {
 	 * @param callback download callback
 	 * @param tries the max number of tries for each sub download task
 	 * @return future representing pending completion of the download
+	 * @throws NullPointerException if <code>task==null</code>
+	 * @throws IllegalArgumentException if <code>tries &lt; 1</code>
+	 * @throws RejectedExecutionException if the downloader has been shutdown
 	 */
 	<T> Future<T> download(MultipleDownloadTask<T> task, MultipleDownloadCallback<T> callback, int tries);
 
