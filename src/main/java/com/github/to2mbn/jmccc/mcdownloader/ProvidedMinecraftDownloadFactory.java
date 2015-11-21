@@ -3,11 +3,13 @@ package com.github.to2mbn.jmccc.mcdownloader;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import org.json.JSONObject;
 import com.github.to2mbn.jmccc.mcdownloader.download.DownloadTask;
@@ -24,6 +26,7 @@ import com.github.to2mbn.jmccc.version.Versions;
 public class ProvidedMinecraftDownloadFactory implements MinecraftDownloadFactory {
 
 	private MinecraftDownloadProvider provider;
+	private Set<MinecraftDownloadProvider> extraProviders = Collections.newSetFromMap(new ConcurrentHashMap<MinecraftDownloadProvider, Boolean>());
 	private Map<String, LibraryDownloadHandler> libraryHandlers = new ConcurrentSkipListMap<>(new Comparator<String>() {
 
 		@Override
@@ -36,9 +39,76 @@ public class ProvidedMinecraftDownloadFactory implements MinecraftDownloadFactor
 		}
 	});
 
-	public ProvidedMinecraftDownloadFactory(MinecraftDownloadProvider provider) {
-		Objects.requireNonNull(provider);
-		this.provider = provider;
+	public ProvidedMinecraftDownloadFactory(final MinecraftDownloadProvider mainprovider) {
+		Objects.requireNonNull(mainprovider);
+		this.provider = new MinecraftDownloadProvider() {
+
+			@Override
+			public URI getVersionList() {
+				for (MinecraftDownloadProvider extraProvider : extraProviders) {
+					URI uri = extraProvider.getVersionList();
+					if (uri != null) {
+						return uri;
+					}
+				}
+				return mainprovider.getVersionList();
+			}
+
+			@Override
+			public URI getLibrary(Library library) {
+				for (MinecraftDownloadProvider extraProvider : extraProviders) {
+					URI uri = extraProvider.getLibrary(library);
+					if (uri != null) {
+						return uri;
+					}
+				}
+				return mainprovider.getLibrary(library);
+			}
+
+			@Override
+			public URI getGameVersionJson(String version) {
+				for (MinecraftDownloadProvider extraProvider : extraProviders) {
+					URI uri = extraProvider.getGameVersionJson(version);
+					if (uri != null) {
+						return uri;
+					}
+				}
+				return mainprovider.getGameVersionJson(version);
+			}
+
+			@Override
+			public URI getGameJar(String version) {
+				for (MinecraftDownloadProvider extraProvider : extraProviders) {
+					URI uri = extraProvider.getGameJar(version);
+					if (uri != null) {
+						return uri;
+					}
+				}
+				return mainprovider.getGameJar(version);
+			}
+
+			@Override
+			public URI getAssetIndex(String version) {
+				for (MinecraftDownloadProvider extraProvider : extraProviders) {
+					URI uri = extraProvider.getAssetIndex(version);
+					if (uri != null) {
+						return uri;
+					}
+				}
+				return mainprovider.getAssetIndex(version);
+			}
+
+			@Override
+			public URI getAsset(Asset asset) {
+				for (MinecraftDownloadProvider extraProvider : extraProviders) {
+					URI uri = extraProvider.getAsset(asset);
+					if (uri != null) {
+						return uri;
+					}
+				}
+				return mainprovider.getAsset(asset);
+			}
+		};
 	}
 
 	@Override
@@ -95,10 +165,6 @@ public class ProvidedMinecraftDownloadFactory implements MinecraftDownloadFactor
 		return new FileDownloadTask(provider.getAsset(asset), new File(mcdir.getAssetObjects(), asset.getPath()));
 	}
 
-	public MinecraftDownloadProvider getProvider() {
-		return provider;
-	}
-
 	public void registerLibraryDownloadHandler(String postfix, LibraryDownloadHandler handler) {
 		Objects.requireNonNull(postfix);
 		Objects.requireNonNull(handler);
@@ -107,6 +173,15 @@ public class ProvidedMinecraftDownloadFactory implements MinecraftDownloadFactor
 
 	public void unregisterLibraryDownloadHandler(String postfix) {
 		libraryHandlers.remove(postfix);
+	}
+
+	public void registerExtraProvider(MinecraftDownloadProvider provider) {
+		Objects.requireNonNull(provider);
+		extraProviders.add(provider);
+	}
+
+	public void unregisterExtraProvider(MinecraftDownloadProvider provider) {
+		extraProviders.remove(provider);
 	}
 
 }

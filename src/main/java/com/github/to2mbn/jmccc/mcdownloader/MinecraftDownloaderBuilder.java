@@ -1,7 +1,9 @@
 package com.github.to2mbn.jmccc.mcdownloader;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -25,6 +27,7 @@ public class MinecraftDownloaderBuilder {
 	}
 
 	private Map<String, LibraryDownloadHandler> libraryHandlers = new HashMap<>();
+	private Set<MinecraftDownloadProvider> extraProviders = new HashSet<>();
 	private int maxConnections = 50;
 	private int maxConnectionsPerRouter = 10;
 	private MinecraftDownloadProvider provider;
@@ -85,6 +88,16 @@ public class MinecraftDownloaderBuilder {
 		this.soTimeout = soTimeout;
 	}
 
+	public MinecraftDownloaderBuilder registerExtraProvider(MinecraftDownloadProvider provider) {
+		extraProviders.add(provider);
+		return this;
+	}
+
+	public MinecraftDownloaderBuilder unregisterExtraProvider(MinecraftDownloadProvider provider) {
+		extraProviders.remove(provider);
+		return this;
+	}
+
 	public MinecraftDownloaderBuilder registerLibraryDownloadHandler(String postfix, LibraryDownloadHandler handler) {
 		libraryHandlers.put(postfix, handler);
 		return this;
@@ -99,6 +112,9 @@ public class MinecraftDownloaderBuilder {
 		ProvidedMinecraftDownloadFactory downloadFactory = new ProvidedMinecraftDownloadFactory(provider);
 		for (Entry<String, LibraryDownloadHandler> entry : libraryHandlers.entrySet()) {
 			downloadFactory.registerLibraryDownloadHandler(entry.getKey(), entry.getValue());
+		}
+		for (MinecraftDownloadProvider extraProvider : extraProviders) {
+			downloadFactory.registerExtraProvider(extraProvider);
 		}
 		ExecutorService executor = new ThreadPoolExecutor(poolCoreThreads, poolMaxThreads, poolThreadLivingTime, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
 		HttpAsyncClientBuilder httpClientBuilder = HttpAsyncClientBuilder.create().setMaxConnTotal(maxConnections).setMaxConnPerRoute(maxConnectionsPerRouter).setDefaultIOReactorConfig(IOReactorConfig.custom().setConnectTimeout(connectTimeout).setSoTimeout(soTimeout).build());
