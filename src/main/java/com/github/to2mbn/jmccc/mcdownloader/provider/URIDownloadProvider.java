@@ -34,17 +34,17 @@ abstract public class URIDownloadProvider implements MinecraftDownloadProvider {
 		}
 	});
 
-	abstract URI getLibrary(Library library);
+	abstract protected URI getLibrary(Library library);
 
-	abstract URI getGameJar(String version);
+	abstract protected URI getGameJar(String version);
 
-	abstract URI getGameVersionJson(String version);
+	abstract protected URI getGameVersionJson(String version);
 
-	abstract URI getAssetIndex(String version);
+	abstract protected URI getAssetIndex(String version);
 
-	abstract URI getVersionList();
+	abstract protected URI getVersionList();
 
-	abstract URI getAsset(Asset asset);
+	abstract protected URI getAsset(Asset asset);
 
 	public URIDownloadProvider() {
 		registerLibraryDownloadHandler(".jar", new JarLibraryDownloadHandler());
@@ -54,7 +54,11 @@ abstract public class URIDownloadProvider implements MinecraftDownloadProvider {
 
 	@Override
 	public DownloadTask<RemoteVersionList> versionList() {
-		return new MemoryDownloadTask(getVersionList()).andThen(new ResultProcessor<byte[], RemoteVersionList>() {
+		URI uri = getVersionList();
+		if (uri == null) {
+			return null;
+		}
+		return new MemoryDownloadTask(uri).andThen(new ResultProcessor<byte[], RemoteVersionList>() {
 
 			@Override
 			public RemoteVersionList process(byte[] arg) throws IOException {
@@ -65,7 +69,11 @@ abstract public class URIDownloadProvider implements MinecraftDownloadProvider {
 
 	@Override
 	public DownloadTask<Set<Asset>> assetsIndex(final MinecraftDirectory mcdir, final String version) {
-		return new FileDownloadTask(getAssetIndex(version), mcdir.getAssetIndex(version)).andThen(new ResultProcessor<Object, Set<Asset>>() {
+		URI uri = getAssetIndex(version);
+		if (uri == null) {
+			return null;
+		}
+		return new FileDownloadTask(uri, mcdir.getAssetIndex(version)).andThen(new ResultProcessor<Object, Set<Asset>>() {
 
 			@Override
 			public Set<Asset> process(Object arg) throws IOException {
@@ -76,17 +84,28 @@ abstract public class URIDownloadProvider implements MinecraftDownloadProvider {
 
 	@Override
 	public DownloadTask<Object> gameJar(MinecraftDirectory mcdir, String version) {
-		return new FileDownloadTask(getGameJar(version), mcdir.getVersionJar(version));
+		URI uri = getGameJar(version);
+		if (uri == null) {
+			return null;
+		}
+		return new FileDownloadTask(uri, mcdir.getVersionJar(version));
 	}
 
 	@Override
 	public DownloadTask<Object> gameVersionJson(MinecraftDirectory mcdir, String version) {
-		return new FileDownloadTask(getGameVersionJson(version), mcdir.getVersionJson(version));
+		URI uri = getGameVersionJson(version);
+		if (uri == null) {
+			return null;
+		}
+		return new FileDownloadTask(uri, mcdir.getVersionJson(version));
 	}
 
 	@Override
 	public DownloadTask<Object> library(MinecraftDirectory mcdir, Library library) {
 		URI uri = getLibrary(library);
+		if (uri == null) {
+			return null;
+		}
 		String path = uri.getPath();
 		LibraryDownloadHandler handler = null;
 		for (Entry<String, LibraryDownloadHandler> entry : libraryHandlers.entrySet()) {
@@ -103,7 +122,11 @@ abstract public class URIDownloadProvider implements MinecraftDownloadProvider {
 
 	@Override
 	public DownloadTask<Object> asset(MinecraftDirectory mcdir, Asset asset) {
-		return new FileDownloadTask(getAsset(asset), new File(mcdir.getAssetObjects(), asset.getPath()));
+		URI uri = getAsset(asset);
+		if (uri == null) {
+			return null;
+		}
+		return new FileDownloadTask(uri, new File(mcdir.getAssetObjects(), asset.getPath()));
 	}
 
 	public void registerLibraryDownloadHandler(String postfix, LibraryDownloadHandler handler) {
