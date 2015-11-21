@@ -14,4 +14,6 @@ public interface MultipleDownloadContext<T> extends AsyncCallback<T> {
 
 	<R> Future<R> submit(DownloadTask<R> task, DownloadCallback<R> callback, boolean fatal) throws InterruptedException;
 
+	void awaitAllTasks(Runnable callback) throws InterruptedException;
+
 }

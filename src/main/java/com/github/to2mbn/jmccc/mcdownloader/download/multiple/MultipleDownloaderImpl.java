@@ -57,6 +57,9 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 		volatile Future<?> mainfuture;
 		volatile boolean terminated = false;
 		volatile boolean cancelled = false;
+		volatile int activeTasksCount = 0;
+		Object activeTasksCountLock = new Object();
+		List<Runnable> activeTasksCountZeroCallbacks = new ArrayList<>();
 
 		TaskHandler(MultipleDownloadTask<T> task, MultipleDownloadCallback<T> callback, int tries) {
 			this.task = task;
@@ -115,6 +118,7 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 					lock.lock();
 					try {
 						checkInterrupt();
+						activeTasksCountup();
 						Future<R> future = executor.submit(new Callable<R>() {
 
 							@Override
@@ -138,6 +142,8 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 										taskcallback.failed(e);
 									}
 									throw e;
+								} finally {
+									activeTasksCountdown();
 								}
 								if (taskcallback != null) {
 									taskcallback.done(val);
@@ -161,6 +167,31 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 
 						DownloadCallback<R> outsidecallback = TaskHandler.this.callback.taskStart(task);
 						List<DownloadCallback<R>> callbacks = new ArrayList<>();
+						callbacks.add(new DownloadCallback<R>() {
+
+							@Override
+							public void done(R result) {
+								activeTasksCountdown();
+							}
+
+							@Override
+							public void failed(Throwable e) {
+								activeTasksCountdown();
+							}
+
+							@Override
+							public void cancelled() {
+								activeTasksCountdown();
+							}
+
+							@Override
+							public void updateProgress(long done, long total) {
+							}
+
+							@Override
+							public void retry(Throwable e, int current, int max) {
+							}
+						});
 						if (fatal) {
 							callbacks.add(new DownloadCallback<R>() {
 
@@ -195,7 +226,7 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 						}
 						@SuppressWarnings("unchecked")
 						DownloadCallback<R>[] callbacksArray = new DownloadCallback[callbacks.size()];
-
+						activeTasksCountup();
 						Future<R> taskfuture = downloader.download(task, new DownloadCallbackGroup<R>(callbacksArray), TaskHandler.this.tries);
 						activeSubtasks.add(taskfuture);
 						return taskfuture;
@@ -207,6 +238,38 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 				void checkInterrupt() throws InterruptedException {
 					if (Thread.interrupted() || cancelled) {
 						throw new InterruptedException();
+					}
+				}
+
+				@Override
+				public void awaitAllTasks(Runnable callback) throws InterruptedException {
+					synchronized (activeTasksCountZeroCallbacks) {
+						activeTasksCountZeroCallbacks.add(callback);
+					}
+				}
+
+				void activeTasksCountup() {
+					synchronized (activeTasksCountLock) {
+						activeTasksCount++;
+					}
+				}
+
+				void activeTasksCountdown() {
+					boolean countdownToZero;
+					synchronized (activeTasksCountLock) {
+						activeTasksCount--;
+						if (activeTasksCount < 0) {
+							throw new IllegalStateException("illegal active tasks count: " + activeTasksCount);
+						}
+						countdownToZero = activeTasksCount == 0;
+					}
+					if (countdownToZero) {
+						synchronized (activeTasksCountZeroCallbacks) {
+							for (Runnable callback : activeTasksCountZeroCallbacks) {
+								callback.run();
+							}
+							activeTasksCountZeroCallbacks.clear();
+						}
 					}
 				}
 			};
