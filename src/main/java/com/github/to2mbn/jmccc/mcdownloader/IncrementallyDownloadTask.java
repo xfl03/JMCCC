@@ -108,7 +108,9 @@ public class IncrementallyDownloadTask implements MultipleDownloadTask<Version> 
 			if (inheritsFrom == null) {
 				// end node
 				callback.call();
-				context.submit(downloadFactory.gameJar(mcdir, version), null, true);
+				if (!mcdir.getVersionJar(version).exists()) {
+					context.submit(downloadFactory.gameJar(mcdir, version), null, true);
+				}
 			} else {
 				// intermediate node
 				if (handledVersions.contains(inheritsFrom)) {
