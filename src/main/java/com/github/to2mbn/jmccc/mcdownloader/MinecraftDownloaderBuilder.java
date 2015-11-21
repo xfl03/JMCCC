@@ -8,6 +8,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
+import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import com.github.to2mbn.jmccc.mcdownloader.download.DownloaderService;
 import com.github.to2mbn.jmccc.mcdownloader.download.HttpAsyncDownloader;
 import com.github.to2mbn.jmccc.mcdownloader.provider.JarLibraryDownloadHandler;
@@ -31,6 +32,8 @@ public class MinecraftDownloaderBuilder {
 	private int poolCoreThreads = 0;
 	private long poolThreadLivingTime = 1000 * 60;
 	private int defaultTries = 3;
+	private int connectTimeout = 10000;
+	private int soTimeout = 30000;
 
 	protected MinecraftDownloaderBuilder() {
 		registerLibraryDownloadHandler(".jar", new JarLibraryDownloadHandler());
@@ -74,6 +77,14 @@ public class MinecraftDownloaderBuilder {
 		return this;
 	}
 
+	public void setConnectTimeout(int connectTimeout) {
+		this.connectTimeout = connectTimeout;
+	}
+
+	public void setSoTimeout(int soTimeout) {
+		this.soTimeout = soTimeout;
+	}
+
 	public MinecraftDownloaderBuilder registerLibraryDownloadHandler(String postfix, LibraryDownloadHandler handler) {
 		libraryHandlers.put(postfix, handler);
 		return this;
@@ -90,7 +101,7 @@ public class MinecraftDownloaderBuilder {
 			downloadFactory.registerLibraryDownloadHandler(entry.getKey(), entry.getValue());
 		}
 		ExecutorService executor = new ThreadPoolExecutor(poolCoreThreads, poolMaxThreads, poolThreadLivingTime, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
-		HttpAsyncClientBuilder httpClientBuilder = HttpAsyncClientBuilder.create().setMaxConnTotal(maxConnections).setMaxConnPerRoute(maxConnectionsPerRouter);
+		HttpAsyncClientBuilder httpClientBuilder = HttpAsyncClientBuilder.create().setMaxConnTotal(maxConnections).setMaxConnPerRoute(maxConnectionsPerRouter).setDefaultIOReactorConfig(IOReactorConfig.custom().setConnectTimeout(connectTimeout).setSoTimeout(soTimeout).build());
 		DownloaderService downloader = new HttpAsyncDownloader(httpClientBuilder, executor);
 		return new MinecraftDownloaderImpl(downloader, executor, downloadFactory, defaultTries);
 	}
