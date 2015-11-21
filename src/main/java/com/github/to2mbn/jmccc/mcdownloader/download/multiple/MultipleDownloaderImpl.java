@@ -58,8 +58,8 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 		volatile boolean terminated = false;
 		volatile boolean cancelled = false;
 		volatile int activeTasksCount = 0;
+		volatile List<Runnable> activeTasksCountZeroCallbacks = new ArrayList<>();
 		Object activeTasksCountLock = new Object();
-		List<Runnable> activeTasksCountZeroCallbacks = new ArrayList<>();
 
 		TaskHandler(MultipleDownloadTask<T> task, MultipleDownloadCallback<T> callback, int tries) {
 			this.task = task;
@@ -243,9 +243,13 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 
 				@Override
 				public void awaitAllTasks(Runnable callback) throws InterruptedException {
-					synchronized (activeTasksCountZeroCallbacks) {
-						activeTasksCountZeroCallbacks.add(callback);
+					synchronized (activeTasksCountLock) {
+						if (activeTasksCount != 0) {
+							activeTasksCountZeroCallbacks.add(callback);
+							return;
+						}
 					}
+					callback.run();
 				}
 
 				void activeTasksCountup() {
@@ -255,20 +259,20 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 				}
 
 				void activeTasksCountdown() {
-					boolean countdownToZero;
+					List<Runnable> callbacks = null;
 					synchronized (activeTasksCountLock) {
 						activeTasksCount--;
 						if (activeTasksCount < 0) {
 							throw new IllegalStateException("illegal active tasks count: " + activeTasksCount);
 						}
-						countdownToZero = activeTasksCount == 0;
+						if (activeTasksCount == 0) {
+							callbacks = activeTasksCountZeroCallbacks;
+							activeTasksCountZeroCallbacks = new ArrayList<>();
+						}
 					}
-					if (countdownToZero) {
-						synchronized (activeTasksCountZeroCallbacks) {
-							for (Runnable callback : activeTasksCountZeroCallbacks) {
-								callback.run();
-							}
-							activeTasksCountZeroCallbacks.clear();
+					if (callbacks != null) {
+						for (Runnable callback : callbacks) {
+							callback.run();
 						}
 					}
 				}
