@@ -1,10 +1,5 @@
 package com.github.to2mbn.jmccc.mcdownloader;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -13,12 +8,8 @@ import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import com.github.to2mbn.jmccc.mcdownloader.download.DownloaderService;
 import com.github.to2mbn.jmccc.mcdownloader.download.HttpAsyncDownloader;
-import com.github.to2mbn.jmccc.mcdownloader.provider.JarLibraryDownloadHandler;
-import com.github.to2mbn.jmccc.mcdownloader.provider.LibraryDownloadHandler;
 import com.github.to2mbn.jmccc.mcdownloader.provider.MinecraftDownloadProvider;
 import com.github.to2mbn.jmccc.mcdownloader.provider.MojangDownloadProvider;
-import com.github.to2mbn.jmccc.mcdownloader.provider.PackLibraryDownloadHandler;
-import com.github.to2mbn.jmccc.mcdownloader.provider.XZPackLibraryDownloadHandler;
 
 public class MinecraftDownloaderBuilder {
 
@@ -26,11 +17,9 @@ public class MinecraftDownloaderBuilder {
 		return new MinecraftDownloaderBuilder();
 	}
 
-	private Map<String, LibraryDownloadHandler> libraryHandlers = new HashMap<>();
-	private Set<MinecraftDownloadProvider> extraProviders = new HashSet<>();
 	private int maxConnections = 50;
 	private int maxConnectionsPerRouter = 10;
-	private MinecraftDownloadProvider provider;
+	private MinecraftDownloadProvider provider = new MojangDownloadProvider();
 	private int poolMaxThreads = Integer.MAX_VALUE;
 	private int poolCoreThreads = 0;
 	private long poolThreadLivingTime = 1000 * 60;
@@ -39,10 +28,6 @@ public class MinecraftDownloaderBuilder {
 	private int soTimeout = 30000;
 
 	protected MinecraftDownloaderBuilder() {
-		registerLibraryDownloadHandler(".jar", new JarLibraryDownloadHandler());
-		registerLibraryDownloadHandler(".pack", new PackLibraryDownloadHandler());
-		registerLibraryDownloadHandler(".pack.xz", new XZPackLibraryDownloadHandler());
-		provider = new MojangDownloadProvider();
 	}
 
 	public MinecraftDownloaderBuilder setMaxConnections(int maxConnections) {
@@ -88,37 +73,10 @@ public class MinecraftDownloaderBuilder {
 		this.soTimeout = soTimeout;
 	}
 
-	public MinecraftDownloaderBuilder registerExtraProvider(MinecraftDownloadProvider provider) {
-		extraProviders.add(provider);
-		return this;
-	}
-
-	public MinecraftDownloaderBuilder unregisterExtraProvider(MinecraftDownloadProvider provider) {
-		extraProviders.remove(provider);
-		return this;
-	}
-
-	public MinecraftDownloaderBuilder registerLibraryDownloadHandler(String postfix, LibraryDownloadHandler handler) {
-		libraryHandlers.put(postfix, handler);
-		return this;
-	}
-
-	public MinecraftDownloaderBuilder unregisterLibraryDownloadHandler(String postfix) {
-		libraryHandlers.remove(postfix);
-		return this;
-	}
-
 	public MinecraftDownloader build() {
-		ProvidedMinecraftDownloadFactory downloadFactory = new ProvidedMinecraftDownloadFactory(provider);
-		for (Entry<String, LibraryDownloadHandler> entry : libraryHandlers.entrySet()) {
-			downloadFactory.registerLibraryDownloadHandler(entry.getKey(), entry.getValue());
-		}
-		for (MinecraftDownloadProvider extraProvider : extraProviders) {
-			downloadFactory.registerExtraProvider(extraProvider);
-		}
 		ExecutorService executor = new ThreadPoolExecutor(poolCoreThreads, poolMaxThreads, poolThreadLivingTime, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
 		HttpAsyncClientBuilder httpClientBuilder = HttpAsyncClientBuilder.create().setMaxConnTotal(maxConnections).setMaxConnPerRoute(maxConnectionsPerRouter).setDefaultIOReactorConfig(IOReactorConfig.custom().setConnectTimeout(connectTimeout).setSoTimeout(soTimeout).build());
 		DownloaderService downloader = new HttpAsyncDownloader(httpClientBuilder, executor);
-		return new MinecraftDownloaderImpl(downloader, executor, downloadFactory, defaultTries);
+		return new MinecraftDownloaderImpl(downloader, executor, provider, defaultTries);
 	}
 }

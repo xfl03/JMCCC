@@ -18,6 +18,7 @@ import org.json.JSONTokener;
 import com.github.to2mbn.jmccc.mcdownloader.download.DownloadCallback;
 import com.github.to2mbn.jmccc.mcdownloader.download.multiple.MultipleDownloadContext;
 import com.github.to2mbn.jmccc.mcdownloader.download.multiple.MultipleDownloadTask;
+import com.github.to2mbn.jmccc.mcdownloader.provider.MinecraftDownloadProvider;
 import com.github.to2mbn.jmccc.option.MinecraftDirectory;
 import com.github.to2mbn.jmccc.version.Asset;
 import com.github.to2mbn.jmccc.version.Library;
@@ -28,16 +29,16 @@ public class IncrementallyDownloadTask implements MultipleDownloadTask<Version> 
 
 	private MinecraftDirectory mcdir;
 	private String version;
-	private MinecraftDownloadFactory downloadFactory;
+	private MinecraftDownloadProvider downloadProvider;
 	private Set<String> handledVersions = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
 
-	public IncrementallyDownloadTask(MinecraftDownloadFactory downloadFactory, MinecraftDirectory mcdir, String version) {
+	public IncrementallyDownloadTask(MinecraftDownloadProvider downloadProvider, MinecraftDirectory mcdir, String version) {
 		Objects.requireNonNull(mcdir);
 		Objects.requireNonNull(version);
-		Objects.requireNonNull(downloadFactory);
+		Objects.requireNonNull(downloadProvider);
 		this.mcdir = mcdir;
 		this.version = version;
-		this.downloadFactory = downloadFactory;
+		this.downloadProvider = downloadProvider;
 	}
 
 	@Override
@@ -48,12 +49,12 @@ public class IncrementallyDownloadTask implements MultipleDownloadTask<Version> 
 			public Object call() throws Exception {
 				final Version ver = Versions.resolveVersion(mcdir, version);
 				for (Library library : ver.getMissingLibraries(mcdir)) {
-					context.submit(downloadFactory.library(mcdir, library), null, true);
+					context.submit(downloadProvider.library(mcdir, library), null, true);
 				}
 				if (mcdir.getAssetIndex(ver.getAssets()).exists()) {
 					downloadAssets(context, Versions.resolveAssets(mcdir, ver.getAssets()));
 				} else {
-					context.submit(downloadFactory.assetsIndex(mcdir, ver.getAssets()), new DownloadCallback<Set<Asset>>() {
+					context.submit(downloadProvider.assetsIndex(mcdir, ver.getAssets()), new DownloadCallback<Set<Asset>>() {
 
 						@Override
 						public void done(final Set<Asset> result) {
@@ -109,7 +110,7 @@ public class IncrementallyDownloadTask implements MultipleDownloadTask<Version> 
 				// end node
 				callback.call();
 				if (!mcdir.getVersionJar(version).exists()) {
-					context.submit(downloadFactory.gameJar(mcdir, version), null, true);
+					context.submit(downloadProvider.gameJar(mcdir, version), null, true);
 				}
 			} else {
 				// intermediate node
@@ -119,7 +120,7 @@ public class IncrementallyDownloadTask implements MultipleDownloadTask<Version> 
 				handleVersionJson(inheritsFrom, context, callback);
 			}
 		} else {
-			context.submit(downloadFactory.gameVersionJson(mcdir, version), new DownloadCallback<Object>() {
+			context.submit(downloadProvider.gameVersionJson(mcdir, version), new DownloadCallback<Object>() {
 
 				@Override
 				public void done(Object result) {
@@ -159,7 +160,7 @@ public class IncrementallyDownloadTask implements MultipleDownloadTask<Version> 
 	private void downloadAssets(MultipleDownloadContext<Version> context, Set<Asset> assets) throws NoSuchAlgorithmException, IOException, InterruptedException {
 		for (Asset asset : assets) {
 			if (!asset.isValid(mcdir)) {
-				context.submit(downloadFactory.asset(mcdir, asset), null, false);
+				context.submit(downloadProvider.asset(mcdir, asset), null, false);
 			}
 		}
 	}

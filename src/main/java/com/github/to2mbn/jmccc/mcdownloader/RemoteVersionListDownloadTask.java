@@ -3,18 +3,19 @@ package com.github.to2mbn.jmccc.mcdownloader;
 import com.github.to2mbn.jmccc.mcdownloader.download.DownloadCallback;
 import com.github.to2mbn.jmccc.mcdownloader.download.multiple.MultipleDownloadContext;
 import com.github.to2mbn.jmccc.mcdownloader.download.multiple.MultipleDownloadTask;
+import com.github.to2mbn.jmccc.mcdownloader.provider.MinecraftDownloadProvider;
 
 public class RemoteVersionListDownloadTask implements MultipleDownloadTask<RemoteVersionList> {
 
-	private MinecraftDownloadFactory downloadFactory;
+	private MinecraftDownloadProvider downloadProvider;
 
-	public RemoteVersionListDownloadTask(MinecraftDownloadFactory downloadFactory) {
-		this.downloadFactory = downloadFactory;
+	public RemoteVersionListDownloadTask(MinecraftDownloadProvider downloadProvider) {
+		this.downloadProvider = downloadProvider;
 	}
 
 	@Override
 	public void execute(final MultipleDownloadContext<RemoteVersionList> context) throws Exception {
-		context.submit(downloadFactory.versionList(), new DownloadCallback<RemoteVersionList>() {
+		context.submit(downloadProvider.versionList(), new DownloadCallback<RemoteVersionList>() {
 
 			@Override
 			public void done(RemoteVersionList result) {

@@ -13,6 +13,7 @@ import com.github.to2mbn.jmccc.mcdownloader.download.multiple.MultipleDownloadCa
 import com.github.to2mbn.jmccc.mcdownloader.download.multiple.MultipleDownloadTask;
 import com.github.to2mbn.jmccc.mcdownloader.download.multiple.MultipleDownloader;
 import com.github.to2mbn.jmccc.mcdownloader.download.multiple.MultipleDownloaderImpl;
+import com.github.to2mbn.jmccc.mcdownloader.provider.MinecraftDownloadProvider;
 import com.github.to2mbn.jmccc.option.MinecraftDirectory;
 import com.github.to2mbn.jmccc.version.Version;
 
@@ -21,16 +22,16 @@ class MinecraftDownloaderImpl implements MinecraftDownloader {
 	private DownloaderService downloader;
 	private ExecutorService executor;
 	private MultipleDownloader multipleDownloader;
-	private MinecraftDownloadFactory downloadFactory;
+	private MinecraftDownloadProvider downloadProvider;
 	private int tries;
 
 	private volatile boolean shutdown = false;
 	private ReadWriteLock rwlock = new ReentrantReadWriteLock();
 
-	public MinecraftDownloaderImpl(DownloaderService downloader, ExecutorService executor, MinecraftDownloadFactory downloadFactory, int tries) {
+	public MinecraftDownloaderImpl(DownloaderService downloader, ExecutorService executor, MinecraftDownloadProvider downloadProvider, int tries) {
 		this.downloader = downloader;
 		this.executor = executor;
-		this.downloadFactory = downloadFactory;
+		this.downloadProvider = downloadProvider;
 		this.tries = tries;
 		multipleDownloader = new MultipleDownloaderImpl(executor, downloader);
 	}
@@ -94,12 +95,12 @@ class MinecraftDownloaderImpl implements MinecraftDownloader {
 
 	@Override
 	public Future<Version> downloadIncrementally(MinecraftDirectory dir, String version, MultipleDownloadCallback<Version> callback) {
-		return download(new IncrementallyDownloadTask(downloadFactory, dir, version), callback, tries);
+		return download(new IncrementallyDownloadTask(downloadProvider, dir, version), callback, tries);
 	}
 
 	@Override
 	public Future<RemoteVersionList> fetchRemoteVersionList(MultipleDownloadCallback<RemoteVersionList> callback) {
-		return download(new RemoteVersionListDownloadTask(downloadFactory), callback, tries);
+		return download(new RemoteVersionListDownloadTask(downloadProvider), callback, tries);
 	}
 
 	private void checkShutdown() {

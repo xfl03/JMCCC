@@ -5,10 +5,7 @@ import java.net.URISyntaxException;
 import com.github.to2mbn.jmccc.version.Asset;
 import com.github.to2mbn.jmccc.version.Library;
 
-abstract public class DefaultLayoutProvider implements MinecraftDownloadProvider {
-
-	public DefaultLayoutProvider() {
-	}
+abstract public class DefaultLayoutProvider extends URIDownloadProvider {
 
 	@Override
 	public URI getLibrary(Library library) {
