@@ -13,6 +13,7 @@ import com.github.to2mbn.jmccc.mcdownloader.download.HttpAsyncDownloader;
 import com.github.to2mbn.jmccc.mcdownloader.provider.JarLibraryDownloadHandler;
 import com.github.to2mbn.jmccc.mcdownloader.provider.LibraryDownloadHandler;
 import com.github.to2mbn.jmccc.mcdownloader.provider.MinecraftDownloadProvider;
+import com.github.to2mbn.jmccc.mcdownloader.provider.MojangDownloadProvider;
 import com.github.to2mbn.jmccc.mcdownloader.provider.PackLibraryDownloadHandler;
 import com.github.to2mbn.jmccc.mcdownloader.provider.XZPackLibraryDownloadHandler;
 
@@ -35,42 +36,52 @@ public class MinecraftDownloaderBuilder {
 		registerLibraryDownloadHandler(".jar", new JarLibraryDownloadHandler());
 		registerLibraryDownloadHandler(".pack", new PackLibraryDownloadHandler());
 		registerLibraryDownloadHandler(".pack.xz", new XZPackLibraryDownloadHandler());
+		provider = new MojangDownloadProvider();
 	}
 
-	public void setMaxConnections(int maxConnections) {
+	public MinecraftDownloaderBuilder setMaxConnections(int maxConnections) {
 		this.maxConnections = maxConnections;
+		return this;
 	}
 
-	public void setMaxConnectionsPerRouter(int maxConnectionsPerRouter) {
+	public MinecraftDownloaderBuilder setMaxConnectionsPerRouter(int maxConnectionsPerRouter) {
 		this.maxConnectionsPerRouter = maxConnectionsPerRouter;
+		return this;
 	}
 
-	public void setProvider(MinecraftDownloadProvider provider) {
+	public MinecraftDownloaderBuilder setProvider(MinecraftDownloadProvider provider) {
 		this.provider = provider;
+		return this;
 	}
 
-	public void setPoolMaxThreads(int poolMaxThreads) {
+	public MinecraftDownloaderBuilder setPoolMaxThreads(int poolMaxThreads) {
 		this.poolMaxThreads = poolMaxThreads;
+		return this;
 	}
 
-	public void setPoolThreadLivingTime(long poolThreadLivingTime) {
+	public MinecraftDownloaderBuilder setPoolThreadLivingTime(long poolThreadLivingTime) {
 		this.poolThreadLivingTime = poolThreadLivingTime;
+		return this;
 	}
 
-	public void setPoolCoreThreads(int poolCoreThreads) {
+	public MinecraftDownloaderBuilder setPoolCoreThreads(int poolCoreThreads) {
 		this.poolCoreThreads = poolCoreThreads;
+		return this;
 	}
 
-	public void setDefaultTries(int defaultTries) {
+	public MinecraftDownloaderBuilder setDefaultTries(int defaultTries) {
 		this.defaultTries = defaultTries;
+		return this;
 	}
 
-	public void registerLibraryDownloadHandler(String postfix, LibraryDownloadHandler handler) {
+	public MinecraftDownloaderBuilder registerLibraryDownloadHandler(String postfix, LibraryDownloadHandler handler) {
 		libraryHandlers.put(postfix, handler);
+		return this;
 	}
 
-	public void unregisterLibraryDownloadHandler(String postfix) {
+	public MinecraftDownloaderBuilder unregisterLibraryDownloadHandler(String postfix) {
 		libraryHandlers.remove(postfix);
+		return this;
 	}
 
 	public MinecraftDownloader build() {
