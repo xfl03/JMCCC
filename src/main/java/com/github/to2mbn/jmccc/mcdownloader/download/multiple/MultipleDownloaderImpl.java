@@ -225,7 +225,7 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 							callbacks.add(outsidecallback);
 						}
 						@SuppressWarnings("unchecked")
-						DownloadCallback<R>[] callbacksArray = new DownloadCallback[callbacks.size()];
+						DownloadCallback<R>[] callbacksArray = callbacks.toArray(new DownloadCallback[callbacks.size()]);
 						activeTasksCountup();
 						Future<R> taskfuture = downloader.download(task, new DownloadCallbackGroup<R>(callbacksArray), TaskHandler.this.tries);
 						activeSubtasks.add(taskfuture);
