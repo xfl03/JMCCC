@@ -14,26 +14,14 @@ import com.github.to2mbn.jmccc.mcdownloader.download.DownloadTask;
 import com.github.to2mbn.jmccc.mcdownloader.download.FileDownloadTask;
 import com.github.to2mbn.jmccc.mcdownloader.download.MemoryDownloadTask;
 import com.github.to2mbn.jmccc.mcdownloader.download.ResultProcessor;
-import com.github.to2mbn.jmccc.mcdownloader.provider.JarLibraryDownloadHandler;
 import com.github.to2mbn.jmccc.mcdownloader.provider.LibraryDownloadHandler;
 import com.github.to2mbn.jmccc.mcdownloader.provider.MinecraftDownloadProvider;
-import com.github.to2mbn.jmccc.mcdownloader.provider.MojangDownloadProvider;
-import com.github.to2mbn.jmccc.mcdownloader.provider.PackLibraryDownloadHandler;
-import com.github.to2mbn.jmccc.mcdownloader.provider.XZPackLibraryDownloadHandler;
 import com.github.to2mbn.jmccc.option.MinecraftDirectory;
 import com.github.to2mbn.jmccc.version.Asset;
 import com.github.to2mbn.jmccc.version.Library;
 import com.github.to2mbn.jmccc.version.Versions;
 
 public class ProvidedMinecraftDownloadFactory implements MinecraftDownloadFactory {
-
-	public static ProvidedMinecraftDownloadFactory buildDefault() {
-		ProvidedMinecraftDownloadFactory downloader = new ProvidedMinecraftDownloadFactory(new MojangDownloadProvider());
-		downloader.registerLibraryDownloadHandler(".jar", new JarLibraryDownloadHandler());
-		downloader.registerLibraryDownloadHandler(".pack", new PackLibraryDownloadHandler());
-		downloader.registerLibraryDownloadHandler(".pack.xz", new XZPackLibraryDownloadHandler());
-		return downloader;
-	}
 
 	private MinecraftDownloadProvider provider;
 	private Map<String, LibraryDownloadHandler> libraryHandlers = new ConcurrentSkipListMap<>(new Comparator<String>() {
@@ -117,7 +105,7 @@ public class ProvidedMinecraftDownloadFactory implements MinecraftDownloadFactor
 		libraryHandlers.put(postfix, handler);
 	}
 
-	public void unregisterLibraryDownloadHandler(String postfix, LibraryDownloadHandler handler) {
+	public void unregisterLibraryDownloadHandler(String postfix) {
 		libraryHandlers.remove(postfix);
 	}
 
