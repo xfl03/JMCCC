@@ -42,7 +42,7 @@ public class PackProcessor implements ResultProcessor<byte[], Object> {
 			throw new IOException("pack data too short: " + data.length);
 		}
 		for (int i = 0; i < 4; i++) {
-			if (data[data.length - i] != POSTFIX[POSTFIX.length - i]) {
+			if (data[data.length - i - 1] != POSTFIX[POSTFIX.length - i - 1]) {
 				throw new IOException("bad postfix");
 			}
 		}
