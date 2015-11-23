@@ -324,8 +324,8 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 				lock.lock();
 				try {
 					if (!terminated) {
-						groupcallback.done(result);
 						terminated = true;
+						groupcallback.done(result);
 					}
 				} finally {
 					lock.unlock();
@@ -339,9 +339,9 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 				lock.lock();
 				try {
 					if (!terminated) {
+						terminated = true;
 						cancel(true);
 						groupcallback.failed(ex);
-						terminated = true;
 					}
 				} finally {
 					lock.unlock();
@@ -355,9 +355,9 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 				lock.lock();
 				try {
 					if (!terminated) {
+						terminated = true;
 						cancel(true);
 						groupcallback.cancelled();
-						terminated = true;
 					}
 				} finally {
 					lock.unlock();
