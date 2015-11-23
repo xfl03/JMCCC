@@ -70,15 +70,17 @@ public class MinecraftDownloaderBuilder {
 		return this;
 	}
 
-	public void setConnectTimeout(int connectTimeout) {
+	public MinecraftDownloaderBuilder setConnectTimeout(int connectTimeout) {
 		this.connectTimeout = connectTimeout;
+		return this;
 	}
 
-	public void setSoTimeout(int soTimeout) {
+	public MinecraftDownloaderBuilder setSoTimeout(int soTimeout) {
 		this.soTimeout = soTimeout;
+		return this;
 	}
 
-	public void appendProvider(final MinecraftDownloadProvider appendprovider) {
+	public MinecraftDownloaderBuilder appendProvider(final MinecraftDownloadProvider appendprovider) {
 		final MinecraftDownloadProvider prevprovider = provider;
 		provider = new MinecraftDownloadProvider() {
 
@@ -136,6 +138,7 @@ public class MinecraftDownloaderBuilder {
 				return t;
 			}
 		};
+		return this;
 	}
 
 	public MinecraftDownloader build() {
