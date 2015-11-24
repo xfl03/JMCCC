@@ -24,7 +24,7 @@ import com.github.to2mbn.jmccc.version.Library;
 
 public class ForgeDownloadProvider extends URIDownloadProvider {
 
-	private static final Pattern FORGE_VERSION_PATTERN = Pattern.compile("^((\\d+\\.)+\\d+)-forge\\1-(\\d+\\.)+\\d+$");
+	private static final Pattern FORGE_VERSION_PATTERN = Pattern.compile("^([\\w\\.\\-]+)-forge\\1-[\\w\\.\\-]+$");
 
 	@Override
 	public DownloadTask<Object> gameVersionJson(final MinecraftDirectory mcdir, final String version) {
