@@ -1,4 +1,4 @@
-package com.github.to2mbn.jmccc.mcdownloader.provider;
+package com.github.to2mbn.jmccc.mcdownloader.provider.forge;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
@@ -18,6 +18,7 @@ import org.json.JSONTokener;
 import com.github.to2mbn.jmccc.mcdownloader.download.DownloadTask;
 import com.github.to2mbn.jmccc.mcdownloader.download.MemoryDownloadTask;
 import com.github.to2mbn.jmccc.mcdownloader.download.ResultProcessor;
+import com.github.to2mbn.jmccc.mcdownloader.provider.URIDownloadProvider;
 import com.github.to2mbn.jmccc.option.MinecraftDirectory;
 import com.github.to2mbn.jmccc.version.Asset;
 import com.github.to2mbn.jmccc.version.Library;
