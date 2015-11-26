@@ -32,6 +32,7 @@ public class ForgeDownloadProvider extends URIDownloadProvider {
 		if (!FORGE_VERSION_PATTERN.matcher(version).matches()) {
 			return null;
 		}
+		// 5 - length of "forge"
 		String forgeversion = version.substring(version.indexOf("forge") + 5);
 		try {
 			return new MemoryDownloadTask(new URI("http://files.minecraftforge.net/maven/net/minecraftforge/forge/" + forgeversion + "/forge-" + forgeversion + "-installer.jar")).andThen(new ResultProcessor<byte[], JSONObject>() {
