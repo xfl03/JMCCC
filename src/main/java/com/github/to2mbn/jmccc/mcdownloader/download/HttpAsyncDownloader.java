@@ -194,7 +194,6 @@ public class HttpAsyncDownloader implements DownloaderService {
 		Future<T> downloadFuture;
 		RetryHandler retryHandler;
 		volatile boolean cancelled;
-		volatile boolean mayInterruptIfRunning;
 
 		TaskHandler(DownloadTask<T> task, DownloadCallback<T> callback, RetryHandler retryHandler) {
 			this.task = task;
@@ -281,7 +280,7 @@ public class HttpAsyncDownloader implements DownloaderService {
 				}
 
 				if (cancelled) {
-					downloadFuture.cancel(mayInterruptIfRunning);
+					downloadFuture.cancel(true);
 				}
 			} catch (Throwable e) {
 				lifecycle.failed(e);
@@ -291,9 +290,8 @@ public class HttpAsyncDownloader implements DownloaderService {
 		@Override
 		public boolean cancel(boolean mayInterruptIfRunning) {
 			cancelled = true;
-			this.mayInterruptIfRunning |= mayInterruptIfRunning;
 			if (downloadFuture != null) {
-				downloadFuture.cancel(mayInterruptIfRunning);
+				downloadFuture.cancel(true);
 			}
 			return true;
 		}
