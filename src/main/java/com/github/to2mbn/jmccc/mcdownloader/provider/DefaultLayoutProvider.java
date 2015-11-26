@@ -49,7 +49,7 @@ abstract public class DefaultLayoutProvider extends URIDownloadProvider {
 		try {
 			return new URI(uri);
 		} catch (URISyntaxException e) {
-			throw new IllegalStateException("unable to convert " + uri + " to URI");
+			throw new IllegalStateException("unable to convert " + uri + " to URI", e);
 		}
 	}
 
