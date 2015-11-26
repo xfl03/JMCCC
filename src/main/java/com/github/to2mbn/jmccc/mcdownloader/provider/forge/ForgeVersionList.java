@@ -123,4 +123,25 @@ public class ForgeVersionList {
 		return recommendeds.get(mcversion);
 	}
 
+	@Override
+	public int hashCode() {
+		return Objects.hash(versions, latests, recommendeds, latest, recommended);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == this) {
+			return true;
+		}
+		if (obj instanceof ForgeVersionList) {
+			ForgeVersionList another = (ForgeVersionList) obj;
+			return versions.equals(another.versions) && latests.equals(another.latests) && recommendeds.equals(another.recommendeds) && Objects.equals(latest, another.latest) && Objects.equals(recommended, another.recommended);
+		}
+		return false;
+	}
+
+	@Override
+	public String toString() {
+		return "ForgeVersionList [versions=" + versions.values() + ", latests=" + latests + ", recommendeds=" + recommendeds + ", latest=" + latest + ", recommended=" + recommended + "]";
+	}
 }
