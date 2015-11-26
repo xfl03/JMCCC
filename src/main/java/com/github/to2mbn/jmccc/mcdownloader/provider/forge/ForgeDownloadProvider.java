@@ -27,6 +27,20 @@ public class ForgeDownloadProvider extends URIDownloadProvider {
 
 	private static final Pattern FORGE_VERSION_PATTERN = Pattern.compile("^([\\w\\.\\-]+)-forge\\1-[\\w\\.\\-]+$");
 
+	public DownloadTask<ForgeVersionList> forgeVersionList() {
+		try {
+			return new MemoryDownloadTask(new URI("http://files.minecraftforge.net/maven/net/minecraftforge/forge/json")).andThen(new ResultProcessor<byte[], ForgeVersionList>() {
+
+				@Override
+				public ForgeVersionList process(byte[] arg) throws IOException {
+					return ForgeVersionList.fromJson(new JSONObject(new String(arg, "UTF-8")));
+				}
+			});
+		} catch (URISyntaxException e) {
+			throw new IllegalStateException("unable to convert to URI", e);
+		}
+	}
+
 	@Override
 	public DownloadTask<Object> gameVersionJson(final MinecraftDirectory mcdir, final String version) {
 		if (!FORGE_VERSION_PATTERN.matcher(version).matches()) {
