@@ -29,9 +29,9 @@ public interface DownloadSession<T> {
 	 * Notes for implementation: In this method you should close the opened resources.
 	 * 
 	 * @return the result
-	 * @throws IOException if an I/O error occurs
+	 * @throws Exception if an I/O error occurs
 	 */
-	T completed() throws IOException;
+	T completed() throws Exception;
 
 	/**
 	 * Calls when an error occurs during downloading.
@@ -39,17 +39,17 @@ public interface DownloadSession<T> {
 	 * Notes for implementation: In this method you should close the opened resources.
 	 * 
 	 * @param e the thrown exception
-	 * @throws IOException if an I/O error occurs
+	 * @throws Exception if an I/O error occurs
 	 */
-	void failed(Throwable e) throws IOException;
+	void failed(Throwable e) throws Exception;
 
 	/**
 	 * Calls when the download has been cancelled.
 	 * <p>
 	 * Notes for implementation: In this method you should close the opened resources.
 	 * 
-	 * @throws IOException if an I/O error occurs
+	 * @throws Exception if an I/O error occurs
 	 */
-	void cancelled() throws IOException;
+	void cancelled() throws Exception;
 
 }

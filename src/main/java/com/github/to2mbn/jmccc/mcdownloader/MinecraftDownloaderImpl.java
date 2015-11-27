@@ -100,7 +100,7 @@ class MinecraftDownloaderImpl implements MinecraftDownloader {
 
 	@Override
 	public Future<RemoteVersionList> fetchRemoteVersionList(MultipleDownloadCallback<RemoteVersionList> callback) {
-		return download(new RemoteVersionListDownloadTask(downloadProvider), callback, tries);
+		return download(downloadProvider.versionList(), callback, tries);
 	}
 
 	private void checkShutdown() {

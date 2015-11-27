@@ -2,7 +2,7 @@ package com.github.to2mbn.jmccc.mcdownloader.provider;
 
 import java.util.Set;
 import com.github.to2mbn.jmccc.mcdownloader.RemoteVersionList;
-import com.github.to2mbn.jmccc.mcdownloader.download.DownloadTask;
+import com.github.to2mbn.jmccc.mcdownloader.download.multiple.MultipleDownloadTask;
 import com.github.to2mbn.jmccc.option.MinecraftDirectory;
 import com.github.to2mbn.jmccc.version.Asset;
 import com.github.to2mbn.jmccc.version.Library;
@@ -14,7 +14,7 @@ public interface MinecraftDownloadProvider {
 	 * 
 	 * @return a version list download task
 	 */
-	DownloadTask<RemoteVersionList> versionList();
+	MultipleDownloadTask<RemoteVersionList> versionList();
 
 	/**
 	 * Returns an asset index download task.
@@ -25,7 +25,7 @@ public interface MinecraftDownloadProvider {
 	 * @param version the asset index version
 	 * @return an asset index download task
 	 */
-	DownloadTask<Set<Asset>> assetsIndex(MinecraftDirectory mcdir, String version);
+	MultipleDownloadTask<Set<Asset>> assetsIndex(MinecraftDirectory mcdir, String version);
 
 	/**
 	 * Returns a game jar download task.
@@ -37,7 +37,7 @@ public interface MinecraftDownloadProvider {
 	 * @param version the game version
 	 * @return a game jar download task
 	 */
-	DownloadTask<Object> gameJar(MinecraftDirectory mcdir, String version);
+	MultipleDownloadTask<Object> gameJar(MinecraftDirectory mcdir, String version);
 
 	/**
 	 * Returns a game version json download task.
@@ -49,7 +49,7 @@ public interface MinecraftDownloadProvider {
 	 * @param version the game version
 	 * @return a version json download task
 	 */
-	DownloadTask<Object> gameVersionJson(MinecraftDirectory mcdir, String version);
+	MultipleDownloadTask<Object> gameVersionJson(MinecraftDirectory mcdir, String version);
 
 	/**
 	 * Returns a library download task.
@@ -61,7 +61,7 @@ public interface MinecraftDownloadProvider {
 	 * @param library the library to download
 	 * @return a library download task
 	 */
-	DownloadTask<Object> library(MinecraftDirectory mcdir, Library library);
+	MultipleDownloadTask<Object> library(MinecraftDirectory mcdir, Library library);
 
 	/**
 	 * Returns an asset download task.
@@ -73,6 +73,6 @@ public interface MinecraftDownloadProvider {
 	 * @param asset the asset to download
 	 * @return an asset download task
 	 */
-	DownloadTask<Object> asset(MinecraftDirectory mcdir, Asset asset);
+	MultipleDownloadTask<Object> asset(MinecraftDirectory mcdir, Asset asset);
 
 }

@@ -16,6 +16,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import com.github.to2mbn.jmccc.mcdownloader.download.DownloadCallback;
+import com.github.to2mbn.jmccc.mcdownloader.download.DownloadTask;
+import com.github.to2mbn.jmccc.mcdownloader.download.multiple.MultipleDownloadCallback;
 import com.github.to2mbn.jmccc.mcdownloader.download.multiple.MultipleDownloadContext;
 import com.github.to2mbn.jmccc.mcdownloader.download.multiple.MultipleDownloadTask;
 import com.github.to2mbn.jmccc.mcdownloader.provider.MinecraftDownloadProvider;
@@ -25,7 +27,7 @@ import com.github.to2mbn.jmccc.version.Library;
 import com.github.to2mbn.jmccc.version.Version;
 import com.github.to2mbn.jmccc.version.Versions;
 
-public class IncrementallyDownloadTask implements MultipleDownloadTask<Version> {
+public class IncrementallyDownloadTask extends MultipleDownloadTask<Version> {
 
 	private MinecraftDirectory mcdir;
 	private String version;
@@ -54,7 +56,7 @@ public class IncrementallyDownloadTask implements MultipleDownloadTask<Version> 
 				if (mcdir.getAssetIndex(ver.getAssets()).exists()) {
 					downloadAssets(context, Versions.resolveAssets(mcdir, ver.getAssets()));
 				} else {
-					context.submit(downloadProvider.assetsIndex(mcdir, ver.getAssets()), new DownloadCallback<Set<Asset>>() {
+					context.submit(downloadProvider.assetsIndex(mcdir, ver.getAssets()), new MultipleDownloadCallback<Set<Asset>>() {
 
 						@Override
 						public void done(final Set<Asset> result) {
@@ -81,12 +83,10 @@ public class IncrementallyDownloadTask implements MultipleDownloadTask<Version> 
 						}
 
 						@Override
-						public void updateProgress(long done, long total) {
+						public <R> DownloadCallback<R> taskStart(DownloadTask<R> task) {
+							return null;
 						}
 
-						@Override
-						public void retry(Throwable e, int current, int max) {
-						}
 					}, true);
 				}
 				context.awaitAllTasks(new Runnable() {
@@ -120,7 +120,7 @@ public class IncrementallyDownloadTask implements MultipleDownloadTask<Version> 
 				handleVersionJson(inheritsFrom, context, callback);
 			}
 		} else {
-			context.submit(downloadProvider.gameVersionJson(mcdir, version), new DownloadCallback<Object>() {
+			context.submit(downloadProvider.gameVersionJson(mcdir, version), new MultipleDownloadCallback<Object>() {
 
 				@Override
 				public void done(Object result) {
@@ -147,11 +147,8 @@ public class IncrementallyDownloadTask implements MultipleDownloadTask<Version> 
 				}
 
 				@Override
-				public void updateProgress(long done, long total) {
-				}
-
-				@Override
-				public void retry(Throwable e, int current, int max) {
+				public <R> DownloadCallback<R> taskStart(DownloadTask<R> task) {
+					return null;
 				}
 			}, true);
 		}

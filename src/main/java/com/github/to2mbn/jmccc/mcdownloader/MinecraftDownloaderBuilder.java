@@ -7,9 +7,9 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.apache.http.impl.nio.reactor.IOReactorConfig;
-import com.github.to2mbn.jmccc.mcdownloader.download.DownloadTask;
 import com.github.to2mbn.jmccc.mcdownloader.download.DownloaderService;
 import com.github.to2mbn.jmccc.mcdownloader.download.HttpAsyncDownloader;
+import com.github.to2mbn.jmccc.mcdownloader.download.multiple.MultipleDownloadTask;
 import com.github.to2mbn.jmccc.mcdownloader.provider.MinecraftDownloadProvider;
 import com.github.to2mbn.jmccc.mcdownloader.provider.MojangDownloadProvider;
 import com.github.to2mbn.jmccc.option.MinecraftDirectory;
@@ -85,8 +85,8 @@ public class MinecraftDownloaderBuilder {
 		provider = new MinecraftDownloadProvider() {
 
 			@Override
-			public DownloadTask<RemoteVersionList> versionList() {
-				DownloadTask<RemoteVersionList> t = appendprovider.versionList();
+			public MultipleDownloadTask<RemoteVersionList> versionList() {
+				MultipleDownloadTask<RemoteVersionList> t = appendprovider.versionList();
 				if (t == null) {
 					return prevprovider.versionList();
 				}
@@ -94,8 +94,8 @@ public class MinecraftDownloaderBuilder {
 			}
 
 			@Override
-			public DownloadTask<Object> library(MinecraftDirectory mcdir, Library library) {
-				DownloadTask<Object> t = appendprovider.library(mcdir, library);
+			public MultipleDownloadTask<Object> library(MinecraftDirectory mcdir, Library library) {
+				MultipleDownloadTask<Object> t = appendprovider.library(mcdir, library);
 				if (t == null) {
 					return prevprovider.library(mcdir, library);
 				}
@@ -103,8 +103,8 @@ public class MinecraftDownloaderBuilder {
 			}
 
 			@Override
-			public DownloadTask<Object> gameVersionJson(MinecraftDirectory mcdir, String version) {
-				DownloadTask<Object> t = appendprovider.gameVersionJson(mcdir, version);
+			public MultipleDownloadTask<Object> gameVersionJson(MinecraftDirectory mcdir, String version) {
+				MultipleDownloadTask<Object> t = appendprovider.gameVersionJson(mcdir, version);
 				if (t == null) {
 					return prevprovider.gameVersionJson(mcdir, version);
 				}
@@ -112,8 +112,8 @@ public class MinecraftDownloaderBuilder {
 			}
 
 			@Override
-			public DownloadTask<Object> gameJar(MinecraftDirectory mcdir, String version) {
-				DownloadTask<Object> t = appendprovider.gameJar(mcdir, version);
+			public MultipleDownloadTask<Object> gameJar(MinecraftDirectory mcdir, String version) {
+				MultipleDownloadTask<Object> t = appendprovider.gameJar(mcdir, version);
 				if (t == null) {
 					return prevprovider.gameJar(mcdir, version);
 				}
@@ -121,8 +121,8 @@ public class MinecraftDownloaderBuilder {
 			}
 
 			@Override
-			public DownloadTask<Set<Asset>> assetsIndex(MinecraftDirectory mcdir, String version) {
-				DownloadTask<Set<Asset>> t = appendprovider.assetsIndex(mcdir, version);
+			public MultipleDownloadTask<Set<Asset>> assetsIndex(MinecraftDirectory mcdir, String version) {
+				MultipleDownloadTask<Set<Asset>> t = appendprovider.assetsIndex(mcdir, version);
 				if (t == null) {
 					return prevprovider.assetsIndex(mcdir, version);
 				}
@@ -130,8 +130,8 @@ public class MinecraftDownloaderBuilder {
 			}
 
 			@Override
-			public DownloadTask<Object> asset(MinecraftDirectory mcdir, Asset asset) {
-				DownloadTask<Object> t = appendprovider.asset(mcdir, asset);
+			public MultipleDownloadTask<Object> asset(MinecraftDirectory mcdir, Asset asset) {
+				MultipleDownloadTask<Object> t = appendprovider.asset(mcdir, asset);
 				if (t == null) {
 					return prevprovider.asset(mcdir, asset);
 				}

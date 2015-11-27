@@ -234,6 +234,78 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 						lock.unlock();
 					}
 				}
+				
+				@Override
+				public <R> Future<R> submit(MultipleDownloadTask<R> task, MultipleDownloadCallback<R> callback, boolean fatal) throws InterruptedException {
+					Lock lock = rwlock.readLock();
+					lock.lock();
+					try {
+						checkInterrupt();
+						
+						List<MultipleDownloadCallback<R>> callbacks = new ArrayList<>();
+						callbacks.add(new MultipleDownloadCallback<R>() {
+
+							@Override
+							public void done(R result) {
+								activeTasksCountdown();
+							}
+
+							@Override
+							public void failed(Throwable e) {
+								activeTasksCountdown();
+							}
+
+							@Override
+							public void cancelled() {
+								activeTasksCountdown();
+							}
+
+							@Override
+							public <S> DownloadCallback<S> taskStart(DownloadTask<S> task) {
+								return null;
+							}
+
+						});
+						
+						if (fatal){
+							callbacks.add(new MultipleDownloadCallback<R>() {
+
+								@Override
+								public void done(R result) {
+								}
+
+								@Override
+								public void failed(Throwable e) {
+									lifecycleFailed(e);
+								}
+
+								@Override
+								public void cancelled() {
+									lifecycleCancel();
+								}
+
+								@Override
+								public <U> DownloadCallback<U> taskStart(DownloadTask<U> task) {
+									return null;
+								}
+								
+							});
+						}
+						
+						if (callback!=null){
+							callbacks.add(callback);
+						}
+						
+						@SuppressWarnings("unchecked")
+						MultipleDownloadCallback<R>[] callbacksArray = callbacks.toArray(new MultipleDownloadCallback[callbacks.size()]);
+						activeTasksCountup();
+						Future<R> taskfuture = download(task, new MultipleDownloadCallbackGroup<>(callbacksArray), TaskHandler.this.tries);
+						activeSubtasks.add(taskfuture);
+						return taskfuture;
+					} finally {
+						lock.unlock();
+					}
+				}
 
 				void checkInterrupt() throws InterruptedException {
 					if (Thread.interrupted() || cancelled) {
@@ -276,6 +348,7 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 						}
 					}
 				}
+
 			};
 		}
 

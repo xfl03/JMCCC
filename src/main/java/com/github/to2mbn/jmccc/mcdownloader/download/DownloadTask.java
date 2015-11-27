@@ -31,17 +31,17 @@ abstract public class DownloadTask<T> {
 		}
 
 		@Override
-		public S completed() throws IOException {
+		public S completed() throws Exception {
 			return processor.process(proxied.completed());
 		}
 
 		@Override
-		public void failed(Throwable e) throws IOException {
+		public void failed(Throwable e) throws Exception {
 			proxied.failed(e);
 		}
 
 		@Override
-		public void cancelled() throws IOException {
+		public void cancelled() throws Exception {
 			proxied.cancelled();
 		}
 
