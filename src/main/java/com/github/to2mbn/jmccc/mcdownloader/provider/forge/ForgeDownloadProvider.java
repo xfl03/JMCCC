@@ -1,24 +1,15 @@
 package com.github.to2mbn.jmccc.mcdownloader.provider.forge;
 
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.regex.Pattern;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 import com.github.to2mbn.jmccc.mcdownloader.download.DownloadTask;
 import com.github.to2mbn.jmccc.mcdownloader.download.MemoryDownloadTask;
 import com.github.to2mbn.jmccc.mcdownloader.download.ResultProcessor;
 import com.github.to2mbn.jmccc.mcdownloader.download.multiple.MultipleDownloadTask;
+import com.github.to2mbn.jmccc.mcdownloader.provider.InstallProfileProcessor;
 import com.github.to2mbn.jmccc.mcdownloader.provider.URIDownloadProvider;
 import com.github.to2mbn.jmccc.option.MinecraftDirectory;
 import com.github.to2mbn.jmccc.version.Asset;
@@ -50,39 +41,7 @@ public class ForgeDownloadProvider extends URIDownloadProvider {
 		// 5 - length of "forge"
 		String forgeversion = version.substring(version.indexOf("forge") + 5);
 		try {
-			return MultipleDownloadTask.simple(new MemoryDownloadTask(new URI("http://files.minecraftforge.net/maven/net/minecraftforge/forge/" + forgeversion + "/forge-" + forgeversion + "-installer.jar")).andThen(new ResultProcessor<byte[], JSONObject>() {
-
-				@Override
-				public JSONObject process(byte[] arg) throws IOException {
-					JSONObject json = null;
-					try (ZipInputStream in = new ZipInputStream(new ByteArrayInputStream(arg))) {
-						ZipEntry entry;
-						while ((entry = in.getNextEntry()) != null) {
-							if ("install_profile.json".equals(entry.getName())) {
-								json = new JSONObject(new JSONTokener(new InputStreamReader(in, "UTF-8")));
-								in.closeEntry();
-								break;
-							}
-							in.closeEntry();
-						}
-					}
-					return json;
-				}
-			}).andThen(new ResultProcessor<JSONObject, Object>() {
-
-				@Override
-				public Object process(JSONObject arg) throws IOException {
-					JSONObject versionjson = arg.getJSONObject("versionInfo");
-					File jsonfile = mcdir.getVersionJson(version);
-					if (!jsonfile.getParentFile().exists()) {
-						jsonfile.getParentFile().mkdirs();
-					}
-					try (Writer writer = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(jsonfile)), "UTF-8")) {
-						writer.write(versionjson.toString(4));
-					}
-					return null;
-				}
-			}));
+			return MultipleDownloadTask.simple(new MemoryDownloadTask(new URI("http://files.minecraftforge.net/maven/net/minecraftforge/forge/" + forgeversion + "/forge-" + forgeversion + "-installer.jar")).andThen(new InstallProfileProcessor(mcdir.getVersionJson(version))));
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 			return null;
