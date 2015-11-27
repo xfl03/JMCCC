@@ -1,15 +1,24 @@
 package com.github.to2mbn.jmccc.mcdownloader;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TimeZone;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class RemoteVersionList {
 
-	public static RemoteVersionList fromJson(JSONObject json) throws JSONException {
+	private static final Pattern DATETIME_PATTERN = Pattern.compile("^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2})([+\\-]\\d{2}:?\\d{2})?$");
+
+	public static RemoteVersionList fromJson(JSONObject json) throws JSONException, ParseException {
 		String latestSnapshot = null;
 		String latestRelease = null;
 		if (json.has("latest")) {
@@ -26,9 +35,31 @@ public class RemoteVersionList {
 			String updateTime = jsonVersion.getString("time");
 			String releaseTime = jsonVersion.getString("releaseTime");
 			String type = jsonVersion.getString("type");
-			versions.put(version, new RemoteVersion(version, updateTime, releaseTime, type));
+			versions.put(version, new RemoteVersion(version, convertDate(updateTime), convertDate(releaseTime), type));
 		}
 		return new RemoteVersionList(latestSnapshot, latestRelease, versions);
+	}
+
+	private static Date convertDate(String date) throws ParseException {
+		Matcher matcher = DATETIME_PATTERN.matcher(date);
+		if (!matcher.find()) {
+			throw new ParseException("regex mismatch", 0);
+		}
+		String datetime = matcher.group(1);
+		String timezoneoffset = matcher.group(2).replace(":", "");
+		boolean negativeoffset = timezoneoffset.charAt(0) == '-';
+		int offsetsecs = Integer.parseInt(timezoneoffset.substring(1, 3)) * 3600 + Integer.parseInt(timezoneoffset.substring(3, 5));
+		if (negativeoffset) {
+			offsetsecs = -offsetsecs;
+		}
+		SimpleDateFormat datetimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+		datetimeFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+		Date localdatetime = datetimeFormat.parse(datetime);
+		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+		cal.setTime(localdatetime);
+		cal.add(Calendar.SECOND, -offsetsecs);
+		Date result = cal.getTime();
+		return result;
 	}
 
 	private String latestSnapshot;

@@ -61,7 +61,7 @@ abstract public class URIDownloadProvider implements MinecraftDownloadProvider {
 		return MultipleDownloadTask.simple(new MemoryDownloadTask(uri).andThen(new ResultProcessor<byte[], RemoteVersionList>() {
 
 			@Override
-			public RemoteVersionList process(byte[] arg) throws IOException {
+			public RemoteVersionList process(byte[] arg) throws Exception {
 				return RemoteVersionList.fromJson(new JSONObject(new String(arg, "UTF-8")));
 			}
 		}));

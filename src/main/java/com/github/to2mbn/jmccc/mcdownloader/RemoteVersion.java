@@ -1,27 +1,28 @@
 package com.github.to2mbn.jmccc.mcdownloader;
 
+import java.util.Date;
 import java.util.Objects;
 
 public class RemoteVersion {
 
 	private String version;
-	private String updateTime;
-	private String releaseTime;
+	private Date uploadTime;
+	private Date releaseTime;
 	private String type;
 
 	/**
 	 * Creates a RemoteVersion.
 	 * 
 	 * @param version the version number
-	 * @param updateTime the update time
+	 * @param uploadTime the upload time
 	 * @param releaseTime the release time
 	 * @param type the version type
 	 * @throws NullPointerException if <code>version==null</code>
 	 */
-	public RemoteVersion(String version, String updateTime, String releaseTime, String type) {
+	public RemoteVersion(String version, Date uploadTime, Date releaseTime, String type) {
 		Objects.requireNonNull(version);
 		this.version = version;
-		this.updateTime = updateTime;
+		this.uploadTime = uploadTime;
 		this.releaseTime = releaseTime;
 		this.type = type;
 	}
@@ -36,28 +37,20 @@ public class RemoteVersion {
 	}
 
 	/**
-	 * Gets the update time.
-	 * <p>
-	 * Format: yyyy-mm-ddThh:mm:ss+HH:MM<br>
-	 * eg: 2009-05-13T22:11:00+02:00<br>
-	 * 'HH:MM' is the timezone offest.
+	 * Gets the upload time.
 	 * 
-	 * @return the update time
+	 * @return the upload time
 	 */
-	public String getUpdateTime() {
-		return updateTime;
+	public Date getUploadTime() {
+		return uploadTime;
 	}
 
 	/**
 	 * Gets the release time.
-	 * <p>
-	 * Format: yyyy-mm-ddThh:mm:ss+HH:MM<br>
-	 * eg: 2009-05-13T22:11:00+02:00<br>
-	 * 'HH:MM' is the timezone offest.
 	 * 
 	 * @return the release time
 	 */
-	public String getReleaseTime() {
+	public Date getReleaseTime() {
 		return releaseTime;
 	}
 
@@ -74,12 +67,12 @@ public class RemoteVersion {
 
 	@Override
 	public String toString() {
-		return version + " [updateTime=" + updateTime + ", releaseTime=" + releaseTime + ", type=" + type + "]";
+		return version + " [uploadTime=" + uploadTime + ", releaseTime=" + releaseTime + ", type=" + type + "]";
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(version, updateTime, releaseTime, type);
+		return Objects.hash(version, uploadTime, releaseTime, type);
 	}
 
 	@Override
@@ -89,7 +82,7 @@ public class RemoteVersion {
 		}
 		if (obj instanceof RemoteVersion) {
 			RemoteVersion another = (RemoteVersion) obj;
-			return version.equals(another.version) && Objects.equals(releaseTime, another.releaseTime) && Objects.equals(updateTime, another.updateTime) && Objects.equals(type, another.type);
+			return version.equals(another.version) && Objects.equals(releaseTime, another.releaseTime) && Objects.equals(uploadTime, another.uploadTime) && Objects.equals(type, another.type);
 		}
 		return false;
 	}
