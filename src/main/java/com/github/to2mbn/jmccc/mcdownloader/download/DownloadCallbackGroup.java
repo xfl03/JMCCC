@@ -1,8 +1,8 @@
 package com.github.to2mbn.jmccc.mcdownloader.download;
 
-import java.util.Objects;
+import com.github.to2mbn.jmccc.mcdownloader.download.concurrent.AsyncCallbackGroup;
 
-public class DownloadCallbackGroup<T> implements DownloadCallback<T> {
+public class DownloadCallbackGroup<T> extends AsyncCallbackGroup<T> implements DownloadCallback<T> {
 
 	@SafeVarargs
 	public static <T> DownloadCallback<T> group(DownloadCallback<T>... callbacks) {
@@ -12,42 +12,43 @@ public class DownloadCallbackGroup<T> implements DownloadCallback<T> {
 	private DownloadCallback<T>[] callbacks;
 
 	public DownloadCallbackGroup(DownloadCallback<T>[] callbacks) {
-		Objects.requireNonNull(callbacks);
+		super(callbacks);
 		this.callbacks = callbacks;
 	}
 
 	@Override
-	public void done(T result) {
-		for (DownloadCallback<T> callback : callbacks) {
-			callback.done(result);
-		}
-	}
-
-	@Override
-	public void failed(Throwable e) {
-		for (DownloadCallback<T> callback : callbacks) {
-			callback.failed(e);
-		}
-	}
-
-	@Override
-	public void cancelled() {
-		for (DownloadCallback<T> callback : callbacks) {
-			callback.cancelled();
-		}
-	}
-
-	@Override
 	public void updateProgress(long done, long total) {
+		RuntimeException ex = null;
 		for (DownloadCallback<T> callback : callbacks) {
-			callback.updateProgress(done, total);
+			try {
+				callback.updateProgress(done, total);
+			} catch (Throwable e) {
+				if (ex == null) {
+					ex = new RuntimeException();
+				}
+				ex.addSuppressed(e);
+			}
+		}
+		if (ex != null) {
+			throw ex;
 		}
 	}
 
 	@Override
 	public void retry(Throwable e, int current, int max) {
+		RuntimeException ex1 = null;
 		for (DownloadCallback<T> callback : callbacks) {
-			callback.retry(e, current, max);
+			try {
+				callback.retry(e, current, max);
+			} catch (Throwable e1) {
+				if (ex1 == null) {
+					ex1 = new RuntimeException();
+				}
+				ex1.addSuppressed(e1);
+			}
+		}
+		if (ex1 != null) {
+			throw ex1;
 		}
 	}
 
