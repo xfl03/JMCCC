@@ -15,7 +15,7 @@ public class LiteloaderVersionList {
 		JSONObject versionsJson = json.getJSONObject("versions");
 		for (String mcversion : (Set<String>) versionsJson.keySet()) {
 			Map<String, LiteloaderVersion> artefacts = new TreeMap<>();
-			JSONObject artefactsJson = versionsJson.getJSONObject(mcversion).getJSONObject("artefacts");
+			JSONObject artefactsJson = versionsJson.getJSONObject(mcversion).getJSONObject("artefacts").getJSONObject("com.mumfrey:liteloader");
 			for (String artefactId : (Set<String>) artefactsJson.keySet()) {
 				JSONObject artefactJson = artefactsJson.getJSONObject(artefactId);
 				String liteloaderVersion = artefactJson.getString("version");
