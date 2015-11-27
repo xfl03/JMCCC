@@ -1,20 +1,17 @@
 package com.github.to2mbn.jmccc.mcdownloader.provider.liteloader;
 
-import java.util.Date;
 import java.util.Objects;
 
 public class LiteloaderVersion {
 
 	private String minecraftVersion;
 	private String liteloaderVersion;
-	private Date releaseDate;
 
-	public LiteloaderVersion(String minecraftVersion, String liteloaderVersion, Date releaseDate) {
+	public LiteloaderVersion(String minecraftVersion, String liteloaderVersion) {
 		Objects.requireNonNull(minecraftVersion);
 		Objects.requireNonNull(liteloaderVersion);
 		this.minecraftVersion = minecraftVersion;
 		this.liteloaderVersion = liteloaderVersion;
-		this.releaseDate = releaseDate;
 	}
 
 	public String getMinecraftVersion() {
@@ -23,10 +20,6 @@ public class LiteloaderVersion {
 
 	public String getLiteloaderVersion() {
 		return liteloaderVersion;
-	}
-
-	public Date getReleaseDate() {
-		return releaseDate;
 	}
 
 	public String getVersionName() {
@@ -40,7 +33,7 @@ public class LiteloaderVersion {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(minecraftVersion, liteloaderVersion, releaseDate);
+		return Objects.hash(minecraftVersion, liteloaderVersion);
 	}
 
 	@Override
@@ -50,7 +43,7 @@ public class LiteloaderVersion {
 		}
 		if (obj instanceof LiteloaderVersion) {
 			LiteloaderVersion another = (LiteloaderVersion) obj;
-			return minecraftVersion.equals(another.minecraftVersion) && liteloaderVersion.equals(another.liteloaderVersion) && Objects.equals(releaseDate, another.releaseDate);
+			return minecraftVersion.equals(another.minecraftVersion) && liteloaderVersion.equals(another.liteloaderVersion);
 		}
 		return false;
 	}

@@ -1,6 +1,5 @@
 package com.github.to2mbn.jmccc.mcdownloader.provider.liteloader;
 
-import java.util.Date;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -19,12 +18,7 @@ public class LiteloaderVersionList {
 			for (String artefactId : (Set<String>) artefactsJson.keySet()) {
 				JSONObject artefactJson = artefactsJson.getJSONObject(artefactId);
 				String liteloaderVersion = artefactJson.getString("version");
-				String strdate = artefactJson.optString("timestamp", null);
-				Date releaseDate = null;
-				if (strdate != null) {
-					releaseDate = new Date(Integer.parseInt(strdate));
-				}
-				artefacts.put(artefactId, new LiteloaderVersion(mcversion, liteloaderVersion, releaseDate));
+				artefacts.put(artefactId, new LiteloaderVersion(mcversion, liteloaderVersion));
 			}
 			versions.put(mcversion, artefacts);
 		}
