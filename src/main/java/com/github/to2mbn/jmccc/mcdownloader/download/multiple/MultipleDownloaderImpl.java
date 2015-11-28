@@ -262,7 +262,7 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 
 							@Override
 							public <S> DownloadCallback<S> taskStart(DownloadTask<S> task) {
-								return null;
+								return TaskHandler.this.callback.taskStart(task);
 							}
 
 						});

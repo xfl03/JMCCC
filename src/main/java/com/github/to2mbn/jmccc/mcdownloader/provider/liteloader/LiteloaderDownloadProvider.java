@@ -58,7 +58,13 @@ public class LiteloaderDownloadProvider implements MinecraftDownloadProvider {
 								public Object call() throws Exception {
 									LiteloaderVersion liteloaderVersion = versionList.getLatestArtefact(mcversion);
 									context.submit(new MemoryDownloadTask(new URI("http://dl.liteloader.com/redist/" + mcversion + "/liteloader-installer-" + liteloaderVersion.getLiteloaderVersion().replace('_', '-') + ".jar")).andThen(new InstallProfileProcessor(mcdir.getVersionJson(version))), null, true);
+									context.awaitAllTasks(new Runnable() {
 
+										@Override
+										public void run() {
+											context.done(null);
+										}
+									});
 									return null;
 								}
 							}, null, true);
