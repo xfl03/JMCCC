@@ -19,17 +19,17 @@ public class Version implements Serializable {
     private boolean legacy;
 
     /**
-     * Creates a Version object.
-     * 
-     * @param version the version number
-     * @param mainClass the main class
-     * @param assets the assets index name
-     * @param launchArgs the launch arguments
-     * @param jarPath the relative path of the jar file
-     * @param libraries the libraries to add to classpath
-     * @param legacy true if this version is lower than 1.7.10, as well as using the legacy assets index
-     * @throws NullPointerException if an argument == null
-     */
+	 * Creates a Version object.
+	 * 
+	 * @param version the version number
+	 * @param mainClass the main class
+	 * @param assets the assets index name
+	 * @param launchArgs the launch arguments
+	 * @param jarPath the relative path of the jar file
+	 * @param libraries the libraries to add to classpath
+	 * @param legacy true if this version is lower than 1.7.10, as well as using the legacy assets index
+	 * @throws NullPointerException if any of the arguments is null
+	 */
     public Version(String version, String mainClass, String assets, String launchArgs, String jarPath, Set<Library> libraries, boolean legacy) {
         Objects.requireNonNull(version);
         Objects.requireNonNull(mainClass);
@@ -37,7 +37,6 @@ public class Version implements Serializable {
         Objects.requireNonNull(launchArgs);
         Objects.requireNonNull(jarPath);
         Objects.requireNonNull(libraries);
-        Objects.requireNonNull(legacy);
         this.version = version;
         this.mainClass = mainClass;
         this.assets = assets;
