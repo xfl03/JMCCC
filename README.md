@@ -66,3 +66,9 @@ option.setExtraArguments(Arrays.asList(ExtraArgumentsTemplates.FML_IGNORE_INVALI
 
 ### Change Logs
 See [wiki](https://github.com/to2mbn/JMCCC/wiki/Change-logs).
+
+### Contributing
+Contributing is awesome. But please read the following code requirements first before you PR.
+* Use tabs.
+* No trailing whitespaces.
+* No \r\n line endings, \n only.
