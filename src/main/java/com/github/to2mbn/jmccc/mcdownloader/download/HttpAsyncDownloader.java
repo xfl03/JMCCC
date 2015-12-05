@@ -229,12 +229,7 @@ public class HttpAsyncDownloader implements DownloaderService {
 								session = task.createSession(8192);
 							}
 							received += buf.remaining();
-							try {
-								session.receiveData(buf);
-							} catch (Exception e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
+							session.receiveData(buf);
 							callback.updateProgress(received, contextLength);
 						}
 
