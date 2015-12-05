@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.to2mbn</groupId>
 	<artifactId>jmccc-jyal-authenticator</artifactId>
-	<version>1.4-SNAPSHOT</version>
+	<version>1.4</version>
 	<name>jmccc-jyal-authenticator</name>
 	<description>JMCCC yggdrasil authenticator using jyal</description>
 	<url>https://github.com/to2mbn/jmccc-jyal-authenticator</url>
