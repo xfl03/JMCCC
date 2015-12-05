@@ -45,7 +45,7 @@ public final class GameProfiles {
 	 * Fills the properties to the given game profile.
 	 * <p>
 	 * If <code>profile instanceof PropertiesGameProfile</code>, this method will return <code>profile</code> itself.
-	 * Else, this method will fetch the properties from the yggdrasil server.
+	 * Otherwise, this method will fetch the properties from the yggdrasil server.
 	 * 
 	 * @param profile the profile to fill
 	 * @return the filled game profile

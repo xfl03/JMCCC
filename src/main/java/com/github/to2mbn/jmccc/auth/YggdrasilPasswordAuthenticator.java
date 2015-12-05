@@ -13,7 +13,7 @@ import com.github.to2mbn.jyal.Session;
 /**
  * Yggdrasil authenticator using password.
  * <p>
- * This class is serializable, but we recommend you NOT to serialize this. If you want to recommend the password, please
+ * This class is serializable, but we recommend you NOT to serialize this. If you want to remember the password, please
  * use {@link YggdrasilTokenAuthenticator} instead of this.
  * <p>
  * Notes for serialization:<br>
@@ -133,7 +133,7 @@ public class YggdrasilPasswordAuthenticator extends YggdrasilAuthenticator {
 	 * <p>
 	 * The default implementation throws a <code>NotSerializableException</code>, because saving plain password is too
 	 * dangerous. If you need to save the password, you have to override this method. You should save the encrypted
-	 * password instead of the plain password because of security.
+	 * password instead of the plain password.
 	 * 
 	 * @param out the output
 	 * @param password the password
