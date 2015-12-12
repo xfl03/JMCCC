@@ -150,6 +150,7 @@ abstract public class MultipleDownloadTask<T> {
 	 * Creates a MultipleDownloadTask from a DownloadTask.
 	 * 
 	 * @param task the download task
+	 * @param <T> the type of the DownloadTask
 	 * @return the MultipleDownloadTask
 	 * @throws NullPointerException if <code>task == null</code>
 	 */
