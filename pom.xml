@@ -26,7 +26,7 @@
 		<url>https://github.com/to2mbn/JMCCC</url>
 		<connection>scm:git:git://github.com/to2mbn/JMCCC.git</connection>
 		<developerConnection>scm:git:git@github.com:to2mbn/JMCCC.git</developerConnection>
-		<tag>longteam-2.3.x</tag>
+		<tag>longterm-2.3.x</tag>
 	</scm>
 	<distributionManagement>
 		<snapshotRepository>
