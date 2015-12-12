@@ -21,6 +21,7 @@ mvn clean package
 ```
 
 ### Examples
+##### Minecraft downloading
 The following code snippet downloads minecraft 1.8.8:
 ```java
 MinecraftDirectory dir = new MinecraftDirectory("/home/user/.minecraft");
@@ -78,13 +79,13 @@ downloader.downloadIncrementally(dir, "1.8.8", new MultipleDownloadCallback<Vers
 });
 ```
 `MinecraftDownloader.downloadIncrementally()` will find out the missing libraries, broken assets, etc, and download them.
-<p/>
-Minecraft version list downloading:
+
+##### Minecraft version list downloading
 ```java
 downloader.fetchRemoteVersionList(new MultipleDownloadCallback<RemoteVersionList>() {...});
 ```
-<p/>
-Forge and LiteLoader supports:
+
+##### Forge and LiteLoader supports
 ```java
 MinecraftDirectory dir = new MinecraftDirectory("/home/user/.minecraft");
 ForgeDownloadProvider forgeProvider = new ForgeDownloadProvider();
@@ -96,14 +97,15 @@ downloader.downloadIncrementally(dir, "1.7.10-LiteLoader1.7.10", new MultipleDow
 downloader.download(forgeProvider.forgeVersionList(), new DownloadCallback<ForgeVersionList>() {...});
 downloader.download(liteloaderProvider.liteloaderVersionList(), new DownloadCallback<LiteloaderVersionList>() {...});
 ```
-<p/>
-Customized download provier:
+
+##### Customized download provider
 ```java
 MinecraftDownloader downloader = MinecraftDownloaderBuilder.create().setProvider(new CustomizedDownloadProvider()).build();
 ```
 If you use a customized download provier, setProvider() must be called before appendProvider().
-<p/>
-Finally, don't forge to shutdown the downloader.
+
+
+Finally, don't forget to shutdown the downloader.
 ```java
 downloader.shutdown();
 ```
