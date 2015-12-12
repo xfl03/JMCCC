@@ -64,7 +64,12 @@ public class FileDownloadTask extends DownloadTask<Object> {
 			parent.mkdirs();
 		}
 
-		final FileOutputStream out = new FileOutputStream(target);
+		final File partFile = new File(parent, target.getName() + ".part");
+		if (partFile.exists()) {
+			partFile.delete();
+		}
+
+		final FileOutputStream out = new FileOutputStream(partFile);
 		final FileChannel channel = out.getChannel();
 
 		return new DownloadSession<Object>() {
@@ -77,19 +82,23 @@ public class FileDownloadTask extends DownloadTask<Object> {
 			@Override
 			public void failed(Throwable e) throws IOException {
 				close();
-				target.delete();
+				partFile.delete();
 			}
 
 			@Override
 			public Object completed() throws IOException {
 				close();
+				if (target.exists()) {
+					target.delete();
+				}
+				partFile.renameTo(target);
 				return null;
 			}
 
 			@Override
 			public void cancelled() throws IOException {
 				close();
-				target.delete();
+				partFile.delete();
 			}
 
 			private void close() throws IOException {
