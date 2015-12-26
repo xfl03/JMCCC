@@ -2,8 +2,9 @@ package com.github.to2mbn.jmccc.mcdownloader.download.multiple;
 
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
+import com.github.to2mbn.jmccc.mcdownloader.download.concurrent.Shutdownable;
 
-public interface MultipleDownloader {
+public interface MultipleDownloader extends Shutdownable {
 
 	/**
 	 * Submits a multiple download task asynchronously.

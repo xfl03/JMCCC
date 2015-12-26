@@ -26,7 +26,7 @@ class MinecraftDownloaderImpl implements MinecraftDownloader {
 	private int tries;
 
 	private volatile boolean shutdown = false;
-	private ReadWriteLock rwlock = new ReentrantReadWriteLock();
+	private ReadWriteLock shutdownLock = new ReentrantReadWriteLock();
 
 	public MinecraftDownloaderImpl(DownloaderService downloader, ExecutorService executor, MinecraftDownloadProvider downloadProvider, int tries) {
 		this.downloader = downloader;
@@ -38,17 +38,21 @@ class MinecraftDownloaderImpl implements MinecraftDownloader {
 
 	@Override
 	public void shutdown() {
-		Lock lock = rwlock.writeLock();
-		lock.lock();
-		try {
-			shutdown = true;
+		if (!shutdown) {
+			Lock lock = shutdownLock.writeLock();
+			lock.lock();
+			try {
+				shutdown = true;
+			} finally {
+				lock.unlock();
+			}
+
+			multipleDownloader.shutdown();
 			downloader.shutdown();
-			executor.shutdownNow();
+			executor.shutdown();
+			multipleDownloader = null;
 			downloader = null;
 			executor = null;
-			multipleDownloader = null;
-		} finally {
-			lock.unlock();
 		}
 	}
 
@@ -59,7 +63,7 @@ class MinecraftDownloaderImpl implements MinecraftDownloader {
 
 	@Override
 	public <T> Future<T> download(DownloadTask<T> task, DownloadCallback<T> callback) {
-		Lock lock = rwlock.readLock();
+		Lock lock = shutdownLock.readLock();
 		lock.lock();
 		try {
 			checkShutdown();
@@ -71,7 +75,7 @@ class MinecraftDownloaderImpl implements MinecraftDownloader {
 
 	@Override
 	public <T> Future<T> download(DownloadTask<T> task, DownloadCallback<T> callback, int tries) {
-		Lock lock = rwlock.readLock();
+		Lock lock = shutdownLock.readLock();
 		lock.lock();
 		try {
 			checkShutdown();
@@ -83,7 +87,7 @@ class MinecraftDownloaderImpl implements MinecraftDownloader {
 
 	@Override
 	public <T> Future<T> download(MultipleDownloadTask<T> task, MultipleDownloadCallback<T> callback, int tries) {
-		Lock lock = rwlock.readLock();
+		Lock lock = shutdownLock.readLock();
 		lock.lock();
 		try {
 			checkShutdown();

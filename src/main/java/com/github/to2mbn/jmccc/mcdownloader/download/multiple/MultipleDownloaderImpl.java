@@ -9,6 +9,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -46,6 +47,35 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 
 	private class TaskHandler<T> implements Cancellable, Runnable {
 
+		class Inactiver implements AsyncCallback<T> {
+
+			@Override
+			public void done(T result) {
+				inactive();
+			}
+
+			@Override
+			public void failed(Throwable e) {
+				inactive();
+			}
+
+			@Override
+			public void cancelled() {
+				inactive();
+			}
+
+			void inactive() {
+				Lock lock = shutdownLock.readLock();
+				lock.lock();
+				try {
+					activeTasks.remove(TaskHandler.this);
+				} finally {
+					lock.unlock();
+				}
+			}
+
+		}
+
 		AsyncFuture<T> future;
 		MultipleDownloadTask<T> task;
 		MultipleDownloadCallback<T> callback;
@@ -66,7 +96,7 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 			this.callback = callback;
 			this.tries = tries;
 			future = new AsyncFuture<>(this);
-			groupcallback = AsyncCallbackGroup.group(future, callback);
+			groupcallback = AsyncCallbackGroup.group(new Inactiver(), future, callback);
 			context = new MultipleDownloadContext<T>() {
 
 				@Override
@@ -124,13 +154,18 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 							@Override
 							public R call() throws Exception {
 								R val;
+								boolean notDone = true;
 								try {
 									val = task.call();
+									if (taskcallback != null) {
+										notDone = false;
+										taskcallback.done(val);
+									}
 								} catch (InterruptedException e) {
 									if (fatal) {
 										lifecycleCancel();
 									}
-									if (taskcallback != null) {
+									if (notDone && taskcallback != null) {
 										taskcallback.cancelled();
 									}
 									throw e;
@@ -138,15 +173,12 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 									if (fatal) {
 										lifecycleFailed(e);
 									}
-									if (taskcallback != null) {
+									if (notDone && taskcallback != null) {
 										taskcallback.failed(e);
 									}
 									throw e;
 								} finally {
 									activeTasksCountdown();
-								}
-								if (taskcallback != null) {
-									taskcallback.done(val);
 								}
 								return val;
 							}
@@ -167,31 +199,6 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 
 						DownloadCallback<R> outsidecallback = TaskHandler.this.callback.taskStart(task);
 						List<DownloadCallback<R>> callbacks = new ArrayList<>();
-						callbacks.add(new DownloadCallback<R>() {
-
-							@Override
-							public void done(R result) {
-								activeTasksCountdown();
-							}
-
-							@Override
-							public void failed(Throwable e) {
-								activeTasksCountdown();
-							}
-
-							@Override
-							public void cancelled() {
-								activeTasksCountdown();
-							}
-
-							@Override
-							public void updateProgress(long done, long total) {
-							}
-
-							@Override
-							public void retry(Throwable e, int current, int max) {
-							}
-						});
 						if (fatal) {
 							callbacks.add(new DownloadCallback<R>() {
 
@@ -224,6 +231,32 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 						if (outsidecallback != null) {
 							callbacks.add(outsidecallback);
 						}
+						callbacks.add(new DownloadCallback<R>() {
+
+							@Override
+							public void done(R result) {
+								activeTasksCountdown();
+							}
+
+							@Override
+							public void failed(Throwable e) {
+								activeTasksCountdown();
+							}
+
+							@Override
+							public void cancelled() {
+								activeTasksCountdown();
+							}
+
+							@Override
+							public void updateProgress(long done, long total) {
+							}
+
+							@Override
+							public void retry(Throwable e, int current, int max) {
+							}
+						});
+
 						@SuppressWarnings("unchecked")
 						DownloadCallback<R>[] callbacksArray = callbacks.toArray(new DownloadCallback[callbacks.size()]);
 						activeTasksCountup();
@@ -234,15 +267,47 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 						lock.unlock();
 					}
 				}
-				
+
 				@Override
 				public <R> Future<R> submit(MultipleDownloadTask<R> task, MultipleDownloadCallback<R> callback, boolean fatal) throws InterruptedException {
 					Lock lock = rwlock.readLock();
 					lock.lock();
+					Lock lock2 = shutdownLock.readLock();
+					lock2.lock();
 					try {
 						checkInterrupt();
-						
+
 						List<MultipleDownloadCallback<R>> callbacks = new ArrayList<>();
+
+						if (fatal) {
+							callbacks.add(new MultipleDownloadCallback<R>() {
+
+								@Override
+								public void done(R result) {
+								}
+
+								@Override
+								public void failed(Throwable e) {
+									lifecycleFailed(e);
+								}
+
+								@Override
+								public void cancelled() {
+									lifecycleCancel();
+								}
+
+								@Override
+								public <U> DownloadCallback<U> taskStart(DownloadTask<U> task) {
+									return null;
+								}
+
+							});
+						}
+
+						if (callback != null) {
+							callbacks.add(callback);
+						}
+
 						callbacks.add(new MultipleDownloadCallback<R>() {
 
 							@Override
@@ -266,36 +331,7 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 							}
 
 						});
-						
-						if (fatal){
-							callbacks.add(new MultipleDownloadCallback<R>() {
 
-								@Override
-								public void done(R result) {
-								}
-
-								@Override
-								public void failed(Throwable e) {
-									lifecycleFailed(e);
-								}
-
-								@Override
-								public void cancelled() {
-									lifecycleCancel();
-								}
-
-								@Override
-								public <U> DownloadCallback<U> taskStart(DownloadTask<U> task) {
-									return null;
-								}
-								
-							});
-						}
-						
-						if (callback!=null){
-							callbacks.add(callback);
-						}
-						
 						@SuppressWarnings("unchecked")
 						MultipleDownloadCallback<R>[] callbacksArray = callbacks.toArray(new MultipleDownloadCallback[callbacks.size()]);
 						activeTasksCountup();
@@ -303,6 +339,7 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 						activeSubtasks.add(taskfuture);
 						return taskfuture;
 					} finally {
+						lock2.unlock();
 						lock.unlock();
 					}
 				}
@@ -372,6 +409,7 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 				for (Future<?> subfuture : activeSubtasks) {
 					subfuture.cancel(true);
 				}
+				lifecycleCancel();
 			}
 			return true;
 		}
@@ -442,6 +480,9 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 
 	private ExecutorService executor;
 	private Downloader downloader;
+	private Set<TaskHandler<?>> activeTasks = Collections.newSetFromMap(new ConcurrentHashMap<TaskHandler<?>, Boolean>());
+	private volatile boolean shutdown = false;
+	private ReadWriteLock shutdownLock = new ReentrantReadWriteLock();
 
 	public MultipleDownloaderImpl(ExecutorService executor, Downloader downloader) {
 		this.executor = executor;
@@ -454,9 +495,41 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 		if (tries < 1) {
 			throw new IllegalArgumentException("tries < 1");
 		}
-		TaskHandler<T> handler = new TaskHandler<>(task, callback == null ? new NullMultipleDownloadCallback<T>() : callback, tries);
-		handler.start();
-		return handler.future;
+		Lock lock = shutdownLock.readLock();
+		lock.lock();
+		try {
+			if (shutdown) {
+				throw new RejectedExecutionException("already shutdown");
+			}
+			TaskHandler<T> handler = new TaskHandler<>(task, callback == null ? new NullMultipleDownloadCallback<T>() : callback, tries);
+			activeTasks.add(handler);
+			handler.start();
+			return handler.future;
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	@Override
+	public void shutdown() {
+		if (!shutdown) {
+			Lock lock = shutdownLock.writeLock();
+			lock.lock();
+			try {
+				shutdown = true;
+			} finally {
+				lock.unlock();
+			}
+
+			for (TaskHandler<?> task : activeTasks) {
+				task.cancel(true);
+			}
+		}
+	}
+
+	@Override
+	public boolean isShutdown() {
+		return shutdown;
 	}
 
 }

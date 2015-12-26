@@ -194,6 +194,7 @@ public class HttpAsyncDownloader implements DownloaderService {
 		Future<T> downloadFuture;
 		RetryHandler retryHandler;
 		volatile boolean cancelled;
+		volatile Throwable resultBuildingEx;
 
 		TaskHandler(DownloadTask<T> task, DownloadCallback<T> callback, RetryHandler retryHandler) {
 			this.task = task;
@@ -255,14 +256,25 @@ public class HttpAsyncDownloader implements DownloaderService {
 
 						@Override
 						protected T buildResult(HttpContext context) throws Exception {
-							return session.completed();
+							T result = null;
+							try {
+								result = session.completed();
+								resultBuildingEx = null;
+							} catch (Throwable e) {
+								resultBuildingEx = e;
+							}
+							return result;
 						}
 
 					}, new FutureCallback<T>() {
 
 						@Override
 						public void completed(T result) {
-							lifecycle.done(result);
+							if (resultBuildingEx != null) {
+								lifecycle.failed(resultBuildingEx);
+							} else {
+								lifecycle.done(result);
+							}
 						}
 
 						@Override
