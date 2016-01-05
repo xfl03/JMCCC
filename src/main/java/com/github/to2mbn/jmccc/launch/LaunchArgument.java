@@ -88,7 +88,7 @@ class LaunchArgument {
             args.add("--server");
             args.add(launchOption.getServerInfo().getHost());
 
-            if (launchOption.getServerInfo().getPort() == 0) {
+            if (launchOption.getServerInfo().getPort() > 0) {
                 args.add("--port");
                 args.add(String.valueOf(launchOption.getServerInfo().getPort()));
             }
