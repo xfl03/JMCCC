@@ -32,15 +32,13 @@ class VersionParser {
 
         if (json.has("inheritsFrom")) {
             String inheritsFrom;
-            String inheritsJar;
             do {
                 inheritsFrom = json.getString("inheritsFrom");
-                inheritsJar = json.has("jar") ? json.getString("jar") : inheritsFrom;
-                json = readJson(minecraftDir.getVersionJson(inheritsFrom, inheritsJar));
+                json = readJson(minecraftDir.getVersionJson(inheritsFrom));
                 loadDepends(json.getJSONArray("libraries"), libraries);
-				assets = json.optString("assets", "legacy");
+		assets = json.optString("assets", "legacy");
             } while (json.has("inheritsFrom"));
-            jarPath = getVersionJarPath(inheritsFrom, inheritsJar);
+            jarPath = getVersionJarPath(inheritsFrom, inheritsFrom);
         } else {
             jarPath = getVersionJarPath(name, version);
         }
