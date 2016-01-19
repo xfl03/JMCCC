@@ -44,7 +44,6 @@ public class Jmccc implements Launcher {
 
 	@Override
 	public LaunchResult launch(LaunchOption option) throws LaunchException {
-		Objects.requireNonNull(option);
 		return launch(option, null);
 	}
 
@@ -77,6 +76,7 @@ public class Jmccc implements Launcher {
 	}
 
 	private LaunchArgument generateLaunchArgs(LaunchOption option) throws LaunchException {
+		Objects.requireNonNull(option);
 		MinecraftDirectory mcdir = option.getMinecraftDirectory();
 		Version version = option.getVersion();
 
