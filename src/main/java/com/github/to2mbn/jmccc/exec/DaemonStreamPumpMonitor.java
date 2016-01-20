@@ -18,7 +18,7 @@ public class DaemonStreamPumpMonitor extends ProcessMonitor {
 
         @Override
         public void run() {
-            while (Thread.interrupted()) {
+            while (!Thread.interrupted()) {
                 try {
                     if (in.read() == -1) {
                         break;
