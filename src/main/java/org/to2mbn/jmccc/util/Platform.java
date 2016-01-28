@@ -42,7 +42,7 @@ public enum Platform {
 	 * Returns the default encoding on the current platform.
 	 * <p>
 	 * This method refers to <code>System.getProperty("sun.jnu.encoding")</code>. If this property does not exist, the
-	 * method will returns <code>Charset.defaultCharset()</code>.
+	 * method will return <code>Charset.defaultCharset()</code>.
 	 * 
 	 * @return the default encoding on the current platform
 	 */
