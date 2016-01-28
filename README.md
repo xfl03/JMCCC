@@ -4,10 +4,6 @@ An open-source lightweight library for launching Minecraft.
 
 ### Download
 You can get the latest maven release from [here](https://search.maven.org/#search|ga|1|g%3A%22com.github.to2mbn%22%20a%3A%22jmccc%22).
-
-### JavaDoc
-Lastest: [to2mbn.github.io/javadoc/jmccc](to2mbn.github.io/javadoc/jmccc)
-
 The snapshot repository:
 ```xml
 <repository>
@@ -19,6 +15,8 @@ The snapshot repository:
 </repository>
 ```
 
+### JavaDoc
+Lastest: [to2mbn.github.io/javadoc/jmccc](to2mbn.github.io/javadoc/jmccc)
 
 ### Dependencies
 * org.json
