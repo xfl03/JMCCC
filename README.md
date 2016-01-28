@@ -16,7 +16,7 @@ The snapshot repository:
 ```
 
 ### JavaDoc
-Lastest: [to2mbn.github.io/javadoc/jmccc](to2mbn.github.io/javadoc/jmccc)
+Lastest: [https://to2mbn.github.io/javadoc/jmccc](https://to2mbn.github.io/javadoc/jmccc)
 
 ### Dependencies
 * org.json
