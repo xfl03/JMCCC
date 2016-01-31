@@ -1,4 +1,4 @@
-package com.github.to2mbn.jmccc.auth;
+package org.to2mbn.jmccc.auth;
 
 import com.github.to2mbn.jmccc.launch.AuthenticationException;
 import com.github.to2mbn.jyal.GameProfile;

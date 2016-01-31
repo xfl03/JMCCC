@@ -1,9 +1,11 @@
-package com.github.to2mbn.jmccc.auth;
+package org.to2mbn.jmccc.auth;
 
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 import org.json.JSONObject;
+import com.github.to2mbn.jmccc.auth.AuthInfo;
+import com.github.to2mbn.jmccc.auth.Authenticator;
 import com.github.to2mbn.jmccc.launch.AuthenticationException;
 import com.github.to2mbn.jyal.Agent;
 import com.github.to2mbn.jyal.GameProfile;

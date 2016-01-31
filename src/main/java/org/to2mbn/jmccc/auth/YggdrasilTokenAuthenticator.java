@@ -1,4 +1,4 @@
-package com.github.to2mbn.jmccc.auth;
+package org.to2mbn.jmccc.auth;
 
 import java.util.Objects;
 import java.util.UUID;
