@@ -180,7 +180,7 @@ class VersionParser {
 			JSONObject infojson = json.getJSONObject(key);
 			String url = infojson.getString("url");
 			String checksum = infojson.optString("sha1", null);
-			long size = infojson.optLong("totalSize", -1);
+			long size = infojson.optLong("size", -1);
 			downloads.put(key, new DownloadInfo(url, checksum, size));
 		}
 		return downloads;
