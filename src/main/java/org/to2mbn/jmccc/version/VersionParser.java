@@ -7,7 +7,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,6 +31,9 @@ class VersionParser {
 		String type = json.optString("type", null);
 		loadDepends(json.getJSONArray("libraries"), libraries);
 
+		Map<String, DownloadInfo> downloads = json.has("downloads") ? resolveDownloads(json.getJSONObject("downloads")) : null;
+		AssetIndexDownloadInfo assetIndexDownloadInfo = json.has("assetIndex") ? resolveAssetDownloadInfo(json.getJSONObject("assetIndex")) : null;
+
 		String jarPath;
 
 		if (json.has("inheritsFrom")) {
@@ -44,7 +49,7 @@ class VersionParser {
 			jarPath = getVersionJarPath(version);
 		}
 
-		return new Version(version, type, mainClass, assets, launchArgs, jarPath, libraries, assets.equals("legacy"));
+		return new Version(version, type, mainClass, assets, launchArgs, jarPath, libraries, assets.equals("legacy"), assetIndexDownloadInfo, downloads);
 	}
 
 	public Set<Asset> parseAssets(MinecraftDirectory minecraftDir, String name) throws IOException, JSONException {
@@ -166,5 +171,28 @@ class VersionParser {
 		try (Reader reader = new InputStreamReader(new BufferedInputStream(new FileInputStream(file)), "UTF-8")) {
 			return new JSONObject(new JSONTokener(reader));
 		}
+	}
+
+	private Map<String, DownloadInfo> resolveDownloads(JSONObject json) {
+		Map<String, DownloadInfo> downloads = new HashMap<>();
+		for (Object oKey : json.keySet()) {
+			String key = (String) oKey;
+			JSONObject infojson = json.getJSONObject(key);
+			String url = infojson.getString("url");
+			String checksum = infojson.optString("sha1", null);
+			long size = infojson.optLong("totalSize", -1);
+			downloads.put(key, new DownloadInfo(url, checksum, size));
+		}
+		return downloads;
+	}
+
+	private AssetIndexDownloadInfo resolveAssetDownloadInfo(JSONObject json) {
+		String url = json.getString("url");
+		String checksum = json.optString("sha1", null);
+		long size = json.optLong("size", -1);
+		String id = json.getString("id");
+		long totalSize = json.optLong("totalSize", -1);
+		boolean known = json.optBoolean("known", false);
+		return new AssetIndexDownloadInfo(url, checksum, size, id, totalSize, known);
 	}
 }

@@ -2,6 +2,7 @@ package org.to2mbn.jmccc.version;
 
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
@@ -18,6 +19,8 @@ public class Version implements Serializable {
 	private String jarPath;
 	private Set<Library> libraries;
 	private boolean legacy;
+	private AssetIndexDownloadInfo assetIndexDownloadInfo;
+	private Map<String, DownloadInfo> downloads;
 
 	/**
 	 * Creates a Version object.
@@ -30,9 +33,11 @@ public class Version implements Serializable {
 	 * @param jarPath the relative path of the jar file
 	 * @param libraries the libraries to add to classpath
 	 * @param legacy true if this version is lower than 1.7.10, as well as using the legacy assets index
-	 * @throws NullPointerException if any of the arguments(except type) is null
+	 * @param assetIndexDownloadInfo the asset download info, can be null
+	 * @param downloads the download infos, can be null
+	 * @throws NullPointerException if any of the arguments (except type, assetIndexDownloadInfo, downloads) is null
 	 */
-	public Version(String version, String type, String mainClass, String assets, String launchArgs, String jarPath, Set<Library> libraries, boolean legacy) {
+	public Version(String version, String type, String mainClass, String assets, String launchArgs, String jarPath, Set<Library> libraries, boolean legacy, AssetIndexDownloadInfo assetIndexDownloadInfo, Map<String, DownloadInfo> downloads) {
 		Objects.requireNonNull(version);
 		Objects.requireNonNull(mainClass);
 		Objects.requireNonNull(assets);
@@ -47,6 +52,8 @@ public class Version implements Serializable {
 		this.jarPath = jarPath;
 		this.libraries = libraries;
 		this.legacy = legacy;
+		this.assetIndexDownloadInfo = assetIndexDownloadInfo;
+		this.downloads = downloads;
 	}
 
 	/**
@@ -140,6 +147,29 @@ public class Version implements Serializable {
 	 */
 	public boolean isLegacy() {
 		return legacy;
+	}
+
+	/**
+	 * Gets the asset download info. This exists only in the version 1.9 or higher.
+	 * 
+	 * @return the asset download info, can be null
+	 */
+	public AssetIndexDownloadInfo getAssetIndexDownloadInfo() {
+		return assetIndexDownloadInfo;
+	}
+
+	/**
+	 * Gets the downloads of the version. This exists only in the version 1.9 or higher.
+	 * <p>
+	 * This maps to the 'downloads' element in the version json.<br>
+	 * Here are some known key-value pairs:<br>
+	 * <code>client</code> -&gt; the client jar(minecraft client)<br>
+	 * <code>server</code> -&gt; the server jar(minecraft server)<br>
+	 * 
+	 * @return the downloads of the version, can be null
+	 */
+	public Map<String, DownloadInfo> getDownloads() {
+		return downloads;
 	}
 
 	@Override
