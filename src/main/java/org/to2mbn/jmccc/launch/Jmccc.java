@@ -30,6 +30,8 @@ import org.to2mbn.jmccc.version.Versions;
 
 public class Jmccc implements Launcher {
 
+	private boolean nativeFastCheck = false;
+
 	/**
 	 * Gets a launcher.
 	 * 
@@ -39,7 +41,7 @@ public class Jmccc implements Launcher {
 		return new Jmccc();
 	}
 
-	private Jmccc() {
+	protected Jmccc() {
 	}
 
 	@Override
@@ -50,6 +52,34 @@ public class Jmccc implements Launcher {
 	@Override
 	public LaunchResult launch(LaunchOption option, GameProcessListener listener) throws LaunchException {
 		return launch(generateLaunchArgs(option), listener);
+	}
+
+	/**
+	 * Gets whether to do a fast check on natives.
+	 * <p>
+	 * By default, this feature is off. In this case, when decompressing natives,
+	 * jmccc will fully compare the existing natives and the natives in jars. If, and only if,
+	 * a existing native is modified, jmccc will replace it. Because replacing a native in use
+	 * may cause the running JVM to crash.<br>
+	 * If the feature is on, jmccc won't compare the full content of natives.
+	 * Jmccc only compares the sizes. This can improve the launching speed.
+	 * But we cannot ensure the content of the natives are correct.
+	 * 
+	 * @return true if jmccc does a fast check on natives
+	 * @see #setNativeFastCheck(boolean)
+	 */
+	public boolean isNativeFastCheck() {
+		return nativeFastCheck;
+	}
+
+	/**
+	 * Sets whether to do a fast check on natives.
+	 * 
+	 * @param nativeFastCheck true if jmccc does a fast check on natives
+	 * @see #isNativeFastCheck()
+	 */
+	public void setNativeFastCheck(boolean nativeFastCheck) {
+		this.nativeFastCheck = nativeFastCheck;
 	}
 
 	private LaunchResult launch(LaunchArgument arg, GameProcessListener listener) throws LaunchException {
@@ -92,7 +122,7 @@ public class Jmccc implements Launcher {
 			File libraryFile = new File(mcdir.getLibraries(), library.getPath());
 			if (library instanceof Native) {
 				try {
-					uncompressZipWithExcludes(libraryFile, nativesDir, ((Native) library).getExtractExcludes());
+					decompressZipWithExcludes(libraryFile, nativesDir, ((Native) library).getExtractExcludes());
 				} catch (IOException e) {
 					throw new LaunchException("Failed to uncompress " + libraryFile, e);
 				}
@@ -143,7 +173,7 @@ public class Jmccc implements Launcher {
 		}
 	}
 
-	private void uncompressZipWithExcludes(File zip, File outputDir, Set<String> excludes) throws IOException {
+	private void decompressZipWithExcludes(File zip, File outputDir, Set<String> excludes) throws IOException {
 		if (!outputDir.exists()) {
 			outputDir.mkdirs();
 		}
@@ -183,11 +213,13 @@ public class Jmccc implements Launcher {
 					if (outFile.isFile() && outFile.length() == entry.getSize()) {
 						// same length, check the content
 						match = true;
-						try (InputStream targetin = new BufferedInputStream(new FileInputStream(outFile))) {
-							for (int i = 0; i < len; i++) {
-								if (buf[i] != (byte) targetin.read()) {
-									match = false;
-									break;
+						if (!nativeFastCheck) {
+							try (InputStream targetin = new BufferedInputStream(new FileInputStream(outFile))) {
+								for (int i = 0; i < len; i++) {
+									if (buf[i] != (byte) targetin.read()) {
+										match = false;
+										break;
+									}
 								}
 							}
 						}
