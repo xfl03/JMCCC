@@ -80,15 +80,6 @@ public class WindowSize implements Serializable {
 	}
 
 	/**
-	 * Sets the window size to fullscreen or not.
-	 * 
-	 * @param fullscreen true to set the window to fullscreen
-	 */
-	public void setFullScreen(boolean fullscreen) {
-		this.fullscreen = fullscreen;
-	}
-
-	/**
 	 * Gets the width.
 	 * 
 	 * @return the width
@@ -98,40 +89,12 @@ public class WindowSize implements Serializable {
 	}
 
 	/**
-	 * Sets the width.
-	 * 
-	 * @param width the width to set
-	 * @throws IllegalArgumentException if <code>width&lt;0</code>
-	 */
-	public void setWidth(int width) {
-		if (width < 0) {
-			throw new IllegalArgumentException("width<0");
-		}
-
-		this.width = width;
-	}
-
-	/**
 	 * Gets the height.
 	 * 
 	 * @return the height
 	 */
 	public int getHeight() {
 		return height;
-	}
-
-	/**
-	 * Sets the height.
-	 * 
-	 * @param height the height to set
-	 * @throws IllegalArgumentException if <code>height&lt;0</code>
-	 */
-	public void setHeight(int height) {
-		if (height < 0) {
-			throw new IllegalArgumentException("height<0");
-		}
-
-		this.height = height;
 	}
 
 	@Override
