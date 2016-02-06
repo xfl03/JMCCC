@@ -125,6 +125,12 @@ public class Jmccc implements Launcher {
 		tokens.put("version_name", version.getVersion());
 		tokens.put("assets_index_name", version.getAssets());
 		tokens.put("game_directory", option.getGameDirectory().toString());
+
+		String type = version.getType();
+		if (type != null) {
+			tokens.put("version_type", type);
+		}
+
 		return new LaunchArgument(option, tokens, option.getExtraArguments(), javaLibraries, nativesDir);
 	}
 

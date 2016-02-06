@@ -7,7 +7,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -26,26 +28,28 @@ class VersionParser {
 		String assets = json.optString("assets", "legacy");
 		String mainClass = json.getString("mainClass");
 		String launchArgs = json.getString("minecraftArguments");
+		String type = json.optString("type", null);
 		loadDepends(json.getJSONArray("libraries"), libraries);
+
+		Map<String, DownloadInfo> downloads = json.has("downloads") ? resolveDownloads(json.getJSONObject("downloads")) : null;
+		AssetIndexDownloadInfo assetIndexDownloadInfo = json.has("assetIndex") ? resolveAssetDownloadInfo(json.getJSONObject("assetIndex")) : null;
 
 		String jarPath;
 
 		if (json.has("inheritsFrom")) {
 			String inheritsFrom;
-			String inheritsJar;
 			do {
 				inheritsFrom = json.getString("inheritsFrom");
-				inheritsJar = json.has("jar") ? json.getString("jar") : inheritsFrom;
-				json = readJson(minecraftDir.getVersionJson(inheritsFrom, inheritsJar));
+				json = readJson(minecraftDir.getVersionJson(inheritsFrom));
 				loadDepends(json.getJSONArray("libraries"), libraries);
 				assets = json.optString("assets", "legacy");
 			} while (json.has("inheritsFrom"));
-			jarPath = getVersionJarPath(inheritsFrom, inheritsJar);
+			jarPath = getVersionJarPath(inheritsFrom);
 		} else {
-			jarPath = getVersionJarPath(name, version);
+			jarPath = getVersionJarPath(version);
 		}
 
-		return new Version(version, mainClass, assets, launchArgs, jarPath, libraries, assets.equals("legacy"));
+		return new Version(version, type, mainClass, assets, launchArgs, jarPath, libraries, assets.equals("legacy"), assetIndexDownloadInfo, downloads);
 	}
 
 	public Set<Asset> parseAssets(MinecraftDirectory minecraftDir, String name) throws IOException, JSONException {
@@ -151,8 +155,8 @@ class VersionParser {
 		return excludes;
 	}
 
-	private String getVersionJarPath(String version, String jar) {
-		return version + "/" + jar + ".jar";
+	private String getVersionJarPath(String version) {
+		return version + "/" + version + ".jar";
 	}
 
 	private String[] resolveChecksums(JSONArray sumarray) {
@@ -167,5 +171,28 @@ class VersionParser {
 		try (Reader reader = new InputStreamReader(new BufferedInputStream(new FileInputStream(file)), "UTF-8")) {
 			return new JSONObject(new JSONTokener(reader));
 		}
+	}
+
+	private Map<String, DownloadInfo> resolveDownloads(JSONObject json) {
+		Map<String, DownloadInfo> downloads = new HashMap<>();
+		for (Object oKey : json.keySet()) {
+			String key = (String) oKey;
+			JSONObject infojson = json.getJSONObject(key);
+			String url = infojson.getString("url");
+			String checksum = infojson.optString("sha1", null);
+			long size = infojson.optLong("size", -1);
+			downloads.put(key, new DownloadInfo(url, checksum, size));
+		}
+		return downloads;
+	}
+
+	private AssetIndexDownloadInfo resolveAssetDownloadInfo(JSONObject json) {
+		String url = json.getString("url");
+		String checksum = json.optString("sha1", null);
+		long size = json.optLong("size", -1);
+		String id = json.getString("id");
+		long totalSize = json.optLong("totalSize", -1);
+		boolean known = json.optBoolean("known", false);
+		return new AssetIndexDownloadInfo(url, checksum, size, id, totalSize, known);
 	}
 }
