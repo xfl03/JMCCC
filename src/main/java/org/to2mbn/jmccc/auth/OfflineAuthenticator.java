@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.Objects;
 import java.util.UUID;
-import org.to2mbn.jmccc.launch.AuthenticationException;
 
 public class OfflineAuthenticator implements Authenticator, Serializable {
 

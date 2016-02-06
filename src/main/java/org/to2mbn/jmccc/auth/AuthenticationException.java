@@ -1,4 +1,6 @@
-package org.to2mbn.jmccc.launch;
+package org.to2mbn.jmccc.auth;
+
+import org.to2mbn.jmccc.launch.LaunchException;
 
 /**
  * Thrown when failing to authenticate.

@@ -1,7 +1,5 @@
 package org.to2mbn.jmccc.auth;
 
-import org.to2mbn.jmccc.launch.AuthenticationException;
-
 public interface Authenticator {
 
 	/**
