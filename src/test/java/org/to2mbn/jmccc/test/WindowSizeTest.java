@@ -29,6 +29,11 @@ public class WindowSizeTest {
 	}
 
 	@Test
+	public void testEqualsWindowDifferentSize2() {
+		assertFalse(new WindowSize(0, 100).equals(new WindowSize(100, 100)));
+	}
+
+	@Test
 	public void testEqualsFullscreenAndWindow() {
 		assertFalse(new WindowSize(0, 0).equals(WindowSize.fullscreen()));
 	}

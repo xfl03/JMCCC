@@ -146,7 +146,7 @@ public class WindowSize implements Serializable {
 		}
 		if (obj instanceof WindowSize) {
 			WindowSize another = (WindowSize) obj;
-			return (fullscreen == another.fullscreen) || (width == another.width && height == another.height);
+			return fullscreen == another.fullscreen && (fullscreen || (width == another.width && height == another.height));
 		}
 		return false;
 	}
