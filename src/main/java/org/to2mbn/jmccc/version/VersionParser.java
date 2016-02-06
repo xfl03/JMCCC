@@ -26,6 +26,7 @@ class VersionParser {
 		String assets = json.optString("assets", "legacy");
 		String mainClass = json.getString("mainClass");
 		String launchArgs = json.getString("minecraftArguments");
+		String type = json.optString("type", null);
 		loadDepends(json.getJSONArray("libraries"), libraries);
 
 		String jarPath;
@@ -45,7 +46,7 @@ class VersionParser {
 			jarPath = getVersionJarPath(name, version);
 		}
 
-		return new Version(version, mainClass, assets, launchArgs, jarPath, libraries, assets.equals("legacy"));
+		return new Version(version, type, mainClass, assets, launchArgs, jarPath, libraries, assets.equals("legacy"));
 	}
 
 	public Set<Asset> parseAssets(MinecraftDirectory minecraftDir, String name) throws IOException, JSONException {

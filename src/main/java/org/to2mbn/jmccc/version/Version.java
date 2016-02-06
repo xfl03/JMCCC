@@ -11,6 +11,7 @@ public class Version implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private String version;
+	private String type;
 	private String mainClass;
 	private String assets;
 	private String launchArgs;
@@ -22,15 +23,16 @@ public class Version implements Serializable {
 	 * Creates a Version object.
 	 * 
 	 * @param version the version number
+	 * @param type the type of the version, null if the type is unknown
 	 * @param mainClass the main class
 	 * @param assets the assets index name
 	 * @param launchArgs the launch arguments
 	 * @param jarPath the relative path of the jar file
 	 * @param libraries the libraries to add to classpath
 	 * @param legacy true if this version is lower than 1.7.10, as well as using the legacy assets index
-	 * @throws NullPointerException if any of the arguments is null
+	 * @throws NullPointerException if any of the arguments(except type) is null
 	 */
-	public Version(String version, String mainClass, String assets, String launchArgs, String jarPath, Set<Library> libraries, boolean legacy) {
+	public Version(String version, String type, String mainClass, String assets, String launchArgs, String jarPath, Set<Library> libraries, boolean legacy) {
 		Objects.requireNonNull(version);
 		Objects.requireNonNull(mainClass);
 		Objects.requireNonNull(assets);
@@ -38,6 +40,7 @@ public class Version implements Serializable {
 		Objects.requireNonNull(jarPath);
 		Objects.requireNonNull(libraries);
 		this.version = version;
+		this.type = type;
 		this.mainClass = mainClass;
 		this.assets = assets;
 		this.launchArgs = launchArgs;
@@ -53,6 +56,15 @@ public class Version implements Serializable {
 	 */
 	public String getVersion() {
 		return version;
+	}
+
+	/**
+	 * Gets the type of the version, e.g. "snapshot", "release", null if the type is unknown.
+	 * 
+	 * @return the type of the version, null if the type is unknown
+	 */
+	public String getType() {
+		return type;
 	}
 
 	/**
@@ -137,14 +149,14 @@ public class Version implements Serializable {
 		}
 		if (obj instanceof Version) {
 			Version another = (Version) obj;
-			return version.equals(another.version) && mainClass.equals(another.mainClass) && assets.equals(another.assets) && launchArgs.equals(another.launchArgs) && jarPath.equals(another.jarPath) && libraries.equals(another.libraries) && legacy == another.legacy;
+			return version.equals(another.version) && Objects.equals(type, another.type) && mainClass.equals(another.mainClass) && assets.equals(another.assets) && launchArgs.equals(another.launchArgs) && jarPath.equals(another.jarPath) && libraries.equals(another.libraries) && legacy == another.legacy;
 		}
 		return false;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(version, mainClass, assets, launchArgs, jarPath, libraries, legacy);
+		return Objects.hash(version, type, mainClass, assets, launchArgs, jarPath, libraries, legacy);
 	}
 
 	@Override
