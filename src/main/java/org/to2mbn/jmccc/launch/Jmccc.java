@@ -36,6 +36,7 @@ public class Jmccc implements Launcher {
 	 * Gets a launcher.
 	 * 
 	 * @return the launcher
+	 * @see LauncherBuilder
 	 */
 	public static Launcher getLauncher() {
 		return new Jmccc();
@@ -56,17 +57,10 @@ public class Jmccc implements Launcher {
 
 	/**
 	 * Gets whether to do a fast check on natives.
-	 * <p>
-	 * By default, this feature is off. In this case, when decompressing natives,
-	 * jmccc will fully compare the existing natives and the natives in jars. If, and only if,
-	 * a existing native is modified, jmccc will replace it. Because replacing a native in use
-	 * may cause the running JVM to crash.<br>
-	 * If the feature is on, jmccc won't compare the full content of natives.
-	 * Jmccc only compares the sizes. This can improve the launching speed.
-	 * But we cannot ensure the content of the natives are correct.
 	 * 
 	 * @return true if jmccc does a fast check on natives
 	 * @see #setNativeFastCheck(boolean)
+	 * @see LauncherBuilder#setNativeFastCheck(boolean)
 	 */
 	public boolean isNativeFastCheck() {
 		return nativeFastCheck;
@@ -77,6 +71,7 @@ public class Jmccc implements Launcher {
 	 * 
 	 * @param nativeFastCheck true if jmccc does a fast check on natives
 	 * @see #isNativeFastCheck()
+	 * @see LauncherBuilder#setNativeFastCheck(boolean)
 	 */
 	public void setNativeFastCheck(boolean nativeFastCheck) {
 		this.nativeFastCheck = nativeFastCheck;
