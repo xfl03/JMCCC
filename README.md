@@ -57,6 +57,9 @@ See JavaDoc for more usages.
 ### Yggdrasil Auth
 If you are looking for Yggdrasil auth, please see [jmccc-jyal-authenticator](https://github.com/to2mbn/jmccc-jyal-authenticator).
 
+### Library & Asset Download
+[jmccc-mcdownloader](https://github.com/to2mbn/jmccc-mcdownloader) provides the download feature.
+
 ### Forge
 JMCCC won't add fml options (such as `-Dfml.ignoreInvalidMinecraftCertificates=true` and `-Dfml.ignorePatchDiscrepancies=true`) to the command line automatically.
 If you have problems launching forge, you may need to add these arguments manually.
