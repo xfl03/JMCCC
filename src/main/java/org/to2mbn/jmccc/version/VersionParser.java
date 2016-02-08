@@ -136,7 +136,7 @@ class VersionParser {
 		String archName = Platform.CURRENT.name().toLowerCase();
 
 		if (natives.has(archName)) {
-			return natives.getString(archName).replaceAll("\\Q${arch}", System.getProperty("os.arch").contains("64") ? "64" : "32");
+			return natives.getString(archName).replaceAll("\\Q${arch}", Platform.isX64() ? "64" : "32");
 		} else {
 			return null;
 		}

@@ -51,6 +51,22 @@ public enum Platform {
 	}
 
 	/**
+	 * Returns true if the current platform supports x64.
+	 * <p>
+	 * This method checks <code>sun.arch.data.model</code> property first.
+	 * If the property does not exist, this method will check <code>os.arch</code>.
+	 * 
+	 * @return true if the current platform supports x64
+	 */
+	public static boolean isX64() {
+		String sunArchDataModel = System.getProperty("sun.arch.data.model");
+		if (sunArchDataModel != null) {
+			return "64".equals(sunArchDataModel);
+		}
+		return System.getProperty("os.arch").contains("64");
+	}
+
+	/**
 	 * The current platform, {@link Platform#UNKNOWN} if the current platform cannot be identified.
 	 */
 	public static final Platform CURRENT = getCurrent();
