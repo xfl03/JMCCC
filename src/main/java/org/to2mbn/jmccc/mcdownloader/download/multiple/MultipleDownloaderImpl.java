@@ -149,7 +149,7 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 					try {
 						checkInterrupt();
 						activeTasksCountup();
-						Future<R> future = executor.submit(new Callable<R>() {
+						Future<R> taskfuture = executor.submit(new Callable<R>() {
 
 							@Override
 							public R call() throws Exception {
@@ -183,8 +183,8 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 								return val;
 							}
 						});
-						activeSubtasks.add(future);
-						return future;
+						activeSubtasks.add(taskfuture);
+						return taskfuture;
 					} finally {
 						lock.unlock();
 					}

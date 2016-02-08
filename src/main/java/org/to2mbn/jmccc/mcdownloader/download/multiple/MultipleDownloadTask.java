@@ -25,7 +25,7 @@ abstract public class MultipleDownloadTask<T> {
 			try {
 				proxied.done(processor.process(result));
 			} catch (Exception e) {
-				throw new RuntimeException("unable to convert result", e);
+				throw new IllegalStateException("unable to convert result", e);
 			}
 		}
 
