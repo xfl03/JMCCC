@@ -1,0 +1,41 @@
+{
+  "id": "1.6.4",
+  "time": "2014-04-02T12:00:00+02:00",
+  "releaseTime": "2013-09-19T17:52:37+02:00",
+  "type": "release",
+  "processArguments": "username_session_version",
+  "minecraftArguments": "--username ${auth_player_name} --session ${auth_session} --version ${version_name} --gameDir ${game_directory} --assetsDir ${game_assets}",
+  "minimumLauncherVersion": 4,
+  "libraries": [
+    {
+      "name": "net.sf.jopt-simple:jopt-simple:4.5"
+    },
+    {
+      "name": "org.lwjgl.lwjgl:lwjgl:2.9.0",
+      "rules": [
+        {
+          "action": "allow"
+        }
+      ]
+    },
+    {
+      "name": "org.lwjgl.lwjgl:lwjgl-platform:2.9.0",
+      "natives": {
+        "linux": "natives-testplatform",
+        "windows": "natives-testplatform",
+        "osx": "natives-testplatform"
+      },
+      "extract": {
+        "exclude": [
+          "META-INF/"
+        ]
+      },
+      "rules": [
+        {
+          "action": "allow"
+        }
+      ]
+    }
+  ],
+  "mainClass": "net.minecraft.client.main.Main"
+}

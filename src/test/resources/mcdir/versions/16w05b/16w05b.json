@@ -1,0 +1,35 @@
+{
+  "id": "16w05b",
+  "time": "2016-02-04T23:38:39+08:00",
+  "releaseTime": "2016-02-04T23:28:02+08:00",
+  "type": "snapshot",
+  "minecraftArguments": "--username ${auth_player_name} --version ${version_name} --gameDir ${game_directory} --assetsDir ${assets_root} --assetIndex ${assets_index_name} --uuid ${auth_uuid} --accessToken ${auth_access_token} --userType ${user_type} --versionType ${version_type}",
+  "libraries": [
+    {
+      "name": "com.mojang:authlib:1.5.22"
+    }
+  ],
+  "mainClass": "net.minecraft.client.main.Main",
+  "minimumLauncherVersion": 18,
+  "assets": "1.9",
+  "downloads": {
+    "client": {
+      "url": "https://launcher.mojang.com/mc/game/16w05b/client/3a07cea3cf6f1198a7db39a8bd3775883fb391be/client.jar",
+      "sha1": "3a07cea3cf6f1198a7db39a8bd3775883fb391be",
+      "size": 8692004
+    },
+    "server": {
+      "url": "https://launcher.mojang.com/mc/game/16w05b/server/9fdf8a90055b3cf689265cc30bdd9d1faf2c743c/server.jar",
+      "sha1": "9fdf8a90055b3cf689265cc30bdd9d1faf2c743c",
+      "size": 8843033
+    }
+  },
+  "assetIndex": {
+    "totalSize": 117237481,
+    "id": "1.9",
+    "known": true,
+    "url": "https://launchermeta.mojang.com/mc-staging/assets/1.9/81f4951679bb400bd031349e278b20b2803dba58/1.9.json",
+    "sha1": "81f4951679bb400bd031349e278b20b2803dba58",
+    "size": 134402
+  }
+}
