@@ -13,8 +13,32 @@ public final class ExtraArgumentsTemplates {
 	public static final String FML_IGNORE_INVALID_MINECRAFT_CERTIFICATES = "-Dfml.ignoreInvalidMinecraftCertificates=true";
 	public static final String FML_IGNORE_PATCH_DISCREPANCISE = "-Dfml.ignorePatchDiscrepancies=true";
 	
+	/**
+	 * Use with caution: This option is available only on OSX.
+	 * <p>
+	 * You may need to check the current os before using the option:
+	 * <pre>
+	 * <code>
+	 * if (Platform.CURRENT == Platform.OSX) {
+	 * 	// add the option to the argument list
+	 * }
+	 * </code>
+	 * </pre>
+	 * 
+	 * @see #OSX_DOCK_ICON(MinecraftDirectory, Set)
+	 * @see #OSX_DOCK_ICON(MinecraftDirectory, Version)
+	 */
 	public static final String OSX_DOCK_NAME="-Xdock:name=Minecraft";
 	
+	/**
+	 * Use with caution: This option is available only on OSX.
+	 * 
+	 * @param minecraftDir the minecraft directory
+	 * @param assetIndex the asset index
+	 * @return a <code>-Xdock:icon</code> option, null if the assets cannot be resolved
+	 * @see #OSX_DOCK_ICON(MinecraftDirectory, Version)
+	 * @see #OSX_DOCK_NAME
+	 */
 	public static String OSX_DOCK_ICON(MinecraftDirectory minecraftDir, Set<Asset> assetIndex) {
 		Objects.requireNonNull(minecraftDir);
 		Objects.requireNonNull(assetIndex);
@@ -26,6 +50,16 @@ public final class ExtraArgumentsTemplates {
 		return null;
 	}
 
+	/**
+	 * Use with caution: This option is available only on OSX.
+	 * 
+	 * @param minecraftDir the minecraft directory
+	 * @param version the minecraft version
+	 * @return a <code>-Xdock:icon</code> option, null if the assets cannot be resolved
+	 * @throws IOException if an I/O error has occurred during resolving asset index
+	 * @see #OSX_DOCK_ICON(MinecraftDirectory, Set)
+	 * @see #OSX_DOCK_NAME
+	 */
 	public static String OSX_DOCK_ICON(MinecraftDirectory minecraftDir, Version version) throws IOException {
 		Set<Asset> assetIndex = Versions.resolveAssets(minecraftDir, version.getAssets());
 		if (assetIndex == null) {
