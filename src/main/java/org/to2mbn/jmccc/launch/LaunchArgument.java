@@ -54,7 +54,9 @@ class LaunchArgument {
 		// extended arguments
 		if (extendedArguments != null) {
 			for (String arg : extendedArguments) {
-				args.add(arg);
+				if (arg != null) {
+					args.add(arg);
+				}
 			}
 		}
 

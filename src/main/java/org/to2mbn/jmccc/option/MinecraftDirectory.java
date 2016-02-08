@@ -3,6 +3,7 @@ package org.to2mbn.jmccc.option;
 import java.io.File;
 import java.io.Serializable;
 import java.util.Objects;
+import org.to2mbn.jmccc.version.Asset;
 
 /**
  * Describes a minecraft directory.
@@ -175,6 +176,26 @@ public class MinecraftDirectory implements Serializable {
 	 */
 	public File getVersionJar(String version) {
 		return new File(getVersion(version), version + ".jar");
+	}
+
+	/**
+	 * Gets the location of the given asset.
+	 * 
+	 * @param asset the asset
+	 * @return the location of the asset
+	 */
+	public File getAsset(Asset asset) {
+		return new File(getAssetObjects(), asset.getPath());
+	}
+
+	/**
+	 * Gets the virtual location of the given asset.
+	 * 
+	 * @param asset the asset
+	 * @return the virtual location of the asset
+	 */
+	public File getVirtualAsset(Asset asset) {
+		return new File(getVirtualLegacyAssets(), asset.getVirtualPath());
 	}
 
 	@Override

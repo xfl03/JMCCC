@@ -163,7 +163,7 @@ public class Jmccc implements Launcher {
 		Set<Asset> assets = Versions.resolveAssets(mcdir, version.getAssets());
 		if (assets != null) {
 			for (Asset asset : assets) {
-				copyFile(new File(mcdir.getAssetObjects(), asset.getPath()), new File(mcdir.getVirtualLegacyAssets(), asset.getVirtualPath()));
+				copyFile(mcdir.getAsset(asset), mcdir.getVirtualAsset(asset));
 			}
 		}
 	}

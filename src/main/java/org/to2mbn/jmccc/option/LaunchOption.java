@@ -244,6 +244,7 @@ public class LaunchOption implements Serializable {
 	 * Gets the extra arguments, default to null.
 	 * <p>
 	 * The arguments will be added to the JVM arguments.
+	 * Null elements are allowed, if an element is null, it won't be added to the JVM arguments.
 	 * 
 	 * @return the extra arguments, default to null
 	 */
@@ -255,6 +256,7 @@ public class LaunchOption implements Serializable {
 	 * Sets the extra arguments.
 	 * 
 	 * @param extraArguments the extra arguments to set
+	 * @see #getExtraArguments()
 	 */
 	public void setExtraArguments(List<String> extraArguments) {
 		this.extraArguments = extraArguments;
