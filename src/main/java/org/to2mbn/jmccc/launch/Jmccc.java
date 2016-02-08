@@ -31,6 +31,7 @@ import org.to2mbn.jmccc.version.Versions;
 public class Jmccc implements Launcher {
 
 	private boolean nativeFastCheck = false;
+	private boolean debugPrintCommandline = false;
 
 	/**
 	 * Gets a launcher.
@@ -77,12 +78,34 @@ public class Jmccc implements Launcher {
 		this.nativeFastCheck = nativeFastCheck;
 	}
 
-	private LaunchResult launch(LaunchArgument arg, GameProcessListener listener) throws LaunchException {
-		Process process;
+	/**
+	 * Gets whether to print the launch commandline for debugging.
+	 * 
+	 * @return whether to print the launch commandline for debugging
+	 */
+	public boolean isDebugPrintCommandline() {
+		return debugPrintCommandline;
+	}
 
-		ProcessBuilder processBuilder = new ProcessBuilder(arg.generateCommandline());
+	/**
+	 * Sets whether to print the launch commandline for debugging.
+	 * 
+	 * @param debugPrintCommandline whether to print the launch commandline for debugging.
+	 */
+	public void setDebugPrintCommandline(boolean debugPrintCommandline) {
+		this.debugPrintCommandline = debugPrintCommandline;
+	}
+
+	private LaunchResult launch(LaunchArgument arg, GameProcessListener listener) throws LaunchException {
+		String[] commandline = arg.generateCommandline();
+		if (debugPrintCommandline) {
+			printDebugCommandline(commandline);
+		}
+
+		ProcessBuilder processBuilder = new ProcessBuilder(commandline);
 		processBuilder.directory(arg.getLaunchOption().getGameDirectory().getRoot());
 
+		Process process;
 		try {
 			process = processBuilder.start();
 		} catch (SecurityException | IOException e) {
@@ -247,6 +270,14 @@ public class Jmccc implements Launcher {
 			FileChannel chout = out.getChannel();
 			chin.transferTo(0, chin.size(), chout);
 		}
+	}
+
+	private void printDebugCommandline(String[] commandline) {
+		StringBuilder sb = new StringBuilder("jmccc:");
+		for (String arg : commandline) {
+			sb.append(' ').append(arg);
+		}
+		System.err.println(sb);
 	}
 
 }

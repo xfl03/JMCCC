@@ -17,6 +17,7 @@ public class LauncherBuilder {
 	}
 
 	private boolean nativeFastCheck = false;
+	private boolean debugPrintCommandline = false;
 
 	protected LauncherBuilder() {
 	}
@@ -41,6 +42,26 @@ public class LauncherBuilder {
 	}
 
 	/**
+	 * Sets whether to print the launch commandline for debugging.
+	 * <p>
+	 * The commandline will be printed to stderr. The format is
+	 * <blockquote>
+	 * 
+	 * <pre>
+	 * jmccc: &lt;commandline&gt;
+	 * </pre>
+	 * 
+	 * </blockquote>
+	 * 
+	 * @param debugPrintCommandline whether to print the launch commandline for debugging.
+	 * @return the builder itself
+	 */
+	public LauncherBuilder setDebugPrintCommandline(boolean debugPrintCommandline) {
+		this.debugPrintCommandline = debugPrintCommandline;
+		return this;
+	}
+
+	/**
 	 * Creates a Launcher object according to the configurations.
 	 * 
 	 * @return a Launcher object
@@ -48,6 +69,7 @@ public class LauncherBuilder {
 	public Launcher build() {
 		Jmccc launcher = new Jmccc();
 		launcher.setNativeFastCheck(nativeFastCheck);
+		launcher.setDebugPrintCommandline(debugPrintCommandline);
 		return launcher;
 	}
 
