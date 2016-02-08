@@ -10,7 +10,7 @@ abstract public class ProcessMonitor {
 	protected final Process process;
 
 	private Object stateLock = new Object();
-	private boolean started = false;
+	private volatile boolean started = false;
 
 	private ThreadFactory threadFactory;
 	private List<Thread> monitors = new ArrayList<>();
