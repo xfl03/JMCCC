@@ -8,7 +8,6 @@ public class AssetIndexInfo extends DownloadInfo {
 
 	private String id;
 	private long totalSize;
-	private boolean known;
 
 	/**
 	 * Creates an AssetIndexInfo.
@@ -18,15 +17,13 @@ public class AssetIndexInfo extends DownloadInfo {
 	 * @param size the file size, -1 if the size is unknown
 	 * @param id the version of the asset index
 	 * @param totalSize the total size of the assets, -1 if the total size if unknown
-	 * @param known true if the checksum and size are known
 	 * @throws NullPointerException if <code>id==null</code>
 	 */
-	public AssetIndexInfo(String url, String checksum, long size, String id, long totalSize, boolean known) {
+	public AssetIndexInfo(String url, String checksum, long size, String id, long totalSize) {
 		super(url, checksum, size);
 		Objects.requireNonNull(id);
 		this.id = id;
 		this.totalSize = totalSize;
-		this.known = known;
 	}
 
 	/**
@@ -47,18 +44,9 @@ public class AssetIndexInfo extends DownloadInfo {
 		return totalSize;
 	}
 
-	/**
-	 * Gets whether the checksum and size are known.
-	 * 
-	 * @return true if the checksum and size are known
-	 */
-	public boolean isKnown() {
-		return known;
-	}
-
 	@Override
 	public int hashCode() {
-		return Objects.hash(super.hashCode(), id, totalSize, known);
+		return Objects.hash(super.hashCode(), id, totalSize);
 	}
 
 	@Override
@@ -68,7 +56,7 @@ public class AssetIndexInfo extends DownloadInfo {
 		}
 		if (obj instanceof AssetIndexInfo && super.equals(obj)) {
 			AssetIndexInfo another = (AssetIndexInfo) obj;
-			return Objects.equals(id, another.id) && totalSize == another.totalSize && known == another.known;
+			return Objects.equals(id, another.id) && totalSize == another.totalSize;
 		}
 		return false;
 	}

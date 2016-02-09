@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -32,7 +33,7 @@ class VersionParser {
 		loadDepends(json.getJSONArray("libraries"), libraries);
 
 		Map<String, DownloadInfo> downloads = json.has("downloads") ? resolveDownloads(json.getJSONObject("downloads")) : null;
-		AssetIndexInfo assetIndexDownloadInfo = json.has("assetIndex") ? resolveAssetDownloadInfo(json.getJSONObject("assetIndex")) : null;
+		AssetIndexInfo assetIndexDownloadInfo = json.has("assetIndex") ? resolveAssetIndexInfo(json.getJSONObject("assetIndex")) : null;
 
 		String jarPath;
 
@@ -173,26 +174,33 @@ class VersionParser {
 		}
 	}
 
-	private Map<String, DownloadInfo> resolveDownloads(JSONObject json) {
-		Map<String, DownloadInfo> downloads = new HashMap<>();
-		for (Object oKey : json.keySet()) {
-			String key = (String) oKey;
-			JSONObject infojson = json.getJSONObject(key);
-			String url = infojson.getString("url");
-			String checksum = infojson.optString("sha1", null);
-			long size = infojson.optLong("size", -1);
-			downloads.put(key, new DownloadInfo(url, checksum, size));
-		}
-		return downloads;
-	}
-
-	private AssetIndexInfo resolveAssetDownloadInfo(JSONObject json) {
-		String url = json.getString("url");
+	private DownloadInfo resolveDownloadInfo(JSONObject json) {
+		String url = json.optString("url", null);
 		String checksum = json.optString("sha1", null);
 		long size = json.optLong("size", -1);
-		String id = json.getString("id");
-		long totalSize = json.optLong("totalSize", -1);
-		boolean known = json.optBoolean("known", false);
-		return new AssetIndexInfo(url, checksum, size, id, totalSize, known);
+		return new DownloadInfo(url, checksum, size);
 	}
+
+	private Map<String, DownloadInfo> resolveDownloads(JSONObject json) {
+		Map<String, DownloadInfo> downloads = new HashMap<>();
+		for (Object rawkey : json.keySet()) {
+			String key = (String) rawkey;
+			downloads.put(key, resolveDownloadInfo(json.getJSONObject(key)));
+		}
+		return Collections.unmodifiableMap(downloads);
+	}
+
+	private AssetIndexInfo resolveAssetIndexInfo(JSONObject json) {
+		DownloadInfo base = resolveDownloadInfo(json);
+		String id = json.getString("id");
+		long totalSize = json.optLong("size", -1);
+		return new AssetIndexInfo(base.getUrl(), base.getChecksum(), base.getSize(), id, totalSize);
+	}
+
+	private LibraryInfo resolveLibraryInfo(JSONObject json) {
+		DownloadInfo base = resolveDownloadInfo(json);
+		String path = json.optString("path", null);
+		return new LibraryInfo(base.getUrl(), base.getChecksum(), base.getSize(), path);
+	}
+
 }
