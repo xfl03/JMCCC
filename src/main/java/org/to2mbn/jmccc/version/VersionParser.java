@@ -132,7 +132,7 @@ class VersionParser {
 		if (isNative) {
 			String natives = resolveNative(json.getJSONObject("natives"));
 			Set<String> excludes = json.has("extract") ? resolveExtractExclude(json.getJSONObject("extract")) : null;
-			return new Native(domain, name, version, resolveLibraryDownload(json, null), natives, excludes, url, checksums);
+			return new Native(domain, name, version, resolveLibraryDownload(json, natives), natives, excludes, url, checksums);
 		} else {
 			return new Library(domain, name, version, resolveLibraryDownload(json, null), url, checksums);
 		}
