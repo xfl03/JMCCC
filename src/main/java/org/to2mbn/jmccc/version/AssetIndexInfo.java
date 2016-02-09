@@ -13,13 +13,13 @@ public class AssetIndexInfo extends DownloadInfo {
 	/**
 	 * Creates an AssetIndexInfo.
 	 * 
-	 * @param url the url
+	 * @param url the url, null if the url is unknown
 	 * @param checksum the SHA-1 checksum, null if the checksum is unknown
-	 * @param size the size
+	 * @param size the file size, -1 if the size is unknown
 	 * @param id the version of the asset index
-	 * @param totalSize dunno wtf it is, ask mojang
+	 * @param totalSize the total size of the assets, -1 if the total size if unknown
 	 * @param known true if the checksum and size are known
-	 * @throws NullPointerException if <code>url==null || id==null</code>
+	 * @throws NullPointerException if <code>id==null</code>
 	 */
 	public AssetIndexInfo(String url, String checksum, long size, String id, long totalSize, boolean known) {
 		super(url, checksum, size);
@@ -39,9 +39,9 @@ public class AssetIndexInfo extends DownloadInfo {
 	}
 
 	/**
-	 * The 'totalSize' element in the json, dunno wtf it is.
+	 * Gets the total size of the assets, -1 if the total size if unknown. (the 'totalSize' element in the json)
 	 * 
-	 * @return the 'totalSize' element in the json
+	 * @return the total size of the assets, -1 if the total size if unknown
 	 */
 	public long getTotalSize() {
 		return totalSize;
@@ -68,7 +68,7 @@ public class AssetIndexInfo extends DownloadInfo {
 		}
 		if (obj instanceof AssetIndexInfo && super.equals(obj)) {
 			AssetIndexInfo another = (AssetIndexInfo) obj;
-			return id.equals(another.id) && totalSize == another.totalSize && known == another.known;
+			return Objects.equals(id, another.id) && totalSize == another.totalSize && known == another.known;
 		}
 		return false;
 	}
