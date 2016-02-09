@@ -219,7 +219,7 @@ class VersionParser {
 	private AssetIndexInfo resolveAssetIndexInfo(JSONObject json) {
 		DownloadInfo base = resolveDownloadInfo(json);
 		String id = json.getString("id");
-		long totalSize = json.optLong("size", -1);
+		long totalSize = json.optLong("totalSize", -1);
 		return new AssetIndexInfo(base.getUrl(), base.getChecksum(), base.getSize(), id, totalSize);
 	}
 
