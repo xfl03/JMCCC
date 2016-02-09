@@ -1,0 +1,76 @@
+{
+    "assetIndex": {
+        "id": "1.9",
+        "sha1": "81f4951679bb400bd031349e278b20b2803dba58",
+        "size": 134402,
+        "url": "https://launchermeta.mojang.com/mc-staging/assets/1.9/81f4951679bb400bd031349e278b20b2803dba58/1.9.json",
+        "totalSize": 117237481
+    },
+    "assets": "1.9",
+    "downloads": {
+        "client": {
+            "sha1": "3a07cea3cf6f1198a7db39a8bd3775883fb391be",
+            "size": 8692004,
+            "url": "https://launcher.mojang.com/mc/game/16w05b/client/3a07cea3cf6f1198a7db39a8bd3775883fb391be/client.jar"
+        },
+        "server": {
+            "sha1": "9fdf8a90055b3cf689265cc30bdd9d1faf2c743c",
+            "size": 8843033,
+            "url": "https://launcher.mojang.com/mc/game/16w05b/server/9fdf8a90055b3cf689265cc30bdd9d1faf2c743c/server.jar"
+        }
+    },
+    "id": "16w05b_",
+    "libraries": [
+        {
+            "name": "oshi-project:oshi-core:1.1",
+            "downloads": {
+                "artifact": {
+                    "size": 30973,
+                    "sha1": "9ddf7b048a8d701be231c0f4f95fd986198fd2d8",
+                    "path": "oshi-project/oshi-core/1.1/oshi-core-1.1.jar",
+                    "url": "https://libraries.minecraft.net/oshi-project/oshi-core/1.1/oshi-core-1.1.jar"
+                }
+            }
+        },
+        {
+            "extract": {
+                "exclude": [
+                    "META-INF/"
+                ]
+            },
+            "name": "org.lwjgl.lwjgl:lwjgl-platform:2.9.4-nightly-20150209",
+            "natives": {
+                "linux": "natives-testplatform",
+                "osx": "natives-testplatform",
+                "windows": "natives-testplatform"
+            },
+            "rules": [
+                {
+                    "action": "allow"
+                }
+            ],
+            "downloads": {
+                "classifiers": {
+                    "natives-testplatform": {
+                        "size": 578680,
+                        "sha1": "931074f46c795d2f7b30ed6395df5715cfd7675b",
+                        "path": "org/lwjgl/lwjgl/lwjgl-platform/2.9.4-nightly-20150209/lwjgl-platform-2.9.4-nightly-20150209-natives-linux.jar",
+                        "url": "https://libraries.minecraft.net/org/lwjgl/lwjgl/lwjgl-platform/2.9.4-nightly-20150209/lwjgl-platform-2.9.4-nightly-20150209-natives-linux.jar"
+                    }
+                },
+                "artifact": {
+                    "size": 22,
+                    "sha1": "b04f3ee8f5e43fa3b162981b50bb72fe1acabb33",
+                    "path": "org/lwjgl/lwjgl/lwjgl-platform/2.9.4-nightly-20150209/lwjgl-platform-2.9.4-nightly-20150209.jar",
+                    "url": "https://libraries.minecraft.net/org/lwjgl/lwjgl/lwjgl-platform/2.9.4-nightly-20150209/lwjgl-platform-2.9.4-nightly-20150209.jar"
+                }
+            }
+        }
+    ],
+    "mainClass": "net.minecraft.client.main.Main",
+    "minecraftArguments": "--username ${auth_player_name} --version ${version_name} --gameDir ${game_directory} --assetsDir ${assets_root} --assetIndex ${assets_index_name} --uuid ${auth_uuid} --accessToken ${auth_access_token} --userType ${user_type} --versionType ${version_type}",
+    "minimumLauncherVersion": 18,
+    "releaseTime": "2016-02-04T15:28:02+00:00",
+    "time": "2016-02-04T15:38:39+00:00",
+    "type": "snapshot"
+}
