@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -32,7 +33,7 @@ class VersionParser {
 		loadDepends(json.getJSONArray("libraries"), libraries);
 
 		Map<String, DownloadInfo> downloads = json.has("downloads") ? resolveDownloads(json.getJSONObject("downloads")) : null;
-		AssetIndexDownloadInfo assetIndexDownloadInfo = json.has("assetIndex") ? resolveAssetDownloadInfo(json.getJSONObject("assetIndex")) : null;
+		AssetIndexInfo assetIndexDownloadInfo = json.has("assetIndex") ? resolveAssetIndexInfo(json.getJSONObject("assetIndex")) : null;
 
 		String jarPath;
 
@@ -49,52 +50,34 @@ class VersionParser {
 			jarPath = getVersionJarPath(version);
 		}
 
-		return new Version(version, type, mainClass, assets, launchArgs, jarPath, libraries, assets.equals("legacy"), assetIndexDownloadInfo, downloads);
+		return new Version(version, type, mainClass, assets, launchArgs, jarPath, Collections.unmodifiableSet(libraries), assets.equals("legacy"), assetIndexDownloadInfo, downloads);
 	}
 
 	public Set<Asset> parseAssets(MinecraftDirectory minecraftDir, String name) throws IOException, JSONException {
 		JSONObject json = readJson(minecraftDir.getAssetIndex(name));
 		JSONObject objects = json.getJSONObject("objects");
 		Set<Asset> assets = new HashSet<>();
-		for (Object oVirtualPath : objects.keySet()) {
-			String virtualPath = (String) oVirtualPath;
+		for (Object rawVirtualPath : objects.keySet()) {
+			String virtualPath = (String) rawVirtualPath;
 			JSONObject object = objects.getJSONObject(virtualPath);
 			String hash = object.getString("hash");
 			int size = object.getInt("size");
 			assets.add(new Asset(virtualPath, hash, size));
 		}
-		return assets;
+		return Collections.unmodifiableSet(assets);
 	}
 
 	private void loadDepends(JSONArray librariesList, Collection<Library> libraries) {
 		for (int i = 0; i < librariesList.length(); i++) {
-			JSONObject library = librariesList.getJSONObject(i);
-
-			if (library.has("rules") && !isAllow(library.getJSONArray("rules"))) {
-				continue;
-			}
-
-			String[] splited = library.getString("name").split(":", 3);
-			String domain = splited[0];
-			String name = splited[1];
-			String version = splited[2];
-
-			String url = library.has("url") ? library.getString("url") : null;
-			String[] checksums = library.has("checksums") ? resolveChecksums(library.getJSONArray("checksums")) : null;
-
-			boolean isNative = library.has("natives");
-			if (isNative) {
-				String natives = resolveNatives(library.getJSONObject("natives"));
-				Set<String> excludes = library.has("extract") ? resolveExtractExclude(library.getJSONObject("extract")) : null;
-				libraries.add(new Native(domain, name, version, natives, excludes, url, checksums));
-			} else {
-				libraries.add(new Library(domain, name, version, url, checksums));
+			Library library = resolveLibrary(librariesList.getJSONObject(i));
+			if (library != null) {
+				libraries.add(library);
 			}
 		}
 	}
 
-	private boolean isAllow(JSONArray rules) {
-		// by default it's allow
+	private boolean isAllowed(JSONArray rules) {
+		// by default it's allowed
 		if (rules.length() == 0) {
 			return true;
 		}
@@ -132,7 +115,51 @@ class VersionParser {
 		return allow;
 	}
 
-	private String resolveNatives(JSONObject natives) {
+	private Library resolveLibrary(JSONObject json) {
+		if (json.has("rules") && !isAllowed(json.getJSONArray("rules"))) {
+			return null;
+		}
+
+		String[] splited = json.getString("name").split(":", 3);
+		String domain = splited[0];
+		String name = splited[1];
+		String version = splited[2];
+
+		String url = json.has("url") ? json.getString("url") : null;
+		String[] checksums = json.has("checksums") ? resolveChecksums(json.getJSONArray("checksums")) : null;
+
+		boolean isNative = json.has("natives");
+		if (isNative) {
+			String natives = resolveNative(json.getJSONObject("natives"));
+			Set<String> excludes = json.has("extract") ? resolveExtractExclude(json.getJSONObject("extract")) : null;
+			return new Native(domain, name, version, resolveLibraryDownload(json, natives), natives, excludes, url, checksums);
+		} else {
+			return new Library(domain, name, version, resolveLibraryDownload(json, null), url, checksums);
+		}
+	}
+
+	private LibraryInfo resolveLibraryDownload(JSONObject json, String natives) {
+		JSONObject downloads = json.optJSONObject("downloads");
+		if (downloads == null) {
+			return null;
+		}
+		JSONObject artifact;
+		if (natives == null) {
+			artifact = downloads.optJSONObject("artifact");
+		} else {
+			JSONObject classifiers = downloads.getJSONObject("classifiers");
+			if (classifiers == null) {
+				return null;
+			}
+			artifact = classifiers.optJSONObject(natives);
+		}
+		if (artifact == null) {
+			return null;
+		}
+		return resolveLibraryInfo(artifact);
+	}
+
+	private String resolveNative(JSONObject natives) {
 		String archName = Platform.CURRENT.name().toLowerCase();
 
 		if (natives.has(archName)) {
@@ -152,7 +179,7 @@ class VersionParser {
 		for (int i = 0; i < excludesArray.length(); i++) {
 			excludes.add(excludesArray.getString(i));
 		}
-		return excludes;
+		return Collections.unmodifiableSet(excludes);
 	}
 
 	private String getVersionJarPath(String version) {
@@ -173,26 +200,33 @@ class VersionParser {
 		}
 	}
 
-	private Map<String, DownloadInfo> resolveDownloads(JSONObject json) {
-		Map<String, DownloadInfo> downloads = new HashMap<>();
-		for (Object oKey : json.keySet()) {
-			String key = (String) oKey;
-			JSONObject infojson = json.getJSONObject(key);
-			String url = infojson.getString("url");
-			String checksum = infojson.optString("sha1", null);
-			long size = infojson.optLong("size", -1);
-			downloads.put(key, new DownloadInfo(url, checksum, size));
-		}
-		return downloads;
-	}
-
-	private AssetIndexDownloadInfo resolveAssetDownloadInfo(JSONObject json) {
-		String url = json.getString("url");
+	private DownloadInfo resolveDownloadInfo(JSONObject json) {
+		String url = json.optString("url", null);
 		String checksum = json.optString("sha1", null);
 		long size = json.optLong("size", -1);
+		return new DownloadInfo(url, checksum, size);
+	}
+
+	private Map<String, DownloadInfo> resolveDownloads(JSONObject json) {
+		Map<String, DownloadInfo> downloads = new HashMap<>();
+		for (Object rawkey : json.keySet()) {
+			String key = (String) rawkey;
+			downloads.put(key, resolveDownloadInfo(json.getJSONObject(key)));
+		}
+		return Collections.unmodifiableMap(downloads);
+	}
+
+	private AssetIndexInfo resolveAssetIndexInfo(JSONObject json) {
+		DownloadInfo base = resolveDownloadInfo(json);
 		String id = json.getString("id");
 		long totalSize = json.optLong("totalSize", -1);
-		boolean known = json.optBoolean("known", false);
-		return new AssetIndexDownloadInfo(url, checksum, size, id, totalSize, known);
+		return new AssetIndexInfo(base.getUrl(), base.getChecksum(), base.getSize(), id, totalSize);
 	}
+
+	private LibraryInfo resolveLibraryInfo(JSONObject json) {
+		DownloadInfo base = resolveDownloadInfo(json);
+		String path = json.optString("path", null);
+		return new LibraryInfo(base.getUrl(), base.getChecksum(), base.getSize(), path);
+	}
+
 }

@@ -13,7 +13,11 @@ public class Library implements Serializable {
 	private String domain;
 	private String name;
 	private String version;
+	private LibraryInfo downloadInfo;
+
+	@Deprecated
 	private String customUrl;
+	@Deprecated
 	private String[] checksums;
 
 	/**
@@ -22,10 +26,11 @@ public class Library implements Serializable {
 	 * @param domain the domain of the library
 	 * @param name the name of the library
 	 * @param version the version of the library
+	 * @param downloadInfo the library download info, can be null
 	 * @throws NullPointerException if <code>domain==null||name==null||version==null</code>
 	 */
-	public Library(String domain, String name, String version) {
-		this(domain, name, version, null, null);
+	public Library(String domain, String name, String version, LibraryInfo downloadInfo) {
+		this(domain, name, version, downloadInfo, null, null);
 	}
 
 	/**
@@ -34,17 +39,21 @@ public class Library implements Serializable {
 	 * @param domain the domain of the library
 	 * @param name the name of the library
 	 * @param version the version of the library
+	 * @param downloadInfo the library download info, can be null
 	 * @param customUrl the custom maven repository url
 	 * @param checksums the checksums
 	 * @throws NullPointerException if <code>domain==null||name==null||version==null</code>
+	 * @deprecated <code>customUrl</code> and <code>checksums</code> may be removed in future versions
 	 */
-	public Library(String domain, String name, String version, String customUrl, String[] checksums) {
+	@Deprecated
+	public Library(String domain, String name, String version, LibraryInfo downloadInfo, String customUrl, String[] checksums) {
 		Objects.requireNonNull(domain);
 		Objects.requireNonNull(name);
 		Objects.requireNonNull(version);
 		this.domain = domain;
 		this.name = name;
 		this.version = version;
+		this.downloadInfo = downloadInfo;
 		this.customUrl = customUrl;
 		this.checksums = checksums;
 	}
@@ -91,19 +100,32 @@ public class Library implements Serializable {
 	 * Gets the custom maven repository url, null for default repository.
 	 * 
 	 * @return the custom maven repository url, null for default repository
+	 * @deprecated <code>customUrl</code> may be removed in future versions
 	 */
+	@Deprecated
 	public String getCustomUrl() {
 		return customUrl;
 	}
 
 	/**
-	 * Returns the sha1 checksums, null if no need to check.<br>
+	 * Returns the sha1 checksums, null if no need for checking.<br>
 	 * If the sha1 hash of the library matches one of the hashes, this library is valid.
 	 * 
 	 * @return a map of checksums
+	 * @deprecated <code>checksums</code> may be removed in future versions
 	 */
+	@Deprecated
 	public String[] getChecksums() {
 		return checksums;
+	}
+
+	/**
+	 * Gets the library download info, can be null.
+	 * 
+	 * @return the library download info, can be null
+	 */
+	public LibraryInfo getDownloadInfo() {
+		return downloadInfo;
 	}
 
 	/**
@@ -128,14 +150,14 @@ public class Library implements Serializable {
 		}
 		if (obj instanceof Library) {
 			Library another = (Library) obj;
-			return domain.equals(another.domain) && name.equals(another.name) && version.equals(another.version) && Objects.equals(customUrl, another.customUrl) && Arrays.equals(checksums, another.checksums);
+			return domain.equals(another.domain) && name.equals(another.name) && version.equals(another.version) && Objects.equals(customUrl, another.customUrl) && Arrays.equals(checksums, another.checksums) && Objects.equals(downloadInfo, another.downloadInfo);
 		}
 		return false;
 	}
 
 	@Override
 	public int hashCode() {
-		return Arrays.deepHashCode(new Object[] { domain, name, version, customUrl, checksums });
+		return Arrays.deepHashCode(new Object[] { domain, name, version, downloadInfo, customUrl, checksums });
 	}
 
 }

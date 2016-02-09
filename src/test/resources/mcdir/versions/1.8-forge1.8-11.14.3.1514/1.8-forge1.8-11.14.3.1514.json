@@ -1,0 +1,33 @@
+{
+	"id": "1.8-forge1.8-11.14.3.1514",
+	"time": "2015-09-14T16:20:49-0400",
+	"releaseTime": "1960-01-01T00:00:00-0700",
+	"type": "release",
+	"minecraftArguments": "--username ${auth_player_name} --version ${version_name} --gameDir ${game_directory} --assetsDir ${assets_root} --assetIndex ${assets_index_name} --uuid ${auth_uuid} --accessToken ${auth_access_token} --userProperties ${user_properties} --userType ${user_type} --tweakClass net.minecraftforge.fml.common.launcher.FMLTweaker",
+	"mainClass": "net.minecraft.launchwrapper.Launch",
+	"minimumLauncherVersion": 14,
+	"assets": "1.8",
+	"inheritsFrom": "1.8",
+	"jar": "1.8",
+	"libraries": [
+		{
+			"name": "net.minecraftforge:forge:1.8-11.14.3.1514",
+			"url": "http://files.minecraftforge.net/maven/"
+		},
+		{
+			"comment": "Force the downgrade on dedicated server to match client. Netty bug: https://github.com/MinecraftForge/MinecraftForge/issues/1848",
+			"name": "io.netty:netty-all:4.0.15.Final",
+			"serverreq": true
+		},
+		{
+			"name": "com.typesafe.akka:akka-actor_2.11:2.3.3",
+			"url": "http://files.minecraftforge.net/maven/",
+			"checksums": [
+				"ed62e9fc709ca0f2ff1a3220daa8b70a2870078e",
+				"25a86ccfdb6f6dfe08971f4825d0a01be83a6f2e"
+			],
+			"serverreq": true,
+			"clientreq": true
+		}
+	]
+}

@@ -1,0 +1,20 @@
+{
+    "inheritsFrom": "1.7.10",
+    "releaseTime": "2014-05-14T18:29:23+01:00",
+    "minecraftArguments": "--username ${auth_player_name} --version ${version_name} --gameDir ${game_directory} --assetsDir ${assets_root} --assetIndex ${assets_index_name} --uuid ${auth_uuid} --accessToken ${auth_access_token} --userProperties ${user_properties} --userType ${user_type} --tweakClass com.mumfrey.liteloader.launch.LiteLoaderTweaker",
+    "mainClass": "net.minecraft.launchwrapper.Launch",
+    "libraries": [
+        {
+            "name": "com.mumfrey:liteloader:1.7.10",
+            "url": "http://dl.liteloader.com/versions/"
+        },
+        {"name": "net.minecraft:launchwrapper:1.11"},
+        {"name": "org.ow2.asm:asm-all:5.0.3"},
+        {"name": "com.google.guava:guava:16.0"}
+    ],
+    "minimumLauncherVersion": 16,
+    "jar": "1.7.10",
+    "id": "1.7.10-LiteLoader1.7.10",
+    "time": "2014-05-14T18:29:23+01:00",
+    "type": "release"
+}

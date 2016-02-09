@@ -14,10 +14,9 @@ public class DownloadInfo implements Serializable {
 	/**
 	 * Creates a DownloadInfo.
 	 * 
-	 * @param url the url
+	 * @param url the download url, null if the url is unknown
 	 * @param checksum the SHA-1 checksum, null if the checksum is unknown
-	 * @param size the size
-	 * @throws NullPointerException if <code>url==null</code>
+	 * @param size the file size, -1 if the size is unknown
 	 */
 	public DownloadInfo(String url, String checksum, long size) {
 		Objects.requireNonNull(url);
@@ -28,9 +27,9 @@ public class DownloadInfo implements Serializable {
 	}
 
 	/**
-	 * Gets the download url.
+	 * Gets the download url, null if the url is unknown
 	 * 
-	 * @return the url
+	 * @return the url, null if the url is unknown
 	 */
 	public String getUrl() {
 		return url;
@@ -46,9 +45,9 @@ public class DownloadInfo implements Serializable {
 	}
 
 	/**
-	 * Gets the file size.
+	 * Gets the file size, -1 if the size is unknown
 	 * 
-	 * @return the file size
+	 * @return the file size, -1 if the size is unknown
 	 */
 	public long getSize() {
 		return size;
@@ -66,7 +65,7 @@ public class DownloadInfo implements Serializable {
 		}
 		if (obj instanceof DownloadInfo) {
 			DownloadInfo another = (DownloadInfo) obj;
-			return url.equals(another.url) && Objects.equals(checksum, another.checksum) && size == another.size;
+			return Objects.equals(url, another.url) && Objects.equals(checksum, another.checksum) && size == another.size;
 		}
 		return false;
 	}
