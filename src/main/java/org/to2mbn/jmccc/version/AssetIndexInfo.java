@@ -2,7 +2,7 @@ package org.to2mbn.jmccc.version;
 
 import java.util.Objects;
 
-public class AssetIndexDownloadInfo extends DownloadInfo {
+public class AssetIndexInfo extends DownloadInfo {
 
 	private static final long serialVersionUID = 1L;
 
@@ -11,7 +11,7 @@ public class AssetIndexDownloadInfo extends DownloadInfo {
 	private boolean known;
 
 	/**
-	 * Creates an AssetIndexDownloadInfo.
+	 * Creates an AssetIndexInfo.
 	 * 
 	 * @param url the url
 	 * @param checksum the SHA-1 checksum, null if the checksum is unknown
@@ -21,7 +21,7 @@ public class AssetIndexDownloadInfo extends DownloadInfo {
 	 * @param known true if the checksum and size are known
 	 * @throws NullPointerException if <code>url==null || id==null</code>
 	 */
-	public AssetIndexDownloadInfo(String url, String checksum, long size, String id, long totalSize, boolean known) {
+	public AssetIndexInfo(String url, String checksum, long size, String id, long totalSize, boolean known) {
 		super(url, checksum, size);
 		Objects.requireNonNull(id);
 		this.id = id;
@@ -66,8 +66,8 @@ public class AssetIndexDownloadInfo extends DownloadInfo {
 		if (obj == this) {
 			return true;
 		}
-		if (obj instanceof AssetIndexDownloadInfo && super.equals(obj)) {
-			AssetIndexDownloadInfo another = (AssetIndexDownloadInfo) obj;
+		if (obj instanceof AssetIndexInfo && super.equals(obj)) {
+			AssetIndexInfo another = (AssetIndexInfo) obj;
 			return id.equals(another.id) && totalSize == another.totalSize && known == another.known;
 		}
 		return false;

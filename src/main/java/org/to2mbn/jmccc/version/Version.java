@@ -19,7 +19,7 @@ public class Version implements Serializable {
 	private String jarPath;
 	private Set<Library> libraries;
 	private boolean legacy;
-	private AssetIndexDownloadInfo assetIndexDownloadInfo;
+	private AssetIndexInfo assetIndexDownloadInfo;
 	private Map<String, DownloadInfo> downloads;
 
 	/**
@@ -37,7 +37,7 @@ public class Version implements Serializable {
 	 * @param downloads the download infos, can be null
 	 * @throws NullPointerException if any of the arguments (except type, assetIndexDownloadInfo, downloads) is null
 	 */
-	public Version(String version, String type, String mainClass, String assets, String launchArgs, String jarPath, Set<Library> libraries, boolean legacy, AssetIndexDownloadInfo assetIndexDownloadInfo, Map<String, DownloadInfo> downloads) {
+	public Version(String version, String type, String mainClass, String assets, String launchArgs, String jarPath, Set<Library> libraries, boolean legacy, AssetIndexInfo assetIndexDownloadInfo, Map<String, DownloadInfo> downloads) {
 		Objects.requireNonNull(version);
 		Objects.requireNonNull(mainClass);
 		Objects.requireNonNull(assets);
@@ -154,7 +154,7 @@ public class Version implements Serializable {
 	 * 
 	 * @return the asset download info, can be null
 	 */
-	public AssetIndexDownloadInfo getAssetIndexDownloadInfo() {
+	public AssetIndexInfo getAssetIndexDownloadInfo() {
 		return assetIndexDownloadInfo;
 	}
 

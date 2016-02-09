@@ -32,7 +32,7 @@ class VersionParser {
 		loadDepends(json.getJSONArray("libraries"), libraries);
 
 		Map<String, DownloadInfo> downloads = json.has("downloads") ? resolveDownloads(json.getJSONObject("downloads")) : null;
-		AssetIndexDownloadInfo assetIndexDownloadInfo = json.has("assetIndex") ? resolveAssetDownloadInfo(json.getJSONObject("assetIndex")) : null;
+		AssetIndexInfo assetIndexDownloadInfo = json.has("assetIndex") ? resolveAssetDownloadInfo(json.getJSONObject("assetIndex")) : null;
 
 		String jarPath;
 
@@ -186,13 +186,13 @@ class VersionParser {
 		return downloads;
 	}
 
-	private AssetIndexDownloadInfo resolveAssetDownloadInfo(JSONObject json) {
+	private AssetIndexInfo resolveAssetDownloadInfo(JSONObject json) {
 		String url = json.getString("url");
 		String checksum = json.optString("sha1", null);
 		long size = json.optLong("size", -1);
 		String id = json.getString("id");
 		long totalSize = json.optLong("totalSize", -1);
 		boolean known = json.optBoolean("known", false);
-		return new AssetIndexDownloadInfo(url, checksum, size, id, totalSize, known);
+		return new AssetIndexInfo(url, checksum, size, id, totalSize, known);
 	}
 }
