@@ -16,12 +16,13 @@ public class Native extends Library {
 	 * @param domain the domain of the native
 	 * @param name the name of the native
 	 * @param version the version of the native
+	 * @param downloadInfo the library download info, can be null
 	 * @param arch the arch of the native
 	 * @param extractExcludes the extract excludes list of the native, null if no excludes
 	 * @throws NullPointerException if <code>domain==null||name==null||version==null||arch==null</code>
 	 */
-	public Native(String domain, String name, String version, String arch, Set<String> extractExcludes) {
-		this(domain, name, version, arch, extractExcludes, null, null);
+	public Native(String domain, String name, String version, LibraryInfo downloadInfo, String arch, Set<String> extractExcludes) {
+		this(domain, name, version, downloadInfo, arch, extractExcludes, null, null);
 	}
 
 	/**
@@ -30,14 +31,17 @@ public class Native extends Library {
 	 * @param domain the domain of the native
 	 * @param name the name of the native
 	 * @param version the version of the native
+	 * @param downloadInfo the library download info, can be null
 	 * @param arch the arch of the native
 	 * @param extractExcludes the extract excludes list of the native, null if no excludes
 	 * @param customUrl the custom maven repository url
 	 * @param checksums the checksums
 	 * @throws NullPointerException if <code>domain==null||name==null||version==null||arch==null</code>
+	 * @deprecated <code>customUrl</code> and <code>checksums</code> may be removed in future versions
 	 */
-	public Native(String domain, String name, String version, String arch, Set<String> extractExcludes, String customUrl, String[] checksums) {
-		super(domain, name, version, customUrl, checksums);
+	@Deprecated
+	public Native(String domain, String name, String version, LibraryInfo downloadInfo, String arch, Set<String> extractExcludes, String customUrl, String[] checksums) {
+		super(domain, name, version, downloadInfo, customUrl, checksums);
 		Objects.requireNonNull(arch);
 		this.arch = arch;
 		this.extractExcludes = extractExcludes;
