@@ -131,5 +131,6 @@
 	</dependencies>
 	<modules>
 		<module>jmccc</module>
+		<module>jmccc-yggdrasil-authenticator</module>
 	</modules>
 </project>
