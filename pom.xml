@@ -132,5 +132,6 @@
 	<modules>
 		<module>jmccc</module>
 		<module>jmccc-yggdrasil-authenticator</module>
+		<module>jmccc-mcdownloader</module>
 	</modules>
 </project>
