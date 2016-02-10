@@ -1,7 +1,7 @@
-# jmccc-jyal-authenticator
+# jmccc-yggdrasil-authenticator
 
 ### Download
-You can get the latest maven release from [here](https://search.maven.org/#search|ga|1|g%3A%22com.github.to2mbn%22%20a%3A%22jmccc-jyal-authenticator%22).
+You can get the latest maven release from [here](https://search.maven.org/#search|ga|1|g%3A%22com.github.to2mbn%22%20a%3A%22jmccc-yggdrasil-authenticator%22).
 
 The snapshot repository:
 ```xml
@@ -13,10 +13,6 @@ The snapshot repository:
 	</snapshots>
 </repository>
 ```
-
-### Dependencies
-* jmccc
-* jyal
 
 ### Compile
 ```
