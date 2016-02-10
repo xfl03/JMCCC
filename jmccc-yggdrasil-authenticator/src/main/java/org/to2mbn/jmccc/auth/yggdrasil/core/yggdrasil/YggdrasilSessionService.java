@@ -13,6 +13,7 @@ import org.to2mbn.jmccc.auth.yggdrasil.core.Agent;
 import org.to2mbn.jmccc.auth.yggdrasil.core.GameProfile;
 import org.to2mbn.jmccc.auth.yggdrasil.core.Session;
 import org.to2mbn.jmccc.auth.yggdrasil.core.SessionService;
+import org.to2mbn.jmccc.auth.yggdrasil.core.UserType;
 import org.to2mbn.jmccc.auth.yggdrasil.core.util.SignaturedPropertiesUtils;
 import org.to2mbn.jmccc.auth.yggdrasil.core.util.UUIDUtils;
 
@@ -118,7 +119,7 @@ public class YggdrasilSessionService extends YggdrasilService implements Session
 					availableProfiles[i] = toGameProfile(profilesArray.getJSONObject(i));
 				}
 			}
-			return new YggdrasilSession(userId, userProperties, accessToken, availableProfiles, selectedProfile);
+			return new Session(userId, accessToken, selectedProfile, availableProfiles, userId, userProperties, UserType.MOJANG);
 		} catch (JSONException e) {
 			throw newResponseFormatException(e);
 		}
