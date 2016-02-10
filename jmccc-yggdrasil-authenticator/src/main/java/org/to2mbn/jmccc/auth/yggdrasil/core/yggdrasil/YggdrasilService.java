@@ -1,14 +1,17 @@
 package org.to2mbn.jmccc.auth.yggdrasil.core.yggdrasil;
 
+import java.io.Serializable;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.to2mbn.jmccc.auth.AuthenticationException;
 import org.to2mbn.jmccc.auth.yggdrasil.core.RemoteAuthenticationException;
 import org.to2mbn.jmccc.auth.yggdrasil.core.io.JSONHttpRequester;
 
-abstract public class YggdrasilService {
+abstract public class YggdrasilService implements Serializable {
 
-	protected final JSONHttpRequester requester = new JSONHttpRequester();
+	private static final long serialVersionUID = 1L;
+
+	private transient JSONHttpRequester requester;
 
 	protected void checkResponse(JSONObject response) throws AuthenticationException {
 		if (response == null) {
@@ -34,6 +37,13 @@ abstract public class YggdrasilService {
 
 	protected AuthenticationException newSignatureException(Throwable e) {
 		return new AuthenticationException("failed to verify signature", e);
+	}
+
+	protected JSONHttpRequester getRequester() {
+		if (requester == null) {
+			requester = new JSONHttpRequester();
+		}
+		return requester;
 	}
 
 }

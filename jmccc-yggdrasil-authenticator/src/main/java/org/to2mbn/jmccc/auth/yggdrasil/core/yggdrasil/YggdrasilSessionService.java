@@ -19,6 +19,8 @@ import org.to2mbn.jmccc.auth.yggdrasil.core.util.UUIDUtils;
 
 public class YggdrasilSessionService extends YggdrasilService implements SessionService {
 
+	private static final long serialVersionUID = 1L;
+
 	private static final String API_AUTHENTICATE = "https://authserver.mojang.com/authenticate";
 	private static final String API_REFRESH = "https://authserver.mojang.com/refresh";
 	private static final String API_VALIDATE = "https://authserver.mojang.com/validate";
@@ -41,7 +43,7 @@ public class YggdrasilSessionService extends YggdrasilService implements Session
 		request.put("requestUser", true);
 		JSONObject response;
 		try {
-			response = requester.jsonPost(API_AUTHENTICATE, null, new JSONObject(request));
+			response = getRequester().jsonPost(API_AUTHENTICATE, null, new JSONObject(request));
 		} catch (JSONException | IOException e) {
 			throw newRequestFailedException(e);
 		}
@@ -68,7 +70,7 @@ public class YggdrasilSessionService extends YggdrasilService implements Session
 
 		JSONObject response;
 		try {
-			response = requester.jsonPost(API_REFRESH, null, new JSONObject(request));
+			response = getRequester().jsonPost(API_REFRESH, null, new JSONObject(request));
 		} catch (JSONException | IOException e) {
 			throw newRequestFailedException(e);
 		}
@@ -82,7 +84,7 @@ public class YggdrasilSessionService extends YggdrasilService implements Session
 		request.put("accessToken", accessToken);
 		JSONObject response;
 		try {
-			response = requester.jsonPost(API_VALIDATE, null, new JSONObject(request));
+			response = getRequester().jsonPost(API_VALIDATE, null, new JSONObject(request));
 		} catch (JSONException | IOException e) {
 			throw newRequestFailedException(e);
 		}

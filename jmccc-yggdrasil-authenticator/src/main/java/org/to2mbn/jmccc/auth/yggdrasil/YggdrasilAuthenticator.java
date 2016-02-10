@@ -2,6 +2,7 @@ package org.to2mbn.jmccc.auth.yggdrasil;
 
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.UUID;
 import org.json.JSONObject;
 import org.to2mbn.jmccc.auth.AuthInfo;
 import org.to2mbn.jmccc.auth.Authenticator;
@@ -13,92 +14,109 @@ import org.to2mbn.jmccc.auth.yggdrasil.core.util.UUIDUtils;
 import org.to2mbn.jmccc.auth.yggdrasil.core.yggdrasil.YggdrasilSessionService;
 import org.to2mbn.jmccc.auth.AuthenticationException;
 
-abstract public class YggdrasilAuthenticator implements Authenticator, Serializable {
+public class YggdrasilAuthenticator implements Authenticator, Serializable {
+
+	public static interface PasswordProvider {
+
+		String getUsername() throws AuthenticationException;
+
+		String getPassword() throws AuthenticationException;
+
+		CharacterSelector getCharacterSelector();
+
+	}
 
 	private static final long serialVersionUID = 1L;
 
-	private String clientToken;
-	private transient SessionService sessionService;
+	private SessionService sessionService;
+	private volatile Session authResult;
 
-	/**
-	 * Creates a YggdrasilAuthenticator.
-	 * 
-	 * @param clientToken the client token
-	 * @throws NullPointerException if <code>clientToken==null</code>
-	 */
-	public YggdrasilAuthenticator(String clientToken) {
-		Objects.requireNonNull(clientToken);
-		this.clientToken = clientToken;
+	public YggdrasilAuthenticator() {
+		this(new YggdrasilSessionService(UUIDUtils.unsign(UUID.randomUUID()), Agent.MINECRAFT));
 	}
 
-	/**
-	 * Gets the client token.
-	 * 
-	 * @return the client token
-	 */
-	public String getClientToken() {
-		return clientToken;
+	public YggdrasilAuthenticator(SessionService sessionService) {
+		Objects.requireNonNull(sessionService);
+		this.sessionService = sessionService;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * <p>
-	 * {@link #selectCharacter(GameProfile, GameProfile[])} will be called during the authentication.
-	 */
 	@Override
-	public AuthInfo auth() throws AuthenticationException {
-		Session session;
-		session = createSession();
-
-		GameProfile selected = selectCharacter(session.getSelectedProfile(), session.getProfiles());
-		if (selected == null) {
-			throw new AuthenticationException("no character selected");
+	public synchronized AuthInfo auth() throws AuthenticationException {
+		GameProfile selectedProfile = session().getSelectedProfile();
+		if (selectedProfile == null) {
+			throw new AuthenticationException("no profile is available");
 		}
+		return new AuthInfo(selectedProfile.getName(), authResult.getAccessToken(), UUIDUtils.unsign(selectedProfile.getUUID()), new JSONObject(authResult.getProperties()).toString(), authResult.getUserType().getName());
+	}
 
-		String properties;
-		if (session.getProperties() == null) {
-			properties = "{}";
+	public synchronized Session session() throws AuthenticationException {
+		if (authResult == null || !sessionService.validate(authResult.getAccessToken())) {
+			refresh();
+		}
+		if (authResult == null) {
+			throw new AuthenticationException("no authentication is available");
+		}
+		return authResult;
+	}
+
+	public synchronized void refresh() throws AuthenticationException {
+		if (authResult == null) {
+			// refresh operation is not available
+			PasswordProvider passwordProvider = tryPasswordLogin();
+			if (passwordProvider == null) {
+				throw new AuthenticationException("no more authentication methods to try");
+			}
+			refreshWithPassword(passwordProvider);
 		} else {
-			properties = new JSONObject(session.getProperties()).toString();
-		}
+			try {
+				refreshWithToken(authResult.getAccessToken());
+			} catch (AuthenticationException e) {
+				// token login failed
+				PasswordProvider passwordProvider = tryPasswordLogin();
+				if (passwordProvider == null) {
+					throw e;
+				}
 
-		return new AuthInfo(selected.getName(), session.getAccessToken(), UUIDUtils.unsign(selected.getUUID()), properties, session.getUserType().getName());
+				try {
+					refreshWithPassword(passwordProvider);
+				} catch (AuthenticationException e1) {
+					e1.addSuppressed(e);
+					throw e1;
+				}
+			}
+		}
 	}
 
-	/**
-	 * Creates a session for authentication.
-	 * 
-	 * @return the session
-	 * @throws AuthenticationException if an authentication error has occurred
-	 */
-	abstract protected Session createSession() throws AuthenticationException;
-
-	/**
-	 * Gets the session service.
-	 * <p>
-	 * This is a lazy method. The session service will be created when the first time the method has been called.
-	 * 
-	 * @return the session service
-	 */
-	protected SessionService getSessionService() {
-		if (sessionService == null) {
-			sessionService = new YggdrasilSessionService(clientToken, Agent.MINECRAFT);
+	public synchronized void refreshWithPassword(PasswordProvider passwordProvider) throws AuthenticationException {
+		Objects.requireNonNull(passwordProvider);
+		authResult = sessionService.login(passwordProvider.getUsername(), passwordProvider.getPassword());
+		if (authResult.getSelectedProfile() == null) {
+			// no profile is selected
+			// let's select one
+			CharacterSelector selector = passwordProvider.getCharacterSelector();
+			if (selector == null) {
+				selector = new DefaultCharacterSelector();
+			}
+			GameProfile[] profiles = authResult.getProfiles();
+			if (profiles == null || profiles.length == 0) {
+				throw new AuthenticationException("no profile is available");
+			}
+			GameProfile selectedProfile = selector.select(profiles);
+			authResult = sessionService.selectProfile(authResult.getAccessToken(), selectedProfile.getUUID());
 		}
-		return sessionService;
 	}
 
-	/**
-	 * Selects one of the given characters to login.
-	 * <p>
-	 * This method will be called during authentication. The default implementation returns <code>selected</code>. An
-	 * {@link AuthenticationException} will occur if this method returns <code>null</code>.
-	 * 
-	 * @param selected the default character
-	 * @param availableProfiles the available characters
-	 * @return the character to login
-	 */
-	protected GameProfile selectCharacter(GameProfile selected, GameProfile[] availableProfiles) {
-		return selected;
+	public synchronized void refreshWithToken(String accessToken) throws AuthenticationException {
+		Objects.requireNonNull(accessToken);
+		authResult = sessionService.refresh(accessToken);
+	}
+
+	public synchronized void clearToken() {
+		authResult = null;
+	}
+
+	protected PasswordProvider tryPasswordLogin() throws AuthenticationException {
+		return null;
 	}
 
 }

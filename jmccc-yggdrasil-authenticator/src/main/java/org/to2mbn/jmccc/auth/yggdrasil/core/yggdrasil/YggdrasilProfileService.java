@@ -19,6 +19,8 @@ import org.to2mbn.jmccc.auth.yggdrasil.core.util.UUIDUtils;
 
 public class YggdrasilProfileService extends YggdrasilService implements ProfileService {
 
+	private static final long serialVersionUID = 1L;
+
 	private static final String API_PROFILE = "https://sessionserver.mojang.com/session/minecraft/profile/";
 
 	@Override
@@ -27,7 +29,7 @@ public class YggdrasilProfileService extends YggdrasilService implements Profile
 		arguments.put("unsigned", "false");
 		JSONObject response;
 		try {
-			response = requester.jsonGet(API_PROFILE + UUIDUtils.unsign(profileUUID), arguments);
+			response = getRequester().jsonGet(API_PROFILE + UUIDUtils.unsign(profileUUID), arguments);
 		} catch (JSONException | IOException e) {
 			throw newRequestFailedException(e);
 		}
