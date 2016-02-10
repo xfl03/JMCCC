@@ -1,7 +1,7 @@
-package org.to2mbn.jmccc.auth;
+package org.to2mbn.jmccc.auth.yggdrasil;
 
 import org.to2mbn.jmccc.auth.AuthenticationException;
-import org.to2mbn.jyal.GameProfile;
+import org.to2mbn.jmccc.auth.yggdrasil.core.GameProfile;
 
 public interface CharacterSelector {
 

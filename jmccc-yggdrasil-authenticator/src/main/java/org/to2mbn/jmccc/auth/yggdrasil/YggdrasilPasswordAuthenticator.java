@@ -1,4 +1,4 @@
-package org.to2mbn.jmccc.auth;
+package org.to2mbn.jmccc.auth.yggdrasil;
 
 import java.io.IOException;
 import java.io.NotSerializableException;
@@ -6,8 +6,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Objects;
 import java.util.UUID;
-import org.to2mbn.jyal.GameProfile;
-import org.to2mbn.jyal.Session;
+import org.to2mbn.jmccc.auth.AuthenticationException;
+import org.to2mbn.jmccc.auth.yggdrasil.core.GameProfile;
+import org.to2mbn.jmccc.auth.yggdrasil.core.Session;
 
 /**
  * Yggdrasil authenticator using password.

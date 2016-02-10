@@ -1,4 +1,4 @@
-package org.to2mbn.jyal.yggdrasil;
+package org.to2mbn.jmccc.auth.yggdrasil.core.yggdrasil;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -8,13 +8,13 @@ import java.util.UUID;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.to2mbn.jyal.Agent;
 import org.to2mbn.jmccc.auth.AuthenticationException;
-import org.to2mbn.jyal.GameProfile;
-import org.to2mbn.jyal.Session;
-import org.to2mbn.jyal.SessionService;
-import org.to2mbn.jyal.util.SignaturedPropertiesUtils;
-import org.to2mbn.jyal.util.UUIDUtils;
+import org.to2mbn.jmccc.auth.yggdrasil.core.Agent;
+import org.to2mbn.jmccc.auth.yggdrasil.core.GameProfile;
+import org.to2mbn.jmccc.auth.yggdrasil.core.Session;
+import org.to2mbn.jmccc.auth.yggdrasil.core.SessionService;
+import org.to2mbn.jmccc.auth.yggdrasil.core.util.SignaturedPropertiesUtils;
+import org.to2mbn.jmccc.auth.yggdrasil.core.util.UUIDUtils;
 
 public class YggdrasilSessionService extends YggdrasilService implements SessionService {
 

@@ -1,4 +1,4 @@
-package org.to2mbn.jyal.util;
+package org.to2mbn.jmccc.auth.yggdrasil.core.util;
 
 import java.util.UUID;
 

@@ -1,12 +1,12 @@
-package org.to2mbn.jmccc.auth;
+package org.to2mbn.jmccc.auth.yggdrasil;
 
 import java.util.UUID;
 import org.to2mbn.jmccc.auth.AuthenticationException;
-import org.to2mbn.jyal.GameProfile;
-import org.to2mbn.jyal.PlayerTextures;
-import org.to2mbn.jyal.ProfileService;
-import org.to2mbn.jyal.PropertiesGameProfile;
-import org.to2mbn.jyal.yggdrasil.YggdrasilProfileService;
+import org.to2mbn.jmccc.auth.yggdrasil.core.GameProfile;
+import org.to2mbn.jmccc.auth.yggdrasil.core.PlayerTextures;
+import org.to2mbn.jmccc.auth.yggdrasil.core.ProfileService;
+import org.to2mbn.jmccc.auth.yggdrasil.core.PropertiesGameProfile;
+import org.to2mbn.jmccc.auth.yggdrasil.core.yggdrasil.YggdrasilProfileService;
 
 /**
  * A tool class for game profiles.

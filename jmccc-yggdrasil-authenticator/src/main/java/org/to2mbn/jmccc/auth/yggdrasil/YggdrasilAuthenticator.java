@@ -1,4 +1,4 @@
-package org.to2mbn.jmccc.auth;
+package org.to2mbn.jmccc.auth.yggdrasil;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -6,13 +6,13 @@ import java.util.UUID;
 import org.json.JSONObject;
 import org.to2mbn.jmccc.auth.AuthInfo;
 import org.to2mbn.jmccc.auth.Authenticator;
+import org.to2mbn.jmccc.auth.yggdrasil.core.Agent;
+import org.to2mbn.jmccc.auth.yggdrasil.core.GameProfile;
+import org.to2mbn.jmccc.auth.yggdrasil.core.Session;
+import org.to2mbn.jmccc.auth.yggdrasil.core.SessionService;
+import org.to2mbn.jmccc.auth.yggdrasil.core.util.UUIDUtils;
+import org.to2mbn.jmccc.auth.yggdrasil.core.yggdrasil.YggdrasilSessionService;
 import org.to2mbn.jmccc.auth.AuthenticationException;
-import org.to2mbn.jyal.Agent;
-import org.to2mbn.jyal.GameProfile;
-import org.to2mbn.jyal.Session;
-import org.to2mbn.jyal.SessionService;
-import org.to2mbn.jyal.util.UUIDUtils;
-import org.to2mbn.jyal.yggdrasil.YggdrasilSessionService;
 
 abstract public class YggdrasilAuthenticator implements Authenticator, Serializable {
 

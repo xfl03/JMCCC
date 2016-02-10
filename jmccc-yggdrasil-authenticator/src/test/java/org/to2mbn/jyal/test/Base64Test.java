@@ -8,7 +8,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.to2mbn.jyal.util.Base64;
+import org.to2mbn.jmccc.auth.yggdrasil.core.util.Base64;
 
 @RunWith(Parameterized.class)
 public class Base64Test {

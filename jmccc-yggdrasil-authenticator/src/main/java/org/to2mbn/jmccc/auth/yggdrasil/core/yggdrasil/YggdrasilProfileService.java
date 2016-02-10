@@ -1,4 +1,4 @@
-package org.to2mbn.jyal.yggdrasil;
+package org.to2mbn.jmccc.auth.yggdrasil.core.yggdrasil;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -9,13 +9,13 @@ import java.util.UUID;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.to2mbn.jmccc.auth.AuthenticationException;
-import org.to2mbn.jyal.PlayerTextures;
-import org.to2mbn.jyal.ProfileService;
-import org.to2mbn.jyal.PropertiesGameProfile;
-import org.to2mbn.jyal.Texture;
-import org.to2mbn.jyal.util.Base64;
-import org.to2mbn.jyal.util.SignaturedPropertiesUtils;
-import org.to2mbn.jyal.util.UUIDUtils;
+import org.to2mbn.jmccc.auth.yggdrasil.core.PlayerTextures;
+import org.to2mbn.jmccc.auth.yggdrasil.core.ProfileService;
+import org.to2mbn.jmccc.auth.yggdrasil.core.PropertiesGameProfile;
+import org.to2mbn.jmccc.auth.yggdrasil.core.Texture;
+import org.to2mbn.jmccc.auth.yggdrasil.core.util.Base64;
+import org.to2mbn.jmccc.auth.yggdrasil.core.util.SignaturedPropertiesUtils;
+import org.to2mbn.jmccc.auth.yggdrasil.core.util.UUIDUtils;
 
 public class YggdrasilProfileService extends YggdrasilService implements ProfileService {
 

@@ -1,10 +1,10 @@
-package org.to2mbn.jyal.yggdrasil;
+package org.to2mbn.jmccc.auth.yggdrasil.core.yggdrasil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.to2mbn.jmccc.auth.AuthenticationException;
-import org.to2mbn.jyal.RemoteAuthenticationException;
-import org.to2mbn.jyal.io.JSONHttpRequester;
+import org.to2mbn.jmccc.auth.yggdrasil.core.RemoteAuthenticationException;
+import org.to2mbn.jmccc.auth.yggdrasil.core.io.JSONHttpRequester;
 
 abstract public class YggdrasilService {
 

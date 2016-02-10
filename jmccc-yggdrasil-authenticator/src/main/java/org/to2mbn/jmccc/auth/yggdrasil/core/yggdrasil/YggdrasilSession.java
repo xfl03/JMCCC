@@ -1,10 +1,10 @@
-package org.to2mbn.jyal.yggdrasil;
+package org.to2mbn.jmccc.auth.yggdrasil.core.yggdrasil;
 
 import java.util.Arrays;
 import java.util.Map;
-import org.to2mbn.jyal.GameProfile;
-import org.to2mbn.jyal.Session;
-import org.to2mbn.jyal.UserType;
+import org.to2mbn.jmccc.auth.yggdrasil.core.GameProfile;
+import org.to2mbn.jmccc.auth.yggdrasil.core.Session;
+import org.to2mbn.jmccc.auth.yggdrasil.core.UserType;
 
 public class YggdrasilSession implements Session {
 

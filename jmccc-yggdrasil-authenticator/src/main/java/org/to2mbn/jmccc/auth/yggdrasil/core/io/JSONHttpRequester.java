@@ -1,4 +1,4 @@
-package org.to2mbn.jyal.io;
+package org.to2mbn.jmccc.auth.yggdrasil.core.io;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;

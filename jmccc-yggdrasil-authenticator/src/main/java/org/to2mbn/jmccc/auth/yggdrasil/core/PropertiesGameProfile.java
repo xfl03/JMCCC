@@ -1,4 +1,4 @@
-package org.to2mbn.jyal;
+package org.to2mbn.jmccc.auth.yggdrasil.core;
 
 import java.util.Map;
 import java.util.Objects;

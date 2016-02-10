@@ -1,4 +1,4 @@
-package org.to2mbn.jyal;
+package org.to2mbn.jmccc.auth.yggdrasil.core;
 
 public enum UserType {
 	LEGACY("legacy"),
