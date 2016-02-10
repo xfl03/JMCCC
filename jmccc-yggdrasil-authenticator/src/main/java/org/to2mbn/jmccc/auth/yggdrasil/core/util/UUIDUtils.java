@@ -8,12 +8,22 @@ public final class UUIDUtils {
 		return uuid.toString().replace("-", "");
 	}
 
-	public static UUID fromString(String uuid) {
-		if (uuid.length() == 36) {
-			return UUID.fromString(uuid);
-		} else {
-			return UUID.fromString(uuid.substring(0, 8) + "-" + uuid.substring(8, 12) + "-" + uuid.substring(12, 16) + "-" + uuid.substring(16, 20) + "-" + uuid.substring(20, 32));
+	public static String unsign(String uuid) {
+		return uuid.replace("-", "");
+	}
+
+	public static UUID toUUID(String uuid) {
+		switch (uuid.length()) {
+			case 36:
+				return UUID.fromString(uuid);
+
+			case 32:
+				return UUID.fromString(uuid.substring(0, 8) + "-" + uuid.substring(8, 12) + "-" + uuid.substring(12, 16) + "-" + uuid.substring(16, 20) + "-" + uuid.substring(20, 32));
+
+			default:
+				throw new IllegalArgumentException("Invalid UUID string: " + uuid);
 		}
+
 	}
 
 	private UUIDUtils() {

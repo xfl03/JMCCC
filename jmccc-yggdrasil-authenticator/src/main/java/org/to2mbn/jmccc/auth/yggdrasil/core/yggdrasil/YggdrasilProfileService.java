@@ -40,7 +40,7 @@ public class YggdrasilProfileService extends YggdrasilService implements Profile
 			} catch (GeneralSecurityException e) {
 				throw newSignatureException(e);
 			}
-			return new PropertiesGameProfile(UUIDUtils.fromString(response.getString("id")), response.getString("name"), properties);
+			return new PropertiesGameProfile(UUIDUtils.toUUID(response.getString("id")), response.getString("name"), properties);
 		} catch (JSONException e) {
 			throw newResponseFormatException(e);
 		}

@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.to2mbn.jmccc.auth.AuthenticationException;
 import org.to2mbn.jmccc.auth.yggdrasil.core.GameProfile;
 import org.to2mbn.jmccc.auth.yggdrasil.core.Session;
+import org.to2mbn.jmccc.auth.yggdrasil.core.util.UUIDUtils;
 
 /**
  * Yggdrasil authenticator using token.
@@ -14,7 +15,7 @@ import org.to2mbn.jmccc.auth.yggdrasil.core.Session;
  * saves the access token.
  * <p>
  * Use {@link #loginWithToken(String, String)}, {@link #loginWithToken(String, String, CharacterSelector)}, or
- * {@link #loginWithToken(String, String, CharacterSelector, UUID)} to create an instance.
+ * {@link #loginWithToken(String, String, CharacterSelector, String)} to create an instance.
  * 
  * @author yushijinhun
  */
@@ -51,7 +52,7 @@ public class YggdrasilTokenAuthenticator extends YggdrasilAuthenticator {
 	 * @throws NullPointerException if <code>email==null||password==null||clientToken==null</code>
 	 */
 	public static YggdrasilTokenAuthenticator loginWithToken(String email, String password, CharacterSelector characterSelector) throws AuthenticationException {
-		return loginWithToken(email, password, characterSelector, UUID.randomUUID());
+		return loginWithToken(email, password, characterSelector, UUIDUtils.unsign(UUID.randomUUID()));
 	}
 
 	/**
@@ -68,7 +69,7 @@ public class YggdrasilTokenAuthenticator extends YggdrasilAuthenticator {
 	 * @throws AuthenticationException if an exception has occurred during the authentication
 	 * @throws NullPointerException if <code>email==null||password==null||clientToken==null</code>
 	 */
-	public static YggdrasilTokenAuthenticator loginWithToken(String email, String password, CharacterSelector characterSelector, UUID clientToken) throws AuthenticationException {
+	public static YggdrasilTokenAuthenticator loginWithToken(String email, String password, CharacterSelector characterSelector, String clientToken) throws AuthenticationException {
 		// no need for null checks, YggdrasilPasswordAuthenticator.<init> does this
 		return new YggdrasilTokenAuthenticator(clientToken, new YggdrasilPasswordAuthenticator(email, password, characterSelector, clientToken).auth().getToken());
 	}
@@ -82,28 +83,15 @@ public class YggdrasilTokenAuthenticator extends YggdrasilAuthenticator {
 	 * @param accessToken the given access token
 	 * @throws NullPointerException if <code>clientToken==null</code>
 	 */
-	public YggdrasilTokenAuthenticator(UUID clientToken, String accessToken) {
+	public YggdrasilTokenAuthenticator(String clientToken, String accessToken) {
 		super(clientToken);
 		Objects.requireNonNull(accessToken);
 		this.accessToken = accessToken;
 	}
 
-	/**
-	 * Checks if the access token is valid.
-	 * <p>
-	 * If this method returns false, you shouldn't use this YggdrasilTokenAuthenticator any longer. You need to create
-	 * another YggdrasilTokenAuthenticator by password authentication.
-	 * 
-	 * @return true if the access token is valid
-	 * @throws AuthenticationException if an error has occurred during validating
-	 */
-	public boolean isValid() throws AuthenticationException {
-			return getSessionService().isValid(accessToken);
-	}
-
 	@Override
 	protected Session createSession() throws AuthenticationException {
-		Session session = getSessionService().loginWithToken(accessToken);
+		Session session = getSessionService().refresh(accessToken);
 		accessToken = session.getAccessToken();
 		return session;
 	}

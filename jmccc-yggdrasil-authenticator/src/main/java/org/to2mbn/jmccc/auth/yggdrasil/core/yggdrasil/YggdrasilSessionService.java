@@ -26,8 +26,8 @@ public class YggdrasilSessionService extends YggdrasilService implements Session
 	private String clientToken;
 	private Agent agent;
 
-	public YggdrasilSessionService(UUID clientToken, Agent agent) {
-		this.clientToken = UUIDUtils.unsign(clientToken);
+	public YggdrasilSessionService(String clientToken, Agent agent) {
+		this.clientToken = clientToken;
 		this.agent = agent;
 	}
 
@@ -49,11 +49,23 @@ public class YggdrasilSessionService extends YggdrasilService implements Session
 	}
 
 	@Override
-	public Session loginWithToken(String token) throws AuthenticationException {
+	public Session refresh(String accessToken) throws AuthenticationException {
+		return selectProfile(accessToken, null);
+	}
+
+	@Override
+	public Session selectProfile(String accessToken, UUID profile) throws AuthenticationException {
 		Map<String, Object> request = new HashMap<>();
 		request.put("clientToken", clientToken);
-		request.put("accessToken", token);
+		request.put("accessToken", accessToken);
 		request.put("requestUser", true);
+
+		if (profile != null) {
+			JSONObject selectedProfile = new JSONObject();
+			selectedProfile.put("id", UUIDUtils.unsign(profile));
+			request.put("selectedProfile", selectedProfile);
+		}
+
 		JSONObject response;
 		try {
 			response = requester.jsonPost(API_REFRESH, null, new JSONObject(request));
@@ -64,10 +76,10 @@ public class YggdrasilSessionService extends YggdrasilService implements Session
 	}
 
 	@Override
-	public boolean isValid(String token) throws AuthenticationException {
+	public boolean validate(String accessToken) throws AuthenticationException {
 		Map<String, Object> request = new HashMap<>();
 		request.put("clientToken", clientToken);
-		request.put("accessToken", token);
+		request.put("accessToken", accessToken);
 		JSONObject response;
 		try {
 			response = requester.jsonPost(API_VALIDATE, null, new JSONObject(request));
@@ -130,7 +142,7 @@ public class YggdrasilSessionService extends YggdrasilService implements Session
 			return null;
 		}
 
-		return new GameProfile(UUIDUtils.fromString(gameprofileResponse.getString("id")), gameprofileResponse.getString("name"));
+		return new GameProfile(UUIDUtils.toUUID(gameprofileResponse.getString("id")), gameprofileResponse.getString("name"));
 	}
 
 }

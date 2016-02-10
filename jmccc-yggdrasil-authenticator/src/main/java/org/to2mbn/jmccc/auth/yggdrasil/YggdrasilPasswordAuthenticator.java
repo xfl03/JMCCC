@@ -9,6 +9,7 @@ import java.util.UUID;
 import org.to2mbn.jmccc.auth.AuthenticationException;
 import org.to2mbn.jmccc.auth.yggdrasil.core.GameProfile;
 import org.to2mbn.jmccc.auth.yggdrasil.core.Session;
+import org.to2mbn.jmccc.auth.yggdrasil.core.util.UUIDUtils;
 
 /**
  * Yggdrasil authenticator using password.
@@ -54,7 +55,7 @@ public class YggdrasilPasswordAuthenticator extends YggdrasilAuthenticator {
 	 * @throws NullPointerException if <code>email==null||password==null</code>
 	 */
 	public YggdrasilPasswordAuthenticator(String email, String password, CharacterSelector characterSelector) {
-		this(email, password, null, UUID.randomUUID());
+		this(email, password, null, UUIDUtils.unsign(UUID.randomUUID()));
 	}
 
 	/**
@@ -66,7 +67,7 @@ public class YggdrasilPasswordAuthenticator extends YggdrasilAuthenticator {
 	 * @param clientToken the client token
 	 * @throws NullPointerException if <code>email==null||password==null||clientToken==null</code>
 	 */
-	public YggdrasilPasswordAuthenticator(String email, String password, CharacterSelector characterSelector, UUID clientToken) {
+	public YggdrasilPasswordAuthenticator(String email, String password, CharacterSelector characterSelector, String clientToken) {
 		super(clientToken);
 		Objects.requireNonNull(email);
 		Objects.requireNonNull(password);

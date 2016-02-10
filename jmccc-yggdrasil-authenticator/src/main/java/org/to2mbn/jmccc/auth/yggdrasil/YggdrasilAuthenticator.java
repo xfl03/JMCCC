@@ -2,7 +2,6 @@ package org.to2mbn.jmccc.auth.yggdrasil;
 
 import java.io.Serializable;
 import java.util.Objects;
-import java.util.UUID;
 import org.json.JSONObject;
 import org.to2mbn.jmccc.auth.AuthInfo;
 import org.to2mbn.jmccc.auth.Authenticator;
@@ -18,7 +17,7 @@ abstract public class YggdrasilAuthenticator implements Authenticator, Serializa
 
 	private static final long serialVersionUID = 1L;
 
-	private UUID clientToken;
+	private String clientToken;
 	private transient SessionService sessionService;
 
 	/**
@@ -27,7 +26,7 @@ abstract public class YggdrasilAuthenticator implements Authenticator, Serializa
 	 * @param clientToken the client token
 	 * @throws NullPointerException if <code>clientToken==null</code>
 	 */
-	public YggdrasilAuthenticator(UUID clientToken) {
+	public YggdrasilAuthenticator(String clientToken) {
 		Objects.requireNonNull(clientToken);
 		this.clientToken = clientToken;
 	}
@@ -37,7 +36,7 @@ abstract public class YggdrasilAuthenticator implements Authenticator, Serializa
 	 * 
 	 * @return the client token
 	 */
-	public UUID getClientToken() {
+	public String getClientToken() {
 		return clientToken;
 	}
 
@@ -49,18 +48,18 @@ abstract public class YggdrasilAuthenticator implements Authenticator, Serializa
 	@Override
 	public AuthInfo auth() throws AuthenticationException {
 		Session session;
-			session = createSession();
+		session = createSession();
 
-		GameProfile selected = selectCharacter(session.getSelectedGameProfile(), session.getGameProfiles());
+		GameProfile selected = selectCharacter(session.getSelectedProfile(), session.getProfiles());
 		if (selected == null) {
 			throw new AuthenticationException("no character selected");
 		}
 
 		String properties;
-		if (session.getUserProperties() == null) {
+		if (session.getProperties() == null) {
 			properties = "{}";
 		} else {
-			properties = new JSONObject(session.getUserProperties()).toString();
+			properties = new JSONObject(session.getProperties()).toString();
 		}
 
 		return new AuthInfo(selected.getName(), session.getAccessToken(), UUIDUtils.unsign(selected.getUUID()), properties, session.getUserType().getName());
