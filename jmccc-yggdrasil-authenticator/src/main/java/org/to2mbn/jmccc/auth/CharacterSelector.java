@@ -1,7 +1,7 @@
 package org.to2mbn.jmccc.auth;
 
-import com.github.to2mbn.jmccc.launch.AuthenticationException;
-import com.github.to2mbn.jyal.GameProfile;
+import org.to2mbn.jmccc.auth.AuthenticationException;
+import org.to2mbn.jyal.GameProfile;
 
 public interface CharacterSelector {
 

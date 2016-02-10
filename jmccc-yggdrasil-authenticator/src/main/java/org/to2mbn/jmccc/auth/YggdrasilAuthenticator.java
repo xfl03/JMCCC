@@ -4,15 +4,15 @@ import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 import org.json.JSONObject;
-import com.github.to2mbn.jmccc.auth.AuthInfo;
-import com.github.to2mbn.jmccc.auth.Authenticator;
-import com.github.to2mbn.jmccc.launch.AuthenticationException;
-import com.github.to2mbn.jyal.Agent;
-import com.github.to2mbn.jyal.GameProfile;
-import com.github.to2mbn.jyal.Session;
-import com.github.to2mbn.jyal.SessionService;
-import com.github.to2mbn.jyal.util.UUIDUtils;
-import com.github.to2mbn.jyal.yggdrasil.YggdrasilSessionService;
+import org.to2mbn.jmccc.auth.AuthInfo;
+import org.to2mbn.jmccc.auth.Authenticator;
+import org.to2mbn.jmccc.auth.AuthenticationException;
+import org.to2mbn.jyal.Agent;
+import org.to2mbn.jyal.GameProfile;
+import org.to2mbn.jyal.Session;
+import org.to2mbn.jyal.SessionService;
+import org.to2mbn.jyal.util.UUIDUtils;
+import org.to2mbn.jyal.yggdrasil.YggdrasilSessionService;
 
 abstract public class YggdrasilAuthenticator implements Authenticator, Serializable {
 
@@ -51,7 +51,7 @@ abstract public class YggdrasilAuthenticator implements Authenticator, Serializa
 		Session session;
 		try {
 			session = createSession();
-		} catch (com.github.to2mbn.jyal.AuthenticationException e) {
+		} catch (org.to2mbn.jyal.AuthenticationException e) {
 			throw new AuthenticationException(e);
 		}
 
@@ -74,9 +74,9 @@ abstract public class YggdrasilAuthenticator implements Authenticator, Serializa
 	 * Creates a session for authentication.
 	 * 
 	 * @return the session
-	 * @throws com.github.to2mbn.jyal.AuthenticationException if an authentication error has occurred
+	 * @throws org.to2mbn.jyal.AuthenticationException if an authentication error has occurred
 	 */
-	abstract protected Session createSession() throws com.github.to2mbn.jyal.AuthenticationException;
+	abstract protected Session createSession() throws org.to2mbn.jyal.AuthenticationException;
 
 	/**
 	 * Gets the session service.

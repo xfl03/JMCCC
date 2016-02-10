@@ -6,9 +6,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Objects;
 import java.util.UUID;
-import com.github.to2mbn.jyal.AuthenticationException;
-import com.github.to2mbn.jyal.GameProfile;
-import com.github.to2mbn.jyal.Session;
+import org.to2mbn.jyal.AuthenticationException;
+import org.to2mbn.jyal.GameProfile;
+import org.to2mbn.jyal.Session;
 
 /**
  * Yggdrasil authenticator using password.

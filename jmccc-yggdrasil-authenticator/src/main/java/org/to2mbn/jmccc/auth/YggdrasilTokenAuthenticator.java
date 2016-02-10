@@ -2,9 +2,9 @@ package org.to2mbn.jmccc.auth;
 
 import java.util.Objects;
 import java.util.UUID;
-import com.github.to2mbn.jmccc.launch.AuthenticationException;
-import com.github.to2mbn.jyal.GameProfile;
-import com.github.to2mbn.jyal.Session;
+import org.to2mbn.jmccc.auth.AuthenticationException;
+import org.to2mbn.jyal.GameProfile;
+import org.to2mbn.jyal.Session;
 
 /**
  * Yggdrasil authenticator using token.
@@ -100,13 +100,13 @@ public class YggdrasilTokenAuthenticator extends YggdrasilAuthenticator {
 	public boolean isValid() throws AuthenticationException {
 		try {
 			return getSessionService().isValid(accessToken);
-		} catch (com.github.to2mbn.jyal.AuthenticationException e) {
+		} catch (org.to2mbn.jyal.AuthenticationException e) {
 			throw new AuthenticationException("failed to valid access token", e);
 		}
 	}
 
 	@Override
-	protected Session createSession() throws com.github.to2mbn.jyal.AuthenticationException {
+	protected Session createSession() throws org.to2mbn.jyal.AuthenticationException {
 		Session session = getSessionService().loginWithToken(accessToken);
 		accessToken = session.getAccessToken();
 		return session;

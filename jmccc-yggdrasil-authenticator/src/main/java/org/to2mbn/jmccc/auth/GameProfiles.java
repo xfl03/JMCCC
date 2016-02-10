@@ -1,12 +1,12 @@
 package org.to2mbn.jmccc.auth;
 
 import java.util.UUID;
-import com.github.to2mbn.jmccc.launch.AuthenticationException;
-import com.github.to2mbn.jyal.GameProfile;
-import com.github.to2mbn.jyal.PlayerTextures;
-import com.github.to2mbn.jyal.ProfileService;
-import com.github.to2mbn.jyal.PropertiesGameProfile;
-import com.github.to2mbn.jyal.yggdrasil.YggdrasilProfileService;
+import org.to2mbn.jmccc.auth.AuthenticationException;
+import org.to2mbn.jyal.GameProfile;
+import org.to2mbn.jyal.PlayerTextures;
+import org.to2mbn.jyal.ProfileService;
+import org.to2mbn.jyal.PropertiesGameProfile;
+import org.to2mbn.jyal.yggdrasil.YggdrasilProfileService;
 
 /**
  * A tool class for game profiles.
@@ -36,7 +36,7 @@ public final class GameProfiles {
 	public static PropertiesGameProfile getGameProfile(UUID profileUUID) throws AuthenticationException {
 		try {
 			return profileService.getGameProfile(profileUUID);
-		} catch (com.github.to2mbn.jyal.AuthenticationException e) {
+		} catch (org.to2mbn.jyal.AuthenticationException e) {
 			throw new AuthenticationException(e);
 		}
 	}
@@ -72,7 +72,7 @@ public final class GameProfiles {
 	public static PlayerTextures getTextures(GameProfile profile) throws AuthenticationException {
 		try {
 			return profileService.getTextures(withProperties(profile));
-		} catch (com.github.to2mbn.jyal.AuthenticationException e) {
+		} catch (org.to2mbn.jyal.AuthenticationException e) {
 			throw new AuthenticationException(e);
 		}
 	}
@@ -89,7 +89,7 @@ public final class GameProfiles {
 	public static PlayerTextures getTextures(UUID profileUUID) throws AuthenticationException {
 		try {
 			return profileService.getTextures(getGameProfile(profileUUID));
-		} catch (com.github.to2mbn.jyal.AuthenticationException e) {
+		} catch (org.to2mbn.jyal.AuthenticationException e) {
 			throw new AuthenticationException(e);
 		}
 	}
