@@ -9,7 +9,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.to2mbn.jyal.Agent;
-import org.to2mbn.jyal.AuthenticationException;
+import org.to2mbn.jmccc.auth.AuthenticationException;
 import org.to2mbn.jyal.GameProfile;
 import org.to2mbn.jyal.Session;
 import org.to2mbn.jyal.SessionService;

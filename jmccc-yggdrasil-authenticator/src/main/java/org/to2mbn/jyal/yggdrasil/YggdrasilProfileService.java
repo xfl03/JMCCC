@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.UUID;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.to2mbn.jyal.AuthenticationException;
+import org.to2mbn.jmccc.auth.AuthenticationException;
 import org.to2mbn.jyal.PlayerTextures;
 import org.to2mbn.jyal.ProfileService;
 import org.to2mbn.jyal.PropertiesGameProfile;

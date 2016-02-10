@@ -2,7 +2,7 @@ package org.to2mbn.jyal.yggdrasil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.to2mbn.jyal.AuthenticationException;
+import org.to2mbn.jmccc.auth.AuthenticationException;
 import org.to2mbn.jyal.RemoteAuthenticationException;
 import org.to2mbn.jyal.io.JSONHttpRequester;
 

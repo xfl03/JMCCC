@@ -49,11 +49,7 @@ abstract public class YggdrasilAuthenticator implements Authenticator, Serializa
 	@Override
 	public AuthInfo auth() throws AuthenticationException {
 		Session session;
-		try {
 			session = createSession();
-		} catch (org.to2mbn.jyal.AuthenticationException e) {
-			throw new AuthenticationException(e);
-		}
 
 		GameProfile selected = selectCharacter(session.getSelectedGameProfile(), session.getGameProfiles());
 		if (selected == null) {
@@ -74,9 +70,9 @@ abstract public class YggdrasilAuthenticator implements Authenticator, Serializa
 	 * Creates a session for authentication.
 	 * 
 	 * @return the session
-	 * @throws org.to2mbn.jyal.AuthenticationException if an authentication error has occurred
+	 * @throws AuthenticationException if an authentication error has occurred
 	 */
-	abstract protected Session createSession() throws org.to2mbn.jyal.AuthenticationException;
+	abstract protected Session createSession() throws AuthenticationException;
 
 	/**
 	 * Gets the session service.

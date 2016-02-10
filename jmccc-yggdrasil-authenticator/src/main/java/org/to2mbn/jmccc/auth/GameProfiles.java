@@ -34,11 +34,7 @@ public final class GameProfiles {
 	 * @throws AuthenticationException if an yggdrasil authentication error occurs
 	 */
 	public static PropertiesGameProfile getGameProfile(UUID profileUUID) throws AuthenticationException {
-		try {
-			return profileService.getGameProfile(profileUUID);
-		} catch (org.to2mbn.jyal.AuthenticationException e) {
-			throw new AuthenticationException(e);
-		}
+		return profileService.getGameProfile(profileUUID);
 	}
 
 	/**
@@ -70,11 +66,7 @@ public final class GameProfiles {
 	 * @throws AuthenticationException if an yggdrasil authentication error occurs
 	 */
 	public static PlayerTextures getTextures(GameProfile profile) throws AuthenticationException {
-		try {
-			return profileService.getTextures(withProperties(profile));
-		} catch (org.to2mbn.jyal.AuthenticationException e) {
-			throw new AuthenticationException(e);
-		}
+		return profileService.getTextures(withProperties(profile));
 	}
 
 	/**
@@ -87,11 +79,7 @@ public final class GameProfiles {
 	 * @throws AuthenticationException if an yggdrasil authentication error occurs
 	 */
 	public static PlayerTextures getTextures(UUID profileUUID) throws AuthenticationException {
-		try {
-			return profileService.getTextures(getGameProfile(profileUUID));
-		} catch (org.to2mbn.jyal.AuthenticationException e) {
-			throw new AuthenticationException(e);
-		}
+		return profileService.getTextures(getGameProfile(profileUUID));
 	}
 
 	private GameProfiles() {

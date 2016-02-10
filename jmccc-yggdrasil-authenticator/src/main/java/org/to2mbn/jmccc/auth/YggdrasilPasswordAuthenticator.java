@@ -6,7 +6,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Objects;
 import java.util.UUID;
-import org.to2mbn.jyal.AuthenticationException;
 import org.to2mbn.jyal.GameProfile;
 import org.to2mbn.jyal.Session;
 

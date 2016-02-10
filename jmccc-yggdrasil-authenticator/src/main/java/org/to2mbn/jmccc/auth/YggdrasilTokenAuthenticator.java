@@ -98,15 +98,11 @@ public class YggdrasilTokenAuthenticator extends YggdrasilAuthenticator {
 	 * @throws AuthenticationException if an error has occurred during validating
 	 */
 	public boolean isValid() throws AuthenticationException {
-		try {
 			return getSessionService().isValid(accessToken);
-		} catch (org.to2mbn.jyal.AuthenticationException e) {
-			throw new AuthenticationException("failed to valid access token", e);
-		}
 	}
 
 	@Override
-	protected Session createSession() throws org.to2mbn.jyal.AuthenticationException {
+	protected Session createSession() throws AuthenticationException {
 		Session session = getSessionService().loginWithToken(accessToken);
 		accessToken = session.getAccessToken();
 		return session;

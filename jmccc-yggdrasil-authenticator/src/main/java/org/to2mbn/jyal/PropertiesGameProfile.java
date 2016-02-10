@@ -35,7 +35,7 @@ public class PropertiesGameProfile extends GameProfile {
 
 	@Override
 	public String toString() {
-		return "PropertiesGameProfile [properties=" + properties + ", uuid=" + getUUID() + ", name=" + getName() + "]";
+		return "GameProfile [uuid=" + getUUID() + ", name=" + getName() + ", properties=" + getProperties() + "]";
 	}
 
 }

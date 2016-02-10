@@ -1,5 +1,7 @@
 package org.to2mbn.jyal;
 
+import org.to2mbn.jmccc.auth.AuthenticationException;
+
 public interface SessionService {
 
 	Session login(String username, String password) throws AuthenticationException;

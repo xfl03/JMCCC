@@ -1,5 +1,7 @@
 package org.to2mbn.jyal;
 
+import org.to2mbn.jmccc.auth.AuthenticationException;
+
 public class RemoteAuthenticationException extends AuthenticationException {
 
 	private static final long serialVersionUID = 1L;
