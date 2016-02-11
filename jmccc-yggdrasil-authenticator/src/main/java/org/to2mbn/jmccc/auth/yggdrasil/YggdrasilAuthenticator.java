@@ -9,9 +9,9 @@ import org.to2mbn.jmccc.auth.Authenticator;
 import org.to2mbn.jmccc.auth.yggdrasil.core.Agent;
 import org.to2mbn.jmccc.auth.yggdrasil.core.GameProfile;
 import org.to2mbn.jmccc.auth.yggdrasil.core.Session;
-import org.to2mbn.jmccc.auth.yggdrasil.core.SessionService;
+import org.to2mbn.jmccc.auth.yggdrasil.core.AuthenticationService;
 import org.to2mbn.jmccc.auth.yggdrasil.core.util.UUIDUtils;
-import org.to2mbn.jmccc.auth.yggdrasil.core.yggdrasil.YggdrasilSessionService;
+import org.to2mbn.jmccc.auth.yggdrasil.core.yggdrasil.YggdrasilAuthenticationService;
 import org.to2mbn.jmccc.auth.AuthenticationException;
 
 public class YggdrasilAuthenticator implements Authenticator, Serializable {
@@ -28,7 +28,7 @@ public class YggdrasilAuthenticator implements Authenticator, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private SessionService sessionService;
+	private AuthenticationService sessionService;
 	private volatile Session authResult;
 
 	public YggdrasilAuthenticator() {
@@ -36,10 +36,10 @@ public class YggdrasilAuthenticator implements Authenticator, Serializable {
 	}
 
 	public YggdrasilAuthenticator(String clientToken) {
-		this(new YggdrasilSessionService(clientToken, Agent.MINECRAFT));
+		this(new YggdrasilAuthenticationService(clientToken, Agent.MINECRAFT));
 	}
 
-	public YggdrasilAuthenticator(SessionService sessionService) {
+	public YggdrasilAuthenticator(AuthenticationService sessionService) {
 		Objects.requireNonNull(sessionService);
 		this.sessionService = sessionService;
 	}

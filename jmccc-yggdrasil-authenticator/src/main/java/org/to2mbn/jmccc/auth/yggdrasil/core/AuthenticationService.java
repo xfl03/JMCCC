@@ -3,7 +3,7 @@ package org.to2mbn.jmccc.auth.yggdrasil.core;
 import java.util.UUID;
 import org.to2mbn.jmccc.auth.AuthenticationException;
 
-public interface SessionService {
+public interface AuthenticationService {
 
 	Session login(String username, String password) throws AuthenticationException;
 

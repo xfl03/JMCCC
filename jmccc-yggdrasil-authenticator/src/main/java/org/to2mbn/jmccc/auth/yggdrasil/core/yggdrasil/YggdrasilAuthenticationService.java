@@ -12,11 +12,11 @@ import org.to2mbn.jmccc.auth.AuthenticationException;
 import org.to2mbn.jmccc.auth.yggdrasil.core.Agent;
 import org.to2mbn.jmccc.auth.yggdrasil.core.GameProfile;
 import org.to2mbn.jmccc.auth.yggdrasil.core.Session;
-import org.to2mbn.jmccc.auth.yggdrasil.core.SessionService;
+import org.to2mbn.jmccc.auth.yggdrasil.core.AuthenticationService;
 import org.to2mbn.jmccc.auth.yggdrasil.core.UserType;
 import org.to2mbn.jmccc.auth.yggdrasil.core.util.UUIDUtils;
 
-public class YggdrasilSessionService extends YggdrasilService implements SessionService {
+public class YggdrasilAuthenticationService extends YggdrasilService implements AuthenticationService {
 
 	private static final long serialVersionUID = 1L;
 
@@ -27,7 +27,7 @@ public class YggdrasilSessionService extends YggdrasilService implements Session
 	private String clientToken;
 	private Agent agent;
 
-	public YggdrasilSessionService(String clientToken, Agent agent) {
+	public YggdrasilAuthenticationService(String clientToken, Agent agent) {
 		this.clientToken = clientToken;
 		this.agent = agent;
 	}
