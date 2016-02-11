@@ -14,7 +14,6 @@ import org.to2mbn.jmccc.auth.yggdrasil.core.ProfileService;
 import org.to2mbn.jmccc.auth.yggdrasil.core.PropertiesGameProfile;
 import org.to2mbn.jmccc.auth.yggdrasil.core.Texture;
 import org.to2mbn.jmccc.auth.yggdrasil.core.util.Base64;
-import org.to2mbn.jmccc.auth.yggdrasil.core.util.SignaturedPropertiesUtils;
 import org.to2mbn.jmccc.auth.yggdrasil.core.util.UUIDUtils;
 
 public class YggdrasilProfileService extends YggdrasilService implements ProfileService {
@@ -38,7 +37,7 @@ public class YggdrasilProfileService extends YggdrasilService implements Profile
 		Map<String, String> properties;
 		try {
 			try {
-				properties = SignaturedPropertiesUtils.toProperties(response.optJSONArray("properties"), true);
+				properties = getPropertiesDeserializer().toProperties(response.optJSONArray("properties"), true);
 			} catch (GeneralSecurityException e) {
 				throw newSignatureException(e);
 			}

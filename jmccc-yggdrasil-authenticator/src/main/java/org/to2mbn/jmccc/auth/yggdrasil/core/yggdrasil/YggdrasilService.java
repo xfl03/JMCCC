@@ -12,6 +12,15 @@ abstract public class YggdrasilService implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private transient JSONHttpRequester requester;
+	private SignaturedPropertiesDeserializer propertiesDeserializer;
+
+	public YggdrasilService() {
+		this(new SignaturedPropertiesDeserializer());
+	}
+
+	public YggdrasilService(SignaturedPropertiesDeserializer propertiesDeserializer) {
+		this.propertiesDeserializer = propertiesDeserializer;
+	}
 
 	protected void checkResponse(JSONObject response) throws AuthenticationException {
 		if (response == null) {
@@ -44,6 +53,10 @@ abstract public class YggdrasilService implements Serializable {
 			requester = new JSONHttpRequester();
 		}
 		return requester;
+	}
+
+	protected SignaturedPropertiesDeserializer getPropertiesDeserializer() {
+		return propertiesDeserializer;
 	}
 
 }

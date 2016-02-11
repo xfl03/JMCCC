@@ -14,7 +14,6 @@ import org.to2mbn.jmccc.auth.yggdrasil.core.GameProfile;
 import org.to2mbn.jmccc.auth.yggdrasil.core.Session;
 import org.to2mbn.jmccc.auth.yggdrasil.core.SessionService;
 import org.to2mbn.jmccc.auth.yggdrasil.core.UserType;
-import org.to2mbn.jmccc.auth.yggdrasil.core.util.SignaturedPropertiesUtils;
 import org.to2mbn.jmccc.auth.yggdrasil.core.util.UUIDUtils;
 
 public class YggdrasilSessionService extends YggdrasilService implements SessionService {
@@ -116,7 +115,7 @@ public class YggdrasilSessionService extends YggdrasilService implements Session
 			String userId = userjson.getString("id");
 			Map<String, String> userProperties;
 			try {
-				userProperties = SignaturedPropertiesUtils.toProperties(userjson.optJSONArray("properties"), false);
+				userProperties = getPropertiesDeserializer().toProperties(userjson.optJSONArray("properties"), false);
 			} catch (GeneralSecurityException e) {
 				throw newSignatureException(e);
 			}
