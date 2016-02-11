@@ -1,6 +1,7 @@
 package org.to2mbn.jmccc.auth;
 
 import java.io.Serializable;
+import java.util.Map;
 import java.util.Objects;
 
 public class AuthInfo implements Serializable {
@@ -10,7 +11,7 @@ public class AuthInfo implements Serializable {
 	private String username;
 	private String token;
 	private String uuid;
-	private String properties;
+	private Map<String, String> properties;
 	private String userType;
 
 	/**
@@ -23,7 +24,7 @@ public class AuthInfo implements Serializable {
 	 * @param userType the type of the login
 	 * @throws NullPointerException if any of the arguments is null
 	 */
-	public AuthInfo(String username, String token, String uuid, String properties, String userType) {
+	public AuthInfo(String username, String token, String uuid, Map<String, String> properties, String userType) {
 		Objects.requireNonNull(username);
 		Objects.requireNonNull(token);
 		Objects.requireNonNull(uuid);
@@ -69,7 +70,7 @@ public class AuthInfo implements Serializable {
 	 * 
 	 * @return the properties
 	 */
-	public String getProperties() {
+	public Map<String, String> getProperties() {
 		return properties;
 	}
 

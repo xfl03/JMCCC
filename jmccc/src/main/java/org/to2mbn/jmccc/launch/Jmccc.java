@@ -15,6 +15,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import org.json.JSONObject;
 import org.to2mbn.jmccc.auth.AuthInfo;
 import org.to2mbn.jmccc.exec.DaemonStreamPumpMonitor;
 import org.to2mbn.jmccc.exec.GameProcessListener;
@@ -169,7 +170,7 @@ public class Jmccc implements Launcher {
 		tokens.put("auth_player_name", auth.getUsername());
 		tokens.put("auth_uuid", auth.getUUID());
 		tokens.put("user_type", auth.getUserType());
-		tokens.put("user_properties", auth.getProperties());
+		tokens.put("user_properties", new JSONObject(auth.getProperties()).toString());
 		tokens.put("version_name", version.getVersion());
 		tokens.put("assets_index_name", version.getAssets());
 		tokens.put("game_directory", option.getGameDirectory().toString());
