@@ -32,7 +32,11 @@ public class YggdrasilAuthenticator implements Authenticator, Serializable {
 	private volatile Session authResult;
 
 	public YggdrasilAuthenticator() {
-		this(new YggdrasilSessionService(UUIDUtils.unsign(UUID.randomUUID()), Agent.MINECRAFT));
+		this(UUIDUtils.unsign(UUID.randomUUID()));
+	}
+
+	public YggdrasilAuthenticator(String clientToken) {
+		this(new YggdrasilSessionService(clientToken, Agent.MINECRAFT));
 	}
 
 	public YggdrasilAuthenticator(SessionService sessionService) {
@@ -113,6 +117,14 @@ public class YggdrasilAuthenticator implements Authenticator, Serializable {
 
 	public synchronized void clearToken() {
 		authResult = null;
+	}
+
+	public synchronized Session getCurrentSession() {
+		return authResult;
+	}
+
+	public synchronized void setCurrentSession(Session session) {
+		this.authResult = session;
 	}
 
 	protected PasswordProvider tryPasswordLogin() throws AuthenticationException {
