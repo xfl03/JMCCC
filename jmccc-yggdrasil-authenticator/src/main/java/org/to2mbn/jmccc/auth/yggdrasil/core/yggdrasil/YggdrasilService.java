@@ -13,13 +13,15 @@ abstract public class YggdrasilService implements Serializable {
 
 	private transient JSONHttpRequester requester;
 	private SignaturedPropertiesDeserializer propertiesDeserializer;
+	private YggdrasilAPIProvider api;
 
 	public YggdrasilService() {
-		this(new SignaturedPropertiesDeserializer());
+		this(new SignaturedPropertiesDeserializer(), new DefaultYggdrasilAPIProvider());
 	}
 
-	public YggdrasilService(SignaturedPropertiesDeserializer propertiesDeserializer) {
+	public YggdrasilService(SignaturedPropertiesDeserializer propertiesDeserializer, YggdrasilAPIProvider api) {
 		this.propertiesDeserializer = propertiesDeserializer;
+		this.api = api;
 	}
 
 	protected void checkResponse(JSONObject response) throws AuthenticationException {
@@ -57,6 +59,10 @@ abstract public class YggdrasilService implements Serializable {
 
 	protected SignaturedPropertiesDeserializer getPropertiesDeserializer() {
 		return propertiesDeserializer;
+	}
+
+	protected YggdrasilAPIProvider getApi() {
+		return api;
 	}
 
 }

@@ -1,9 +1,12 @@
 package org.to2mbn.jmccc.auth.yggdrasil.core.yggdrasil;
 
+import java.io.Serializable;
 import java.util.UUID;
 import org.to2mbn.jmccc.auth.yggdrasil.core.util.UUIDUtils;
 
-public class DefaultYggdrasilAPIProvider implements YggdrasilAPIProvider {
+public class DefaultYggdrasilAPIProvider implements YggdrasilAPIProvider, Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	@Override
 	public String authenticate() {

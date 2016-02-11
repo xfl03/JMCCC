@@ -20,14 +20,17 @@ public class YggdrasilAuthenticationService extends YggdrasilService implements 
 
 	private static final long serialVersionUID = 1L;
 
-	private static final String API_AUTHENTICATE = "https://authserver.mojang.com/authenticate";
-	private static final String API_REFRESH = "https://authserver.mojang.com/refresh";
-	private static final String API_VALIDATE = "https://authserver.mojang.com/validate";
-
 	private String clientToken;
 	private Agent agent;
 
 	public YggdrasilAuthenticationService(String clientToken, Agent agent) {
+		super();
+		this.clientToken = clientToken;
+		this.agent = agent;
+	}
+
+	public YggdrasilAuthenticationService(String clientToken, Agent agent, SignaturedPropertiesDeserializer propertiesDeserializer, YggdrasilAPIProvider api) {
+		super(propertiesDeserializer, api);
 		this.clientToken = clientToken;
 		this.agent = agent;
 	}
@@ -42,7 +45,7 @@ public class YggdrasilAuthenticationService extends YggdrasilService implements 
 		request.put("requestUser", true);
 		JSONObject response;
 		try {
-			response = getRequester().jsonPost(API_AUTHENTICATE, null, new JSONObject(request));
+			response = getRequester().jsonPost(getApi().authenticate(), null, new JSONObject(request));
 		} catch (JSONException | IOException e) {
 			throw newRequestFailedException(e);
 		}
@@ -69,7 +72,7 @@ public class YggdrasilAuthenticationService extends YggdrasilService implements 
 
 		JSONObject response;
 		try {
-			response = getRequester().jsonPost(API_REFRESH, null, new JSONObject(request));
+			response = getRequester().jsonPost(getApi().refresh(), null, new JSONObject(request));
 		} catch (JSONException | IOException e) {
 			throw newRequestFailedException(e);
 		}
@@ -83,7 +86,7 @@ public class YggdrasilAuthenticationService extends YggdrasilService implements 
 		request.put("accessToken", accessToken);
 		JSONObject response;
 		try {
-			response = getRequester().jsonPost(API_VALIDATE, null, new JSONObject(request));
+			response = getRequester().jsonPost(getApi().validate(), null, new JSONObject(request));
 		} catch (JSONException | IOException e) {
 			throw newRequestFailedException(e);
 		}

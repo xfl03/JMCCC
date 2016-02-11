@@ -21,7 +21,13 @@ public class YggdrasilProfileService extends YggdrasilService implements Profile
 
 	private static final long serialVersionUID = 1L;
 
-	private static final String API_PROFILE = "https://sessionserver.mojang.com/session/minecraft/profile/";
+	public YggdrasilProfileService() {
+		super();
+	}
+
+	public YggdrasilProfileService(SignaturedPropertiesDeserializer propertiesDeserializer, YggdrasilAPIProvider api) {
+		super(propertiesDeserializer, api);
+	}
 
 	@Override
 	public PropertiesGameProfile getGameProfile(UUID profileUUID) throws AuthenticationException {
@@ -29,7 +35,7 @@ public class YggdrasilProfileService extends YggdrasilService implements Profile
 		arguments.put("unsigned", "false");
 		JSONObject response;
 		try {
-			response = getRequester().jsonGet(API_PROFILE + UUIDUtils.unsign(profileUUID), arguments);
+			response = getRequester().jsonGet(getApi().profile(profileUUID), arguments);
 		} catch (JSONException | IOException e) {
 			throw newRequestFailedException(e);
 		}
