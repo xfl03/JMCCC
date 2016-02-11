@@ -7,6 +7,6 @@ public interface ProfileService {
 
 	PropertiesGameProfile getGameProfile(UUID profileUUID) throws AuthenticationException;
 
-	PlayerTextures getTextures(PropertiesGameProfile profile) throws AuthenticationException;
+	PlayerTextures getTextures(GameProfile profile) throws AuthenticationException;
 
 }

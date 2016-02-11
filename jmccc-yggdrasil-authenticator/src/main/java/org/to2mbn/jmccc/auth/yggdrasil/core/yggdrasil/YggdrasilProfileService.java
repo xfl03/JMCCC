@@ -9,6 +9,7 @@ import java.util.UUID;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.to2mbn.jmccc.auth.AuthenticationException;
+import org.to2mbn.jmccc.auth.yggdrasil.core.GameProfile;
 import org.to2mbn.jmccc.auth.yggdrasil.core.PlayerTextures;
 import org.to2mbn.jmccc.auth.yggdrasil.core.ProfileService;
 import org.to2mbn.jmccc.auth.yggdrasil.core.PropertiesGameProfile;
@@ -48,8 +49,15 @@ public class YggdrasilProfileService extends YggdrasilService implements Profile
 	}
 
 	@Override
-	public PlayerTextures getTextures(PropertiesGameProfile profile) throws AuthenticationException {
-		String encodedTextures = profile.getProperties().get("textures");
+	public PlayerTextures getTextures(GameProfile profile) throws AuthenticationException {
+		if (!(profile instanceof PropertiesGameProfile)) {
+			profile = getGameProfile(profile.getUUID());
+		}
+		return getTextures(((PropertiesGameProfile) profile).getProperties());
+	}
+
+	private PlayerTextures getTextures(Map<String, String> properties) throws AuthenticationException {
+		String encodedTextures = properties.get("textures");
 		if (encodedTextures == null) {
 			return null;
 		}
