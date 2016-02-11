@@ -1,4 +1,4 @@
-package org.to2mbn.jyal.test;
+package org.to2mbn.jmccc.auth.yggdrasil.test;
 
 import static org.junit.Assert.*;
 import java.io.UnsupportedEncodingException;
