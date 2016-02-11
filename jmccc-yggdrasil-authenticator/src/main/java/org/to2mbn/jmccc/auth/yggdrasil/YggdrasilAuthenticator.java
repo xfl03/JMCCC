@@ -25,6 +25,50 @@ public class YggdrasilAuthenticator implements Authenticator, Serializable {
 		CharacterSelector getCharacterSelector();
 
 	}
+	
+	public static YggdrasilAuthenticator token(String accessToken, String clientToken) throws AuthenticationException {
+		return token(accessToken, new YggdrasilAuthenticationService(clientToken, Agent.MINECRAFT));
+	}
+
+	public static YggdrasilAuthenticator token(String accessToken, AuthenticationService service) throws AuthenticationException {
+		YggdrasilAuthenticator auth = new YggdrasilAuthenticator(service);
+		auth.refreshWithToken(accessToken);
+		return auth;
+	}
+
+	public static YggdrasilAuthenticator password(String username, String password) throws AuthenticationException {
+		return password(username, password, null);
+	}
+	
+	public static YggdrasilAuthenticator password(String username, String password, CharacterSelector characterSelector) throws AuthenticationException {
+		return password(username, password, characterSelector, UUIDUtils.unsign(UUID.randomUUID()));
+	}
+
+	public static YggdrasilAuthenticator password(String username, String password, CharacterSelector characterSelector, String clientToken) throws AuthenticationException {
+		return password(username, password, characterSelector, new YggdrasilAuthenticationService(clientToken, Agent.MINECRAFT));
+	}
+
+	public static YggdrasilAuthenticator password(final String username, final String password, final CharacterSelector characterSelector, AuthenticationService service) throws AuthenticationException {
+		YggdrasilAuthenticator auth = new YggdrasilAuthenticator(service);
+		auth.refreshWithPassword(new PasswordProvider() {
+
+			@Override
+			public String getUsername() throws AuthenticationException {
+				return username;
+			}
+
+			@Override
+			public String getPassword() throws AuthenticationException {
+				return password;
+			}
+
+			@Override
+			public CharacterSelector getCharacterSelector() {
+				return characterSelector;
+			}
+		});
+		return auth;
+	}
 
 	private static final long serialVersionUID = 1L;
 
