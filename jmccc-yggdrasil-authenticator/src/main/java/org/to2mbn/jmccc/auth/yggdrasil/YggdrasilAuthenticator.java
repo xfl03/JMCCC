@@ -94,7 +94,7 @@ public class YggdrasilAuthenticator implements Authenticator, Serializable {
 		if (selectedProfile == null) {
 			throw new AuthenticationException("no profile is available");
 		}
-		return new AuthInfo(selectedProfile.getName(), authResult.getAccessToken(), UUIDUtils.unsign(selectedProfile.getUUID()), new JSONObject(authResult.getProperties()).toString(), authResult.getUserType().getName());
+		return new AuthInfo(selectedProfile.getName(), authResult.getAccessToken(), UUIDUtils.unsign(selectedProfile.getUUID()), authResult.getProperties(), authResult.getUserType().getName());
 	}
 
 	public synchronized Session session() throws AuthenticationException {

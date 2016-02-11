@@ -2,6 +2,8 @@ package org.to2mbn.jmccc.auth;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -30,7 +32,7 @@ public class OfflineAuthenticator implements Authenticator, Serializable {
 	@Override
 	public AuthInfo auth() throws AuthenticationException {
 		try {
-			return new AuthInfo(playerName, unsign(UUID.randomUUID()), unsign(generateUUID()), "{}", "mojang");
+			return new AuthInfo(playerName, unsign(UUID.randomUUID()), unsign(generateUUID()), Collections.unmodifiableMap(new HashMap<String, String>()), "mojang");
 		} catch (UnsupportedEncodingException e) {
 			throw new AuthenticationException("UTF-8 is not supported", e);
 		}
