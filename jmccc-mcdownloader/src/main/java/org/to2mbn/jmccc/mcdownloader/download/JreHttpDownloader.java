@@ -122,6 +122,8 @@ public class JreHttpDownloader implements DownloaderService {
 				session = task.createSession();
 			}
 
+			long downloaded = 0;
+
 			try (InputStream in = connection.getInputStream()) {
 				byte[] buf = new byte[BUFFER_SIZE];
 				int read;
@@ -129,7 +131,9 @@ public class JreHttpDownloader implements DownloaderService {
 					if (Thread.interrupted()) {
 						throw new InterruptedException();
 					}
+					downloaded += read;
 					session.receiveData(ByteBuffer.wrap(buf, 0, read));
+					downloadCallback.updateProgress(downloaded, contentLength);
 				}
 			} catch (InterruptedException e) {
 				session.cancelled();
@@ -163,7 +167,7 @@ public class JreHttpDownloader implements DownloaderService {
 	public JreHttpDownloader(int maxConns, int connectTimeout, int readTimeout, long poolThreadLivingTime) {
 		this.connectTimeout = connectTimeout;
 		this.readTimeout = readTimeout;
-		executor = new ThreadPoolExecutor(0, maxConns, poolThreadLivingTime, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
+		executor = new ThreadPoolExecutor(maxConns, maxConns, poolThreadLivingTime, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
 	}
 
 	@Override

@@ -26,9 +26,8 @@ public class MinecraftDownloaderBuilder {
 	private int maxConnections = 50;
 	private int maxConnectionsPerRouter = 10;
 	private MinecraftDownloadProvider provider = new MojangDownloadProvider();
-	private int poolMaxThreads = Integer.MAX_VALUE;
-	private int poolCoreThreads = 0;
-	private long poolThreadLivingTime = 1000 * 60;
+	private int poolMaxThreads = Runtime.getRuntime().availableProcessors();
+	private long poolThreadLivingTime = 1000 * 10;
 	private int defaultTries = 3;
 	private int connectTimeout = 10000;
 	private int soTimeout = 30000;
@@ -59,11 +58,6 @@ public class MinecraftDownloaderBuilder {
 
 	public MinecraftDownloaderBuilder setPoolThreadLivingTime(long poolThreadLivingTime) {
 		this.poolThreadLivingTime = poolThreadLivingTime;
-		return this;
-	}
-
-	public MinecraftDownloaderBuilder setPoolCoreThreads(int poolCoreThreads) {
-		this.poolCoreThreads = poolCoreThreads;
 		return this;
 	}
 
@@ -149,7 +143,7 @@ public class MinecraftDownloaderBuilder {
 	}
 
 	public MinecraftDownloader build() {
-		ExecutorService executor = new ThreadPoolExecutor(poolCoreThreads, poolMaxThreads, poolThreadLivingTime, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
+		ExecutorService executor = new ThreadPoolExecutor(poolMaxThreads, poolMaxThreads, poolThreadLivingTime, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
 
 		DownloaderService downloader;
 		if (!disableApacheHttpAsyncClient && isApacheHttpAsyncClientAvailable()) {
