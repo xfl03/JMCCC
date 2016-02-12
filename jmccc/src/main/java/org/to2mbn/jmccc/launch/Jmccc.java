@@ -180,7 +180,7 @@ public class Jmccc implements Launcher {
 			tokens.put("version_type", type);
 		}
 
-		return new LaunchArgument(option, tokens, option.getExtraArguments(), javaLibraries, nativesDir);
+		return new LaunchArgument(option, tokens, javaLibraries, nativesDir);
 	}
 
 	private void buildLegacyAssets(MinecraftDirectory mcdir, Version version) throws IOException {

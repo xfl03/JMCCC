@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import org.to2mbn.jmccc.option.LaunchOption;
 import org.to2mbn.jmccc.util.Platform;
 import org.to2mbn.jmccc.version.Version;
-import java.util.Set;
 
 /**
  * To generate launching command line.
@@ -18,15 +18,13 @@ class LaunchArgument {
 	private LaunchOption launchOption;
 	private File nativesPath;
 	private Set<File> libraries;
-	private List<String> extendedArguments;
 	private Map<String, String> tokens;
 
-	public LaunchArgument(LaunchOption launchOption, Map<String, String> tokens, List<String> extendedArguments, Set<File> libraries, File nativesPath) {
+	public LaunchArgument(LaunchOption launchOption, Map<String, String> tokens, Set<File> libraries, File nativesPath) {
 		this.launchOption = launchOption;
 		this.libraries = libraries;
 		this.nativesPath = nativesPath;
 		this.tokens = tokens;
-		this.extendedArguments = extendedArguments;
 	}
 
 	public String[] generateCommandline() {
@@ -51,9 +49,9 @@ class LaunchArgument {
 			args.add("-Xmx" + launchOption.getMaxMemory() + "M");
 		}
 
-		// extended arguments
-		if (extendedArguments != null) {
-			for (String arg : extendedArguments) {
+		// extra jvm arguments
+		if (launchOption.getExtraJvmArguments() != null) {
+			for (String arg : launchOption.getExtraJvmArguments()) {
 				if (arg != null) {
 					args.add(arg);
 				}
@@ -84,6 +82,15 @@ class LaunchArgument {
 
 		// template arguments
 		args.addAll(getFormattedTokens());
+
+		// extra minecraft arguments
+		if (launchOption.getExtraMinecraftArguments() != null) {
+			for (String arg : launchOption.getExtraMinecraftArguments()) {
+				if (arg != null) {
+					args.add(arg);
+				}
+			}
+		}
 
 		// server
 		if (launchOption.getServerInfo() != null && launchOption.getServerInfo().getHost() != null && !launchOption.getServerInfo().getHost().equals("")) {
@@ -140,7 +147,7 @@ class LaunchArgument {
 	}
 
 	public List<String> getExtendedArguments() {
-		return extendedArguments;
+		return extraJvmArguments;
 	}
 
 	public Map<String, String> getTokens() {

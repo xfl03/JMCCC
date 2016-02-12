@@ -47,7 +47,7 @@ public class LaunchOption implements Serializable {
 	private WindowSize windowSize;
 
 	/**
-	 * The environment option
+	 * The java environment option
 	 */
 	private JavaOption javaOption;
 
@@ -62,9 +62,15 @@ public class LaunchOption implements Serializable {
 	private MinecraftDirectory gameDirectory;
 
 	/**
-	 * The extra arguments to append to the command line, default to null
+	 * The extra arguments to append to the jvm command line, default to null
 	 */
-	private List<String> extraArguments;
+	private List<String> extraJvmArguments;
+
+	/**
+	 * The extra arguments to append to the minecraft command line, default to
+	 * null
+	 */
+	private List<String> extraMinecraftArguments;
 
 	/**
 	 * Creates a LaunchOption with the default JavaOption and MinecraftDirectory.
@@ -240,25 +246,48 @@ public class LaunchOption implements Serializable {
 	}
 
 	/**
-	 * Gets the extra arguments, default to null.
+	 * Gets the extra jvm arguments, default to null.
 	 * <p>
-	 * The arguments will be added to the JVM arguments.
-	 * Null elements are allowed, if an element is null, it won't be added to the JVM arguments.
+	 * The arguments will be added to the JVM arguments. Null elements are
+	 * allowed, if an element is null, it won't be added to the JVM arguments.
 	 * 
-	 * @return the extra arguments, default to null
+	 * @return the extra jvm arguments, default to null
 	 */
-	public List<String> getExtraArguments() {
-		return extraArguments;
+	public List<String> getExtraJvmArguments() {
+		return extraJvmArguments;
 	}
 
 	/**
-	 * Sets the extra arguments.
+	 * Sets the extra jvm arguments.
 	 * 
-	 * @param extraArguments the extra arguments to set
-	 * @see #getExtraArguments()
+	 * @param extraJvmArguments the extra jvm arguments to set
+	 * @see #getExtraJvmArguments()
 	 */
-	public void setExtraArguments(List<String> extraArguments) {
-		this.extraArguments = extraArguments;
+	public void setExtraJvmArguments(List<String> extraJvmArguments) {
+		this.extraJvmArguments = extraJvmArguments;
+	}
+
+	/**
+	 * Gets the extra minecraft arguments, default to null.
+	 * <p>
+	 * The arguments will be added to the minecraft arguments. Null elements are
+	 * allowed, if an element is null, it won't be added to the minecraft
+	 * arguments.
+	 * 
+	 * @return the extra minecraft arguments, default to null.
+	 */
+	public List<String> getExtraMinecraftArguments() {
+		return extraMinecraftArguments;
+	}
+
+	/**
+	 * Sets the extra minecraft arguments.
+	 * 
+	 * @param extraMinecraftArguments the extra minecraft arguments to set
+	 * @see #getExtraMinecraftArguments()
+	 */
+	public void setExtraMinecraftArguments(List<String> extraMinecraftArguments) {
+		this.extraMinecraftArguments = extraMinecraftArguments;
 	}
 
 	/**
@@ -291,7 +320,7 @@ public class LaunchOption implements Serializable {
 
 	@Override
 	public String toString() {
-		return "[maxMemory=" + maxMemory + ", minMemory=" + minMemory + ", version=" + version + ", authenticator=" + authenticator + ", serverInfo=" + serverInfo + ", windowSize=" + windowSize + ", javaOption=" + javaOption + ", minecraftDirectory=" + minecraftDirectory + ", extraArguments=" + extraArguments + "]";
+		return "[maxMemory=" + maxMemory + ", minMemory=" + minMemory + ", version=" + version + ", authenticator=" + authenticator + ", serverInfo=" + serverInfo + ", windowSize=" + windowSize + ", javaOption=" + javaOption + ", minecraftDirectory=" + minecraftDirectory + ", extraArguments=" + extraJvmArguments + "]";
 	}
 
 	@Override
@@ -301,14 +330,14 @@ public class LaunchOption implements Serializable {
 		}
 		if (obj instanceof LaunchOption) {
 			LaunchOption another = (LaunchOption) obj;
-			return maxMemory == another.maxMemory && minMemory == another.minMemory && version.equals(another.version) && authenticator.equals(another.authenticator) && minecraftDirectory.equals(another.minecraftDirectory) && javaOption.equals(another.javaOption) && Objects.equals(serverInfo, another.serverInfo) && Objects.equals(windowSize, another.windowSize) && Objects.equals(extraArguments, another.extraArguments);
+			return maxMemory == another.maxMemory && minMemory == another.minMemory && version.equals(another.version) && authenticator.equals(another.authenticator) && minecraftDirectory.equals(another.minecraftDirectory) && javaOption.equals(another.javaOption) && Objects.equals(serverInfo, another.serverInfo) && Objects.equals(windowSize, another.windowSize) && Objects.equals(extraJvmArguments, another.extraJvmArguments);
 		}
 		return false;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(maxMemory, minMemory, version, authenticator, minecraftDirectory, javaOption, serverInfo, windowSize, extraArguments);
+		return Objects.hash(maxMemory, minMemory, version, authenticator, minecraftDirectory, javaOption, serverInfo, windowSize, extraJvmArguments);
 	}
 
 }
