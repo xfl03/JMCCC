@@ -1,5 +1,7 @@
 package org.to2mbn.jmccc.mcdownloader.provider;
 
+import static org.to2mbn.jmccc.util.HexUtils.bytesToHex;
+import static org.to2mbn.jmccc.util.HexUtils.hexToBytes;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.CharArrayReader;
@@ -20,8 +22,7 @@ import java.util.jar.Pack200.Unpacker;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import org.to2mbn.jmccc.mcdownloader.download.ResultProcessor;
-import static org.to2mbn.jmccc.util.HexUtils.bytesToHex;
-import static org.to2mbn.jmccc.util.HexUtils.hexToBytes;
+import org.to2mbn.jmccc.mcdownloader.download.util.FileUtils;
 
 public class PackProcessor implements ResultProcessor<byte[], Object> {
 
@@ -44,11 +45,7 @@ public class PackProcessor implements ResultProcessor<byte[], Object> {
 
 	@Override
 	public Object process(byte[] data) throws IOException, NoSuchAlgorithmException {
-		// create parent dir
-		File parent = target.getParentFile();
-		if (!parent.exists()) {
-			parent.mkdirs();
-		}
+		FileUtils.prepareWrite(target);
 
 		if (data.length < 4 + POSTFIX.length) {
 			throw new IOException("pack data too short: " + data.length);

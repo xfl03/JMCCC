@@ -7,6 +7,7 @@ import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.Objects;
+import org.to2mbn.jmccc.mcdownloader.download.util.FileUtils;
 
 /**
  * Describes a file download task.
@@ -58,17 +59,10 @@ public class FileDownloadTask extends DownloadTask<Object> {
 
 	@Override
 	public DownloadSession<Object> createSession() throws IOException {
-		// creates the parent dir
-		File parent = target.getParentFile();
-		if (parent != null && !parent.exists()) {
-			parent.mkdirs();
-		}
+		final File partFile = new File(target.getParentFile(), target.getName() + ".part");
 
-		final File partFile = new File(parent, target.getName() + ".part");
-		if (partFile.exists()) {
-			partFile.delete();
-		}
-
+		FileUtils.prepareWrite(partFile);
+		
 		final FileOutputStream out = new FileOutputStream(partFile);
 		final FileChannel channel = out.getChannel();
 
@@ -88,6 +82,7 @@ public class FileDownloadTask extends DownloadTask<Object> {
 			@Override
 			public Object completed() throws IOException {
 				close();
+				FileUtils.prepareWrite(target);
 				if (target.exists()) {
 					target.delete();
 				}
