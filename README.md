@@ -56,49 +56,54 @@ account `user`. And the logs output from game process will print to stdout and s
 this program will print `***EXIT <the exit code>***` to stderr, and then the monitor threads terminates.
 
 ### Yggdrasil authentication
-For password login:
+#### Login with password
 ```java
-new YggdrasilPasswordAuthenticator("<email>", "<password>");
+YggdrasilAuthenticator.password("<username>", "<password>");
 ```
-<p/>
 
-For token login:
+#### Interactive login
 ```java
-new YggdrasilTokenAuthenticator(<clientToken>, "<accessToken>");
-```
-<p/>
+YggdrasilAuthenticator authenticator = new YggdrasilAuthenticator() {
 
-`YggdrasilTokenAuthenticator` is serializable. If you want to save the authentication (aka 'remember password'),
-just save the YggdrasilTokenAuthenticator object.
-We recommend you to use YggdrasilTokenAuthenticator because YggdrasilTokenAuthenticator only saves the access token.
-It's much safer.
+	Scanner scanner = new Scanner(System.in);
 
-You should call `YggdrasilTokenAuthenticator.isValid()` first to check if the access token is valid.
-If this method returns false, you should ask the user to login with password again.
+	@Override
+	protected PasswordProvider tryPasswordLogin() throws AuthenticationException {
+		return new PasswordProvider() {
 
-```java
-File passwordFile = new File("passwd.dat");
-YggdrasilTokenAuthenticator authenticator = null;
-if (passwordFile.exists()) {
-	// read the stored token from file
-	try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(passwordFile))) {
-		authenticator = (YggdrasilTokenAuthenticator) in.readObject();
+			@Override
+			public String getUsername() throws AuthenticationException {
+				System.out.printf("login: ");
+				return scanner.nextLine();
+			}
+
+			@Override
+			public String getPassword() throws AuthenticationException {
+				System.out.printf("password: ");
+				return scanner.nextLine();
+			}
+
+			@Override
+			public CharacterSelector getCharacterSelector() {
+				return null;
+			}
+		};
 	}
-}
-
-if (authenticator == null || !authenticator.isValid()) {
-	// no token is stored, or the stored token is invalid
-	// ...... - ask user to login with password
-	authenticator = YggdrasilTokenAuthenticator.loginWithToken("<email>", "<password>");
-}
-
-// ...... - use the authenticator (such as launching minecraft)
-
-// store the token
-try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(passwordFile))) {
-	out.writeObject(authenticator);
-}
+};
+authenticator.auth();
+System.out.println("Logged in!");
 ```
+The console output:
+```
+login: <username>
+password: <password>
+Logged in!
+```
+
+When `auth()` is called, YggdrasilAuthenticator validates the current token. If the current token is not available, YggdrasilAuthenticator will try refreshing the token. If YggdrasilAuthenticator fails to refresh the token, it will call `tryPasswordLogin()` to ask password for authentication. If no password is available, YggdrasilAuthenticator will throw a `AuthenticationException`. The default implementation of `tryPasswordLogin()` returns `null`, you may need to override it.
+
+If you want to update the current token manually, you can call `refresh()`, `refreshWithToken(String)` or `refreshWithPassword(String, String)`.
+If you want to save the authentication, you can call `getCurrentSession()` to get the current authentication and serialize it, and call `setCurrentSession(Session)` to load the authentication.
 
 ### Game & Asset Download
 ##### Minecraft downloading
