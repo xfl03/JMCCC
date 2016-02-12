@@ -95,6 +95,13 @@ public class JreHttpDownloader implements DownloaderService {
 			}
 			connection.connect();
 
+			if (connection instanceof HttpURLConnection) {
+				int responseCode = ((HttpURLConnection) connection).getResponseCode();
+				if (responseCode < 200 || responseCode > 299) { // not 2xx
+					throw new IOException("Illegal http response code: " + responseCode);
+				}
+			}
+
 			String contentLengthStr = connection.getHeaderField("Content-Length");
 			long contentLength = -1;
 			if (contentLengthStr != null) {
