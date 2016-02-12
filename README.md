@@ -58,7 +58,7 @@ this program will print `***EXIT <the exit code>***` to stderr, and then the mon
 ### Yggdrasil authentication
 #### Login with password
 ```java
-YggdrasilAuthenticator.password("<username>", "<password>");
+YggdrasilAuthenticator.password("<username>", "<password>")
 ```
 
 #### Interactive login
