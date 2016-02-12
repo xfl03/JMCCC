@@ -59,9 +59,9 @@ public class LaunchOption implements Serializable {
 	private MinecraftDirectory minecraftDirectory;
 
 	/**
-	 * The game directory
+	 * The runtime directory
 	 */
-	private MinecraftDirectory gameDirectory;
+	private MinecraftDirectory runtimeDirectory;
 
 	/**
 	 * The extra arguments to append to the jvm command line, default to null
@@ -117,7 +117,7 @@ public class LaunchOption implements Serializable {
 		this.authenticator = authenticator;
 		this.minecraftDirectory = minecraftDir;
 		this.javaOption = javaOption;
-		this.gameDirectory = minecraftDir;
+		this.runtimeDirectory = minecraftDir;
 	}
 
 	/**
@@ -298,17 +298,18 @@ public class LaunchOption implements Serializable {
 	 * Gets the game working directory.
 	 * <p>
 	 * The <code>game_directory</code> and the subprocess working directory will
-	 * be set to this.<br>
-	 * By default, the <code>game directory</code> and the
-	 * <code>minecraft directory</code> are the same. The
-	 * <code>minecraft directory</code> contains libraries, versions, assets,
-	 * and so on. The <code>game directory</code> contains saves, resourcepacks,
+	 * be set to this.
+	 * <p>
+	 * By default, the <code>runtimeDirectory</code> and the
+	 * <code>minecraftDirectory</code> are the same. The
+	 * <code>minecraftDirectory</code> contains libraries, versions, assets, and
+	 * so on. The <code>runtimeDirectory</code> contains saves, resourcepacks,
 	 * screenshots, and so on.
 	 * 
-	 * @return the game directory
+	 * @return the minecraft runtime directory
 	 */
-	public MinecraftDirectory getGameDirectory() {
-		return gameDirectory;
+	public MinecraftDirectory getRuntimeDirectory() {
+		return runtimeDirectory;
 	}
 
 	/**
@@ -317,18 +318,18 @@ public class LaunchOption implements Serializable {
 	 * If you want to launch different minecraft versions in their own
 	 * directories, use this.
 	 * 
-	 * @param gameDirectory the game directory
-	 * @throws NullPointerException <code>gameDirectory=null</code>
-	 * @see #getGameDirectory()
+	 * @param runtimeDirectory the minecraft runtime directory
+	 * @throws NullPointerException <code>runtimeDirectory=null</code>
+	 * @see #getRuntimeDirectory()
 	 */
-	public void setGameDirectory(MinecraftDirectory gameDirectory) {
-		Objects.requireNonNull(gameDirectory);
-		this.gameDirectory = gameDirectory;
+	public void setRuntimeDirectory(MinecraftDirectory runtimeDirectory) {
+		Objects.requireNonNull(runtimeDirectory);
+		this.runtimeDirectory = runtimeDirectory;
 	}
 
 	@Override
 	public String toString() {
-		return "LaunchOption [maxMemory=" + maxMemory + ", minMemory=" + minMemory + ", version=" + version + ", authenticator=" + authenticator + ", serverInfo=" + serverInfo + ", windowSize=" + windowSize + ", javaOption=" + javaOption + ", minecraftDirectory=" + minecraftDirectory + ", gameDirectory=" + gameDirectory + ", extraJvmArguments=" + extraJvmArguments + ", extraMinecraftArguments=" + extraMinecraftArguments + "]";
+		return "LaunchOption [maxMemory=" + maxMemory + ", minMemory=" + minMemory + ", version=" + version + ", authenticator=" + authenticator + ", serverInfo=" + serverInfo + ", windowSize=" + windowSize + ", javaOption=" + javaOption + ", minecraftDirectory=" + minecraftDirectory + ", gameDirectory=" + runtimeDirectory + ", extraJvmArguments=" + extraJvmArguments + ", extraMinecraftArguments=" + extraMinecraftArguments + "]";
 	}
 
 	@Override
@@ -343,7 +344,7 @@ public class LaunchOption implements Serializable {
 					version.equals(another.version) &&
 					authenticator.equals(another.authenticator) &&
 					minecraftDirectory.equals(another.minecraftDirectory) &&
-					gameDirectory.equals(another.gameDirectory) &&
+					runtimeDirectory.equals(another.runtimeDirectory) &&
 					javaOption.equals(another.javaOption) &&
 					Objects.equals(serverInfo, another.serverInfo) &&
 					Objects.equals(windowSize, another.windowSize) &&
@@ -355,7 +356,7 @@ public class LaunchOption implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(maxMemory, minMemory, version, authenticator, minecraftDirectory, gameDirectory, javaOption, serverInfo, windowSize, extraJvmArguments, extraMinecraftArguments);
+		return Objects.hash(maxMemory, minMemory, version, authenticator, minecraftDirectory, runtimeDirectory, javaOption, serverInfo, windowSize, extraJvmArguments, extraMinecraftArguments);
 	}
 
 }
