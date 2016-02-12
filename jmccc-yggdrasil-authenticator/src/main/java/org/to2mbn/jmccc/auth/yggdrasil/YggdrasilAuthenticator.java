@@ -3,16 +3,15 @@ package org.to2mbn.jmccc.auth.yggdrasil;
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
-import org.json.JSONObject;
 import org.to2mbn.jmccc.auth.AuthInfo;
+import org.to2mbn.jmccc.auth.AuthenticationException;
 import org.to2mbn.jmccc.auth.Authenticator;
 import org.to2mbn.jmccc.auth.yggdrasil.core.Agent;
+import org.to2mbn.jmccc.auth.yggdrasil.core.AuthenticationService;
 import org.to2mbn.jmccc.auth.yggdrasil.core.GameProfile;
 import org.to2mbn.jmccc.auth.yggdrasil.core.Session;
-import org.to2mbn.jmccc.auth.yggdrasil.core.AuthenticationService;
 import org.to2mbn.jmccc.auth.yggdrasil.core.util.UUIDUtils;
 import org.to2mbn.jmccc.auth.yggdrasil.core.yggdrasil.YggdrasilAuthenticationService;
-import org.to2mbn.jmccc.auth.AuthenticationException;
 
 public class YggdrasilAuthenticator implements Authenticator, Serializable {
 
@@ -72,7 +71,7 @@ public class YggdrasilAuthenticator implements Authenticator, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private AuthenticationService sessionService;
+	private AuthenticationService authenticationService;
 	private volatile Session authResult;
 
 	public YggdrasilAuthenticator() {
@@ -85,7 +84,7 @@ public class YggdrasilAuthenticator implements Authenticator, Serializable {
 
 	public YggdrasilAuthenticator(AuthenticationService sessionService) {
 		Objects.requireNonNull(sessionService);
-		this.sessionService = sessionService;
+		this.authenticationService = sessionService;
 	}
 
 	@Override
@@ -98,7 +97,7 @@ public class YggdrasilAuthenticator implements Authenticator, Serializable {
 	}
 
 	public synchronized Session session() throws AuthenticationException {
-		if (authResult == null || !sessionService.validate(authResult.getAccessToken())) {
+		if (authResult == null || !authenticationService.validate(authResult.getAccessToken())) {
 			refresh();
 		}
 		if (authResult == null) {
@@ -137,7 +136,7 @@ public class YggdrasilAuthenticator implements Authenticator, Serializable {
 
 	public synchronized void refreshWithPassword(PasswordProvider passwordProvider) throws AuthenticationException {
 		Objects.requireNonNull(passwordProvider);
-		authResult = sessionService.login(passwordProvider.getUsername(), passwordProvider.getPassword());
+		authResult = authenticationService.login(passwordProvider.getUsername(), passwordProvider.getPassword());
 		if (authResult.getSelectedProfile() == null) {
 			// no profile is selected
 			// let's select one
@@ -150,13 +149,13 @@ public class YggdrasilAuthenticator implements Authenticator, Serializable {
 				throw new AuthenticationException("no profile is available");
 			}
 			GameProfile selectedProfile = selector.select(profiles);
-			authResult = sessionService.selectProfile(authResult.getAccessToken(), selectedProfile.getUUID());
+			authResult = authenticationService.selectProfile(authResult.getAccessToken(), selectedProfile.getUUID());
 		}
 	}
 
 	public synchronized void refreshWithToken(String accessToken) throws AuthenticationException {
 		Objects.requireNonNull(accessToken);
-		authResult = sessionService.refresh(accessToken);
+		authResult = authenticationService.refresh(accessToken);
 	}
 
 	public synchronized void clearToken() {
@@ -169,6 +168,10 @@ public class YggdrasilAuthenticator implements Authenticator, Serializable {
 
 	public synchronized void setCurrentSession(Session session) {
 		this.authResult = session;
+	}
+
+	public AuthenticationService getAuthenticationService() {
+		return authenticationService;
 	}
 
 	protected PasswordProvider tryPasswordLogin() throws AuthenticationException {
