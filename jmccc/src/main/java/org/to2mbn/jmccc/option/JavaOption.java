@@ -87,7 +87,7 @@ public class JavaOption implements Serializable {
 	 * <p>
 	 * If the target jvm doesn't support the cgc-mode option, turning this on may cause some problems.
 	 * 
-	 * @param cgc set true to turn on the cgc-mode, set false to turn it off
+	 * @param cgc set it true to turn on the cgc-mode, set it false to turn it off
 	 */
 	public void setCGC(boolean cgc) {
 		this.cgc = cgc;
