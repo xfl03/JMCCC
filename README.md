@@ -200,7 +200,7 @@ JMCCC won't add fml options (such as `-Dfml.ignoreInvalidMinecraftCertificates=t
 If you have problems launching forge, you may need to add these arguments manually.
 These arguments are already defined in class `ExtraArgumentsTemplates`.
 ```java
-option.setExtraArguments(Arrays.asList(ExtraArgumentsTemplates.FML_IGNORE_INVALID_MINECRAFT_CERTIFICATES, ExtraArgumentsTemplates.FML_IGNORE_PATCH_DISCREPANCISE));
+option.setExtraJvmArguments(Arrays.asList(ExtraArgumentsTemplates.FML_IGNORE_INVALID_MINECRAFT_CERTIFICATES, ExtraArgumentsTemplates.FML_IGNORE_PATCH_DISCREPANCISE));
 ```
 
 ### Change Logs
