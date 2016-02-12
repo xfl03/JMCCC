@@ -72,16 +72,16 @@ public enum Platform {
 	public static final Platform CURRENT = getCurrent();
 
 	private static Platform getCurrent() {
-		String osName = System.getProperty("os.name");
+		String osName = System.getProperty("os.name").toLowerCase();
 
-		if (osName.equals("Linux")) {
+		if (osName.contains("linux") || osName.contains("unix")) {
 			return LINUX;
-		} else if (osName.startsWith("Windows")) {
-			return WINDOWS;
-		} else if (osName.equals("Mac OS X")) {
+		} else if (osName.contains("osx") || osName.contains("os x") || osName.contains("mac")) {
 			return OSX;
+		} else if (osName.contains("windows")) {
+			return WINDOWS;
 		} else {
-			return Platform.UNKNOWN;
+			return UNKNOWN;
 		}
 	}
 
