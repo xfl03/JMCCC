@@ -1,7 +1,7 @@
 package org.to2mbn.jmccc.launch;
 
 /**
- * Thrown when dependent natives or libraries are missing.
+ * Throws when dependent natives or libraries are missing.
  * 
  * @author yushijinhun
  */

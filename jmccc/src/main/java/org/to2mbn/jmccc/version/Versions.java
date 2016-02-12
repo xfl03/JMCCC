@@ -42,12 +42,12 @@ public final class Versions {
 	}
 
 	/**
-	 * Returns a set of versions in the given minecraft directory.
+	 * Returns the set of versions in the given minecraft directory.
 	 * <p>
 	 * This method returns a non-threaded safe, unordered set.
 	 * 
 	 * @param minecraftDir the minecraft directory
-	 * @return a set of versions
+	 * @return the set of versions
 	 * @throws NullPointerException if <code>minecraftDir==null</code>
 	 */
 	public static Set<String> getVersions(MinecraftDirectory minecraftDir) {

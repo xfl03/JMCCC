@@ -6,57 +6,57 @@ public enum Platform {
 	WINDOWS, LINUX, OSX, UNKNOWN;
 
 	/**
-	 * Returns the file separator on the current platform.
+	 * Returns the file separator of current platform.
 	 * <p>
 	 * This method refers to <code>System.getProperty("file.separator")</code>
 	 * 
-	 * @return the file separator on the current platform
+	 * @return the file separator of current platform
 	 */
 	public static String getFileSpearator() {
 		return System.getProperty("file.separator");
 	}
 
 	/**
-	 * Returns the path separator on the current platform.
+	 * Returns the path separator of current platform.
 	 * <p>
 	 * This method refers to <code>System.getProperty("path.separator")</code>
 	 * 
-	 * @return the path separator on the current platform
+	 * @return the path separator of current platform
 	 */
 	public static String getPathSpearator() {
 		return System.getProperty("path.separator");
 	}
 
 	/**
-	 * Returns the line separator on the current platform.
+	 * Returns the line separator of current platform.
 	 * <p>
 	 * This method refers to <code>System.lineSeparator()</code>
 	 * 
-	 * @return the line separator on the current platform
+	 * @return the line separator of current platform
 	 */
 	public static String getLineSpearator() {
 		return System.lineSeparator();
 	}
 
 	/**
-	 * Returns the default encoding on the current platform.
+	 * Returns the default encoding of current platform.
 	 * <p>
 	 * This method refers to <code>System.getProperty("sun.jnu.encoding")</code>. If this property does not exist, the
 	 * method will return <code>Charset.defaultCharset()</code>.
 	 * 
-	 * @return the default encoding on the current platform
+	 * @return the default encoding of current platform
 	 */
 	public static String getEncoding() {
 		return System.getProperty("sun.jnu.encoding", Charset.defaultCharset().name());
 	}
 
 	/**
-	 * Returns true if the current platform supports x64.
+	 * Returns true if current platform supports x64.
 	 * <p>
 	 * This method checks <code>sun.arch.data.model</code> property first.
 	 * If the property does not exist, this method will check <code>os.arch</code>.
 	 * 
-	 * @return true if the current platform supports x64
+	 * @return true if current platform supports x64
 	 */
 	public static boolean isX64() {
 		String sunArchDataModel = System.getProperty("sun.arch.data.model");

@@ -9,7 +9,7 @@ public class LibraryInfo extends DownloadInfo {
 	private String path;
 
 	/**
-	 * Creates a LibraryInfo.
+	 * Constructor of LibraryInfo.
 	 * 
 	 * @param url the download url, null if the url is unknown
 	 * @param checksum the SHA-1 checksum, null if the checksum is unknown

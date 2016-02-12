@@ -14,9 +14,9 @@ public class OfflineAuthenticator implements Authenticator, Serializable {
 	private String playerName;
 
 	/**
-	 * Creates an OfflineAuthenticator.
+	 * The constructor of OfflineAuthenticator.
 	 * 
-	 * @param playerName the offline player name
+	 * @param playerName the player name
 	 * @throws NullPointerException if <code>playerName==null</code>
 	 * @throws IllegalArgumentException if <code>playerName.length()==0</code>
 	 */

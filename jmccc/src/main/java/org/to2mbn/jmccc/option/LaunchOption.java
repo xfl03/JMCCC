@@ -8,8 +8,7 @@ import org.to2mbn.jmccc.version.Version;
 
 /**
  * Notes for serialization:<br>
- * Make sure the authenticator implements <code>Serializable</code>, otherwise, an error will occur during
- * serialization.
+ * Make sure the authenticator is serializable, otherwise, an error will occur during serialization.
  * 
  * @author yushijinhun
  */
@@ -28,7 +27,7 @@ public class LaunchOption implements Serializable {
 	private int minMemory;
 
 	/**
-	 * The version to launch
+	 * The version of the game to launch
 	 */
 	private Version version;
 
@@ -38,16 +37,16 @@ public class LaunchOption implements Serializable {
 	private Authenticator authenticator;
 
 	/**
-	 * The server to join, null if you don't join a server automatically
+	 * The server to join when the game finished initializing, null if you don't join a server automatically
 	 */
 	private ServerInfo serverInfo;
 
-	/*
+	/**
 	 * The size of game window, default to null
 	 */
 	private WindowSize windowSize;
 
-	/*
+	/**
 	 * The environment option
 	 */
 	private JavaOption javaOption;

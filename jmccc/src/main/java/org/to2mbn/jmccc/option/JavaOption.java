@@ -72,22 +72,22 @@ public class JavaOption implements Serializable {
 	}
 
 	/**
-	 * Returns true if the target jvm is in cgc.
+	 * Returns true if the target jvm is in the cgc-mode.
 	 * <p>
-	 * By default, cgc is off.
+	 * By default, the cgc-mode is off.
 	 * 
-	 * @return true if the target jvm is in cgc
+	 * @return true if the target jvm is in the cgc-mode
 	 */
 	public boolean isInCGC() {
 		return cgc;
 	}
 
 	/**
-	 * Sets to true to turn on cgc.
+	 * Sets to true to turn on the cgc-mode.
 	 * <p>
-	 * If the target jvm doesn't support cgc option, turning this on may cause some errors.
+	 * If the target jvm doesn't support the cgc-mode option, turning this on may cause some problems.
 	 * 
-	 * @param cgc true to turn on cgc, false to turn off
+	 * @param cgc set true to turn on the cgc-mode, set false to turn it off
 	 */
 	public void setCGC(boolean cgc) {
 		this.cgc = cgc;

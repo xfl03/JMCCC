@@ -12,11 +12,11 @@ public class DownloadInfo implements Serializable {
 	private long size;
 
 	/**
-	 * Creates a DownloadInfo.
+	 * Constructor of DownloadInfo.
 	 * 
-	 * @param url the download url, null if the url is unknown
-	 * @param checksum the SHA-1 checksum, null if the checksum is unknown
-	 * @param size the file size, -1 if the size is unknown
+	 * @param url the download url, set it null if the url is unknown
+	 * @param checksum the SHA-1 checksum, set it null if the checksum is unknown
+	 * @param size the file size, set it -1 if the size is unknown
 	 */
 	public DownloadInfo(String url, String checksum, long size) {
 		Objects.requireNonNull(url);

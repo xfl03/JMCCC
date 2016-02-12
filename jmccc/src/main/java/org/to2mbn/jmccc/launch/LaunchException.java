@@ -1,7 +1,7 @@
 package org.to2mbn.jmccc.launch;
 
 /**
- * Thrown when failing to launch minecraft.
+ * Thrown when failed to launch the game.
  * 
  * @author yushijinhun
  */

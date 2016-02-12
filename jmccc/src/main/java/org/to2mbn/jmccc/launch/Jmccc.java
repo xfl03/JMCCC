@@ -35,7 +35,7 @@ public class Jmccc implements Launcher {
 	private boolean debugPrintCommandline = false;
 
 	/**
-	 * Gets a launcher.
+	 * Gets a new launcher object.
 	 * 
 	 * @return the launcher
 	 * @see LauncherBuilder
@@ -60,7 +60,7 @@ public class Jmccc implements Launcher {
 	/**
 	 * Gets whether to do a fast check on natives.
 	 * 
-	 * @return true if jmccc does a fast check on natives
+	 * @return true if jmccc was set to do a fast check on natives
 	 * @see #setNativeFastCheck(boolean)
 	 * @see LauncherBuilder#setNativeFastCheck(boolean)
 	 */
@@ -71,7 +71,7 @@ public class Jmccc implements Launcher {
 	/**
 	 * Sets whether to do a fast check on natives.
 	 * 
-	 * @param nativeFastCheck true if jmccc does a fast check on natives
+	 * @param nativeFastCheck true if the jmccc shall do a fast check on natives
 	 * @see #isNativeFastCheck()
 	 * @see LauncherBuilder#setNativeFastCheck(boolean)
 	 */

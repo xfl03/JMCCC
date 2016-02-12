@@ -1,16 +1,16 @@
 package org.to2mbn.jmccc.launch;
 
 /**
- * Builder for {@link Launcher} instances.
+ * The builder for {@link Launcher}.
  * 
  * @author yushijinhun
  */
 public class LauncherBuilder {
 
 	/**
-	 * Creates a <code>LauncherBuilder</code>.
+	 * Creates a new <code>LauncherBuilder</code> object.
 	 * 
-	 * @return a <code>LauncherBuilder</code> object
+	 * @return a new <code>LauncherBuilder</code> object
 	 */
 	public static LauncherBuilder create() {
 		return new LauncherBuilder();
@@ -26,10 +26,10 @@ public class LauncherBuilder {
 	 * Sets whether to do a fast check on natives.
 	 * <p>
 	 * By default, this feature is off. In this case, when decompressing natives,
-	 * jmccc will fully compare the existing natives and the natives in jars. If, and only if,
+	 * the jmccc will fully compare the existing natives and the natives in jars. If, and only if,
 	 * a existing native is modified, jmccc will replace it. Because replacing a native in use
-	 * may cause the running JVM to crash.<br>
-	 * If the feature is on, jmccc won't compare the full content of natives.
+	 * may cause the running JVM to be crashed.<br>
+	 * If the feature is on, the jmccc won't compare the full content of natives.
 	 * Jmccc only compares the sizes. This can improve the launching speed.
 	 * But we cannot ensure the content of the natives are correct.
 	 * 
@@ -62,7 +62,7 @@ public class LauncherBuilder {
 	}
 
 	/**
-	 * Creates a Launcher object according to the configurations.
+	 * Creates a new Launcher object according to the configurations.
 	 * 
 	 * @return a Launcher object
 	 */

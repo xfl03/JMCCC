@@ -14,7 +14,7 @@ public final class ExtraArgumentsTemplates {
 	public static final String FML_IGNORE_PATCH_DISCREPANCISE = "-Dfml.ignorePatchDiscrepancies=true";
 	
 	/**
-	 * Use with caution: This option is available only on OSX.
+	 * Caution: This option is available only on OSX.
 	 * <p>
 	 * You may need to check the current os before using the option:
 	 * <pre>
@@ -31,7 +31,7 @@ public final class ExtraArgumentsTemplates {
 	public static final String OSX_DOCK_NAME="-Xdock:name=Minecraft";
 	
 	/**
-	 * Use with caution: This option is available only on OSX.
+	 * Caution: This option is available only on OSX.
 	 * 
 	 * @param minecraftDir the minecraft directory
 	 * @param assetIndex the asset index
@@ -51,7 +51,7 @@ public final class ExtraArgumentsTemplates {
 	}
 
 	/**
-	 * Use with caution: This option is available only on OSX.
+	 * Caution: This option is available only on OSX.
 	 * 
 	 * @param minecraftDir the minecraft directory
 	 * @param version the minecraft version

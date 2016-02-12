@@ -23,7 +23,7 @@ public class Version implements Serializable {
 	private Map<String, DownloadInfo> downloads;
 
 	/**
-	 * Creates a Version object.
+	 * Constructor of Version.
 	 * 
 	 * @param version the version number
 	 * @param type the type of the version, null if the type is unknown
@@ -141,9 +141,9 @@ public class Version implements Serializable {
 	}
 
 	/**
-	 * Returns true if this version is lower than 1.7.10
+	 * Returns true if the version is lower than 1.8
 	 *
-	 * @return true if this version is lower than 1.7.10, as well as using the legacy assets index
+	 * @return true if the version is lower than 1.8, as well as using the legacy assets index
 	 */
 	public boolean isLegacy() {
 		return legacy;
@@ -159,7 +159,8 @@ public class Version implements Serializable {
 	}
 
 	/**
-	 * Gets the downloads of the version. This exists only in the version 1.9 or higher.
+	 * Gets the download information of the version.
+	 * The method supports version 1.9 or higher only.
 	 * <p>
 	 * This maps to the 'downloads' element in the version json.<br>
 	 * Here are some known key-value pairs:<br>

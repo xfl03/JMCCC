@@ -15,14 +15,14 @@ public class AuthInfo implements Serializable {
 	private String userType;
 
 	/**
-	 * Creates an AuthInfo.
+	 * The constructor of AuthInfo.
 	 * 
 	 * @param username the username
 	 * @param token the access token
 	 * @param uuid the uuid of the login
 	 * @param properties the properties
 	 * @param userType the type of the login
-	 * @throws NullPointerException if any of the arguments is null
+	 * @throws NullPointerException if any of the params is null
 	 */
 	public AuthInfo(String username, String token, String uuid, Map<String, String> properties, String userType) {
 		Objects.requireNonNull(username);

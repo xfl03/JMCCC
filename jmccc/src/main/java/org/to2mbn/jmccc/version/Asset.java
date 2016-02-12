@@ -18,7 +18,7 @@ public class Asset {
 	private int size;
 
 	/**
-	 * Creates an asset.
+	 * Constructor of Asset.
 	 * 
 	 * @param virtualPath the virtual path
 	 * @param hash the sha1 hash
@@ -73,14 +73,14 @@ public class Asset {
 	/**
 	 * Gets the relative path of the asset.
 	 * <p>
-	 * This method uses '/' as the separator char, and 'assets/objects' as the base dir.<br>
+	 * The method uses '/' separator, and uses 'assets/objects' as the base dir.<br>
 	 * The asset file is located at:
 	 * 
 	 * <pre>
 	 * ${mcdir}/assets/objects/${2-character-prefix of hash}/${hash}
 	 * </pre>
 	 * 
-	 * So the format of the return value is:
+	 * So the format of the return value will be:
 	 * 
 	 * <pre>
 	 * ${2-character-prefix of hash}/${hash}

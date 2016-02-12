@@ -8,12 +8,12 @@ public class ServerInfo implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * The host, cannot be null
+	 * The host of server, cannot be null
 	 */
 	private String host;
 
 	/**
-	 * The port, default to 25565
+	 * The port of server, default to 25565
 	 */
 	private int port;
 
@@ -46,16 +46,16 @@ public class ServerInfo implements Serializable {
 	}
 
 	/**
-	 * Gets the host.
+	 * Gets the host of server.
 	 * 
-	 * @return the host
+	 * @return the host of server
 	 */
 	public String getHost() {
 		return host;
 	}
 
 	/**
-	 * Sets the host.
+	 * Sets the host of server.
 	 * 
 	 * @param host the host to set
 	 * @throws NullPointerException if <code>host==null</code>
