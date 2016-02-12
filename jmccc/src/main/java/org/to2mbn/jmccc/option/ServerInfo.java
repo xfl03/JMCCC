@@ -65,11 +65,6 @@ public class ServerInfo implements Serializable {
 		this.host = host;
 	}
 
-	@Override
-	public String toString() {
-		return host + ':' + port;
-	}
-
 	/**
 	 * Gets the server port
 	 * 
@@ -91,6 +86,11 @@ public class ServerInfo implements Serializable {
 		}
 
 		this.port = port;
+	}
+
+	@Override
+	public String toString() {
+		return host + ':' + port;
 	}
 
 	@Override

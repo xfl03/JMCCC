@@ -85,7 +85,7 @@ public class AuthInfo implements Serializable {
 
 	@Override
 	public String toString() {
-		return "[username=" + username + ", token=" + token + ", uuid=" + uuid + ", properties=" + properties + ", userType=" + userType + "]";
+		return String.format("AuthInfo [username=%s, token=%s, uuid=%s, properties=%s, userType=%s]", username, token, uuid, properties, userType);
 	}
 
 	@Override

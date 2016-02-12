@@ -329,7 +329,7 @@ public class LaunchOption implements Serializable {
 
 	@Override
 	public String toString() {
-		return "LaunchOption [maxMemory=" + maxMemory + ", minMemory=" + minMemory + ", version=" + version + ", authenticator=" + authenticator + ", serverInfo=" + serverInfo + ", windowSize=" + windowSize + ", javaOption=" + javaOption + ", minecraftDirectory=" + minecraftDirectory + ", gameDirectory=" + runtimeDirectory + ", extraJvmArguments=" + extraJvmArguments + ", extraMinecraftArguments=" + extraMinecraftArguments + "]";
+		return String.format("LaunchOption [maxMemory=%s, minMemory=%s, version=%s, authenticator=%s, serverInfo=%s, windowSize=%s, javaOption=%s, minecraftDirectory=%s, runtimeDirectory=%s, extraJvmArguments=%s, extraMinecraftArguments=%s]", maxMemory, minMemory, version, authenticator, serverInfo, windowSize, javaOption, minecraftDirectory, runtimeDirectory, extraJvmArguments, extraMinecraftArguments);
 	}
 
 	@Override

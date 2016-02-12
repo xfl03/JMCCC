@@ -95,11 +95,7 @@ public class JavaOption implements Serializable {
 
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder(javaPath.toString());
-		if (cgc) {
-			sb.append(" [CGC on]");
-		}
-		return sb.toString();
+		return cgc ? javaPath + " [CGC on]" : javaPath.toString();
 	}
 
 	@Override
