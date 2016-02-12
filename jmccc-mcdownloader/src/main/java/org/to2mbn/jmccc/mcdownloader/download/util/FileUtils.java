@@ -28,7 +28,6 @@ public final class FileUtils {
 		if (parent != null && !parent.exists()) {
 			mkdirs(parent);
 		}
-		testWrite(file);
 	}
 	
 	private FileUtils() {

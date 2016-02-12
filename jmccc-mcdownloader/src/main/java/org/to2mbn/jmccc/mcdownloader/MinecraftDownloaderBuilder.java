@@ -9,6 +9,7 @@ import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import org.to2mbn.jmccc.mcdownloader.download.DownloaderService;
 import org.to2mbn.jmccc.mcdownloader.download.HttpAsyncDownloader;
+import org.to2mbn.jmccc.mcdownloader.download.JreHttpDownloader;
 import org.to2mbn.jmccc.mcdownloader.download.multiple.MultipleDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.provider.MinecraftDownloadProvider;
 import org.to2mbn.jmccc.mcdownloader.provider.MojangDownloadProvider;
@@ -25,12 +26,12 @@ public class MinecraftDownloaderBuilder {
 	private int maxConnections = 50;
 	private int maxConnectionsPerRouter = 10;
 	private MinecraftDownloadProvider provider = new MojangDownloadProvider();
-	private int poolMaxThreads = Integer.MAX_VALUE;
-	private int poolCoreThreads = 0;
-	private long poolThreadLivingTime = 1000 * 60;
+	private int poolMaxThreads = Runtime.getRuntime().availableProcessors();
+	private long poolThreadLivingTime = 1000 * 10;
 	private int defaultTries = 3;
 	private int connectTimeout = 10000;
 	private int soTimeout = 30000;
+	private boolean disableApacheHttpAsyncClient = false;
 
 	protected MinecraftDownloaderBuilder() {
 	}
@@ -57,11 +58,6 @@ public class MinecraftDownloaderBuilder {
 
 	public MinecraftDownloaderBuilder setPoolThreadLivingTime(long poolThreadLivingTime) {
 		this.poolThreadLivingTime = poolThreadLivingTime;
-		return this;
-	}
-
-	public MinecraftDownloaderBuilder setPoolCoreThreads(int poolCoreThreads) {
-		this.poolCoreThreads = poolCoreThreads;
 		return this;
 	}
 
@@ -141,10 +137,31 @@ public class MinecraftDownloaderBuilder {
 		return this;
 	}
 
+	public MinecraftDownloaderBuilder disableApacheHttpAsyncClient() {
+		disableApacheHttpAsyncClient = true;
+		return this;
+	}
+
 	public MinecraftDownloader build() {
-		ExecutorService executor = new ThreadPoolExecutor(poolCoreThreads, poolMaxThreads, poolThreadLivingTime, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
-		HttpAsyncClientBuilder httpClientBuilder = HttpAsyncClientBuilder.create().setMaxConnTotal(maxConnections).setMaxConnPerRoute(maxConnectionsPerRouter).setDefaultIOReactorConfig(IOReactorConfig.custom().setConnectTimeout(connectTimeout).setSoTimeout(soTimeout).build());
-		DownloaderService downloader = new HttpAsyncDownloader(httpClientBuilder, executor);
+		ExecutorService executor = new ThreadPoolExecutor(poolMaxThreads, poolMaxThreads, poolThreadLivingTime, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
+
+		DownloaderService downloader;
+		if (!disableApacheHttpAsyncClient && isApacheHttpAsyncClientAvailable()) {
+			HttpAsyncClientBuilder httpClientBuilder = HttpAsyncClientBuilder.create().setMaxConnTotal(maxConnections).setMaxConnPerRoute(maxConnectionsPerRouter).setDefaultIOReactorConfig(IOReactorConfig.custom().setConnectTimeout(connectTimeout).setSoTimeout(soTimeout).build());
+			downloader = new HttpAsyncDownloader(httpClientBuilder, executor);
+		} else {
+			downloader = new JreHttpDownloader(maxConnections, connectTimeout, soTimeout, poolThreadLivingTime);
+		}
+
 		return new MinecraftDownloaderImpl(downloader, executor, provider, defaultTries);
+	}
+
+	private static boolean isApacheHttpAsyncClientAvailable() {
+		try {
+			Class.forName("org.apache.http.impl.nio.client.HttpAsyncClientBuilder");
+		} catch (ClassNotFoundException e) {
+			return false;
+		}
+		return true;
 	}
 }

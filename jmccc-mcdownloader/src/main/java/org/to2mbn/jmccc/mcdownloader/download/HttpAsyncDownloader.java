@@ -33,30 +33,6 @@ public class HttpAsyncDownloader implements DownloaderService {
 
 	private static final Log LOGGER = LogFactory.getLog(HttpAsyncDownloader.class);
 
-	private static class NullDownloadCallback<T> implements DownloadCallback<T> {
-
-		@Override
-		public void done(T result) {
-		}
-
-		@Override
-		public void failed(Throwable e) {
-		}
-
-		@Override
-		public void cancelled() {
-		}
-
-		@Override
-		public void updateProgress(long done, long total) {
-		}
-
-		@Override
-		public void retry(Throwable e, int current, int max) {
-		}
-
-	}
-
 	private static interface RetryHandler {
 
 		boolean doRetry(Throwable e);
@@ -346,6 +322,9 @@ public class HttpAsyncDownloader implements DownloaderService {
 			Lock lock = shutdownLock.writeLock();
 			lock.lock();
 			try {
+				if (shutdown) {
+					return;
+				}
 				shutdown = true;
 			} finally {
 				lock.unlock();
