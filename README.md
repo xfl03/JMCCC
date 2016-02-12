@@ -3,7 +3,7 @@
 An open-source lightweight library for launching and downloading Minecraft.
 
 ## Download
-You can get the latest release from [the maven central repository](https://search.maven.org/#search|ga|1|g%3A%22com.github.to2mbn%22).
+You can get the latest releases from [the maven central repository](https://search.maven.org/#search|ga|1|g%3A%22com.github.to2mbn%22).
 
 The snapshot repository:
 ```xml
@@ -51,9 +51,9 @@ launcher.launch(new LaunchOption(Versions.resolveVersion(dir, "1.8"), new Offlin
     }
 });
 ```
-In this example, we use `/home/user/.minecraft` as the .minecraft directory, and launches Minecraft 1.8 with an offline
-account `user`. And the logs from game process will be printed to stdout and stderr. When the game process terminates, 
-this program will print `***EXIT <the exit code>***` to stderr, and then the monitor threads terminate.
+In the example above, we use `/home/user/.minecraft` as the .minecraft directory, and launches Minecraft 1.8 with an offline
+account `user`. And the logs output from game process will print to stdout and stderr. When the game process terminated,
+this program will print `***EXIT <the exit code>***` to stderr, and then the monitor threads terminates.
 
 ### Yggdrasil authentication
 For password login:
@@ -193,7 +193,7 @@ downloader.shutdown();
 ### Forge
 JMCCC won't add fml options (such as `-Dfml.ignoreInvalidMinecraftCertificates=true` and `-Dfml.ignorePatchDiscrepancies=true`) to the command line automatically.
 If you have problems launching forge, you may need to add these arguments manually.
-These arguments are already defined in `ExtraArgumentsTemplates`.
+These arguments are already defined in class `ExtraArgumentsTemplates`.
 ```java
 option.setExtraArguments(Arrays.asList(ExtraArgumentsTemplates.FML_IGNORE_INVALID_MINECRAFT_CERTIFICATES, ExtraArgumentsTemplates.FML_IGNORE_PATCH_DISCREPANCISE));
 ```
@@ -202,7 +202,7 @@ option.setExtraArguments(Arrays.asList(ExtraArgumentsTemplates.FML_IGNORE_INVALI
 See [wiki](https://github.com/to2mbn/JMCCC/wiki/Change-logs).
 
 ### Contributing
-Contributing is awesome. But please read the following code requirements first before you PR.
+Contributing is gooooood. But please read the following requirements first before your PR.
 * Use tabs.
 * No trailing whitespaces.
 * No \r\n line endings, \n only.
