@@ -146,10 +146,6 @@ class LaunchArgument {
 		return libraries;
 	}
 
-	public List<String> getExtendedArguments() {
-		return extraJvmArguments;
-	}
-
 	public Map<String, String> getTokens() {
 		return tokens;
 	}

@@ -8,7 +8,8 @@ import org.to2mbn.jmccc.version.Version;
 
 /**
  * Notes for serialization:<br>
- * Make sure the authenticator is serializable, otherwise, an error will occur during serialization.
+ * Make sure the authenticator is serializable, otherwise, an error will occur
+ * during serialization.
  * 
  * @author yushijinhun
  */
@@ -37,7 +38,8 @@ public class LaunchOption implements Serializable {
 	private Authenticator authenticator;
 
 	/**
-	 * The server to join when the game finished initializing, null if you don't join a server automatically
+	 * The server to join when the game finished initializing, null if you don't
+	 * join a server automatically
 	 */
 	private ServerInfo serverInfo;
 
@@ -73,7 +75,8 @@ public class LaunchOption implements Serializable {
 	private List<String> extraMinecraftArguments;
 
 	/**
-	 * Creates a LaunchOption with the default JavaOption and MinecraftDirectory.
+	 * Creates a LaunchOption with the default JavaOption and
+	 * MinecraftDirectory.
 	 * 
 	 * @param version the version to launch
 	 * @param authenticator the authenticator
@@ -210,7 +213,8 @@ public class LaunchOption implements Serializable {
 	/**
 	 * Gets the server info, default to null.
 	 * <p>
-	 * If the server is specified, minecraft will join the specified server automatically.
+	 * If the server is specified, minecraft will join the specified server
+	 * automatically.
 	 * 
 	 * @return the server info, default to null
 	 */
@@ -293,10 +297,13 @@ public class LaunchOption implements Serializable {
 	/**
 	 * Gets the game working directory.
 	 * <p>
-	 * The <code>game_directory</code> and the subprocess working directory will be set to this.<br>
-	 * By default, the <code>game directory</code> and the <code>minecraft directory</code> are the same. The
-	 * <code>minecraft directory</code> contains libraries, versions, assets, and so on. The <code>game directory</code>
-	 * contains saves, resourcepacks, screenshots, and so on.
+	 * The <code>game_directory</code> and the subprocess working directory will
+	 * be set to this.<br>
+	 * By default, the <code>game directory</code> and the
+	 * <code>minecraft directory</code> are the same. The
+	 * <code>minecraft directory</code> contains libraries, versions, assets,
+	 * and so on. The <code>game directory</code> contains saves, resourcepacks,
+	 * screenshots, and so on.
 	 * 
 	 * @return the game directory
 	 */
@@ -307,7 +314,8 @@ public class LaunchOption implements Serializable {
 	/**
 	 * Sets the game working directory.
 	 * <p>
-	 * If you want to launch different minecraft versions in their own directories, use this.
+	 * If you want to launch different minecraft versions in their own
+	 * directories, use this.
 	 * 
 	 * @param gameDirectory the game directory
 	 * @throws NullPointerException <code>gameDirectory=null</code>
@@ -330,14 +338,24 @@ public class LaunchOption implements Serializable {
 		}
 		if (obj instanceof LaunchOption) {
 			LaunchOption another = (LaunchOption) obj;
-			return maxMemory == another.maxMemory && minMemory == another.minMemory && version.equals(another.version) && authenticator.equals(another.authenticator) && minecraftDirectory.equals(another.minecraftDirectory) && javaOption.equals(another.javaOption) && Objects.equals(serverInfo, another.serverInfo) && Objects.equals(windowSize, another.windowSize) && Objects.equals(extraJvmArguments, another.extraJvmArguments);
+			return maxMemory == another.maxMemory &&
+					minMemory == another.minMemory &&
+					version.equals(another.version) &&
+					authenticator.equals(another.authenticator) &&
+					minecraftDirectory.equals(another.minecraftDirectory) &&
+					gameDirectory.equals(another.gameDirectory) &&
+					javaOption.equals(another.javaOption) &&
+					Objects.equals(serverInfo, another.serverInfo) &&
+					Objects.equals(windowSize, another.windowSize) &&
+					Objects.equals(extraJvmArguments, another.extraJvmArguments) &&
+					Objects.equals(extraMinecraftArguments, another.extraMinecraftArguments);
 		}
 		return false;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(maxMemory, minMemory, version, authenticator, minecraftDirectory, javaOption, serverInfo, windowSize, extraJvmArguments);
+		return Objects.hash(maxMemory, minMemory, version, authenticator, minecraftDirectory, gameDirectory, javaOption, serverInfo, windowSize, extraJvmArguments, extraMinecraftArguments);
 	}
 
 }
