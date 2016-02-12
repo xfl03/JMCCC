@@ -1,6 +1,8 @@
 package org.to2mbn.jmccc.auth.yggdrasil;
 
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import org.to2mbn.jmccc.auth.AuthInfo;
@@ -93,7 +95,13 @@ public class YggdrasilAuthenticator implements Authenticator, Serializable {
 		if (selectedProfile == null) {
 			throw new AuthenticationException("no profile is available");
 		}
-		return new AuthInfo(selectedProfile.getName(), authResult.getAccessToken(), UUIDUtils.unsign(selectedProfile.getUUID()), authResult.getProperties(), authResult.getUserType().getName());
+
+		Map<String, String> properties = authResult.getProperties();
+		if (properties == null) {
+			properties = Collections.emptyMap();
+		}
+
+		return new AuthInfo(selectedProfile.getName(), authResult.getAccessToken(), UUIDUtils.unsign(selectedProfile.getUUID()), properties, authResult.getUserType().getName());
 	}
 
 	public synchronized Session session() throws AuthenticationException {
@@ -136,7 +144,9 @@ public class YggdrasilAuthenticator implements Authenticator, Serializable {
 
 	public synchronized void refreshWithPassword(PasswordProvider passwordProvider) throws AuthenticationException {
 		Objects.requireNonNull(passwordProvider);
-		authResult = authenticationService.login(passwordProvider.getUsername(), passwordProvider.getPassword());
+		String username = passwordProvider.getUsername();
+		String password = passwordProvider.getPassword();
+		authResult = authenticationService.login(username, password);
 		if (authResult.getSelectedProfile() == null) {
 			// no profile is selected
 			// let's select one
