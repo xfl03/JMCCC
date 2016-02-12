@@ -19,6 +19,7 @@
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpasyncclient</artifactId>
 			<version>4.1</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.tukaani</groupId>
