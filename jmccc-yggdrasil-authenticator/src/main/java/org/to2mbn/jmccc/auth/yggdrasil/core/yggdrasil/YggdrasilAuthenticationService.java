@@ -10,9 +10,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.to2mbn.jmccc.auth.AuthenticationException;
 import org.to2mbn.jmccc.auth.yggdrasil.core.Agent;
+import org.to2mbn.jmccc.auth.yggdrasil.core.AuthenticationService;
 import org.to2mbn.jmccc.auth.yggdrasil.core.GameProfile;
 import org.to2mbn.jmccc.auth.yggdrasil.core.Session;
-import org.to2mbn.jmccc.auth.yggdrasil.core.AuthenticationService;
 import org.to2mbn.jmccc.auth.yggdrasil.core.UserType;
 import org.to2mbn.jmccc.auth.yggdrasil.core.util.UUIDUtils;
 
@@ -102,6 +102,14 @@ public class YggdrasilAuthenticationService extends YggdrasilService implements 
 			// it isn't null and doesn't include any error message
 			throw new AuthenticationException("invalid response: " + response);
 		}
+	}
+
+	public String getClientToken() {
+		return clientToken;
+	}
+
+	public Agent getAgent() {
+		return agent;
 	}
 
 	private Session handleAuthResponse(JSONObject response) throws AuthenticationException {
