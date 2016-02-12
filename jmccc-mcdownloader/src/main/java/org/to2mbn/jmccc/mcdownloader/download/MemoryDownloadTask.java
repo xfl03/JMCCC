@@ -8,14 +8,14 @@ import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 
 /**
- * A download-to-memory task.
+ * A memories download task.
  * 
  * @author yushijinhun
  */
 public class MemoryDownloadTask extends DownloadTask<byte[]> {
 
 	/**
-	 * Creates a MemoryDownloadTask.
+	 * Constructor of MemoryDownloadTask.
 	 * 
 	 * @param uri the uri of the resource to download
 	 * @throws NullPointerException if <code>uri==null</code>

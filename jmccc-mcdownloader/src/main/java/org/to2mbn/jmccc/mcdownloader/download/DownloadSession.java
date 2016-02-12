@@ -4,10 +4,10 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 /**
- * A download session used to handle received data and write them to the download target.
+ * A download session is used to handle received data and write them to the download target.
  * <p>
- * A session will be created when the download begins, and be destroyed when the download completes or fails. Once the
- * download session has been created, one of the following methods {@link #completed()}, {@link #failed(Throwable)} or
+ * A session will be created when the download task begins, and is destroyed when the download completes or fails. Once the
+ * download session created, one of the following methods {@link #completed()}, {@link #failed(Throwable)} or
  * {@link #cancelled()} must be called.
  * 
  * @param <T> the type of result
@@ -16,7 +16,7 @@ import java.nio.ByteBuffer;
 public interface DownloadSession<T> {
 
 	/**
-	 * Calls when receiving a part of data.
+	 * Calls when receives a part of data.
 	 * 
 	 * @param data the data
 	 * @throws IOException if an I/O error occurs

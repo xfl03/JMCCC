@@ -9,7 +9,7 @@ import java.nio.channels.FileChannel;
 import java.util.Objects;
 
 /**
- * Describes a download-to-file task.
+ * Describes a file download task.
  * 
  * @author yushijinhun
  */
@@ -18,10 +18,10 @@ public class FileDownloadTask extends DownloadTask<Object> {
 	private File target;
 
 	/**
-	 * Creates a FileDownloadTask.
+	 * Constructor of FileDownloadTask.
 	 * 
 	 * @param uri the uri of the resource to download
-	 * @param target where to save the file
+	 * @param target the folder to save the file
 	 * @throws NullPointerException if <code>uri==null||target==null</code>
 	 */
 	public FileDownloadTask(URI uri, File target) {
@@ -31,9 +31,9 @@ public class FileDownloadTask extends DownloadTask<Object> {
 	}
 
 	/**
-	 * Gets the save location.
+	 * Gets the folder to save the file downloaded.
 	 * 
-	 * @return the save location
+	 * @return the folder to save the file downloaded
 	 */
 	public File getTarget() {
 		return target;

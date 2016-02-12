@@ -26,8 +26,8 @@ public class LiteloaderVersionList {
 	}
 
 	/**
-	 * The outside map's key is the minecraft version, value is the artefacts.
-	 * The inside map's key is the artefact name, value is artefact.
+	 * The outside map's key is the minecraft version, value is the artifacts.
+	 * The inside map's key is the artefact name, value is artifact.
 	 */
 	private Map<String, Map<String, LiteloaderVersion>> versions;
 

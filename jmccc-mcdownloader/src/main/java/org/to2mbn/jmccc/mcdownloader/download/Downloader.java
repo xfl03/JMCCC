@@ -22,7 +22,7 @@ public interface Downloader {
 	/**
 	 * Submits a download task asynchronously.
 	 * <p>
-	 * Download will be retried only when an <code>IOException</code> occurs.<br>
+	 * The task will be retried only when an <code>IOException</code> occurs.<br>
 	 * <code>tries</code> is the max number of tries. For example: If <code>tries==1</code>, the download won't be
 	 * retried
 	 * (try 1 time, retry 0 time); If <code>tries==5</code>, the download will be retried at most 4 times.

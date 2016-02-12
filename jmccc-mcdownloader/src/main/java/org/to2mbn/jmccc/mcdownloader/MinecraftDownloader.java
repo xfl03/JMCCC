@@ -14,7 +14,7 @@ public interface MinecraftDownloader extends Shutdownable, DownloaderService, Mu
 	/**
 	 * Downloads a minecraft version incrementally and asynchronously.
 	 * <p>
-	 * This method checks assets, libraries, game jars. And downloads the missing or broken files.
+	 * The method will check the asset files, library files, game jars. And downloads the missing or broken ones.
 	 * 
 	 * @param dir the minecraft dir
 	 * @param version the version to download
@@ -26,7 +26,7 @@ public interface MinecraftDownloader extends Shutdownable, DownloaderService, Mu
 	Future<Version> downloadIncrementally(MinecraftDirectory dir, String version, MultipleDownloadCallback<Version> callback);
 
 	/**
-	 * Fetches the remote version list asynchronously.
+	 * Fetches the remote version list of the game asynchronously.
 	 * 
 	 * @param callback the callback
 	 * @return future representing pending completion of the operation

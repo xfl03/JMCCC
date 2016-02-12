@@ -67,7 +67,7 @@ public class RemoteVersionList {
 	private Map<String, RemoteVersion> versions;
 
 	/**
-	 * Creates a RemoteVersionList.
+	 * Constructor of RemoteVersionList.
 	 * 
 	 * @param latestSnapshot the version of the latest snapshot
 	 * @param latestRelease the version of the latest release

@@ -10,9 +10,9 @@ import org.to2mbn.jmccc.version.Library;
 public interface MinecraftDownloadProvider {
 
 	/**
-	 * Returns a version list download task.
+	 * Returns a version lists download task.
 	 * 
-	 * @return a version list download task
+	 * @return a version lists download task
 	 */
 	MultipleDownloadTask<RemoteVersionList> versionList();
 
@@ -42,7 +42,7 @@ public interface MinecraftDownloadProvider {
 	/**
 	 * Returns a game version json download task.
 	 * <p>
-	 * The version json is saved to <code>${mcdir}/versions/${version}/${version}.json</code>. If the file already
+	 * The version json file will be saved to <code>${mcdir}/versions/${version}/${version}.json</code>. If the file already
 	 * exists, this method will overwrite the file.
 	 * 
 	 * @param mcdir the minecraft dir
@@ -54,8 +54,8 @@ public interface MinecraftDownloadProvider {
 	/**
 	 * Returns a library download task.
 	 * <p>
-	 * The library is saved to <code>${mcdir}/libraries/${library.getPath()}</code>. If the file already exists, this
-	 * method will overwrite the file.
+	 * The library will be saved to <code>${mcdir}/libraries/${library.getPath()}</code>. If the file already exists, this
+	 * method will overwrite it.
 	 * 
 	 * @param mcdir the minecraft dir
 	 * @param library the library to download
@@ -66,8 +66,8 @@ public interface MinecraftDownloadProvider {
 	/**
 	 * Returns an asset download task.
 	 * <p>
-	 * The asset is saved to <code>${mcdir}/assets/objects/${2-character-prefix of hash}/${hash}</code>. If the file
-	 * already exists, this method will overwrite the file.
+	 * The asset will be saved to <code>${mcdir}/assets/objects/${2-character-prefix of hash}/${hash}</code>. If the file
+	 * already exists, this method will overwrite it.
 	 * 
 	 * @param mcdir the minecraft dir
 	 * @param asset the asset to download

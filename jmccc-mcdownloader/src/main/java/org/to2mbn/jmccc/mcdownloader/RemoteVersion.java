@@ -11,7 +11,7 @@ public class RemoteVersion {
 	private String type;
 
 	/**
-	 * Creates a RemoteVersion.
+	 * Constructor of RemoteVersion.
 	 * 
 	 * @param version the version number
 	 * @param uploadTime the upload time
@@ -57,7 +57,7 @@ public class RemoteVersion {
 	/**
 	 * Gets the type of the version.
 	 * <p>
-	 * Values can be "snapshot", "release", "old_beta", "old_alpha"
+	 * Return values could be "snapshot", "release", "old_beta", "old_alpha"
 	 * 
 	 * @return the type of the version
 	 */

@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
 /**
  * Describes a download task.
  * <p>
- * A download task has a uri of the resource to download, and a save location, such as file, memory. The save location
+ * A download task has the uri of resource to download, and the location to save, such as file, memory. The save location
  * is handled by subclasses.
  * 
  * @param <T> the type of result
@@ -73,9 +73,9 @@ abstract public class DownloadTask<T> {
 	private URI uri;
 
 	/**
-	 * Creates a DownloadTask.
+	 * Constructor of DownloadTask.
 	 * 
-	 * @param uri the uri of the resource to download
+	 * @param uri the uri of resource to download
 	 * @throws NullPointerException if <code>uri==null</code>
 	 */
 	public DownloadTask(URI uri) {
