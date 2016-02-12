@@ -50,13 +50,16 @@ public class IncrementallyDownloadTask extends MultipleDownloadTask<Version> {
 			@Override
 			public Object call() throws Exception {
 				final Version ver = Versions.resolveVersion(mcdir, version);
+				if (!mcdir.getVersionJar(version).exists()) {
+					context.submit(downloadProvider.gameJar(mcdir, ver), null, true);
+				}
 				for (Library library : ver.getMissingLibraries(mcdir)) {
 					context.submit(downloadProvider.library(mcdir, library), null, true);
 				}
 				if (mcdir.getAssetIndex(ver.getAssets()).exists()) {
 					downloadAssets(context, Versions.resolveAssets(mcdir, ver.getAssets()));
 				} else {
-					context.submit(downloadProvider.assetsIndex(mcdir, ver.getAssets()), new MultipleDownloadCallback<Set<Asset>>() {
+					context.submit(downloadProvider.assetsIndex(mcdir, ver), new MultipleDownloadCallback<Set<Asset>>() {
 
 						@Override
 						public void done(final Set<Asset> result) {
@@ -109,9 +112,6 @@ public class IncrementallyDownloadTask extends MultipleDownloadTask<Version> {
 			if (inheritsFrom == null) {
 				// end node
 				callback.call();
-				if (!mcdir.getVersionJar(version).exists()) {
-					context.submit(downloadProvider.gameJar(mcdir, version), null, true);
-				}
 			} else {
 				// intermediate node
 				if (handledVersions.contains(inheritsFrom)) {

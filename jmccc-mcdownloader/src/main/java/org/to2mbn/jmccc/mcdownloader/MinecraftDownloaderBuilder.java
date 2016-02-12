@@ -16,6 +16,7 @@ import org.to2mbn.jmccc.mcdownloader.provider.MojangDownloadProvider;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.version.Asset;
 import org.to2mbn.jmccc.version.Library;
+import org.to2mbn.jmccc.version.Version;
 
 public class MinecraftDownloaderBuilder {
 
@@ -108,7 +109,7 @@ public class MinecraftDownloaderBuilder {
 			}
 
 			@Override
-			public MultipleDownloadTask<Object> gameJar(MinecraftDirectory mcdir, String version) {
+			public MultipleDownloadTask<Object> gameJar(MinecraftDirectory mcdir, Version version) {
 				MultipleDownloadTask<Object> t = appendprovider.gameJar(mcdir, version);
 				if (t == null) {
 					return prevprovider.gameJar(mcdir, version);
@@ -117,7 +118,7 @@ public class MinecraftDownloaderBuilder {
 			}
 
 			@Override
-			public MultipleDownloadTask<Set<Asset>> assetsIndex(MinecraftDirectory mcdir, String version) {
+			public MultipleDownloadTask<Set<Asset>> assetsIndex(MinecraftDirectory mcdir, Version version) {
 				MultipleDownloadTask<Set<Asset>> t = appendprovider.assetsIndex(mcdir, version);
 				if (t == null) {
 					return prevprovider.assetsIndex(mcdir, version);

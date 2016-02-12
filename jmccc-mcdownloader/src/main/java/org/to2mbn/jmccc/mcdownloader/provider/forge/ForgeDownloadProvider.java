@@ -14,6 +14,7 @@ import org.to2mbn.jmccc.mcdownloader.provider.URIDownloadProvider;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.version.Asset;
 import org.to2mbn.jmccc.version.Library;
+import org.to2mbn.jmccc.version.Version;
 
 public class ForgeDownloadProvider extends URIDownloadProvider {
 
@@ -63,7 +64,7 @@ public class ForgeDownloadProvider extends URIDownloadProvider {
 	}
 
 	@Override
-	protected URI getGameJar(String version) {
+	protected URI getGameJar(Version version) {
 		return null;
 	}
 
@@ -73,7 +74,7 @@ public class ForgeDownloadProvider extends URIDownloadProvider {
 	}
 
 	@Override
-	protected URI getAssetIndex(String version) {
+	protected URI getAssetIndex(Version version) {
 		return null;
 	}
 

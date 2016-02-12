@@ -18,6 +18,7 @@ import org.to2mbn.jmccc.mcdownloader.provider.MinecraftDownloadProvider;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.version.Asset;
 import org.to2mbn.jmccc.version.Library;
+import org.to2mbn.jmccc.version.Version;
 
 public class LiteloaderDownloadProvider implements MinecraftDownloadProvider {
 
@@ -99,12 +100,12 @@ public class LiteloaderDownloadProvider implements MinecraftDownloadProvider {
 	}
 
 	@Override
-	public MultipleDownloadTask<Set<Asset>> assetsIndex(MinecraftDirectory mcdir, String version) {
+	public MultipleDownloadTask<Set<Asset>> assetsIndex(MinecraftDirectory mcdir, Version version) {
 		return null;
 	}
 
 	@Override
-	public MultipleDownloadTask<Object> gameJar(MinecraftDirectory mcdir, String version) {
+	public MultipleDownloadTask<Object> gameJar(MinecraftDirectory mcdir, Version version) {
 		return null;
 	}
 

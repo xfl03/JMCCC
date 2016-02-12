@@ -5,9 +5,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Comparator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentSkipListMap;
 import org.json.JSONObject;
 import org.to2mbn.jmccc.mcdownloader.RemoteVersionList;
@@ -18,6 +18,7 @@ import org.to2mbn.jmccc.mcdownloader.download.multiple.MultipleDownloadTask;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.version.Asset;
 import org.to2mbn.jmccc.version.Library;
+import org.to2mbn.jmccc.version.Version;
 import org.to2mbn.jmccc.version.Versions;
 
 abstract public class URIDownloadProvider implements MinecraftDownloadProvider {
@@ -36,11 +37,11 @@ abstract public class URIDownloadProvider implements MinecraftDownloadProvider {
 
 	abstract protected URI getLibrary(Library library);
 
-	abstract protected URI getGameJar(String version);
+	abstract protected URI getGameJar(Version version);
 
 	abstract protected URI getGameVersionJson(String version);
 
-	abstract protected URI getAssetIndex(String version);
+	abstract protected URI getAssetIndex(Version version);
 
 	abstract protected URI getVersionList();
 
@@ -68,27 +69,27 @@ abstract public class URIDownloadProvider implements MinecraftDownloadProvider {
 	}
 
 	@Override
-	public MultipleDownloadTask<Set<Asset>> assetsIndex(final MinecraftDirectory mcdir, final String version) {
+	public MultipleDownloadTask<Set<Asset>> assetsIndex(final MinecraftDirectory mcdir, final Version version) {
 		URI uri = getAssetIndex(version);
 		if (uri == null) {
 			return null;
 		}
-		return MultipleDownloadTask.simple(new FileDownloadTask(uri, mcdir.getAssetIndex(version)).andThen(new ResultProcessor<Object, Set<Asset>>() {
+		return MultipleDownloadTask.simple(new FileDownloadTask(uri, mcdir.getAssetIndex(version.getAssets())).andThen(new ResultProcessor<Object, Set<Asset>>() {
 
 			@Override
 			public Set<Asset> process(Object arg) throws IOException {
-				return Versions.resolveAssets(mcdir, version);
+				return Versions.resolveAssets(mcdir, version.getAssets());
 			}
 		}));
 	}
 
 	@Override
-	public MultipleDownloadTask<Object> gameJar(MinecraftDirectory mcdir, String version) {
+	public MultipleDownloadTask<Object> gameJar(MinecraftDirectory mcdir, Version version) {
 		URI uri = getGameJar(version);
 		if (uri == null) {
 			return null;
 		}
-		return MultipleDownloadTask.simple(new FileDownloadTask(uri, mcdir.getVersionJar(version)));
+		return MultipleDownloadTask.simple(new FileDownloadTask(uri, mcdir.getVersionJar(version.getVersion())));
 	}
 
 	@Override

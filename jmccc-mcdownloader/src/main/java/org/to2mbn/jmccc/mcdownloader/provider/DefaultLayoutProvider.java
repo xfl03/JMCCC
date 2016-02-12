@@ -4,6 +4,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import org.to2mbn.jmccc.version.Asset;
 import org.to2mbn.jmccc.version.Library;
+import org.to2mbn.jmccc.version.Version;
 
 abstract public class DefaultLayoutProvider extends URIDownloadProvider {
 
@@ -21,8 +22,8 @@ abstract public class DefaultLayoutProvider extends URIDownloadProvider {
 	}
 
 	@Override
-	public URI getGameJar(String version) {
-		return toURI(getVersionBaseURL() + version + "/" + version + ".jar");
+	public URI getGameJar(Version version) {
+		return toURI(getVersionBaseURL() + version.getVersion() + "/" + version.getVersion() + ".jar");
 	}
 
 	@Override
@@ -31,8 +32,8 @@ abstract public class DefaultLayoutProvider extends URIDownloadProvider {
 	}
 
 	@Override
-	public URI getAssetIndex(String version) {
-		return toURI(getAssetIndexBaseURL() + version + ".json");
+	public URI getAssetIndex(Version version) {
+		return toURI(getAssetIndexBaseURL() + version.getAssets() + ".json");
 	}
 
 	@Override
