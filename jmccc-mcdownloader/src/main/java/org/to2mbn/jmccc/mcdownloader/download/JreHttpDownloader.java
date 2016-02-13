@@ -5,7 +5,10 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URLConnection;
 import java.nio.ByteBuffer;
+import java.util.Collections;
 import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -29,31 +32,75 @@ public class JreHttpDownloader implements DownloaderService {
 
 	private class TaskHandler<T> implements Runnable, Cancellable {
 
+		class LifecycleHandler implements AsyncCallback<T> {
+
+			AsyncCallback<T> proxied;
+			volatile boolean terminated;
+
+			LifecycleHandler(AsyncCallback<T> proxied) {
+				this.proxied = proxied;
+			}
+
+			@Override
+			public void done(T result) {
+				if (terminate()) {
+					proxied.done(result);
+				}
+			}
+
+			@Override
+			public void failed(Throwable e) {
+				if (terminate()) {
+					proxied.failed(e);
+				}
+			}
+
+			@Override
+			public void cancelled() {
+				if (terminate()) {
+					proxied.cancelled();
+				}
+			}
+
+			private boolean terminate() {
+				synchronized (this) {
+					if (!terminated) {
+						terminated = true;
+						tasks.remove(TaskHandler.this);
+						return true;
+					}
+				}
+				return false;
+			}
+
+		}
+
 		AsyncFuture<T> future;
 		DownloadTask<T> task;
 		DownloadCallback<T> downloadCallback;
 		AsyncCallback<T> callback;
 		int maxTries;
 		volatile Future<?> taskfuture;
-		volatile boolean cancelled;
+		volatile boolean cancellInFuture;
 
-		TaskHandler(DownloadTask<T> task, DownloadCallback<T> callback) {
+		TaskHandler(DownloadTask<T> task, DownloadCallback<T> callback, int maxTries) {
 			this.task = task;
 			this.downloadCallback = callback;
+			this.maxTries = maxTries;
 			future = new AsyncFuture<>(this);
-			this.callback = AsyncCallbackGroup.group(future, downloadCallback);
+			this.callback = new LifecycleHandler(AsyncCallbackGroup.group(future, downloadCallback));
 		}
 
 		void start() {
 			taskfuture = executor.submit(this);
-			if (cancelled) {
+			if (cancellInFuture) {
 				taskfuture.cancel(true);
 			}
 		}
 
 		@Override
 		public void run() {
-			if (cancelled || Thread.interrupted()) {
+			if (cancellInFuture || Thread.interrupted()) {
 				callback.cancelled();
 				return;
 			}
@@ -74,6 +121,7 @@ public class JreHttpDownloader implements DownloaderService {
 				try {
 					return doDownload();
 				} catch (IOException e) {
+					checkInterrupted();
 					currentTries++;
 					if (currentTries < maxTries) {
 						downloadCallback.retry(e, currentTries, maxTries);
@@ -95,64 +143,76 @@ public class JreHttpDownloader implements DownloaderService {
 			}
 			connection.connect();
 
-			if (connection instanceof HttpURLConnection) {
-				int responseCode = ((HttpURLConnection) connection).getResponseCode();
-				if (responseCode < 200 || responseCode > 299) { // not 2xx
-					throw new IOException("Illegal http response code: " + responseCode);
-				}
-			}
-
-			String contentLengthStr = connection.getHeaderField("Content-Length");
-			long contentLength = -1;
-			if (contentLengthStr != null) {
-				try {
-					contentLength = Long.parseLong(contentLengthStr);
-					if (contentLength < 0) {
-						LOGGER.warning("Invalid Content-Length: " + contentLengthStr + ", ignore");
-						contentLength = -1;
+			try {
+				if (connection instanceof HttpURLConnection) {
+					int responseCode = ((HttpURLConnection) connection).getResponseCode();
+					if (responseCode < 200 || responseCode > 299) { // not 2xx
+						throw new IOException("Illegal http response code: " + responseCode);
 					}
-				} catch (NumberFormatException e) {
-					LOGGER.warning("Invalid Content-Length: " + contentLengthStr + ", ignore: " + e);
 				}
-			}
-			DownloadSession<T> session;
-			if (contentLength == -1) {
-				session = task.createSession(contentLength);
-			} else {
-				session = task.createSession();
-			}
 
-			long downloaded = 0;
-
-			try (InputStream in = connection.getInputStream()) {
-				byte[] buf = new byte[BUFFER_SIZE];
-				int read;
-				while ((read = in.read(buf)) != -1) {
-					if (Thread.interrupted()) {
-						throw new InterruptedException();
+				String contentLengthStr = connection.getHeaderField("Content-Length");
+				long contentLength = -1;
+				if (contentLengthStr != null) {
+					try {
+						contentLength = Long.parseLong(contentLengthStr);
+						if (contentLength < 0) {
+							LOGGER.warning("Invalid Content-Length: " + contentLengthStr + ", ignore");
+							contentLength = -1;
+						}
+					} catch (NumberFormatException e) {
+						LOGGER.warning("Invalid Content-Length: " + contentLengthStr + ", ignore: " + e);
 					}
-					downloaded += read;
-					session.receiveData(ByteBuffer.wrap(buf, 0, read));
-					downloadCallback.updateProgress(downloaded, contentLength);
 				}
-			} catch (InterruptedException e) {
-				session.cancelled();
-				throw e;
-			} catch (Throwable e) {
-				session.failed(e);
-				throw e;
+
+				checkInterrupted();
+
+				DownloadSession<T> session;
+				if (contentLength == -1) {
+					session = task.createSession(contentLength);
+				} else {
+					session = task.createSession();
+				}
+
+				long downloaded = 0;
+
+				try (InputStream in = connection.getInputStream()) {
+					byte[] buf = new byte[BUFFER_SIZE];
+					int read;
+					while ((read = in.read(buf)) != -1) {
+						checkInterrupted();
+						downloaded += read;
+						session.receiveData(ByteBuffer.wrap(buf, 0, read));
+						downloadCallback.updateProgress(downloaded, contentLength);
+					}
+				} catch (InterruptedException e) {
+					session.cancelled();
+					throw e;
+				} catch (Throwable e) {
+					session.failed(e);
+					throw e;
+				}
+				return session.completed();
+			} finally {
+				if (connection instanceof HttpURLConnection) {
+					((HttpURLConnection) connection).disconnect();
+				}
 			}
-			return session.completed();
 		}
 
 		@Override
 		public boolean cancel(boolean mayInterruptIfRunning) {
-			if (taskfuture != null) {
-				taskfuture.cancel(mayInterruptIfRunning);
-			} else {
-				cancelled = true;
+			if (taskfuture == null || !taskfuture.cancel(mayInterruptIfRunning)) {
+				cancellInFuture = true;
+				callback.cancelled();
 			}
 			return true;
+		}
+
+		private void checkInterrupted() throws InterruptedException {
+			if (cancellInFuture || Thread.interrupted()) {
+				throw new InterruptedException();
+			}
 		}
 
 	}
@@ -163,6 +223,7 @@ public class JreHttpDownloader implements DownloaderService {
 
 	private volatile boolean shudown = false;
 	private ReadWriteLock shutdownLock = new ReentrantReadWriteLock();
+	private Set<TaskHandler<?>> tasks = Collections.newSetFromMap(new ConcurrentHashMap<TaskHandler<?>, Boolean>());
 
 	public JreHttpDownloader(int maxConns, int connectTimeout, int readTimeout, long poolThreadLivingTime) {
 		this.connectTimeout = connectTimeout;
@@ -192,7 +253,8 @@ public class JreHttpDownloader implements DownloaderService {
 				throw new RejectedExecutionException("already shutdowm");
 			}
 
-			TaskHandler<T> handler = new TaskHandler<>(task, callback);
+			TaskHandler<T> handler = new TaskHandler<>(task, callback, tries);
+			tasks.add(handler);
 			handler.start();
 			return handler.future;
 		} finally {
@@ -217,10 +279,9 @@ public class JreHttpDownloader implements DownloaderService {
 			lock.unlock();
 		}
 
-		for (Runnable task : executor.shutdownNow()) {
-			if (task instanceof Cancellable) {
-				((Cancellable) task).cancel(true);
-			}
+		executor.shutdownNow();
+		for (TaskHandler<?> task : tasks) {
+			task.cancel(true);
 		}
 	}
 

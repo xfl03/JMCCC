@@ -345,7 +345,7 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 				}
 
 				void checkInterrupt() throws InterruptedException {
-					if (Thread.interrupted() || cancelled) {
+					if (Thread.interrupted() || cancelled || shutdown) {
 						throw new InterruptedException();
 					}
 				}
@@ -395,6 +395,11 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 
 		@Override
 		public boolean cancel(boolean mayInterruptIfRunning) {
+			lifecycleCancel();
+			return true;
+		}
+
+		void doCancel() {
 			if (!cancelled) {
 				Lock lock = rwlock.writeLock();
 				lock.lock();
@@ -411,7 +416,6 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 				}
 				lifecycleCancel();
 			}
-			return true;
 		}
 
 		@Override
@@ -451,7 +455,7 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 				try {
 					if (!terminated) {
 						terminated = true;
-						cancel(true);
+						doCancel();
 						groupcallback.failed(ex);
 					}
 				} finally {
@@ -467,7 +471,7 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 				try {
 					if (!terminated) {
 						terminated = true;
-						cancel(true);
+						doCancel();
 						groupcallback.cancelled();
 					}
 				} finally {

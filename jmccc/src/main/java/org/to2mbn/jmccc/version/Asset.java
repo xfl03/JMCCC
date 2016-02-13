@@ -1,15 +1,11 @@
 package org.to2mbn.jmccc.version;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.Objects;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
-import org.to2mbn.jmccc.util.HexUtils;
+import org.to2mbn.jmccc.util.ChecksumUtils;
 
 public class Asset {
 
@@ -105,24 +101,7 @@ public class Asset {
 	 */
 	public boolean isValid(MinecraftDirectory dir) throws IOException, NoSuchAlgorithmException {
 		File file = new File(dir.getAssetObjects(), getPath());
-		if (!file.isFile()) {
-			return false;
-		}
-
-		if (file.length() != size) {
-			return false;
-		}
-
-		MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
-		try (InputStream in = new FileInputStream(file)) {
-			byte[] buffer = new byte[8192];
-			int read;
-			while ((read = in.read(buffer)) != -1) {
-				sha1.update(buffer, 0, read);
-			}
-		}
-
-		return Arrays.equals(sha1.digest(), HexUtils.hexToBytes(hash));
+		return ChecksumUtils.verifyChecksum(file, getHash(), "SHA-1", size);
 	}
 
 	@Override

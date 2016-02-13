@@ -67,7 +67,7 @@ public class MinecraftDownloaderImpl implements MinecraftDownloader {
 		lock.lock();
 		try {
 			checkShutdown();
-			return downloader.download(task, callback);
+			return downloader.download(task, callback, tries);
 		} finally {
 			lock.unlock();
 		}

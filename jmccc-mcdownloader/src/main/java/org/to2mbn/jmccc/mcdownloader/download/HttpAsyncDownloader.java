@@ -63,15 +63,16 @@ public class HttpAsyncDownloader implements DownloaderService {
 
 	private class TaskHandler<T> implements Runnable, Cancellable {
 
-		class LifeCycleHandler<R> {
+		class LifeCycleHandler implements AsyncCallback<T> {
 
-			AsyncCallback<R> proxied;
+			AsyncCallback<T> proxied;
 
-			LifeCycleHandler(AsyncCallback<R> proxied) {
+			LifeCycleHandler(AsyncCallback<T> proxied) {
 				this.proxied = proxied;
 			}
 
-			void failed(Throwable e) {
+			@Override
+			public void failed(Throwable e) {
 				if (session != null) {
 					try {
 						session.failed(e);
@@ -98,7 +99,8 @@ public class HttpAsyncDownloader implements DownloaderService {
 				proxied.failed(e);
 			}
 
-			void cancelled() {
+			@Override
+			public void cancelled() {
 				if (session != null) {
 					try {
 						session.cancelled();
@@ -110,7 +112,8 @@ public class HttpAsyncDownloader implements DownloaderService {
 				proxied.cancelled();
 			}
 
-			void done(R result) {
+			@Override
+			public void done(T result) {
 				proxied.done(result);
 			}
 		}
@@ -164,7 +167,7 @@ public class HttpAsyncDownloader implements DownloaderService {
 
 		DownloadTask<T> task;
 		AsyncFuture<T> futuer;
-		LifeCycleHandler<T> lifecycle;
+		LifeCycleHandler lifecycle;
 		DownloadSession<T> session;
 		DownloadCallback<T> callback;
 		Future<T> downloadFuture;
@@ -176,7 +179,7 @@ public class HttpAsyncDownloader implements DownloaderService {
 			this.task = task;
 			this.callback = callback;
 			this.futuer = new AsyncFuture<>(this);
-			this.lifecycle = new LifeCycleHandler<>(AsyncCallbackGroup.group(new Inactiver(), futuer, callback));
+			this.lifecycle = new LifeCycleHandler(AsyncCallbackGroup.group(new Inactiver(), futuer, callback));
 			this.retryHandler = retryHandler;
 		}
 
