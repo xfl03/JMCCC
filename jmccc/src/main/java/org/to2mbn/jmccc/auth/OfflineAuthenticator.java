@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
+import org.to2mbn.jmccc.util.UUIDUtils;
 
 public class OfflineAuthenticator implements Authenticator, Serializable {
 
@@ -32,7 +33,7 @@ public class OfflineAuthenticator implements Authenticator, Serializable {
 	@Override
 	public AuthInfo auth() throws AuthenticationException {
 		try {
-			return new AuthInfo(playerName, unsign(UUID.randomUUID()), unsign(generateUUID()), Collections.unmodifiableMap(new HashMap<String, String>()), "mojang");
+			return new AuthInfo(playerName, UUIDUtils.randomUnsignedUUID(), UUIDUtils.unsign(generateUUID()), Collections.unmodifiableMap(new HashMap<String, String>()), "mojang");
 		} catch (UnsupportedEncodingException e) {
 			throw new AuthenticationException("UTF-8 is not supported", e);
 		}
@@ -40,10 +41,6 @@ public class OfflineAuthenticator implements Authenticator, Serializable {
 
 	private UUID generateUUID() throws UnsupportedEncodingException {
 		return UUID.nameUUIDFromBytes(("OfflinePlayer:" + playerName).getBytes("UTF-8"));
-	}
-
-	private String unsign(UUID uuid) {
-		return uuid.toString().replace("-", "");
 	}
 
 	@Override

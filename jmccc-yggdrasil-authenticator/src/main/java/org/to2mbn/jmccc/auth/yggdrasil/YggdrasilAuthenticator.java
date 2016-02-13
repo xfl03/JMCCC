@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 import org.to2mbn.jmccc.auth.AuthInfo;
 import org.to2mbn.jmccc.auth.AuthenticationException;
 import org.to2mbn.jmccc.auth.Authenticator;
@@ -12,8 +11,8 @@ import org.to2mbn.jmccc.auth.yggdrasil.core.Agent;
 import org.to2mbn.jmccc.auth.yggdrasil.core.AuthenticationService;
 import org.to2mbn.jmccc.auth.yggdrasil.core.GameProfile;
 import org.to2mbn.jmccc.auth.yggdrasil.core.Session;
-import org.to2mbn.jmccc.auth.yggdrasil.core.util.UUIDUtils;
 import org.to2mbn.jmccc.auth.yggdrasil.core.yggdrasil.YggdrasilAuthenticationService;
+import org.to2mbn.jmccc.util.UUIDUtils;
 
 public class YggdrasilAuthenticator implements Authenticator, Serializable {
 
@@ -42,7 +41,7 @@ public class YggdrasilAuthenticator implements Authenticator, Serializable {
 	}
 	
 	public static YggdrasilAuthenticator password(String username, String password, CharacterSelector characterSelector) throws AuthenticationException {
-		return password(username, password, characterSelector, UUIDUtils.unsign(UUID.randomUUID()));
+		return password(username, password, characterSelector, UUIDUtils.randomUnsignedUUID());
 	}
 
 	public static YggdrasilAuthenticator password(String username, String password, CharacterSelector characterSelector, String clientToken) throws AuthenticationException {
@@ -77,7 +76,7 @@ public class YggdrasilAuthenticator implements Authenticator, Serializable {
 	private volatile Session authResult;
 
 	public YggdrasilAuthenticator() {
-		this(UUIDUtils.unsign(UUID.randomUUID()));
+		this(UUIDUtils.randomUnsignedUUID());
 	}
 
 	public YggdrasilAuthenticator(String clientToken) {

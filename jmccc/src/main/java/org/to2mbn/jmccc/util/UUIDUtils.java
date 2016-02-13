@@ -1,4 +1,4 @@
-package org.to2mbn.jmccc.auth.yggdrasil.core.util;
+package org.to2mbn.jmccc.util;
 
 import java.util.UUID;
 
@@ -23,7 +23,10 @@ public final class UUIDUtils {
 			default:
 				throw new IllegalArgumentException("Invalid UUID string: " + uuid);
 		}
+	}
 
+	public static String randomUnsignedUUID() {
+		return unsign(UUID.randomUUID());
 	}
 
 	private UUIDUtils() {

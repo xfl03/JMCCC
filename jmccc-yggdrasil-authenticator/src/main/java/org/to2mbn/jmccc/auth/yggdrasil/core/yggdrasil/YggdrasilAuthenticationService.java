@@ -14,7 +14,7 @@ import org.to2mbn.jmccc.auth.yggdrasil.core.AuthenticationService;
 import org.to2mbn.jmccc.auth.yggdrasil.core.GameProfile;
 import org.to2mbn.jmccc.auth.yggdrasil.core.Session;
 import org.to2mbn.jmccc.auth.yggdrasil.core.UserType;
-import org.to2mbn.jmccc.auth.yggdrasil.core.util.UUIDUtils;
+import org.to2mbn.jmccc.util.UUIDUtils;
 
 public class YggdrasilAuthenticationService extends YggdrasilService implements AuthenticationService {
 

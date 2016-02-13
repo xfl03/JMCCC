@@ -15,7 +15,7 @@ import org.to2mbn.jmccc.auth.yggdrasil.core.ProfileService;
 import org.to2mbn.jmccc.auth.yggdrasil.core.PropertiesGameProfile;
 import org.to2mbn.jmccc.auth.yggdrasil.core.Texture;
 import org.to2mbn.jmccc.auth.yggdrasil.core.util.Base64;
-import org.to2mbn.jmccc.auth.yggdrasil.core.util.UUIDUtils;
+import org.to2mbn.jmccc.util.UUIDUtils;
 
 public class YggdrasilProfileService extends YggdrasilService implements ProfileService {
 
