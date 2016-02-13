@@ -62,7 +62,7 @@ public class JreHttpDownloader implements DownloaderService {
 				}
 			}
 
-			private boolean terminate() {
+			boolean terminate() {
 				synchronized (this) {
 					if (!terminated) {
 						terminated = true;
@@ -146,7 +146,8 @@ public class JreHttpDownloader implements DownloaderService {
 			try {
 				if (connection instanceof HttpURLConnection) {
 					int responseCode = ((HttpURLConnection) connection).getResponseCode();
-					if (responseCode < 200 || responseCode > 299) { // not 2xx
+					if (responseCode < 200 || responseCode > 299) {
+						// non-2xx response code
 						throw new IOException("Illegal http response code: " + responseCode);
 					}
 				}

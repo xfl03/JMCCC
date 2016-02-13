@@ -5,6 +5,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import org.to2mbn.jmccc.mcdownloader.download.DownloaderService;
@@ -169,7 +170,11 @@ public class MinecraftDownloaderBuilder {
 
 		DownloaderService downloader;
 		if (!disableApacheHttpAsyncClient && isApacheHttpAsyncClientAvailable()) {
-			HttpAsyncClientBuilder httpClientBuilder = HttpAsyncClientBuilder.create().setMaxConnTotal(maxConnections).setMaxConnPerRoute(maxConnectionsPerRouter).setDefaultIOReactorConfig(IOReactorConfig.custom().setConnectTimeout(connectTimeout).setSoTimeout(soTimeout).build());
+			HttpAsyncClientBuilder httpClientBuilder = HttpAsyncClientBuilder.create()
+					.setMaxConnTotal(maxConnections)
+					.setMaxConnPerRoute(maxConnectionsPerRouter)
+					.setDefaultIOReactorConfig(IOReactorConfig.custom().setConnectTimeout(connectTimeout).setSoTimeout(soTimeout).build())
+					.setDefaultRequestConfig(RequestConfig.custom().setConnectionRequestTimeout(connectTimeout).setConnectTimeout(connectTimeout).setSocketTimeout(soTimeout).build());
 			downloader = new HttpAsyncDownloader(httpClientBuilder, executor);
 		} else {
 			downloader = new JreHttpDownloader(maxConnections, connectTimeout, soTimeout, poolThreadLivingTime);
