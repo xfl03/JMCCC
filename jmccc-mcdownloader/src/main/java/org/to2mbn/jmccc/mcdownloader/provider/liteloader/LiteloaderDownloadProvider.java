@@ -11,8 +11,8 @@ import org.to2mbn.jmccc.mcdownloader.download.DownloadCallback;
 import org.to2mbn.jmccc.mcdownloader.download.DownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.MemoryDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.ResultProcessor;
-import org.to2mbn.jmccc.mcdownloader.download.multiple.MultipleDownloadContext;
-import org.to2mbn.jmccc.mcdownloader.download.multiple.MultipleDownloadTask;
+import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadContext;
+import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.provider.InstallProfileProcessor;
 import org.to2mbn.jmccc.mcdownloader.provider.MinecraftDownloadProvider;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
@@ -39,15 +39,15 @@ public class LiteloaderDownloadProvider implements MinecraftDownloadProvider {
 	}
 
 	@Override
-	public MultipleDownloadTask<Object> gameVersionJson(final MinecraftDirectory mcdir, final String version) {
+	public CombinedDownloadTask<Object> gameVersionJson(final MinecraftDirectory mcdir, final String version) {
 		if (!LITELOADER_VERSION_PATTERN.matcher(version).matches()) {
 			return null;
 		}
 		final String mcversion = version.substring(0, version.indexOf("-LiteLoader"));
-		return new MultipleDownloadTask<Object>() {
+		return new CombinedDownloadTask<Object>() {
 
 			@Override
-			public void execute(final MultipleDownloadContext<Object> context) throws Exception {
+			public void execute(final CombinedDownloadContext<Object> context) throws Exception {
 				context.submit(liteloaderVersionList(), new DownloadCallback<LiteloaderVersionList>() {
 
 					@Override
@@ -95,27 +95,27 @@ public class LiteloaderDownloadProvider implements MinecraftDownloadProvider {
 	}
 
 	@Override
-	public MultipleDownloadTask<RemoteVersionList> versionList() {
+	public CombinedDownloadTask<RemoteVersionList> versionList() {
 		return null;
 	}
 
 	@Override
-	public MultipleDownloadTask<Set<Asset>> assetsIndex(MinecraftDirectory mcdir, Version version) {
+	public CombinedDownloadTask<Set<Asset>> assetsIndex(MinecraftDirectory mcdir, Version version) {
 		return null;
 	}
 
 	@Override
-	public MultipleDownloadTask<Object> gameJar(MinecraftDirectory mcdir, Version version) {
+	public CombinedDownloadTask<Object> gameJar(MinecraftDirectory mcdir, Version version) {
 		return null;
 	}
 
 	@Override
-	public MultipleDownloadTask<Object> library(MinecraftDirectory mcdir, Library library) {
+	public CombinedDownloadTask<Object> library(MinecraftDirectory mcdir, Library library) {
 		return null;
 	}
 
 	@Override
-	public MultipleDownloadTask<Object> asset(MinecraftDirectory mcdir, Asset asset) {
+	public CombinedDownloadTask<Object> asset(MinecraftDirectory mcdir, Asset asset) {
 		return null;
 	}
 

@@ -111,7 +111,7 @@ The following code snippet downloads minecraft 1.8.8:
 ```java
 MinecraftDirectory dir = new MinecraftDirectory("/home/user/.minecraft");
 MinecraftDownloader downloader=MinecraftDownloaderBuilder.create().build();
-downloader.downloadIncrementally(dir, "1.8.8", new MultipleDownloadCallback<Version>() {
+downloader.downloadIncrementally(dir, "1.8.8", new CombinedDownloadCallback<Version>() {
 	
 	@Override
 	public void failed(Throwable e) {
@@ -167,7 +167,7 @@ downloader.downloadIncrementally(dir, "1.8.8", new MultipleDownloadCallback<Vers
 
 ##### Minecraft version list downloading
 ```java
-downloader.fetchRemoteVersionList(new MultipleDownloadCallback<RemoteVersionList>() {...});
+downloader.fetchRemoteVersionList(new CombinedDownloadCallback<RemoteVersionList>() {...});
 ```
 
 ##### Forge and LiteLoader supports
@@ -177,8 +177,8 @@ ForgeDownloadProvider forgeProvider = new ForgeDownloadProvider();
 LiteloaderDownloadProvider liteloaderProvider = new LiteloaderDownloadProvider();
 MinecraftDownloader downloader = MinecraftDownloaderBuilder.create().appendProvider(forgeProvider).appendProvider(liteloaderProvider).build();
 
-downloader.downloadIncrementally(dir, "1.8-forge1.8-11.14.3.1514", new MultipleDownloadCallback<Version>() {...});
-downloader.downloadIncrementally(dir, "1.7.10-LiteLoader1.7.10", new MultipleDownloadCallback<Version>() {...});
+downloader.downloadIncrementally(dir, "1.8-forge1.8-11.14.3.1514", new CombinedDownloadCallback<Version>() {...});
+downloader.downloadIncrementally(dir, "1.7.10-LiteLoader1.7.10", new CombinedDownloadCallback<Version>() {...});
 downloader.download(forgeProvider.forgeVersionList(), new DownloadCallback<ForgeVersionList>() {...});
 downloader.download(liteloaderProvider.liteloaderVersionList(), new DownloadCallback<LiteloaderVersionList>() {...});
 ```

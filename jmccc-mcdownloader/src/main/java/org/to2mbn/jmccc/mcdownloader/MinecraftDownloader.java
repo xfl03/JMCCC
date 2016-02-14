@@ -3,13 +3,13 @@ package org.to2mbn.jmccc.mcdownloader;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import org.to2mbn.jmccc.mcdownloader.download.DownloaderService;
+import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadCallback;
+import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloader;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Shutdownable;
-import org.to2mbn.jmccc.mcdownloader.download.multiple.MultipleDownloadCallback;
-import org.to2mbn.jmccc.mcdownloader.download.multiple.MultipleDownloader;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.version.Version;
 
-public interface MinecraftDownloader extends Shutdownable, DownloaderService, MultipleDownloader {
+public interface MinecraftDownloader extends Shutdownable, DownloaderService, CombinedDownloader {
 
 	/**
 	 * Downloads a minecraft version incrementally and asynchronously.
@@ -23,7 +23,7 @@ public interface MinecraftDownloader extends Shutdownable, DownloaderService, Mu
 	 * @throws NullPointerException if <code>dir==null || version==null</code>
 	 * @throws RejectedExecutionException if the downloader has been shutdown
 	 */
-	Future<Version> downloadIncrementally(MinecraftDirectory dir, String version, MultipleDownloadCallback<Version> callback);
+	Future<Version> downloadIncrementally(MinecraftDirectory dir, String version, CombinedDownloadCallback<Version> callback);
 
 	/**
 	 * Fetches the remote version list of the game asynchronously.
@@ -32,6 +32,6 @@ public interface MinecraftDownloader extends Shutdownable, DownloaderService, Mu
 	 * @return future representing pending completion of the operation
 	 * @throws RejectedExecutionException if the downloader has been shutdown
 	 */
-	Future<RemoteVersionList> fetchRemoteVersionList(MultipleDownloadCallback<RemoteVersionList> callback);
+	Future<RemoteVersionList> fetchRemoteVersionList(CombinedDownloadCallback<RemoteVersionList> callback);
 
 }

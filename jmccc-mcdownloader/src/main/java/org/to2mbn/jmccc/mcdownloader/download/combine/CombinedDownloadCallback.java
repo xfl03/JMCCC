@@ -1,10 +1,10 @@
-package org.to2mbn.jmccc.mcdownloader.download.multiple;
+package org.to2mbn.jmccc.mcdownloader.download.combine;
 
 import org.to2mbn.jmccc.mcdownloader.download.DownloadCallback;
 import org.to2mbn.jmccc.mcdownloader.download.DownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.AsyncCallback;
 
-public interface MultipleDownloadCallback<T> extends AsyncCallback<T> {
+public interface CombinedDownloadCallback<T> extends AsyncCallback<T> {
 
 	/**
 	 * Calls when a new sub download task starts.

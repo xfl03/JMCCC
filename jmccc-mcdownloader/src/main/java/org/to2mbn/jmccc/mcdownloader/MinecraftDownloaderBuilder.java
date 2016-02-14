@@ -1,5 +1,6 @@
 package org.to2mbn.jmccc.mcdownloader;
 
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -11,7 +12,7 @@ import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import org.to2mbn.jmccc.mcdownloader.download.DownloaderService;
 import org.to2mbn.jmccc.mcdownloader.download.HttpAsyncDownloader;
 import org.to2mbn.jmccc.mcdownloader.download.JreHttpDownloader;
-import org.to2mbn.jmccc.mcdownloader.download.multiple.MultipleDownloadTask;
+import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.provider.InfoDownloadProvider;
 import org.to2mbn.jmccc.mcdownloader.provider.MinecraftDownloadProvider;
 import org.to2mbn.jmccc.mcdownloader.provider.MojangDownloadProvider;
@@ -33,8 +34,8 @@ public class MinecraftDownloaderBuilder {
 		}
 
 		@Override
-		public MultipleDownloadTask<RemoteVersionList> versionList() {
-			MultipleDownloadTask<RemoteVersionList> result = current.versionList();
+		public CombinedDownloadTask<RemoteVersionList> versionList() {
+			CombinedDownloadTask<RemoteVersionList> result = current.versionList();
 			if (result == null) {
 				result = prev.versionList();
 			}
@@ -42,8 +43,8 @@ public class MinecraftDownloaderBuilder {
 		}
 
 		@Override
-		public MultipleDownloadTask<Set<Asset>> assetsIndex(MinecraftDirectory mcdir, Version version) {
-			MultipleDownloadTask<Set<Asset>> result = current.assetsIndex(mcdir, version);
+		public CombinedDownloadTask<Set<Asset>> assetsIndex(MinecraftDirectory mcdir, Version version) {
+			CombinedDownloadTask<Set<Asset>> result = current.assetsIndex(mcdir, version);
 			if (result == null) {
 				result = prev.assetsIndex(mcdir, version);
 			}
@@ -51,8 +52,8 @@ public class MinecraftDownloaderBuilder {
 		}
 
 		@Override
-		public MultipleDownloadTask<Object> gameJar(MinecraftDirectory mcdir, Version version) {
-			MultipleDownloadTask<Object> result = current.gameJar(mcdir, version);
+		public CombinedDownloadTask<Object> gameJar(MinecraftDirectory mcdir, Version version) {
+			CombinedDownloadTask<Object> result = current.gameJar(mcdir, version);
 			if (result == null) {
 				result = prev.gameJar(mcdir, version);
 			}
@@ -60,8 +61,8 @@ public class MinecraftDownloaderBuilder {
 		}
 
 		@Override
-		public MultipleDownloadTask<Object> gameVersionJson(MinecraftDirectory mcdir, String version) {
-			MultipleDownloadTask<Object> result = current.gameVersionJson(mcdir, version);
+		public CombinedDownloadTask<Object> gameVersionJson(MinecraftDirectory mcdir, String version) {
+			CombinedDownloadTask<Object> result = current.gameVersionJson(mcdir, version);
 			if (result == null) {
 				result = prev.gameVersionJson(mcdir, version);
 			}
@@ -69,8 +70,8 @@ public class MinecraftDownloaderBuilder {
 		}
 
 		@Override
-		public MultipleDownloadTask<Object> library(MinecraftDirectory mcdir, Library library) {
-			MultipleDownloadTask<Object> result = current.library(mcdir, library);
+		public CombinedDownloadTask<Object> library(MinecraftDirectory mcdir, Library library) {
+			CombinedDownloadTask<Object> result = current.library(mcdir, library);
 			if (result == null) {
 				result = prev.library(mcdir, library);
 			}
@@ -78,8 +79,8 @@ public class MinecraftDownloaderBuilder {
 		}
 
 		@Override
-		public MultipleDownloadTask<Object> asset(MinecraftDirectory mcdir, Asset asset) {
-			MultipleDownloadTask<Object> result = current.asset(mcdir, asset);
+		public CombinedDownloadTask<Object> asset(MinecraftDirectory mcdir, Asset asset) {
+			CombinedDownloadTask<Object> result = current.asset(mcdir, asset);
 			if (result == null) {
 				result = prev.asset(mcdir, asset);
 			}
@@ -117,6 +118,7 @@ public class MinecraftDownloaderBuilder {
 	}
 
 	public MinecraftDownloaderBuilder setProvider(MinecraftDownloadProvider provider) {
+		Objects.requireNonNull(provider);
 		this.provider = provider;
 		return this;
 	}
@@ -147,6 +149,7 @@ public class MinecraftDownloaderBuilder {
 	}
 
 	public MinecraftDownloaderBuilder appendProvider(MinecraftDownloadProvider appendProvider) {
+		Objects.requireNonNull(appendProvider);
 		provider = new AppendedDownloadProvider(provider, appendProvider);
 		return this;
 	}

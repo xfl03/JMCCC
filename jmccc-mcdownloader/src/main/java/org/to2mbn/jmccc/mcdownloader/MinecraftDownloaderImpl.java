@@ -9,10 +9,10 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.to2mbn.jmccc.mcdownloader.download.DownloadCallback;
 import org.to2mbn.jmccc.mcdownloader.download.DownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.DownloaderService;
-import org.to2mbn.jmccc.mcdownloader.download.multiple.MultipleDownloadCallback;
-import org.to2mbn.jmccc.mcdownloader.download.multiple.MultipleDownloadTask;
-import org.to2mbn.jmccc.mcdownloader.download.multiple.MultipleDownloader;
-import org.to2mbn.jmccc.mcdownloader.download.multiple.MultipleDownloaderImpl;
+import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadCallback;
+import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
+import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloader;
+import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloaderImpl;
 import org.to2mbn.jmccc.mcdownloader.provider.MinecraftDownloadProvider;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.version.Version;
@@ -21,7 +21,7 @@ public class MinecraftDownloaderImpl implements MinecraftDownloader {
 
 	private DownloaderService downloader;
 	private ExecutorService executor;
-	private MultipleDownloader multipleDownloader;
+	private CombinedDownloader combinedDownloader;
 	private MinecraftDownloadProvider downloadProvider;
 	private int tries;
 
@@ -33,7 +33,7 @@ public class MinecraftDownloaderImpl implements MinecraftDownloader {
 		this.executor = executor;
 		this.downloadProvider = downloadProvider;
 		this.tries = tries;
-		multipleDownloader = new MultipleDownloaderImpl(executor, downloader);
+		combinedDownloader = new CombinedDownloaderImpl(executor, downloader);
 	}
 
 	@Override
@@ -47,10 +47,10 @@ public class MinecraftDownloaderImpl implements MinecraftDownloader {
 				lock.unlock();
 			}
 
-			multipleDownloader.shutdown();
+			combinedDownloader.shutdown();
 			downloader.shutdown();
 			executor.shutdown();
-			multipleDownloader = null;
+			combinedDownloader = null;
 			downloader = null;
 			executor = null;
 		}
@@ -86,24 +86,24 @@ public class MinecraftDownloaderImpl implements MinecraftDownloader {
 	}
 
 	@Override
-	public <T> Future<T> download(MultipleDownloadTask<T> task, MultipleDownloadCallback<T> callback, int tries) {
+	public <T> Future<T> download(CombinedDownloadTask<T> task, CombinedDownloadCallback<T> callback, int tries) {
 		Lock lock = shutdownLock.readLock();
 		lock.lock();
 		try {
 			checkShutdown();
-			return multipleDownloader.download(task, callback, tries);
+			return combinedDownloader.download(task, callback, tries);
 		} finally {
 			lock.unlock();
 		}
 	}
 
 	@Override
-	public Future<Version> downloadIncrementally(MinecraftDirectory dir, String version, MultipleDownloadCallback<Version> callback) {
+	public Future<Version> downloadIncrementally(MinecraftDirectory dir, String version, CombinedDownloadCallback<Version> callback) {
 		return download(new IncrementallyDownloadTask(downloadProvider, dir, version), callback, tries);
 	}
 
 	@Override
-	public Future<RemoteVersionList> fetchRemoteVersionList(MultipleDownloadCallback<RemoteVersionList> callback) {
+	public Future<RemoteVersionList> fetchRemoteVersionList(CombinedDownloadCallback<RemoteVersionList> callback) {
 		return download(downloadProvider.versionList(), callback, tries);
 	}
 

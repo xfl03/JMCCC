@@ -17,9 +17,9 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.to2mbn.jmccc.mcdownloader.download.DownloadCallback;
 import org.to2mbn.jmccc.mcdownloader.download.DownloadTask;
-import org.to2mbn.jmccc.mcdownloader.download.multiple.MultipleDownloadCallback;
-import org.to2mbn.jmccc.mcdownloader.download.multiple.MultipleDownloadContext;
-import org.to2mbn.jmccc.mcdownloader.download.multiple.MultipleDownloadTask;
+import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadCallback;
+import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadContext;
+import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.provider.MinecraftDownloadProvider;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.version.Asset;
@@ -27,7 +27,7 @@ import org.to2mbn.jmccc.version.Library;
 import org.to2mbn.jmccc.version.Version;
 import org.to2mbn.jmccc.version.Versions;
 
-public class IncrementallyDownloadTask extends MultipleDownloadTask<Version> {
+public class IncrementallyDownloadTask extends CombinedDownloadTask<Version> {
 
 	private MinecraftDirectory mcdir;
 	private String version;
@@ -44,7 +44,7 @@ public class IncrementallyDownloadTask extends MultipleDownloadTask<Version> {
 	}
 
 	@Override
-	public void execute(final MultipleDownloadContext<Version> context) throws Exception {
+	public void execute(final CombinedDownloadContext<Version> context) throws Exception {
 		handleVersionJson(version, context, new Callable<Object>() {
 
 			@Override
@@ -59,7 +59,7 @@ public class IncrementallyDownloadTask extends MultipleDownloadTask<Version> {
 				if (mcdir.getAssetIndex(ver.getAssets()).exists()) {
 					downloadAssets(context, Versions.resolveAssets(mcdir, ver.getAssets()));
 				} else {
-					context.submit(downloadProvider.assetsIndex(mcdir, ver), new MultipleDownloadCallback<Set<Asset>>() {
+					context.submit(downloadProvider.assetsIndex(mcdir, ver), new CombinedDownloadCallback<Set<Asset>>() {
 
 						@Override
 						public void done(final Set<Asset> result) {
@@ -104,7 +104,7 @@ public class IncrementallyDownloadTask extends MultipleDownloadTask<Version> {
 		});
 	}
 
-	private void handleVersionJson(final String version, final MultipleDownloadContext<Version> context, final Callable<?> callback) throws Exception {
+	private void handleVersionJson(final String version, final CombinedDownloadContext<Version> context, final Callable<?> callback) throws Exception {
 		if (mcdir.getVersionJson(version).exists()) {
 			JSONObject versionjson = readJson(mcdir.getVersionJson(version));
 			String inheritsFrom = versionjson.optString("inheritsFrom", null);
@@ -120,7 +120,7 @@ public class IncrementallyDownloadTask extends MultipleDownloadTask<Version> {
 				handleVersionJson(inheritsFrom, context, callback);
 			}
 		} else {
-			context.submit(downloadProvider.gameVersionJson(mcdir, version), new MultipleDownloadCallback<Object>() {
+			context.submit(downloadProvider.gameVersionJson(mcdir, version), new CombinedDownloadCallback<Object>() {
 
 				@Override
 				public void done(Object result) {
@@ -154,7 +154,7 @@ public class IncrementallyDownloadTask extends MultipleDownloadTask<Version> {
 		}
 	}
 
-	private void downloadAssets(MultipleDownloadContext<Version> context, Set<Asset> assets) throws NoSuchAlgorithmException, IOException, InterruptedException {
+	private void downloadAssets(CombinedDownloadContext<Version> context, Set<Asset> assets) throws NoSuchAlgorithmException, IOException, InterruptedException {
 		for (Asset asset : assets) {
 			if (!asset.isValid(mcdir)) {
 				context.submit(downloadProvider.asset(mcdir, asset), null, false);

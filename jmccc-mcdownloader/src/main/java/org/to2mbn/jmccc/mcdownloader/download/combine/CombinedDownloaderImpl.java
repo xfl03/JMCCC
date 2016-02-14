@@ -1,4 +1,4 @@
-package org.to2mbn.jmccc.mcdownloader.download.multiple;
+package org.to2mbn.jmccc.mcdownloader.download.combine;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,28 +22,7 @@ import org.to2mbn.jmccc.mcdownloader.download.concurrent.AsyncCallbackGroup;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.AsyncFuture;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Cancellable;
 
-public class MultipleDownloaderImpl implements MultipleDownloader {
-
-	private static class NullMultipleDownloadCallback<T> implements MultipleDownloadCallback<T> {
-
-		@Override
-		public void done(T result) {
-		}
-
-		@Override
-		public void failed(Throwable e) {
-		}
-
-		@Override
-		public void cancelled() {
-		}
-
-		@Override
-		public <R> DownloadCallback<R> taskStart(DownloadTask<R> task) {
-			return null;
-		}
-
-	}
+public class CombinedDownloaderImpl implements CombinedDownloader {
 
 	private class TaskHandler<T> implements Cancellable, Runnable {
 
@@ -77,12 +56,12 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 		}
 
 		AsyncFuture<T> future;
-		MultipleDownloadTask<T> task;
-		MultipleDownloadCallback<T> callback;
+		CombinedDownloadTask<T> task;
+		CombinedDownloadCallback<T> callback;
 		int tries;
 		Set<Future<?>> activeSubtasks = Collections.newSetFromMap(new ConcurrentHashMap<Future<?>, Boolean>());
 		ReadWriteLock rwlock = new ReentrantReadWriteLock();
-		MultipleDownloadContext<T> context;
+		CombinedDownloadContext<T> context;
 		AsyncCallback<T> groupcallback;
 		volatile Future<?> mainfuture;
 		volatile boolean terminated = false;
@@ -91,13 +70,13 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 		volatile List<Runnable> activeTasksCountZeroCallbacks = new ArrayList<>();
 		Object activeTasksCountLock = new Object();
 
-		TaskHandler(MultipleDownloadTask<T> task, MultipleDownloadCallback<T> callback, int tries) {
+		TaskHandler(CombinedDownloadTask<T> task, CombinedDownloadCallback<T> callback, int tries) {
 			this.task = task;
 			this.callback = callback;
 			this.tries = tries;
 			future = new AsyncFuture<>(this);
 			groupcallback = AsyncCallbackGroup.group(new Inactiver(), future, callback);
-			context = new MultipleDownloadContext<T>() {
+			context = new CombinedDownloadContext<T>() {
 
 				@Override
 				public void done(T result) {
@@ -269,7 +248,7 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 				}
 
 				@Override
-				public <R> Future<R> submit(MultipleDownloadTask<R> task, MultipleDownloadCallback<R> callback, boolean fatal) throws InterruptedException {
+				public <R> Future<R> submit(CombinedDownloadTask<R> task, CombinedDownloadCallback<R> callback, boolean fatal) throws InterruptedException {
 					Lock lock = rwlock.readLock();
 					lock.lock();
 					Lock lock2 = shutdownLock.readLock();
@@ -277,10 +256,10 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 					try {
 						checkInterrupt();
 
-						List<MultipleDownloadCallback<R>> callbacks = new ArrayList<>();
+						List<CombinedDownloadCallback<R>> callbacks = new ArrayList<>();
 
 						if (fatal) {
-							callbacks.add(new MultipleDownloadCallback<R>() {
+							callbacks.add(new CombinedDownloadCallback<R>() {
 
 								@Override
 								public void done(R result) {
@@ -308,7 +287,7 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 							callbacks.add(callback);
 						}
 
-						callbacks.add(new MultipleDownloadCallback<R>() {
+						callbacks.add(new CombinedDownloadCallback<R>() {
 
 							@Override
 							public void done(R result) {
@@ -333,9 +312,9 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 						});
 
 						@SuppressWarnings("unchecked")
-						MultipleDownloadCallback<R>[] callbacksArray = callbacks.toArray(new MultipleDownloadCallback[callbacks.size()]);
+						CombinedDownloadCallback<R>[] callbacksArray = callbacks.toArray(new CombinedDownloadCallback[callbacks.size()]);
 						activeTasksCountup();
-						Future<R> taskfuture = download(task, new MultipleDownloadCallbackGroup<>(callbacksArray), TaskHandler.this.tries);
+						Future<R> taskfuture = download(task, new CombinedDownloadCallbackGroup<>(callbacksArray), TaskHandler.this.tries);
 						activeSubtasks.add(taskfuture);
 						return taskfuture;
 					} finally {
@@ -488,13 +467,13 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 	private volatile boolean shutdown = false;
 	private ReadWriteLock shutdownLock = new ReentrantReadWriteLock();
 
-	public MultipleDownloaderImpl(ExecutorService executor, Downloader downloader) {
+	public CombinedDownloaderImpl(ExecutorService executor, Downloader downloader) {
 		this.executor = executor;
 		this.downloader = downloader;
 	}
 
 	@Override
-	public <T> Future<T> download(MultipleDownloadTask<T> task, MultipleDownloadCallback<T> callback, int tries) {
+	public <T> Future<T> download(CombinedDownloadTask<T> task, CombinedDownloadCallback<T> callback, int tries) {
 		Objects.requireNonNull(task);
 		if (tries < 1) {
 			throw new IllegalArgumentException("tries < 1");
@@ -505,7 +484,7 @@ public class MultipleDownloaderImpl implements MultipleDownloader {
 			if (shutdown) {
 				throw new RejectedExecutionException("already shutdown");
 			}
-			TaskHandler<T> handler = new TaskHandler<>(task, callback == null ? new NullMultipleDownloadCallback<T>() : callback, tries);
+			TaskHandler<T> handler = new TaskHandler<>(task, callback == null ? new NullCombinedDownloadCallback<T>() : callback, tries);
 			activeTasks.add(handler);
 			handler.start();
 			return handler.future;

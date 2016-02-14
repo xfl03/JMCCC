@@ -1,4 +1,4 @@
-package org.to2mbn.jmccc.mcdownloader.download.multiple;
+package org.to2mbn.jmccc.mcdownloader.download.combine;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,16 +7,16 @@ import org.to2mbn.jmccc.mcdownloader.download.DownloadCallbackGroup;
 import org.to2mbn.jmccc.mcdownloader.download.DownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.AsyncCallbackGroup;
 
-public class MultipleDownloadCallbackGroup<T> extends AsyncCallbackGroup<T> implements MultipleDownloadCallback<T> {
+public class CombinedDownloadCallbackGroup<T> extends AsyncCallbackGroup<T> implements CombinedDownloadCallback<T> {
 
 	@SafeVarargs
-	public static <T> MultipleDownloadCallback<T> group(MultipleDownloadCallback<T>... callbacks) {
-		return new MultipleDownloadCallbackGroup<>(callbacks);
+	public static <T> CombinedDownloadCallback<T> group(CombinedDownloadCallback<T>... callbacks) {
+		return new CombinedDownloadCallbackGroup<>(callbacks);
 	}
 
-	private MultipleDownloadCallback<T>[] callbacks;
+	private CombinedDownloadCallback<T>[] callbacks;
 
-	public MultipleDownloadCallbackGroup(MultipleDownloadCallback<T>[] callbacks) {
+	public CombinedDownloadCallbackGroup(CombinedDownloadCallback<T>[] callbacks) {
 		super(callbacks);
 		this.callbacks = callbacks;
 	}
@@ -25,7 +25,7 @@ public class MultipleDownloadCallbackGroup<T> extends AsyncCallbackGroup<T> impl
 	public <R> DownloadCallback<R> taskStart(DownloadTask<R> task) {
 		List<DownloadCallback<R>> listeners = new ArrayList<>();
 		RuntimeException ex = null;
-		for (MultipleDownloadCallback<T> callback : callbacks) {
+		for (CombinedDownloadCallback<T> callback : callbacks) {
 			DownloadCallback<R> listener = null;
 			try {
 				listener = callback.taskStart(task);

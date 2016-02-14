@@ -8,7 +8,7 @@ import org.json.JSONObject;
 import org.to2mbn.jmccc.mcdownloader.download.DownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.MemoryDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.ResultProcessor;
-import org.to2mbn.jmccc.mcdownloader.download.multiple.MultipleDownloadTask;
+import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.provider.InstallProfileProcessor;
 import org.to2mbn.jmccc.mcdownloader.provider.URIDownloadProvider;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
@@ -35,14 +35,14 @@ public class ForgeDownloadProvider extends URIDownloadProvider {
 	}
 
 	@Override
-	public MultipleDownloadTask<Object> gameVersionJson(final MinecraftDirectory mcdir, final String version) {
+	public CombinedDownloadTask<Object> gameVersionJson(final MinecraftDirectory mcdir, final String version) {
 		if (!FORGE_VERSION_PATTERN.matcher(version).matches()) {
 			return null;
 		}
 		// 5 - length of "forge"
 		String forgeversion = version.substring(version.indexOf("forge") + 5);
 		try {
-			return MultipleDownloadTask.simple(new MemoryDownloadTask(new URI("http://files.minecraftforge.net/maven/net/minecraftforge/forge/" + forgeversion + "/forge-" + forgeversion + "-installer.jar")).andThen(new InstallProfileProcessor(mcdir.getVersionJson(version))));
+			return CombinedDownloadTask.single(new MemoryDownloadTask(new URI("http://files.minecraftforge.net/maven/net/minecraftforge/forge/" + forgeversion + "/forge-" + forgeversion + "-installer.jar")).andThen(new InstallProfileProcessor(mcdir.getVersionJson(version))));
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 			return null;
