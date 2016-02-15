@@ -177,7 +177,7 @@ public class MinecraftDownloaderBuilder {
 					.setMaxConnTotal(maxConnections)
 					.setMaxConnPerRoute(maxConnectionsPerRouter)
 					.setDefaultIOReactorConfig(IOReactorConfig.custom().setConnectTimeout(connectTimeout).setSoTimeout(soTimeout).build())
-					.setDefaultRequestConfig(RequestConfig.custom().setConnectionRequestTimeout(connectTimeout).setConnectTimeout(connectTimeout).setSocketTimeout(soTimeout).build());
+					.setDefaultRequestConfig(RequestConfig.custom().setConnectTimeout(connectTimeout).setSocketTimeout(soTimeout).build());
 			downloader = new HttpAsyncDownloader(httpClientBuilder, executor);
 		} else {
 			downloader = new JreHttpDownloader(maxConnections, connectTimeout, soTimeout, poolThreadLivingTime);
