@@ -3,7 +3,7 @@
 An open-source lightweight library for launching and downloading Minecraft.
 
 ## Download
-You can get the latest releases from [the maven central repository](https://search.maven.org/#search|ga|1|g%3A%22com.github.to2mbn%22).
+You can get the latest releases from [the maven central repository](https://search.maven.org/#search|ga|1|g%3A%22org.to2mbn%22).
 
 The snapshot repository:
 ```xml
@@ -47,13 +47,13 @@ launcher.launch(new LaunchOption(Versions.resolveVersion(dir, "1.8"), new Offlin
 
     @Override
     public void onExit(int code) {
-        System.err.println("***EXIT " + code + "***");
+        System.err.println("Exit code: " + code);
     }
 });
 ```
 In the example above, we use `/home/user/.minecraft` as the .minecraft directory, and launches Minecraft 1.8 with an offline
 account `user`. And the logs output from game process will print to stdout and stderr. When the game process terminated,
-this program will print `***EXIT <the exit code>***` to stderr, and then the monitor threads terminates.
+this program will print `Exit code: <process exit code>` to stderr, and then the monitor threads terminates.
 
 ### Yggdrasil authentication
 #### Login with password
