@@ -16,4 +16,6 @@ public interface YggdrasilAPIProvider {
 
 	String profile(UUID profileUUID);
 
+	String profileLookup();
+
 }

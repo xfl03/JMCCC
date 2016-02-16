@@ -9,4 +9,6 @@ public interface ProfileService {
 
 	PlayerTextures getTextures(GameProfile profile) throws AuthenticationException;
 
+	UUID lookupUUIDByName(String playerName) throws AuthenticationException;
+
 }

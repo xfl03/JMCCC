@@ -38,4 +38,9 @@ public class DefaultYggdrasilAPIProvider implements YggdrasilAPIProvider, Serial
 		return "https://sessionserver.mojang.com/session/minecraft/profile/" + UUIDUtils.unsign(profileUUID);
 	}
 
+	@Override
+	public String profileLookup() {
+		return "https://api.mojang.com/profiles/minecraft";
+	}
+
 }

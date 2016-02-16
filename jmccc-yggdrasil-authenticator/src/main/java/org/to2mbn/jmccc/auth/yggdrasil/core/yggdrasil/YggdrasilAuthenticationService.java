@@ -49,7 +49,7 @@ public class YggdrasilAuthenticationService extends YggdrasilService implements 
 		request.put("requestUser", true);
 		JSONObject response;
 		try {
-			response = getRequester().jsonPost(getApi().authenticate(), null, new JSONObject(request));
+			response = (JSONObject) getRequester().jsonPost(getApi().authenticate(), null, new JSONObject(request));
 		} catch (JSONException | IOException e) {
 			throw newRequestFailedException(e);
 		}
@@ -78,7 +78,7 @@ public class YggdrasilAuthenticationService extends YggdrasilService implements 
 
 		JSONObject response;
 		try {
-			response = getRequester().jsonPost(getApi().refresh(), null, new JSONObject(request));
+			response = (JSONObject) getRequester().jsonPost(getApi().refresh(), null, new JSONObject(request));
 		} catch (JSONException | IOException e) {
 			throw newRequestFailedException(e);
 		}
@@ -94,7 +94,7 @@ public class YggdrasilAuthenticationService extends YggdrasilService implements 
 		request.put("accessToken", accessToken);
 		JSONObject response;
 		try {
-			response = getRequester().jsonPost(getApi().validate(), null, new JSONObject(request));
+			response = (JSONObject) getRequester().jsonPost(getApi().validate(), null, new JSONObject(request));
 		} catch (JSONException | IOException e) {
 			throw newRequestFailedException(e);
 		}

@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.to2mbn.jmccc.auth.AuthenticationException;
@@ -38,7 +39,7 @@ public class YggdrasilProfileService extends YggdrasilService implements Profile
 		arguments.put("unsigned", "false");
 		JSONObject response;
 		try {
-			response = getRequester().jsonGet(getApi().profile(profileUUID), arguments);
+			response = (JSONObject) getRequester().jsonGet(getApi().profile(profileUUID), arguments);
 		} catch (JSONException | IOException e) {
 			throw newRequestFailedException(e);
 		}
@@ -65,6 +66,36 @@ public class YggdrasilProfileService extends YggdrasilService implements Profile
 			profile = getGameProfile(profile.getUUID());
 		}
 		return getTextures(((PropertiesGameProfile) profile).getProperties());
+	}
+
+	@Override
+	public UUID lookupUUIDByName(String playerName) throws AuthenticationException {
+		Objects.requireNonNull(playerName);
+
+		JSONArray request = new JSONArray();
+		request.put(playerName);
+		Object rawResponse;
+		try {
+			rawResponse = getRequester().jsonPost(getApi().profileLookup(), null, request);
+		} catch (JSONException | IOException e) {
+			throw newRequestFailedException(e);
+		}
+		if (rawResponse instanceof JSONObject) {
+			checkResponse((JSONObject) rawResponse);
+			throw new JSONException("response should be a json array");
+		}
+		JSONArray response = (JSONArray) rawResponse;
+		switch (response.length()) {
+			case 0:
+				// no profile is in the response
+				return null;
+
+			case 1:
+				return UUIDUtils.toUUID(response.getJSONObject(0).getString("id"));
+
+			default:
+				throw new AuthenticationException("we only queried one player's profile, but the server sent us more than one profile");
+		}
 	}
 
 	private PlayerTextures getTextures(Map<String, String> properties) throws AuthenticationException {
