@@ -5,6 +5,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,6 +32,8 @@ public class YggdrasilProfileService extends YggdrasilService implements Profile
 
 	@Override
 	public PropertiesGameProfile getGameProfile(UUID profileUUID) throws AuthenticationException {
+		Objects.requireNonNull(profileUUID);
+
 		Map<String, Object> arguments = new HashMap<>();
 		arguments.put("unsigned", "false");
 		JSONObject response;
@@ -56,6 +59,8 @@ public class YggdrasilProfileService extends YggdrasilService implements Profile
 
 	@Override
 	public PlayerTextures getTextures(GameProfile profile) throws AuthenticationException {
+		Objects.requireNonNull(profile);
+
 		if (!(profile instanceof PropertiesGameProfile)) {
 			profile = getGameProfile(profile.getUUID());
 		}

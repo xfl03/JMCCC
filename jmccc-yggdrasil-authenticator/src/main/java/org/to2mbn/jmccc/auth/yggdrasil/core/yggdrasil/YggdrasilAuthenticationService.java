@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,18 +26,21 @@ public class YggdrasilAuthenticationService extends YggdrasilService implements 
 
 	public YggdrasilAuthenticationService(String clientToken, Agent agent) {
 		super();
-		this.clientToken = clientToken;
-		this.agent = agent;
+		this.clientToken = Objects.requireNonNull(clientToken);
+		this.agent = Objects.requireNonNull(agent);
 	}
 
 	public YggdrasilAuthenticationService(String clientToken, Agent agent, SignaturedPropertiesDeserializer propertiesDeserializer, YggdrasilAPIProvider api) {
 		super(propertiesDeserializer, api);
-		this.clientToken = clientToken;
-		this.agent = agent;
+		this.clientToken = Objects.requireNonNull(clientToken);
+		this.agent = Objects.requireNonNull(agent);
 	}
 
 	@Override
 	public Session login(String username, String password) throws AuthenticationException {
+		Objects.requireNonNull(username);
+		Objects.requireNonNull(password);
+
 		Map<String, Object> request = new HashMap<>();
 		request.put("agent", agent);
 		request.put("username", username);
@@ -59,6 +63,8 @@ public class YggdrasilAuthenticationService extends YggdrasilService implements 
 
 	@Override
 	public Session selectProfile(String accessToken, UUID profile) throws AuthenticationException {
+		Objects.requireNonNull(accessToken);
+
 		Map<String, Object> request = new HashMap<>();
 		request.put("clientToken", clientToken);
 		request.put("accessToken", accessToken);
@@ -81,6 +87,8 @@ public class YggdrasilAuthenticationService extends YggdrasilService implements 
 
 	@Override
 	public boolean validate(String accessToken) throws AuthenticationException {
+		Objects.requireNonNull(accessToken);
+
 		Map<String, Object> request = new HashMap<>();
 		request.put("clientToken", clientToken);
 		request.put("accessToken", accessToken);

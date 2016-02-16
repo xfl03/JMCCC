@@ -14,43 +14,138 @@ import org.to2mbn.jmccc.auth.yggdrasil.core.Session;
 import org.to2mbn.jmccc.auth.yggdrasil.core.yggdrasil.YggdrasilAuthenticationService;
 import org.to2mbn.jmccc.util.UUIDUtils;
 
+/**
+ * Provides yggdrasil authentication feature.
+ * 
+ * @author yushijinhun
+ */
 public class YggdrasilAuthenticator implements Authenticator, Serializable {
 
+	/**
+	 * Provides username and password for yggdrasil authentication.
+	 * 
+	 * @author yushijinhun
+	 */
 	public static interface PasswordProvider {
 
+		/**
+		 * Gets the username to login.
+		 * 
+		 * @return the username
+		 * @throws AuthenticationException If the username cannot be provided
+		 */
 		String getUsername() throws AuthenticationException;
 
+		/**
+		 * Gets the password of the user.
+		 * 
+		 * @return the password
+		 * @throws AuthenticationException If the password cannot be provided
+		 */
 		String getPassword() throws AuthenticationException;
 
+		/**
+		 * Gets the character selector.
+		 * <p>
+		 * The method will be invoked when no character is selected. If this
+		 * method returns <code>null</code>, a {@link DefaultCharacterSelector}
+		 * will be used to select characters.
+		 * 
+		 * @return a character selector, can be null
+		 */
 		CharacterSelector getCharacterSelector();
 
 	}
-	
+
+	/**
+	 * Creates a <code>YggdrasilAuthenticator</code> and initializes it with a
+	 * token.
+	 * 
+	 * @param accessToken the access token
+	 * @param clientToken the client token
+	 * @return a YggdrasilAuthenticator
+	 * @throws AuthenticationException If an exception occurs during the
+	 *             authentication
+	 */
 	public static YggdrasilAuthenticator token(String accessToken, String clientToken) throws AuthenticationException {
-		return token(accessToken, new YggdrasilAuthenticationService(clientToken, Agent.MINECRAFT));
+		return token(accessToken, createAuthenticationService(clientToken));
 	}
 
+	/**
+	 * Creates a <code>YggdrasilAuthenticator</code> with a customized
+	 * {@link AuthenticationService} and initializes it with a token.
+	 * 
+	 * @param accessToken the access token
+	 * @param service the customized {@link AuthenticationService}
+	 * @return a YggdrasilAuthenticator
+	 * @throws AuthenticationException If an exception occurs during the
+	 *             authentication
+	 */
 	public static YggdrasilAuthenticator token(String accessToken, AuthenticationService service) throws AuthenticationException {
 		YggdrasilAuthenticator auth = new YggdrasilAuthenticator(service);
 		auth.refreshWithToken(accessToken);
 		return auth;
 	}
 
+	/**
+	 * Creates a <code>YggdrasilAuthenticator</code> and initializes it with
+	 * password.
+	 * 
+	 * @param username the username
+	 * @param password the password
+	 * @return a YggdrasilAuthenticator
+	 * @throws AuthenticationException If an exception occurs during the
+	 *             authentication
+	 */
 	public static YggdrasilAuthenticator password(String username, String password) throws AuthenticationException {
-		return password(username, password, null);
+		return password(username, password, null, createAuthenticationService());
 	}
-	
+
+	/**
+	 * Creates a <code>YggdrasilAuthenticator</code> and initializes it with
+	 * password.
+	 * 
+	 * @param username the username
+	 * @param password the password
+	 * @param characterSelector the character selector
+	 * @return a YggdrasilAuthenticator
+	 * @throws AuthenticationException If an exception occurs during the
+	 *             authentication
+	 */
 	public static YggdrasilAuthenticator password(String username, String password, CharacterSelector characterSelector) throws AuthenticationException {
-		return password(username, password, characterSelector, UUIDUtils.randomUnsignedUUID());
+		return password(username, password, characterSelector, createAuthenticationService());
 	}
 
+	/**
+	 * Creates a <code>YggdrasilAuthenticator</code> with a specified client
+	 * token and initializes it with password.
+	 * 
+	 * @param username the username
+	 * @param password the password
+	 * @param characterSelector the character selector
+	 * @param clientToken the client token
+	 * @return a YggdrasilAuthenticator
+	 * @throws AuthenticationException If an exception occurs during the
+	 *             authentication
+	 */
 	public static YggdrasilAuthenticator password(String username, String password, CharacterSelector characterSelector, String clientToken) throws AuthenticationException {
-		return password(username, password, characterSelector, new YggdrasilAuthenticationService(clientToken, Agent.MINECRAFT));
+		return password(username, password, characterSelector, createAuthenticationService(clientToken));
 	}
 
+	/**
+	 * Creates a <code>YggdrasilAuthenticator</code> with a customized
+	 * {@link AuthenticationService} and initializes it with password.
+	 * 
+	 * @param username the username
+	 * @param password the password
+	 * @param characterSelector the character selector
+	 * @param service the customized {@link AuthenticationService}
+	 * @return a YggdrasilAuthenticator
+	 * @throws AuthenticationException If an exception occurs during the
+	 *             authentication
+	 */
 	public static YggdrasilAuthenticator password(final String username, final String password, final CharacterSelector characterSelector, AuthenticationService service) throws AuthenticationException {
-		YggdrasilAuthenticator auth = new YggdrasilAuthenticator(service);
-		auth.refreshWithPassword(new PasswordProvider() {
+		return password(service, new PasswordProvider() {
 
 			@Override
 			public String getUsername() throws AuthenticationException {
@@ -67,7 +162,30 @@ public class YggdrasilAuthenticator implements Authenticator, Serializable {
 				return characterSelector;
 			}
 		});
+	}
+
+	/**
+	 * Creates a <code>YggdrasilAuthenticator</code> with a customized
+	 * {@link AuthenticationService} and initializes it with password.
+	 * 
+	 * @param service the customized {@link AuthenticationService}
+	 * @param passwordProvider the password provider
+	 * @return a YggdrasilAuthenticator
+	 * @throws AuthenticationException If an exception occurs during the
+	 *             authentication
+	 */
+	public static YggdrasilAuthenticator password(AuthenticationService service, PasswordProvider passwordProvider) throws AuthenticationException {
+		YggdrasilAuthenticator auth = new YggdrasilAuthenticator(service);
+		auth.refreshWithPassword(passwordProvider);
 		return auth;
+	}
+
+	private static AuthenticationService createAuthenticationService() {
+		return createAuthenticationService(UUIDUtils.randomUnsignedUUID());
+	}
+
+	private static AuthenticationService createAuthenticationService(String clientToken) {
+		return new YggdrasilAuthenticationService(clientToken, Agent.MINECRAFT);
 	}
 
 	private static final long serialVersionUID = 1L;
@@ -75,19 +193,42 @@ public class YggdrasilAuthenticator implements Authenticator, Serializable {
 	private AuthenticationService authenticationService;
 	private volatile Session authResult;
 
+	/**
+	 * Constructs a YggdrasilAuthenticator with a random client token.
+	 */
 	public YggdrasilAuthenticator() {
-		this(UUIDUtils.randomUnsignedUUID());
+		this(createAuthenticationService());
 	}
 
+	/**
+	 * Constructs a YggdrasilAuthenticator with a specified client token.
+	 * 
+	 * @param clientToken the client token
+	 */
 	public YggdrasilAuthenticator(String clientToken) {
-		this(new YggdrasilAuthenticationService(clientToken, Agent.MINECRAFT));
+		this(createAuthenticationService(clientToken));
 	}
 
+	/**
+	 * Constructs a YggdrasilAuthenticator with a customized
+	 * {@link AuthenticationService}.
+	 * 
+	 * @param sessionService the customized {@link AuthenticationService}
+	 */
 	public YggdrasilAuthenticator(AuthenticationService sessionService) {
 		Objects.requireNonNull(sessionService);
 		this.authenticationService = sessionService;
 	}
 
+	/**
+	 * Tries to get an available session, and export it as a {@link AuthInfo}.
+	 * If no profile is available, an {@link AuthenticationException} will be
+	 * thrown.
+	 * <p>
+	 * {@inheritDoc}
+	 * 
+	 * @see #session()
+	 */
 	@Override
 	public synchronized AuthInfo auth() throws AuthenticationException {
 		GameProfile selectedProfile = session().getSelectedProfile();
@@ -103,6 +244,20 @@ public class YggdrasilAuthenticator implements Authenticator, Serializable {
 		return new AuthInfo(selectedProfile.getName(), authResult.getAccessToken(), UUIDUtils.unsign(selectedProfile.getUUID()), properties, authResult.getUserType().getName());
 	}
 
+	/**
+	 * Tries to get an available session.
+	 * <p>
+	 * The method will validate the current token. If the current token is not
+	 * available, <code>YggdrasilAuthenticator</code> will try refreshing the
+	 * token. If YggdrasilAuthenticator failed to refresh, it will call
+	 * {@link #tryPasswordLogin()} to ask the password for authentication. If no
+	 * password is available, an <code>AuthenticationException</code> will be
+	 * thrown.
+	 * 
+	 * @return an available session
+	 * @throws AuthenticationException if <code>YggdrasilAuthenticator</code>
+	 *             couldn't get an available session
+	 */
 	public synchronized Session session() throws AuthenticationException {
 		if (authResult == null || !authenticationService.validate(authResult.getAccessToken())) {
 			refresh();
@@ -113,6 +268,17 @@ public class YggdrasilAuthenticator implements Authenticator, Serializable {
 		return authResult;
 	}
 
+	/**
+	 * Tries refreshing the current session.
+	 * <p>
+	 * This method will try refreshing the token. If YggdrasilAuthenticator
+	 * failed to refresh, it will call {@link #tryPasswordLogin()} to ask the
+	 * password for authentication. If no password is available,an
+	 * <code>AuthenticationException</code> will be thrown.
+	 * 
+	 * @throws AuthenticationException if <code>YggdrasilAuthenticator</code>
+	 *             couldn't refresh the current session
+	 */
 	public synchronized void refresh() throws AuthenticationException {
 		if (authResult == null) {
 			// refresh operation is not available
@@ -141,6 +307,13 @@ public class YggdrasilAuthenticator implements Authenticator, Serializable {
 		}
 	}
 
+	/**
+	 * Refreshes the current session manually using password.
+	 * 
+	 * @param passwordProvider the password provider
+	 * @throws AuthenticationException If an exception occurs during the
+	 *             authentication
+	 */
 	public synchronized void refreshWithPassword(PasswordProvider passwordProvider) throws AuthenticationException {
 		Objects.requireNonNull(passwordProvider);
 		String username = passwordProvider.getUsername();
@@ -162,27 +335,67 @@ public class YggdrasilAuthenticator implements Authenticator, Serializable {
 		}
 	}
 
+	/**
+	 * Refreshes the current session manually using token.
+	 * 
+	 * @param accessToken the access token
+	 * @throws AuthenticationException If an exception occurs during the
+	 *             authentication
+	 */
 	public synchronized void refreshWithToken(String accessToken) throws AuthenticationException {
 		Objects.requireNonNull(accessToken);
 		authResult = authenticationService.refresh(accessToken);
 	}
 
+	/**
+	 * Clears the current session.
+	 */
 	public synchronized void clearToken() {
 		authResult = null;
 	}
 
+	/**
+	 * Gets the current session.
+	 * 
+	 * @return the current session, <code>null</code> if the current session is
+	 *         unavailable
+	 */
 	public synchronized Session getCurrentSession() {
 		return authResult;
 	}
 
+	/**
+	 * Sets the current session.
+	 * 
+	 * @param session the session to set
+	 */
 	public synchronized void setCurrentSession(Session session) {
 		this.authResult = session;
 	}
 
+	/**
+	 * Gets the <code>YggdrasilAuthenticator</code>'s
+	 * {@link AuthenticationService}.
+	 * 
+	 * @return the <code>AuthenticationService</code>
+	 */
 	public AuthenticationService getAuthenticationService() {
 		return authenticationService;
 	}
 
+	/**
+	 * Provides the username and the password so that
+	 * <code>YggdrasilAuthenticator</code> can authenticate using password.
+	 * <p>
+	 * This method is usually invoked when the current token is invalid. If this
+	 * method returns <code>null</code>, the password authentication won't be
+	 * performed. The default implementation of the method returns
+	 * <code>null</code>.
+	 * 
+	 * @return the username and the password, can be null
+	 * @throws AuthenticationException If an exception occurs during the
+	 *             authentication
+	 */
 	protected PasswordProvider tryPasswordLogin() throws AuthenticationException {
 		return null;
 	}
