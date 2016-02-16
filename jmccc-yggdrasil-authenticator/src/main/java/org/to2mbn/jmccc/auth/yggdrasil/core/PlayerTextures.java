@@ -9,10 +9,12 @@ public class PlayerTextures implements Serializable {
 
 	private Texture skin;
 	private Texture cape;
+	private Texture elytra;
 
-	public PlayerTextures(Texture skin, Texture cape) {
+	public PlayerTextures(Texture skin, Texture cape, Texture elytra) {
 		this.skin = skin;
 		this.cape = cape;
+		this.elytra = elytra;
 	}
 
 	public Texture getSkin() {
@@ -23,14 +25,18 @@ public class PlayerTextures implements Serializable {
 		return cape;
 	}
 
+	public Texture getElytra() {
+		return elytra;
+	}
+
 	@Override
 	public String toString() {
-		return "PlayerTextures [skin=" + skin + ", cape=" + cape + "]";
+		return String.format("PlayerTextures [skin=%s, cape=%s, elytra=%s]", skin, cape, elytra);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(skin, cape);
+		return Objects.hash(skin, cape, elytra);
 	}
 
 	@Override
@@ -40,7 +46,7 @@ public class PlayerTextures implements Serializable {
 		}
 		if (obj instanceof PlayerTextures) {
 			PlayerTextures another = (PlayerTextures) obj;
-			return Objects.equals(cape, another.cape) && Objects.equals(skin, another.skin);
+			return Objects.equals(skin, another.skin) && Objects.equals(cape, another.cape) && Objects.equals(elytra, another.elytra);
 		}
 		return false;
 	}

@@ -82,7 +82,10 @@ public class YggdrasilProfileService extends YggdrasilService implements Profile
 
 		try {
 			JSONObject textures = response.getJSONObject("textures");
-			return new PlayerTextures(getTexture(textures.optJSONObject("SKIN")), getTexture(textures.optJSONObject("CAPE")));
+			return new PlayerTextures(
+					getTexture(textures.optJSONObject("SKIN")),
+					getTexture(textures.optJSONObject("CAPE")),
+					getTexture(textures.optJSONObject("ELYTRA")));
 		} catch (JSONException e) {
 			throw newResponseFormatException(e);
 		}
