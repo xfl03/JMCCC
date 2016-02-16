@@ -100,12 +100,14 @@ password: <password>
 Logged in!
 ```
 
-When method `auth()` is called, YggdrasilAuthenticator validates the current token. If the current token is not available, YggdrasilAuthenticator will try refreshing the token. When YggdrasilAuthenticator failed, it will call method `tryPasswordLogin()` to ask the password for authentication. If no password is available, YggdrasilAuthenticator will throw a `AuthenticationException`. The default implementation of `tryPasswordLogin()` returns `null`, you may need to override it.
+When method `auth()` is called, YggdrasilAuthenticator validates the current token. If the current token is not available, YggdrasilAuthenticator will try refreshing the token. When YggdrasilAuthenticator failed to refresh, it will call method `tryPasswordLogin()` to ask the password for authentication. If no password is available, YggdrasilAuthenticator will throw a `AuthenticationException`. The default implementation of `tryPasswordLogin()` returns `null`, you may need to override it.
 
 If you want to update the current token manually, you ought to call `refresh()`, `refreshWithToken(String)` or `refreshWithPassword(String, String)`.
 If you want to save the authentication, you ought to call `getCurrentSession()` to get the current authentication and serialize it, and call `setCurrentSession(Session)` to load the authentication.
 
 ### Game & Asset Download
+> jmccc-mcdownloader can work on top of [Apache HttpAsyncClient](http://hc.apache.org/httpcomponents-asyncclient-dev/) or JDK. Note that the JDK implementation uses BIO, so you should limit your max connections, because each connetion will start a thread. If you want to use Apache HttpAsyncClient, just put it in the classpath. This is an optional dependency in the POM.
+
 ##### Minecraft downloading
 The following code snippet downloads minecraft 1.8.8:
 ```java
