@@ -13,4 +13,8 @@ public interface AuthenticationService {
 
 	boolean validate(String accessToken) throws AuthenticationException;
 
+	void invalidate(String accessToken) throws AuthenticationException;
+
+	void signout(String username, String password) throws AuthenticationException;
+
 }

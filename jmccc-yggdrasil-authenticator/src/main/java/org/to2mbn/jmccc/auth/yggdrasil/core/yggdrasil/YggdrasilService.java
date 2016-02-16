@@ -28,7 +28,19 @@ abstract public class YggdrasilService implements Serializable {
 		if (response == null) {
 			throw new AuthenticationException("empty response");
 		}
+		tryThrowRemoteException(response);
+	}
 
+	protected void checkEmptyResponse(JSONObject response) throws AuthenticationException {
+		if (response == null) {
+			return;
+		}
+
+		tryThrowRemoteException(response);
+		throw new ResponseFormatException("invalid response: " + response);
+	}
+
+	private void tryThrowRemoteException(JSONObject response) throws AuthenticationException {
 		try {
 			if (response.has("error") && !response.getString("error").isEmpty()) {
 				throw new RemoteAuthenticationException(response.getString("error"), response.optString("errorMessage", null), response.optString("cause", null));

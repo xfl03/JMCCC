@@ -13,6 +13,7 @@ import org.to2mbn.jmccc.auth.AuthenticationException;
 import org.to2mbn.jmccc.auth.yggdrasil.core.Agent;
 import org.to2mbn.jmccc.auth.yggdrasil.core.AuthenticationService;
 import org.to2mbn.jmccc.auth.yggdrasil.core.GameProfile;
+import org.to2mbn.jmccc.auth.yggdrasil.core.RemoteAuthenticationException;
 import org.to2mbn.jmccc.auth.yggdrasil.core.Session;
 import org.to2mbn.jmccc.auth.yggdrasil.core.UserType;
 import org.to2mbn.jmccc.util.UUIDUtils;
@@ -98,18 +99,48 @@ public class YggdrasilAuthenticationService extends YggdrasilService implements 
 		} catch (JSONException | IOException e) {
 			throw new RequestException(e);
 		}
-		if (response == null) {
-			return true;
-		} else if ("ForbiddenOperationException".equals(response.optString("error"))) {
-			return false;
-		} else {
-			// try to handle this response as a remote exception
-			checkResponse(response);
 
-			// invalid response
-			// it isn't null and doesn't include any error message
-			throw new AuthenticationException("invalid response: " + response);
+		try {
+			checkEmptyResponse(response);
+		} catch (RemoteAuthenticationException e) {
+			if ("ForbiddenOperationException".equals(e.getRemoteExceptionName())) {
+				return false;
+			}
 		}
+		return true;
+	}
+
+	@Override
+	public void invalidate(String accessToken) throws AuthenticationException {
+		Objects.requireNonNull(accessToken);
+
+		Map<String, Object> request = new HashMap<>();
+		request.put("clientToken", clientToken);
+		request.put("accessToken", accessToken);
+		JSONObject response;
+		try {
+			response = (JSONObject) getRequester().jsonPost(getApi().invalidate(), null, new JSONObject(request));
+		} catch (JSONException | IOException e) {
+			throw new RequestException(e);
+		}
+		checkEmptyResponse(response);
+	}
+
+	@Override
+	public void signout(String username, String password) throws AuthenticationException {
+		Objects.requireNonNull(username);
+		Objects.requireNonNull(password);
+
+		Map<String, Object> request = new HashMap<>();
+		request.put("username", username);
+		request.put("password", password);
+		JSONObject response;
+		try {
+			response = (JSONObject) getRequester().jsonPost(getApi().signout(), null, new JSONObject(request));
+		} catch (JSONException | IOException e) {
+			throw new RequestException(e);
+		}
+		checkEmptyResponse(response);
 	}
 
 	public String getClientToken() {
