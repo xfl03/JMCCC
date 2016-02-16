@@ -51,7 +51,7 @@ public class YggdrasilAuthenticationService extends YggdrasilService implements 
 		try {
 			response = (JSONObject) getRequester().jsonPost(getApi().authenticate(), null, new JSONObject(request));
 		} catch (JSONException | IOException e) {
-			throw newRequestFailedException(e);
+			throw new RequestException(e);
 		}
 		return handleAuthResponse(response);
 	}
@@ -80,7 +80,7 @@ public class YggdrasilAuthenticationService extends YggdrasilService implements 
 		try {
 			response = (JSONObject) getRequester().jsonPost(getApi().refresh(), null, new JSONObject(request));
 		} catch (JSONException | IOException e) {
-			throw newRequestFailedException(e);
+			throw new RequestException(e);
 		}
 		return handleAuthResponse(response);
 	}
@@ -96,7 +96,7 @@ public class YggdrasilAuthenticationService extends YggdrasilService implements 
 		try {
 			response = (JSONObject) getRequester().jsonPost(getApi().validate(), null, new JSONObject(request));
 		} catch (JSONException | IOException e) {
-			throw newRequestFailedException(e);
+			throw new RequestException(e);
 		}
 		if (response == null) {
 			return true;
@@ -136,7 +136,7 @@ public class YggdrasilAuthenticationService extends YggdrasilService implements 
 			try {
 				userProperties = getPropertiesDeserializer().toProperties(userjson.optJSONArray("properties"), false);
 			} catch (GeneralSecurityException e) {
-				throw newSignatureException(e);
+				throw new ResponseSignatureException(e);
 			}
 
 			GameProfile selectedProfile = toGameProfile(response.optJSONObject("selectedProfile"));
@@ -153,7 +153,7 @@ public class YggdrasilAuthenticationService extends YggdrasilService implements 
 			}
 			return new Session(userId, accessToken, selectedProfile, availableProfiles, userId, userProperties, UserType.MOJANG);
 		} catch (JSONException e) {
-			throw newResponseFormatException(e);
+			throw new ResponseFormatException(e);
 		}
 	}
 

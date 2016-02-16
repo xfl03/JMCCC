@@ -41,7 +41,7 @@ public class YggdrasilProfileService extends YggdrasilService implements Profile
 		try {
 			response = (JSONObject) getRequester().jsonGet(getApi().profile(profileUUID), arguments);
 		} catch (JSONException | IOException e) {
-			throw newRequestFailedException(e);
+			throw new RequestException(e);
 		}
 		checkResponse(response);
 
@@ -50,11 +50,11 @@ public class YggdrasilProfileService extends YggdrasilService implements Profile
 			try {
 				properties = getPropertiesDeserializer().toProperties(response.optJSONArray("properties"), true);
 			} catch (GeneralSecurityException e) {
-				throw newSignatureException(e);
+				throw new ResponseSignatureException(e);
 			}
 			return new PropertiesGameProfile(UUIDUtils.toUUID(response.getString("id")), response.getString("name"), properties);
 		} catch (JSONException e) {
-			throw newResponseFormatException(e);
+			throw new ResponseFormatException(e);
 		}
 	}
 
@@ -78,23 +78,27 @@ public class YggdrasilProfileService extends YggdrasilService implements Profile
 		try {
 			rawResponse = getRequester().jsonPost(getApi().profileLookup(), null, request);
 		} catch (JSONException | IOException e) {
-			throw newRequestFailedException(e);
+			throw new RequestException(e);
 		}
-		if (rawResponse instanceof JSONObject) {
-			checkResponse((JSONObject) rawResponse);
-			throw new JSONException("response should be a json array");
-		}
-		JSONArray response = (JSONArray) rawResponse;
-		switch (response.length()) {
-			case 0:
-				// no profile is in the response
-				return null;
+		try {
+			if (rawResponse instanceof JSONObject) {
+				checkResponse((JSONObject) rawResponse);
+				throw new JSONException("response should be a json array");
+			}
+			JSONArray response = (JSONArray) rawResponse;
+			switch (response.length()) {
+				case 0:
+					// no profile is in the response
+					return null;
 
-			case 1:
-				return UUIDUtils.toUUID(response.getJSONObject(0).getString("id"));
+				case 1:
+					return UUIDUtils.toUUID(response.getJSONObject(0).getString("id"));
 
-			default:
-				throw new AuthenticationException("we only queried one player's profile, but the server sent us more than one profile");
+				default:
+					throw new AuthenticationException("we only queried one player's profile, but the server sent us more than one profile");
+			}
+		} catch (JSONException e) {
+			throw new ResponseFormatException(e);
 		}
 	}
 
@@ -108,7 +112,7 @@ public class YggdrasilProfileService extends YggdrasilService implements Profile
 		try {
 			response = new JSONObject(new String(Base64.decode(encodedTextures.toCharArray()), "UTF-8"));
 		} catch (JSONException | UnsupportedEncodingException e) {
-			throw newResponseFormatException(e);
+			throw new ResponseFormatException(e);
 		}
 
 		try {
@@ -118,7 +122,7 @@ public class YggdrasilProfileService extends YggdrasilService implements Profile
 					getTexture(textures.optJSONObject("CAPE")),
 					getTexture(textures.optJSONObject("ELYTRA")));
 		} catch (JSONException e) {
-			throw newResponseFormatException(e);
+			throw new ResponseFormatException(e);
 		}
 	}
 

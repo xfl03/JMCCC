@@ -34,20 +34,8 @@ abstract public class YggdrasilService implements Serializable {
 				throw new RemoteAuthenticationException(response.getString("error"), response.optString("errorMessage", null), response.optString("cause", null));
 			}
 		} catch (JSONException e) {
-			throw newResponseFormatException(e);
+			throw new ResponseFormatException(e);
 		}
-	}
-
-	protected AuthenticationException newResponseFormatException(Throwable e) {
-		return new AuthenticationException("wrong response format", e);
-	}
-
-	protected AuthenticationException newRequestFailedException(Throwable e) {
-		return new AuthenticationException("failed to request", e);
-	}
-
-	protected AuthenticationException newSignatureException(Throwable e) {
-		return new AuthenticationException("failed to verify signature", e);
 	}
 
 	protected JSONHttpRequester getRequester() {
