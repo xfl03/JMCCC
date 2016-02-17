@@ -19,67 +19,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.to2mbn.jmccc.auth.yggdrasil.core.util.Base64;
 
-public class SignaturedPropertiesDeserializer implements Serializable {
-
-	private static final long serialVersionUID = 1L;
-
-	private PublicKey signaturePublicKey;
-	private boolean useDefaultKey;
-
-	public SignaturedPropertiesDeserializer() {
-		useDefaultKey = true;
-	}
-
-	public SignaturedPropertiesDeserializer(PublicKey signaturePublicKey) {
-		this.signaturePublicKey = signaturePublicKey;
-	}
-
-	public Map<String, String> toProperties(JSONArray props, boolean forceSignature) throws SignatureException, InvalidKeyException, NoSuchAlgorithmException, JSONException {
-		if (props == null) {
-			return null;
-		}
-
-		Map<String, String> properties = new HashMap<>();
-		for (int i = 0; i < props.length(); i++) {
-			JSONObject prop = props.getJSONObject(i);
-			String key = prop.getString("name");
-			String value = prop.getString("value");
-			if (prop.has("signature")) {
-				String signature = prop.getString("signature");
-				checkSignature(key, value, signature);
-			} else {
-				if (forceSignature) {
-					throw new SignatureException("no signature");
-				}
-			}
-			properties.put(key, value);
-		}
-		return properties;
-	}
-
-	private void checkSignature(String key, String value, String signature) throws SignatureException, InvalidKeyException, NoSuchAlgorithmException {
-		Signature verifier = Signature.getInstance("SHA1withRSA");
-		verifier.initVerify(getSignaturePublicKey());
-		verifier.update(value.getBytes());
-		if (!verifier.verify(Base64.decode(signature.toCharArray()))) {
-			throw new SignatureException("invalid signature");
-		}
-	}
-
-	private PublicKey getSignaturePublicKey() throws InvalidKeyException {
-		if (signaturePublicKey != null) {
-			return signaturePublicKey;
-		}
-		if (useDefaultKey) {
-			try {
-				signaturePublicKey = loadDefaultSignaturePublicKey();
-			} catch (InvalidKeySpecException | NoSuchAlgorithmException | IOException e) {
-				throw new InvalidKeyException("failed to load default yggdrasil signature key", e);
-			}
-			return signaturePublicKey;
-		}
-		throw new InvalidKeyException("no key is available");
-	}
+public class SignaturedPropertiesDeserializer implements Serializable, PropertiesDeserializer {
 
 	private static PublicKey loadDefaultSignaturePublicKey() throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
 		ByteArrayOutputStream byteout = new ByteArrayOutputStream();
@@ -96,6 +36,65 @@ public class SignaturedPropertiesDeserializer implements Serializable {
 
 		keyFactory = KeyFactory.getInstance("RSA");
 		return keyFactory.generatePublic(spec);
+	}
+
+	private static final long serialVersionUID = 1L;
+
+	private PublicKey signaturePublicKey;
+
+	public SignaturedPropertiesDeserializer() {
+		try {
+			signaturePublicKey = loadDefaultSignaturePublicKey();
+		} catch (InvalidKeySpecException | NoSuchAlgorithmException | IOException e) {
+			throw new IllegalStateException("failed to load default yggdrasil signature key", e);
+		}
+	}
+
+	public SignaturedPropertiesDeserializer(PublicKey signaturePublicKey) {
+		this.signaturePublicKey = signaturePublicKey;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.to2mbn.jmccc.auth.yggdrasil.core.yggdrasil.PropertiesDeserializer#toProperties(org.json.JSONArray, boolean)
+	 */
+	@Override
+	public Map<String, String> toProperties(JSONArray props, boolean forceSignature) throws SignatureException, InvalidKeyException, NoSuchAlgorithmException, JSONException {
+		if (props == null) {
+			return null;
+		}
+
+		Map<String, String> properties = new HashMap<>();
+		for (int i = 0; i < props.length(); i++) {
+			JSONObject prop = props.getJSONObject(i);
+			String key = prop.getString("name");
+			String value = prop.getString("value");
+			if (prop.has("signature")) {
+				if (signaturePublicKey == null) {
+					if (forceSignature) {
+						throw new InvalidKeyException("no key is available");
+					} else {
+						continue;
+					}
+				}
+				String signature = prop.getString("signature");
+				checkSignature(key, value, signature);
+			} else {
+				if (forceSignature) {
+					throw new SignatureException("no signature");
+				}
+			}
+			properties.put(key, value);
+		}
+		return properties;
+	}
+
+	private void checkSignature(String key, String value, String signature) throws SignatureException, InvalidKeyException, NoSuchAlgorithmException {
+		Signature verifier = Signature.getInstance("SHA1withRSA");
+		verifier.initVerify(signaturePublicKey);
+		verifier.update(value.getBytes());
+		if (!verifier.verify(Base64.decode(signature.toCharArray()))) {
+			throw new SignatureException("invalid signature");
+		}
 	}
 
 }

@@ -31,7 +31,7 @@ public class YggdrasilAuthenticationService extends YggdrasilService implements 
 		this.agent = Objects.requireNonNull(agent);
 	}
 
-	public YggdrasilAuthenticationService(String clientToken, Agent agent, SignaturedPropertiesDeserializer propertiesDeserializer, YggdrasilAPIProvider api) {
+	public YggdrasilAuthenticationService(String clientToken, Agent agent, PropertiesDeserializer propertiesDeserializer, YggdrasilAPIProvider api) {
 		super(propertiesDeserializer, api);
 		this.clientToken = Objects.requireNonNull(clientToken);
 		this.agent = Objects.requireNonNull(agent);

@@ -12,14 +12,14 @@ abstract public class YggdrasilService implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private transient JSONHttpRequester requester;
-	private SignaturedPropertiesDeserializer propertiesDeserializer;
+	private PropertiesDeserializer propertiesDeserializer;
 	private YggdrasilAPIProvider api;
 
 	public YggdrasilService() {
 		this(new SignaturedPropertiesDeserializer(), new DefaultYggdrasilAPIProvider());
 	}
 
-	public YggdrasilService(SignaturedPropertiesDeserializer propertiesDeserializer, YggdrasilAPIProvider api) {
+	public YggdrasilService(PropertiesDeserializer propertiesDeserializer, YggdrasilAPIProvider api) {
 		this.propertiesDeserializer = propertiesDeserializer;
 		this.api = api;
 	}
@@ -57,7 +57,7 @@ abstract public class YggdrasilService implements Serializable {
 		return requester;
 	}
 
-	protected SignaturedPropertiesDeserializer getPropertiesDeserializer() {
+	protected PropertiesDeserializer getPropertiesDeserializer() {
 		return propertiesDeserializer;
 	}
 

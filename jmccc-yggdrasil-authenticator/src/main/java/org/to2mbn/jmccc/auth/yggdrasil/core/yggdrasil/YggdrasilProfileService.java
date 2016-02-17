@@ -27,7 +27,7 @@ public class YggdrasilProfileService extends YggdrasilService implements Profile
 		super();
 	}
 
-	public YggdrasilProfileService(SignaturedPropertiesDeserializer propertiesDeserializer, YggdrasilAPIProvider api) {
+	public YggdrasilProfileService(PropertiesDeserializer propertiesDeserializer, YggdrasilAPIProvider api) {
 		super(propertiesDeserializer, api);
 	}
 
