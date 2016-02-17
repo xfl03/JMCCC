@@ -5,17 +5,20 @@ import org.to2mbn.jmccc.exec.ProcessMonitor;
 import org.to2mbn.jmccc.option.LaunchOption;
 
 /**
- * The <code>Launcher</code> is used to launch minecraft.<br>
- * You can use {@link Jmccc#getLauncher()} or {@link LauncherBuilder} to create a launcher object.
+ * A <code>Launcher</code> is used to launch minecraft.<br>
+ * You can use {@link Jmccc#getLauncher()} or {@link LauncherBuilder} to create
+ * a launcher instance.
  */
 public interface Launcher {
 
 	/**
 	 * Launches the game.
 	 * <p>
-	 * The Jmccc will create a group of daemon threads to pump the stdout and stderr of the game process.<br>
-	 * We recommend you NOT to call {@link ProcessMonitor#stop()}. This may cause the game process to be blocked,
-	 * and it's not always effective. You don't need to stop the monitor threads because they are daemon.
+	 * The launcher will create a group of daemon threads to pump the stdout and
+	 * stderr of the game process.<br>
+	 * We recommend you NOT to call {@link ProcessMonitor#stop()}. This may
+	 * cause the game process to be blocked, and it's not always effective. You
+	 * don't need to stop the monitor threads because they are daemon.
 	 * 
 	 * @param option the launching option
 	 * @return the result of launching
@@ -30,12 +33,14 @@ public interface Launcher {
 	/**
 	 * Launches the game.
 	 * <p>
-	 * If <code>listener!=null</code>, the Jmccc will create a group of non-daemon threads to receive the logs from the
-	 * game process and report them to the given listener. Otherwise, the Jmccc will create a group of daemon threads to pump the
-	 * stdout and stderr of the sub process.
+	 * If <code>listener!=null</code>, the launcher will create a group of
+	 * non-daemon threads to receive the logs from the game process and report
+	 * them to the given listener. Otherwise, the Jmccc will create a group of
+	 * daemon threads to pump the stdout and stderr of the sub process.
 	 * <p>
-	 * We recommend you NOT to call {@link ProcessMonitor#stop()} unless you are going to exit the jvm and
-	 * <code>listener!=null</code>. This may cause the game process to be blocked and it's not always effective.
+	 * We recommend you NOT to call {@link ProcessMonitor#stop()} unless you are
+	 * going to exit the jvm and <code>listener!=null</code>. This may cause the
+	 * game process to be blocked and it's not always effective.
 	 * 
 	 * @param option the launching option
 	 * @param listener the listener to receive logs from the game process

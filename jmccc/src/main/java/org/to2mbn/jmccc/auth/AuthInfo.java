@@ -15,7 +15,7 @@ public class AuthInfo implements Serializable {
 	private String userType;
 
 	/**
-	 * The constructor of AuthInfo.
+	 * Constructs an AuthInfo.
 	 * 
 	 * @param username the username
 	 * @param token the access token

@@ -8,17 +8,15 @@
 	<artifactId>jmccc-mcdownloader</artifactId>
 	<name>jmccc-mcdownloader</name>
 	<description>Minecraft Game&amp;Assets Downloader Library for JMCCC</description>
-	<url>https://github.com/to2mbn/jmccc-mcdownloader</url>
 	<dependencies>
 		<dependency>
 			<groupId>org.to2mbn</groupId>
 			<artifactId>jmccc</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpasyncclient</artifactId>
-			<version>4.1</version>
+			<version>4.1.1</version>
 			<optional>true</optional>
 		</dependency>
 		<dependency>

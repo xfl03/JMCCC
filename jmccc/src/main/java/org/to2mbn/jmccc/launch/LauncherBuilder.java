@@ -1,7 +1,7 @@
 package org.to2mbn.jmccc.launch;
 
 /**
- * The builder for {@link Launcher}.
+ * Builder for {@link Launcher}.
  * 
  * @author yushijinhun
  */
@@ -44,7 +44,7 @@ public class LauncherBuilder {
 	/**
 	 * Sets whether to print the launch commandline for debugging.
 	 * <p>
-	 * The commandline will be printed to stderr. The format is
+	 * The commandline will be printed to stderr in the following format:
 	 * <blockquote>
 	 * 
 	 * <pre>
@@ -53,7 +53,8 @@ public class LauncherBuilder {
 	 * 
 	 * </blockquote>
 	 * 
-	 * @param debugPrintCommandline whether to print the launch commandline for debugging.
+	 * @param debugPrintCommandline whether to print the launch commandline for
+	 *            debugging.
 	 * @return the builder itself
 	 */
 	public LauncherBuilder setDebugPrintCommandline(boolean debugPrintCommandline) {

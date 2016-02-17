@@ -150,7 +150,7 @@ public class Version implements Serializable {
 	}
 
 	/**
-	 * Gets the asset download info. This exists only in the version 1.9 or higher.
+	 * Gets the asset download info.
 	 * 
 	 * @return the asset download info, can be null
 	 */
@@ -160,7 +160,6 @@ public class Version implements Serializable {
 
 	/**
 	 * Gets the download information of the version.
-	 * The method supports version 1.9 or higher only.
 	 * <p>
 	 * This maps to the 'downloads' element in the version json.<br>
 	 * Here are some known key-value pairs:<br>
