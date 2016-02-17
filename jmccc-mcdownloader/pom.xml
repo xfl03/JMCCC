@@ -11,7 +11,7 @@
 	<url>https://github.com/to2mbn/jmccc-mcdownloader</url>
 	<dependencies>
 		<dependency>
-			<groupId>com.github.to2mbn</groupId>
+			<groupId>org.to2mbn</groupId>
 			<artifactId>jmccc</artifactId>
 			<version>${project.version}</version>
 		</dependency>
