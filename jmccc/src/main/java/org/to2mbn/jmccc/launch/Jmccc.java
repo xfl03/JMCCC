@@ -35,11 +35,14 @@ public class Jmccc implements Launcher {
 	private boolean debugPrintCommandline = false;
 
 	/**
-	 * Gets a new launcher object.
+	 * Gets a new launcher instance.
 	 * 
 	 * @return the launcher
 	 * @see LauncherBuilder
+	 * @deprecated Please use {@link LauncherBuilder} to create launchers. This
+	 *             method may be removed in the future.
 	 */
+	@Deprecated
 	public static Launcher getLauncher() {
 		return new Jmccc();
 	}

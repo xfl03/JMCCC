@@ -6,8 +6,7 @@ import org.to2mbn.jmccc.option.LaunchOption;
 
 /**
  * A <code>Launcher</code> is used to launch minecraft.<br>
- * You can use {@link Jmccc#getLauncher()} or {@link LauncherBuilder} to create
- * a launcher instance.
+ * You can use {@link LauncherBuilder} to create a launcher instance.
  */
 public interface Launcher {
 

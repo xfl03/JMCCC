@@ -8,12 +8,21 @@ package org.to2mbn.jmccc.launch;
 public class LauncherBuilder {
 
 	/**
-	 * Creates a new <code>LauncherBuilder</code> object.
+	 * Creates a new <code>LauncherBuilder</code> instance.
 	 * 
-	 * @return a new <code>LauncherBuilder</code> object
+	 * @return a new <code>LauncherBuilder</code> instance
 	 */
 	public static LauncherBuilder create() {
 		return new LauncherBuilder();
+	}
+
+	/**
+	 * Creates a new <code>Launcher</code> instance with default configurations.
+	 * 
+	 * @return a <code>Launcher</code> instance
+	 */
+	public static Launcher buildDefault() {
+		return new LauncherBuilder().build();
 	}
 
 	private boolean nativeFastCheck = false;
@@ -63,9 +72,10 @@ public class LauncherBuilder {
 	}
 
 	/**
-	 * Creates a new Launcher object according to the configurations.
+	 * Creates a new <code>Launcher</code> instance according to the
+	 * configurations.
 	 * 
-	 * @return a Launcher object
+	 * @return a <code>Launcher</code> instance
 	 */
 	public Launcher build() {
 		Jmccc launcher = new Jmccc();
