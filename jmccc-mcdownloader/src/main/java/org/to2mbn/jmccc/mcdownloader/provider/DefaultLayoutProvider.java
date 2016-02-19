@@ -8,6 +8,7 @@ import org.to2mbn.jmccc.version.Version;
 
 abstract public class DefaultLayoutProvider extends URIDownloadProvider {
 
+	@Deprecated
 	@Override
 	public URI getLibrary(Library library) {
 		String baseurl = library.getCustomUrl();
@@ -21,16 +22,19 @@ abstract public class DefaultLayoutProvider extends URIDownloadProvider {
 		return toURI(url);
 	}
 
+	@Deprecated
 	@Override
 	public URI getGameJar(Version version) {
 		return toURI(getVersionBaseURL() + version.getVersion() + "/" + version.getVersion() + ".jar");
 	}
 
+	@Deprecated
 	@Override
 	public URI getGameVersionJson(String version) {
 		return toURI(getVersionBaseURL() + version + "/" + version + ".json");
 	}
 
+	@Deprecated
 	@Override
 	public URI getAssetIndex(Version version) {
 		return toURI(getAssetIndexBaseURL() + version.getAssets() + ".json");
@@ -54,10 +58,13 @@ abstract public class DefaultLayoutProvider extends URIDownloadProvider {
 		}
 	}
 
+	@Deprecated
 	abstract protected String getLibraryBaseURL();
 
+	@Deprecated
 	abstract protected String getVersionBaseURL();
 
+	@Deprecated
 	abstract protected String getAssetIndexBaseURL();
 
 	abstract protected String getVersionListURL();

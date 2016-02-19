@@ -2,7 +2,7 @@ package org.to2mbn.jmccc.mcdownloader.download.combine;
 
 import org.to2mbn.jmccc.mcdownloader.download.DownloadTask;
 
-class MultipleCombinedDownloadTask extends CombinedDownloadTask<Object> {
+class MultipleCombinedDownloadTask extends CombinedDownloadTask<Void> {
 
 	DownloadTask<?>[] tasks;
 
@@ -11,7 +11,7 @@ class MultipleCombinedDownloadTask extends CombinedDownloadTask<Object> {
 	}
 
 	@Override
-	public void execute(final CombinedDownloadContext<Object> context) throws Exception {
+	public void execute(final CombinedDownloadContext<Void> context) throws Exception {
 		for (DownloadTask<?> task : tasks) {
 			if (task == null) {
 				context.submit(task, null, true);

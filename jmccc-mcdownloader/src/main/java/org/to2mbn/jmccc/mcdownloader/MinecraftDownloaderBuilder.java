@@ -52,8 +52,8 @@ public class MinecraftDownloaderBuilder {
 		}
 
 		@Override
-		public CombinedDownloadTask<Object> gameJar(MinecraftDirectory mcdir, Version version) {
-			CombinedDownloadTask<Object> result = current.gameJar(mcdir, version);
+		public CombinedDownloadTask<Void> gameJar(MinecraftDirectory mcdir, Version version) {
+			CombinedDownloadTask<Void> result = current.gameJar(mcdir, version);
 			if (result == null) {
 				result = prev.gameJar(mcdir, version);
 			}
@@ -61,8 +61,8 @@ public class MinecraftDownloaderBuilder {
 		}
 
 		@Override
-		public CombinedDownloadTask<Object> gameVersionJson(MinecraftDirectory mcdir, String version) {
-			CombinedDownloadTask<Object> result = current.gameVersionJson(mcdir, version);
+		public CombinedDownloadTask<String> gameVersionJson(MinecraftDirectory mcdir, String version) {
+			CombinedDownloadTask<String> result = current.gameVersionJson(mcdir, version);
 			if (result == null) {
 				result = prev.gameVersionJson(mcdir, version);
 			}
@@ -70,8 +70,8 @@ public class MinecraftDownloaderBuilder {
 		}
 
 		@Override
-		public CombinedDownloadTask<Object> library(MinecraftDirectory mcdir, Library library) {
-			CombinedDownloadTask<Object> result = current.library(mcdir, library);
+		public CombinedDownloadTask<Void> library(MinecraftDirectory mcdir, Library library) {
+			CombinedDownloadTask<Void> result = current.library(mcdir, library);
 			if (result == null) {
 				result = prev.library(mcdir, library);
 			}
@@ -79,8 +79,8 @@ public class MinecraftDownloaderBuilder {
 		}
 
 		@Override
-		public CombinedDownloadTask<Object> asset(MinecraftDirectory mcdir, Asset asset) {
-			CombinedDownloadTask<Object> result = current.asset(mcdir, asset);
+		public CombinedDownloadTask<Void> asset(MinecraftDirectory mcdir, Asset asset) {
+			CombinedDownloadTask<Void> result = current.asset(mcdir, asset);
 			if (result == null) {
 				result = prev.asset(mcdir, asset);
 			}
@@ -166,7 +166,7 @@ public class MinecraftDownloaderBuilder {
 	public MinecraftDownloader build() {
 		MinecraftDownloadProvider provider = this.provider;
 		if (useVersionDownloadInfo) {
-			provider = new AppendedDownloadProvider(provider, new InfoDownloadProvider());
+			provider = new AppendedDownloadProvider(provider, new InfoDownloadProvider(provider));
 		}
 
 		ExecutorService executor = new ThreadPoolExecutor(poolMaxThreads, poolMaxThreads, poolThreadLivingTime, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());

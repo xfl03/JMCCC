@@ -35,7 +35,7 @@ class VersionParser {
 		Map<String, DownloadInfo> downloads = json.has("downloads") ? resolveDownloads(json.getJSONObject("downloads")) : null;
 		AssetIndexInfo assetIndexDownloadInfo = json.has("assetIndex") ? resolveAssetIndexInfo(json.getJSONObject("assetIndex")) : null;
 
-		String jarPath;
+		String root;
 
 		if (json.has("inheritsFrom")) {
 			String inheritsFrom;
@@ -45,12 +45,12 @@ class VersionParser {
 				loadDepends(json.getJSONArray("libraries"), libraries);
 				assets = json.optString("assets", "legacy");
 			} while (json.has("inheritsFrom"));
-			jarPath = getVersionJarPath(inheritsFrom);
+			root = inheritsFrom;
 		} else {
-			jarPath = getVersionJarPath(version);
+			root = version;
 		}
 
-		return new Version(version, type, mainClass, assets, launchArgs, jarPath, Collections.unmodifiableSet(libraries), assets.equals("legacy"), assetIndexDownloadInfo, downloads);
+		return new Version(version, type, mainClass, assets, launchArgs, root, Collections.unmodifiableSet(libraries), assets.equals("legacy"), assetIndexDownloadInfo, downloads);
 	}
 
 	public Set<Asset> parseAssets(MinecraftDirectory minecraftDir, String name) throws IOException, JSONException {
@@ -180,10 +180,6 @@ class VersionParser {
 			excludes.add(excludesArray.getString(i));
 		}
 		return Collections.unmodifiableSet(excludes);
-	}
-
-	private String getVersionJarPath(String version) {
-		return version + "/" + version + ".jar";
 	}
 
 	private String[] resolveChecksums(JSONArray sumarray) {

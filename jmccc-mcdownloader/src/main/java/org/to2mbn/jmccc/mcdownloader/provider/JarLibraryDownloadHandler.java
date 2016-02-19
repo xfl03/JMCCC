@@ -9,7 +9,7 @@ import org.to2mbn.jmccc.version.Library;
 public class JarLibraryDownloadHandler implements LibraryDownloadHandler {
 
 	@Override
-	public DownloadTask<Object> createDownloadTask(File target, Library library, URI libraryUri) {
+	public DownloadTask<Void> createDownloadTask(File target, Library library, URI libraryUri) {
 		return new FileDownloadTask(libraryUri, target);
 	}
 

@@ -9,6 +9,7 @@ public class RemoteVersion {
 	private Date uploadTime;
 	private Date releaseTime;
 	private String type;
+	private String url;
 
 	/**
 	 * Constructor of RemoteVersion.
@@ -17,14 +18,16 @@ public class RemoteVersion {
 	 * @param uploadTime the upload time
 	 * @param releaseTime the release time
 	 * @param type the version type
+	 * @param url the url of the version json
 	 * @throws NullPointerException if <code>version==null</code>
 	 */
-	public RemoteVersion(String version, Date uploadTime, Date releaseTime, String type) {
+	public RemoteVersion(String version, Date uploadTime, Date releaseTime, String type, String url) {
 		Objects.requireNonNull(version);
 		this.version = version;
 		this.uploadTime = uploadTime;
 		this.releaseTime = releaseTime;
 		this.type = type;
+		this.url = url;
 	}
 
 	/**
@@ -65,14 +68,25 @@ public class RemoteVersion {
 		return type;
 	}
 
+
+
+	/**
+	 * Gets the url of the version json, can be null.
+	 * 
+	 * @return the url of the version json, can be null
+	 */
+	public String getUrl() {
+		return url;
+	}
+
 	@Override
 	public String toString() {
-		return version + " [uploadTime=" + uploadTime + ", releaseTime=" + releaseTime + ", type=" + type + "]";
+		return String.format("RemoteVersion [version=%s, uploadTime=%s, releaseTime=%s, type=%s, url=%s]", version, uploadTime, releaseTime, type, url);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(version, uploadTime, releaseTime, type);
+		return Objects.hash(version, uploadTime, releaseTime, type, url);
 	}
 
 	@Override
@@ -82,7 +96,11 @@ public class RemoteVersion {
 		}
 		if (obj instanceof RemoteVersion) {
 			RemoteVersion another = (RemoteVersion) obj;
-			return version.equals(another.version) && Objects.equals(releaseTime, another.releaseTime) && Objects.equals(uploadTime, another.uploadTime) && Objects.equals(type, another.type);
+			return version.equals(another.version) &&
+					Objects.equals(releaseTime, another.releaseTime) &&
+					Objects.equals(uploadTime, another.uploadTime) &&
+					Objects.equals(type, another.type) &&
+					Objects.equals(url, another.url);
 		}
 		return false;
 	}

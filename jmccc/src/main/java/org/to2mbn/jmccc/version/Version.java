@@ -16,7 +16,7 @@ public class Version implements Serializable {
 	private String mainClass;
 	private String assets;
 	private String launchArgs;
-	private String jarPath;
+	private String root;
 	private Set<Library> libraries;
 	private boolean legacy;
 	private AssetIndexInfo assetIndexDownloadInfo;
@@ -30,26 +30,28 @@ public class Version implements Serializable {
 	 * @param mainClass the main class
 	 * @param assets the assets index name
 	 * @param launchArgs the launch arguments
-	 * @param jarPath the relative path of the jar file
+	 * @param root the root of the version hierarchy
 	 * @param libraries the libraries to add to classpath
-	 * @param legacy true if this version is lower than 1.7.10, as well as using the legacy assets index
+	 * @param legacy true if this version is lower than 1.7.10, as well as using
+	 *            the legacy assets index
 	 * @param assetIndexDownloadInfo the asset download info, can be null
 	 * @param downloads the download infos, can be null
-	 * @throws NullPointerException if any of the arguments (except type, assetIndexDownloadInfo, downloads) is null
+	 * @throws NullPointerException if any of the arguments (except type,
+	 *             assetIndexDownloadInfo, downloads) is null
 	 */
-	public Version(String version, String type, String mainClass, String assets, String launchArgs, String jarPath, Set<Library> libraries, boolean legacy, AssetIndexInfo assetIndexDownloadInfo, Map<String, DownloadInfo> downloads) {
+	public Version(String version, String type, String mainClass, String assets, String launchArgs, String root, Set<Library> libraries, boolean legacy, AssetIndexInfo assetIndexDownloadInfo, Map<String, DownloadInfo> downloads) {
 		Objects.requireNonNull(version);
 		Objects.requireNonNull(mainClass);
 		Objects.requireNonNull(assets);
 		Objects.requireNonNull(launchArgs);
-		Objects.requireNonNull(jarPath);
+		Objects.requireNonNull(root);
 		Objects.requireNonNull(libraries);
 		this.version = version;
 		this.type = type;
 		this.mainClass = mainClass;
 		this.assets = assets;
 		this.launchArgs = launchArgs;
-		this.jarPath = jarPath;
+		this.root = root;
 		this.libraries = libraries;
 		this.legacy = legacy;
 		this.assetIndexDownloadInfo = assetIndexDownloadInfo;
@@ -105,14 +107,16 @@ public class Version implements Serializable {
 	}
 
 	/**
-	 * Returns the relative path of the version.
+	 * Gets the root of the version hierarchy.
 	 * <p>
-	 * Use '/' as the separator char, and 'versions' as the base dir.
+	 * If this version does not have a super version('super version' is similar
+	 * to 'superclass'), this value should be itself.<br>
+	 * Each version uses the jar of its root version.
 	 * 
-	 * @return the jar file
+	 * @return the root of the version hierarchy
 	 */
-	public String getJarPath() {
-		return jarPath;
+	public String getRoot() {
+		return root;
 	}
 
 	/**
@@ -179,14 +183,14 @@ public class Version implements Serializable {
 		}
 		if (obj instanceof Version) {
 			Version another = (Version) obj;
-			return version.equals(another.version) && Objects.equals(type, another.type) && mainClass.equals(another.mainClass) && assets.equals(another.assets) && launchArgs.equals(another.launchArgs) && jarPath.equals(another.jarPath) && libraries.equals(another.libraries) && legacy == another.legacy;
+			return version.equals(another.version) && Objects.equals(type, another.type) && mainClass.equals(another.mainClass) && assets.equals(another.assets) && launchArgs.equals(another.launchArgs) && root.equals(another.root) && libraries.equals(another.libraries) && legacy == another.legacy;
 		}
 		return false;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(version, type, mainClass, assets, launchArgs, jarPath, libraries, legacy);
+		return Objects.hash(version, type, mainClass, assets, launchArgs, root, libraries, legacy);
 	}
 
 	@Override

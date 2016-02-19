@@ -17,9 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
-import org.to2mbn.jmccc.mcdownloader.download.DownloadCallback;
-import org.to2mbn.jmccc.mcdownloader.download.DownloadTask;
-import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadCallback;
+import org.to2mbn.jmccc.mcdownloader.download.combine.AbstractCombinedDownloadCallback;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadContext;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.provider.MinecraftDownloadProvider;
@@ -34,7 +32,9 @@ public class IncrementallyDownloadTask extends CombinedDownloadTask<Version> {
 	private MinecraftDirectory mcdir;
 	private String version;
 	private MinecraftDownloadProvider downloadProvider;
+
 	private Set<String> handledVersions = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+	private String resolvedVersion;
 
 	public IncrementallyDownloadTask(MinecraftDownloadProvider downloadProvider, MinecraftDirectory mcdir, String version) {
 		Objects.requireNonNull(mcdir);
@@ -47,12 +47,19 @@ public class IncrementallyDownloadTask extends CombinedDownloadTask<Version> {
 
 	@Override
 	public void execute(final CombinedDownloadContext<Version> context) throws Exception {
-		handleVersionJson(version, context, new Callable<Object>() {
+		handledVersions.clear();
+		resolvedVersion = null;
+
+		handleVersionJson(version, context, new Callable<Void>() {
 
 			@Override
-			public Object call() throws Exception {
-				final Version ver = Versions.resolveVersion(mcdir, version);
-				if (!mcdir.getVersionJar(version).exists()) {
+			public Void call() throws Exception {
+				if (resolvedVersion == null) {
+					resolvedVersion = version;
+				}
+
+				final Version ver = Versions.resolveVersion(mcdir, resolvedVersion);
+				if (!mcdir.getVersionJar(ver.getRoot()).exists()) {
 					context.submit(downloadProvider.gameJar(mcdir, ver), null, true);
 				}
 				for (Library library : ver.getMissingLibraries(mcdir)) {
@@ -61,15 +68,15 @@ public class IncrementallyDownloadTask extends CombinedDownloadTask<Version> {
 				if (mcdir.getAssetIndex(ver.getAssets()).exists()) {
 					downloadAssets(context, Versions.resolveAssets(mcdir, ver.getAssets()));
 				} else {
-					context.submit(downloadProvider.assetsIndex(mcdir, ver), new CombinedDownloadCallback<Set<Asset>>() {
+					context.submit(downloadProvider.assetsIndex(mcdir, ver), new AbstractCombinedDownloadCallback<Set<Asset>>() {
 
 						@Override
 						public void done(final Set<Asset> result) {
 							try {
-								context.submit(new Callable<Object>() {
+								context.submit(new Callable<Void>() {
 
 									@Override
-									public Object call() throws Exception {
+									public Void call() throws Exception {
 										downloadAssets(context, result);
 										return null;
 									}
@@ -77,19 +84,6 @@ public class IncrementallyDownloadTask extends CombinedDownloadTask<Version> {
 							} catch (InterruptedException e) {
 								context.cancelled();
 							}
-						}
-
-						@Override
-						public void failed(Throwable e) {
-						}
-
-						@Override
-						public void cancelled() {
-						}
-
-						@Override
-						public <R> DownloadCallback<R> taskStart(DownloadTask<R> task) {
-							return null;
 						}
 
 					}, true);
@@ -106,32 +100,36 @@ public class IncrementallyDownloadTask extends CombinedDownloadTask<Version> {
 		});
 	}
 
-	private void handleVersionJson(final String version, final CombinedDownloadContext<Version> context, final Callable<?> callback) throws Exception {
-		if (mcdir.getVersionJson(version).exists()) {
-			JSONObject versionjson = readJson(mcdir.getVersionJson(version));
+	private void handleVersionJson(final String currentVersion, final CombinedDownloadContext<Version> context, final Callable<Void> callback) throws Exception {
+		if (mcdir.getVersionJson(currentVersion).exists()) {
+			JSONObject versionjson = readJson(mcdir.getVersionJson(currentVersion));
 			String inheritsFrom = versionjson.optString("inheritsFrom", null);
-			handledVersions.add(version);
+			handledVersions.add(currentVersion);
 			if (inheritsFrom == null) {
 				// end node
 				callback.call();
 			} else {
 				// intermediate node
 				if (handledVersions.contains(inheritsFrom)) {
-					throw new IllegalStateException("loop inherits from: " + version + " to " + inheritsFrom);
+					throw new IllegalStateException("loop inherits from: " + currentVersion + " to " + inheritsFrom);
 				}
 				handleVersionJson(inheritsFrom, context, callback);
 			}
 		} else {
-			context.submit(downloadProvider.gameVersionJson(mcdir, version), new CombinedDownloadCallback<Object>() {
+			context.submit(downloadProvider.gameVersionJson(mcdir, currentVersion), new AbstractCombinedDownloadCallback<String>() {
 
 				@Override
-				public void done(Object result) {
+				public void done(final String currentResolvedVersion) {
 					try {
-						context.submit(new Callable<Object>() {
+						context.submit(new Callable<Void>() {
 
 							@Override
-							public Object call() throws Exception {
-								handleVersionJson(version, context, callback);
+							public Void call() throws Exception {
+								if (version.equals(currentVersion)) {
+									resolvedVersion = currentResolvedVersion;
+								}
+
+								handleVersionJson(currentResolvedVersion, context, callback);
 								return null;
 							}
 						}, null, true);
@@ -140,18 +138,6 @@ public class IncrementallyDownloadTask extends CombinedDownloadTask<Version> {
 					}
 				}
 
-				@Override
-				public void failed(Throwable e) {
-				}
-
-				@Override
-				public void cancelled() {
-				}
-
-				@Override
-				public <R> DownloadCallback<R> taskStart(DownloadTask<R> task) {
-					return null;
-				}
 			}, true);
 		}
 	}
@@ -164,10 +150,10 @@ public class IncrementallyDownloadTask extends CombinedDownloadTask<Version> {
 			hashMapping.put(asset.getHash(), asset);
 		}
 		for (final Asset asset : hashMapping.values()) {
-			context.submit(new Callable<Object>() {
+			context.submit(new Callable<Void>() {
 
 				@Override
-				public Object call() throws Exception {
+				public Void call() throws Exception {
 					if (!asset.isValid(mcdir)) {
 						context.submit(downloadProvider.asset(mcdir, asset), null, false);
 					}

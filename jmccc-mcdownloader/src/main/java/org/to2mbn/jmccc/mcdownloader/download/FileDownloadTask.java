@@ -14,7 +14,7 @@ import org.to2mbn.jmccc.mcdownloader.download.util.FileUtils;
  * 
  * @author yushijinhun
  */
-public class FileDownloadTask extends DownloadTask<Object> {
+public class FileDownloadTask extends DownloadTask<Void> {
 
 	private File target;
 
@@ -58,7 +58,7 @@ public class FileDownloadTask extends DownloadTask<Object> {
 	}
 
 	@Override
-	public DownloadSession<Object> createSession() throws IOException {
+	public DownloadSession<Void> createSession() throws IOException {
 		final File partFile = new File(target.getParentFile(), target.getName() + ".part");
 
 		FileUtils.prepareWrite(partFile);
@@ -66,7 +66,7 @@ public class FileDownloadTask extends DownloadTask<Object> {
 		final FileOutputStream out = new FileOutputStream(partFile);
 		final FileChannel channel = out.getChannel();
 
-		return new DownloadSession<Object>() {
+		return new DownloadSession<Void>() {
 
 			@Override
 			public void receiveData(ByteBuffer data) throws IOException {
@@ -80,7 +80,7 @@ public class FileDownloadTask extends DownloadTask<Object> {
 			}
 
 			@Override
-			public Object completed() throws IOException {
+			public Void completed() throws IOException {
 				close();
 				FileUtils.prepareWrite(target);
 				if (target.exists()) {
