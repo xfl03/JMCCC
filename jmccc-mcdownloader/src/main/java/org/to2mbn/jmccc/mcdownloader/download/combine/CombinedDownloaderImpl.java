@@ -473,6 +473,11 @@ public class CombinedDownloaderImpl implements CombinedDownloader {
 	}
 
 	@Override
+	public <T> Future<T> download(CombinedDownloadTask<T> task, CombinedDownloadCallback<T> callback) {
+		return download(task, callback, 1);
+	}
+
+	@Override
 	public <T> Future<T> download(CombinedDownloadTask<T> task, CombinedDownloadCallback<T> callback, int tries) {
 		Objects.requireNonNull(task);
 		if (tries < 1) {

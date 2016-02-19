@@ -63,14 +63,7 @@ public class MinecraftDownloaderImpl implements MinecraftDownloader {
 
 	@Override
 	public <T> Future<T> download(DownloadTask<T> task, DownloadCallback<T> callback) {
-		Lock lock = shutdownLock.readLock();
-		lock.lock();
-		try {
-			checkShutdown();
-			return downloader.download(task, callback, tries);
-		} finally {
-			lock.unlock();
-		}
+		return download(task, callback, tries);
 	}
 
 	@Override
@@ -83,6 +76,11 @@ public class MinecraftDownloaderImpl implements MinecraftDownloader {
 		} finally {
 			lock.unlock();
 		}
+	}
+
+	@Override
+	public <T> Future<T> download(CombinedDownloadTask<T> task, CombinedDownloadCallback<T> callback) {
+		return download(task, callback, tries);
 	}
 
 	@Override

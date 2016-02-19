@@ -7,8 +7,6 @@ public interface Downloader {
 
 	/**
 	 * Submits a download task asynchronously.
-	 * <p>
-	 * The task won't be retried if the download failed.
 	 * 
 	 * @param task the download task
 	 * @param callback download callback

@@ -11,6 +11,7 @@ import org.to2mbn.jmccc.mcdownloader.download.DownloadCallback;
 import org.to2mbn.jmccc.mcdownloader.download.DownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.MemoryDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.ResultProcessor;
+import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadCallback;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadContext;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.provider.InstallProfileProcessor;
@@ -24,15 +25,15 @@ public class LiteloaderDownloadProvider implements MinecraftDownloadProvider {
 
 	private static final Pattern LITELOADER_VERSION_PATTERN = Pattern.compile("^([\\w\\.\\-]+)-LiteLoader[\\w\\.\\-]+$");
 
-	public DownloadTask<LiteloaderVersionList> liteloaderVersionList() {
+	public CombinedDownloadTask<LiteloaderVersionList> liteloaderVersionList() {
 		try {
-			return new MemoryDownloadTask(new URI("http://dl.liteloader.com/versions/versions.json")).andThen(new ResultProcessor<byte[], LiteloaderVersionList>() {
+			return CombinedDownloadTask.single(new MemoryDownloadTask(new URI("http://dl.liteloader.com/versions/versions.json")).andThen(new ResultProcessor<byte[], LiteloaderVersionList>() {
 
 				@Override
 				public LiteloaderVersionList process(byte[] arg) throws Exception {
 					return LiteloaderVersionList.fromJson(new JSONObject(new String(arg, "UTF-8")));
 				}
-			});
+			}));
 		} catch (URISyntaxException e) {
 			throw new IllegalStateException("unable to convert to URI", e);
 		}
@@ -48,7 +49,7 @@ public class LiteloaderDownloadProvider implements MinecraftDownloadProvider {
 
 			@Override
 			public void execute(final CombinedDownloadContext<Object> context) throws Exception {
-				context.submit(liteloaderVersionList(), new DownloadCallback<LiteloaderVersionList>() {
+				context.submit(liteloaderVersionList(), new CombinedDownloadCallback<LiteloaderVersionList>() {
 
 					@Override
 					public void done(final LiteloaderVersionList versionList) {
@@ -83,12 +84,10 @@ public class LiteloaderDownloadProvider implements MinecraftDownloadProvider {
 					}
 
 					@Override
-					public void updateProgress(long done, long total) {
+					public <R> DownloadCallback<R> taskStart(DownloadTask<R> task) {
+						return null;
 					}
 
-					@Override
-					public void retry(Throwable e, int current, int max) {
-					}
 				}, true);
 			}
 		};
