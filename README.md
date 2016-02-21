@@ -189,8 +189,6 @@ downloader.download(liteloaderProvider.liteloaderVersionList(), new DownloadCall
 ```java
 MinecraftDownloader downloader = MinecraftDownloaderBuilder.create().setProvider(new CustomizedDownloadProvider()).build();
 ```
-If you use a customized download provier, setProvider() must be called before appendProvider().
-
 
 Finally, don't forget to shutdown the downloader.
 ```java
@@ -209,7 +207,7 @@ option.setExtraJvmArguments(Arrays.asList(ExtraArgumentsTemplates.FML_IGNORE_INV
 See [wiki](https://github.com/to2mbn/JMCCC/wiki/Change-logs).
 
 ### Contributing
-Contributing is gooooood. But please read the following requirements first before your PR.
+Contributing is good. But please read the following requirements first before your PR.
 * Use tabs.
 * No trailing whitespaces.
 * No \r\n line endings, \n only.
