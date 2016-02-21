@@ -1,7 +1,10 @@
-package org.to2mbn.jmccc.mcdownloader.download.util;
+package org.to2mbn.jmccc.util;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.channels.FileChannel;
 
 public final class FileUtils {
 
@@ -30,6 +33,15 @@ public final class FileUtils {
 		}
 	}
 	
+	public static void copyFile(File src, File target) throws IOException {
+		prepareWrite(target);
+		try (FileInputStream in = new FileInputStream(src); FileOutputStream out = new FileOutputStream(target)) {
+			FileChannel chin = in.getChannel();
+			FileChannel chout = out.getChannel();
+			chin.transferTo(0, chin.size(), chout);
+		}
+	}
+
 	private FileUtils() {
 	}
 }

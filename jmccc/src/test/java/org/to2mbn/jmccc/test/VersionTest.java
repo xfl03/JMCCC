@@ -1,7 +1,9 @@
 package org.to2mbn.jmccc.test;
 
-import static org.junit.Assert.*;
-import static org.to2mbn.jmccc.test.TestUtils.*;
+import static org.junit.Assert.assertEquals;
+import static org.to2mbn.jmccc.test.TestUtils.entry;
+import static org.to2mbn.jmccc.test.TestUtils.hashMap;
+import static org.to2mbn.jmccc.test.TestUtils.hashSet;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -24,31 +26,30 @@ public class VersionTest extends MinecraftEnvironmentTest {
 	@Parameters
 	public static Collection<Object[]> data() {
 		Object[][] params = new Object[][] {
-				{ "1.6.4", new Version("1.6.4", "release", "net.minecraft.client.main.Main", "legacy", "--username ${auth_player_name} --session ${auth_session} --version ${version_name} --gameDir ${game_directory} --assetsDir ${game_assets}", "1.6.4/1.6.4.jar", hashSet(
+				{ "1.6.4", new Version("1.6.4", "release", "net.minecraft.client.main.Main", "legacy", "--username ${auth_player_name} --session ${auth_session} --version ${version_name} --gameDir ${game_directory} --assetsDir ${game_assets}", "1.6.4", hashSet(
 						new Library("net.sf.jopt-simple", "jopt-simple", "4.5", null),
 						new Library("org.lwjgl.lwjgl", "lwjgl", "2.9.0", null),
 						new Native("org.lwjgl.lwjgl", "lwjgl-platform", "2.9.0", null, "natives-testplatform", hashSet("META-INF/"))), true, null, null),
 						null },
-				{ "16w05b", new Version("16w05b", "snapshot", "net.minecraft.client.main.Main", "1.9", "--username ${auth_player_name} --version ${version_name} --gameDir ${game_directory} --assetsDir ${assets_root} --assetIndex ${assets_index_name} --uuid ${auth_uuid} --accessToken ${auth_access_token} --userType ${user_type} --versionType ${version_type}", "16w05b/16w05b.jar", hashSet(
+				{ "16w05b", new Version("16w05b", "snapshot", "net.minecraft.client.main.Main", "1.9", "--username ${auth_player_name} --version ${version_name} --gameDir ${game_directory} --assetsDir ${assets_root} --assetIndex ${assets_index_name} --uuid ${auth_uuid} --accessToken ${auth_access_token} --userType ${user_type} --versionType ${version_type}", "16w05b", hashSet(
 						new Library("com.mojang", "authlib", "1.5.22", null)), false, new AssetIndexInfo("https://launchermeta.mojang.com/mc-staging/assets/1.9/81f4951679bb400bd031349e278b20b2803dba58/1.9.json", "81f4951679bb400bd031349e278b20b2803dba58", 134402, "1.9", 117237481), hashMap(
 								entry("client", new DownloadInfo("https://launcher.mojang.com/mc/game/16w05b/client/3a07cea3cf6f1198a7db39a8bd3775883fb391be/client.jar", "3a07cea3cf6f1198a7db39a8bd3775883fb391be", 8692004)),
 								entry("server", new DownloadInfo("https://launcher.mojang.com/mc/game/16w05b/server/9fdf8a90055b3cf689265cc30bdd9d1faf2c743c/server.jar", "9fdf8a90055b3cf689265cc30bdd9d1faf2c743c", 8843033)))),
 						null },
-				{ "16w05b_", new Version("16w05b_", "snapshot", "net.minecraft.client.main.Main", "1.9", "--username ${auth_player_name} --version ${version_name} --gameDir ${game_directory} --assetsDir ${assets_root} --assetIndex ${assets_index_name} --uuid ${auth_uuid} --accessToken ${auth_access_token} --userType ${user_type} --versionType ${version_type}", "16w05b_/16w05b_.jar", hashSet(
+				{ "16w05b_", new Version("16w05b_", "snapshot", "net.minecraft.client.main.Main", "1.9", "--username ${auth_player_name} --version ${version_name} --gameDir ${game_directory} --assetsDir ${assets_root} --assetIndex ${assets_index_name} --uuid ${auth_uuid} --accessToken ${auth_access_token} --userType ${user_type} --versionType ${version_type}", "16w05b_", hashSet(
 						new Library("oshi-project", "oshi-core", "1.1", new LibraryInfo("https://libraries.minecraft.net/oshi-project/oshi-core/1.1/oshi-core-1.1.jar", "9ddf7b048a8d701be231c0f4f95fd986198fd2d8", 30973, "oshi-project/oshi-core/1.1/oshi-core-1.1.jar")),
 						new Native("org.lwjgl.lwjgl", "lwjgl-platform", "2.9.4-nightly-20150209", new LibraryInfo("https://libraries.minecraft.net/org/lwjgl/lwjgl/lwjgl-platform/2.9.4-nightly-20150209/lwjgl-platform-2.9.4-nightly-20150209-natives-linux.jar", "931074f46c795d2f7b30ed6395df5715cfd7675b", 578680, "org/lwjgl/lwjgl/lwjgl-platform/2.9.4-nightly-20150209/lwjgl-platform-2.9.4-nightly-20150209-natives-linux.jar"), "natives-testplatform", hashSet("META-INF/"))), false, new AssetIndexInfo("https://launchermeta.mojang.com/mc-staging/assets/1.9/81f4951679bb400bd031349e278b20b2803dba58/1.9.json", "81f4951679bb400bd031349e278b20b2803dba58", 134402, "1.9", 117237481), hashMap(
 								entry("client", new DownloadInfo("https://launcher.mojang.com/mc/game/16w05b/client/3a07cea3cf6f1198a7db39a8bd3775883fb391be/client.jar", "3a07cea3cf6f1198a7db39a8bd3775883fb391be", 8692004)),
 								entry("server", new DownloadInfo("https://launcher.mojang.com/mc/game/16w05b/server/9fdf8a90055b3cf689265cc30bdd9d1faf2c743c/server.jar", "9fdf8a90055b3cf689265cc30bdd9d1faf2c743c", 8843033)))),
 						null },
-				{ "1.8-forge1.8-11.14.3.1514", new Version("1.8-forge1.8-11.14.3.1514", "release", "net.minecraft.launchwrapper.Launch", "1.8", "--username ${auth_player_name} --version ${version_name} --gameDir ${game_directory} --assetsDir ${assets_root} --assetIndex ${assets_index_name} --uuid ${auth_uuid} --accessToken ${auth_access_token} --userProperties ${user_properties} --userType ${user_type} --tweakClass net.minecraftforge.fml.common.launcher.FMLTweaker", "1.8/1.8.jar", hashSet(
+				{ "1.8-forge1.8-11.14.3.1514", new Version("1.8-forge1.8-11.14.3.1514", "release", "net.minecraft.launchwrapper.Launch", "1.8", "--username ${auth_player_name} --version ${version_name} --gameDir ${game_directory} --assetsDir ${assets_root} --assetIndex ${assets_index_name} --uuid ${auth_uuid} --accessToken ${auth_access_token} --userProperties ${user_properties} --userType ${user_type} --tweakClass net.minecraftforge.fml.common.launcher.FMLTweaker", "1.8", hashSet(
 						new Library("net.minecraftforge", "forge", "1.8-11.14.3.1514", null, "http://files.minecraftforge.net/maven/", null),
 						new Library("io.netty", "netty-all", "4.0.15.Final", null),
-						new Library("com.typesafe.akka", "akka-actor_2.11", "2.3.3", null, "http://files.minecraftforge.net/maven/", new String[] { "ed62e9fc709ca0f2ff1a3220daa8b70a2870078e", "25a86ccfdb6f6dfe08971f4825d0a01be83a6f2e" }),
-						new Library("java3d", "vecmath", "1.5.2", null)),
+						new Library("com.typesafe.akka", "akka-actor_2.11", "2.3.3", null, "http://files.minecraftforge.net/maven/", new String[] { "ed62e9fc709ca0f2ff1a3220daa8b70a2870078e", "25a86ccfdb6f6dfe08971f4825d0a01be83a6f2e" })),
 						false, null, null),
 						new String[] { "1.8" }
 				},
-				{ "1.7.10-LiteLoader1.7.10", new Version("1.7.10-LiteLoader1.7.10", "release", "net.minecraft.launchwrapper.Launch", "1.7.10", "--username ${auth_player_name} --version ${version_name} --gameDir ${game_directory} --assetsDir ${assets_root} --assetIndex ${assets_index_name} --uuid ${auth_uuid} --accessToken ${auth_access_token} --userProperties ${user_properties} --userType ${user_type} --tweakClass com.mumfrey.liteloader.launch.LiteLoaderTweaker", "1.7.10/1.7.10.jar", hashSet(
+				{ "1.7.10-LiteLoader1.7.10", new Version("1.7.10-LiteLoader1.7.10", "release", "net.minecraft.launchwrapper.Launch", "1.7.10", "--username ${auth_player_name} --version ${version_name} --gameDir ${game_directory} --assetsDir ${assets_root} --assetIndex ${assets_index_name} --uuid ${auth_uuid} --accessToken ${auth_access_token} --userProperties ${user_properties} --userType ${user_type} --tweakClass com.mumfrey.liteloader.launch.LiteLoaderTweaker", "1.7.10", hashSet(
 						new Library("com.mumfrey", "liteloader", "1.7.10", null, "http://dl.liteloader.com/versions/", null),
 						new Library("net.minecraft", "launchwrapper", "1.11", null),
 						new Library("org.ow2.asm", "asm-all", "5.0.3", null),

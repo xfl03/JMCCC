@@ -16,6 +16,6 @@ import org.to2mbn.jmccc.version.Library;
  */
 public interface LibraryDownloadHandler {
 
-	DownloadTask<Object> createDownloadTask(File target, Library library, URI libraryUri);
+	DownloadTask<Void> createDownloadTask(File target, Library library, URI libraryUri);
 
 }

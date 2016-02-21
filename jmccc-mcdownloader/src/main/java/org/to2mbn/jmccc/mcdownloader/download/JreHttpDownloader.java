@@ -3,6 +3,7 @@ package org.to2mbn.jmccc.mcdownloader.download;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.Proxy;
 import java.net.URLConnection;
 import java.nio.ByteBuffer;
 import java.util.Collections;
@@ -133,7 +134,7 @@ public class JreHttpDownloader implements DownloaderService {
 		}
 
 		T doDownload() throws IOException, InterruptedException, Exception {
-			URLConnection connection = task.getURI().toURL().openConnection();
+			URLConnection connection = task.getURI().toURL().openConnection(proxy);
 			connection.setReadTimeout(readTimeout);
 			connection.setConnectTimeout(connectTimeout);
 			connection.setRequestProperty("Accept", "*/*");
@@ -221,14 +222,16 @@ public class JreHttpDownloader implements DownloaderService {
 	private ExecutorService executor;
 	private int connectTimeout;
 	private int readTimeout;
+	private Proxy proxy;
 
 	private volatile boolean shudown = false;
 	private ReadWriteLock shutdownLock = new ReentrantReadWriteLock();
 	private Set<TaskHandler<?>> tasks = Collections.newSetFromMap(new ConcurrentHashMap<TaskHandler<?>, Boolean>());
 
-	public JreHttpDownloader(int maxConns, int connectTimeout, int readTimeout, long poolThreadLivingTime) {
+	public JreHttpDownloader(int maxConns, int connectTimeout, int readTimeout, long poolThreadLivingTime, Proxy proxy) {
 		this.connectTimeout = connectTimeout;
 		this.readTimeout = readTimeout;
+		this.proxy = proxy;
 		executor = new ThreadPoolExecutor(maxConns, maxConns, poolThreadLivingTime, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
 	}
 

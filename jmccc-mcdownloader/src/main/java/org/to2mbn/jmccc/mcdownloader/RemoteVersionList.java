@@ -32,10 +32,15 @@ public class RemoteVersionList {
 		for (int i = 0; i < jsonVersions.length(); i++) {
 			JSONObject jsonVersion = jsonVersions.getJSONObject(i);
 			String version = jsonVersion.getString("id");
-			String updateTime = jsonVersion.getString("time");
-			String releaseTime = jsonVersion.getString("releaseTime");
-			String type = jsonVersion.getString("type");
-			versions.put(version, new RemoteVersion(version, convertDate(updateTime), convertDate(releaseTime), type));
+			String updateTime = jsonVersion.optString("time", null);
+			String releaseTime = jsonVersion.optString("releaseTime", null);
+			String type = jsonVersion.optString("type", null);
+			String url = jsonVersion.optString("url", null);
+			versions.put(version, new RemoteVersion(version,
+					updateTime == null ? null : convertDate(updateTime),
+					updateTime == null ? null : convertDate(releaseTime),
+					type,
+					url));
 		}
 		return new RemoteVersionList(latestSnapshot, latestRelease, versions);
 	}

@@ -1,10 +1,13 @@
 package org.to2mbn.jmccc.mcdownloader.provider.forge;
 
+import java.io.Serializable;
 import java.util.Objects;
 import org.json.JSONObject;
 
-public class ForgeVersion {
+public class ForgeVersion implements Serializable {
 	
+	private static final long serialVersionUID = 1L;
+
 	public static ForgeVersion fromJson(JSONObject json) {
 		return new ForgeVersion(json.getString("mcversion"), json.getString("version"), json.getInt("build"));
 	}

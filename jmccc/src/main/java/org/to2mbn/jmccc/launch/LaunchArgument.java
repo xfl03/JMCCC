@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import org.to2mbn.jmccc.option.LaunchOption;
+import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.util.Platform;
 import org.to2mbn.jmccc.version.Version;
 
@@ -30,6 +31,7 @@ class LaunchArgument {
 	public String[] generateCommandline() {
 		List<String> args = new ArrayList<>();
 		Version version = launchOption.getVersion();
+		MinecraftDirectory mcdir = launchOption.getMinecraftDirectory();
 
 		// java path
 		args.add(launchOption.getJavaOption().getJavaPath().toString());
@@ -72,7 +74,7 @@ class LaunchArgument {
 		}
 
 		// game jar file
-		cpBuilder.append(new File(launchOption.getMinecraftDirectory().getVersions(), launchOption.getVersion().getJarPath())).append(Platform.getPathSpearator());
+		cpBuilder.append(mcdir.getVersionJar(version.getRoot())).append(Platform.getPathSpearator());
 
 		args.add(cpBuilder.toString());
 		// ==========END==========

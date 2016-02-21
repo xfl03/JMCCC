@@ -35,17 +35,33 @@ abstract public class URIDownloadProvider implements MinecraftDownloadProvider {
 		}
 	});
 
-	abstract protected URI getLibrary(Library library);
+	@Deprecated
+	protected URI getLibrary(Library library) {
+		return null;
+	}
 
-	abstract protected URI getGameJar(Version version);
+	@Deprecated
+	protected URI getGameJar(Version version) {
+		return null;
+	}
 
-	abstract protected URI getGameVersionJson(String version);
+	@Deprecated
+	protected URI getGameVersionJson(String version) {
+		return null;
+	}
 
-	abstract protected URI getAssetIndex(Version version);
+	@Deprecated
+	protected URI getAssetIndex(Version version) {
+		return null;
+	}
 
-	abstract protected URI getVersionList();
+	protected URI getVersionList() {
+		return null;
+	}
 
-	abstract protected URI getAsset(Asset asset);
+	protected URI getAsset(Asset asset) {
+		return null;
+	}
 
 	public URIDownloadProvider() {
 		registerLibraryDownloadHandler(".jar", new JarLibraryDownloadHandler());
@@ -68,41 +84,51 @@ abstract public class URIDownloadProvider implements MinecraftDownloadProvider {
 		}));
 	}
 
+	@Deprecated
 	@Override
 	public CombinedDownloadTask<Set<Asset>> assetsIndex(final MinecraftDirectory mcdir, final Version version) {
 		URI uri = getAssetIndex(version);
 		if (uri == null) {
 			return null;
 		}
-		return CombinedDownloadTask.single(new FileDownloadTask(uri, mcdir.getAssetIndex(version.getAssets())).andThen(new ResultProcessor<Object, Set<Asset>>() {
+		return CombinedDownloadTask.single(new FileDownloadTask(uri, mcdir.getAssetIndex(version.getAssets())).andThen(new ResultProcessor<Void, Set<Asset>>() {
 
 			@Override
-			public Set<Asset> process(Object arg) throws IOException {
+			public Set<Asset> process(Void arg) throws IOException {
 				return Versions.resolveAssets(mcdir, version.getAssets());
 			}
 		}));
 	}
 
+	@Deprecated
 	@Override
-	public CombinedDownloadTask<Object> gameJar(MinecraftDirectory mcdir, Version version) {
+	public CombinedDownloadTask<Void> gameJar(MinecraftDirectory mcdir, Version version) {
 		URI uri = getGameJar(version);
 		if (uri == null) {
 			return null;
 		}
-		return CombinedDownloadTask.single(new FileDownloadTask(uri, mcdir.getVersionJar(version.getVersion())));
+		return CombinedDownloadTask.single(new FileDownloadTask(uri, mcdir.getVersionJar(version.getRoot())));
 	}
 
+	@Deprecated
 	@Override
-	public CombinedDownloadTask<Object> gameVersionJson(MinecraftDirectory mcdir, String version) {
+	public CombinedDownloadTask<String> gameVersionJson(MinecraftDirectory mcdir, final String version) {
 		URI uri = getGameVersionJson(version);
 		if (uri == null) {
 			return null;
 		}
-		return CombinedDownloadTask.single(new FileDownloadTask(uri, mcdir.getVersionJson(version)));
+		return CombinedDownloadTask.single(new FileDownloadTask(uri, mcdir.getVersionJson(version))).andThen(new ResultProcessor<Void, String>() {
+
+			@Override
+			public String process(Void arg) throws Exception {
+				return version;
+			}
+		});
 	}
 
+	@Deprecated
 	@Override
-	public CombinedDownloadTask<Object> library(MinecraftDirectory mcdir, Library library) {
+	public CombinedDownloadTask<Void> library(MinecraftDirectory mcdir, Library library) {
 		URI uri = getLibrary(library);
 		if (uri == null) {
 			return null;
@@ -122,7 +148,7 @@ abstract public class URIDownloadProvider implements MinecraftDownloadProvider {
 	}
 
 	@Override
-	public CombinedDownloadTask<Object> asset(MinecraftDirectory mcdir, Asset asset) {
+	public CombinedDownloadTask<Void> asset(MinecraftDirectory mcdir, Asset asset) {
 		URI uri = getAsset(asset);
 		if (uri == null) {
 			return null;

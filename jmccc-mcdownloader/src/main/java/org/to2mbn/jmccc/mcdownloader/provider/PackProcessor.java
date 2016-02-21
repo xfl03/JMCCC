@@ -22,9 +22,9 @@ import java.util.jar.Pack200.Unpacker;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import org.to2mbn.jmccc.mcdownloader.download.ResultProcessor;
-import org.to2mbn.jmccc.mcdownloader.download.util.FileUtils;
+import org.to2mbn.jmccc.util.FileUtils;
 
-public class PackProcessor implements ResultProcessor<byte[], Object> {
+public class PackProcessor implements ResultProcessor<byte[], Void> {
 
 	private static final byte[] POSTFIX;
 
@@ -44,7 +44,7 @@ public class PackProcessor implements ResultProcessor<byte[], Object> {
 	}
 
 	@Override
-	public Object process(byte[] data) throws IOException, NoSuchAlgorithmException {
+	public Void process(byte[] data) throws IOException, NoSuchAlgorithmException {
 		FileUtils.prepareWrite(target);
 
 		if (data.length < 4 + POSTFIX.length) {

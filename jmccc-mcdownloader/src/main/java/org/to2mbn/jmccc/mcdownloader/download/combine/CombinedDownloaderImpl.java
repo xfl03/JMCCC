@@ -13,6 +13,7 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import org.to2mbn.jmccc.mcdownloader.download.AbstractDownloadCallback;
 import org.to2mbn.jmccc.mcdownloader.download.DownloadCallback;
 import org.to2mbn.jmccc.mcdownloader.download.DownloadCallbackGroup;
 import org.to2mbn.jmccc.mcdownloader.download.DownloadTask;
@@ -179,11 +180,7 @@ public class CombinedDownloaderImpl implements CombinedDownloader {
 						DownloadCallback<R> outsidecallback = TaskHandler.this.callback.taskStart(task);
 						List<DownloadCallback<R>> callbacks = new ArrayList<>();
 						if (fatal) {
-							callbacks.add(new DownloadCallback<R>() {
-
-								@Override
-								public void done(R result) {
-								}
+							callbacks.add(new AbstractDownloadCallback<R>() {
 
 								@Override
 								public void failed(Throwable e) {
@@ -195,13 +192,6 @@ public class CombinedDownloaderImpl implements CombinedDownloader {
 									lifecycleCancel();
 								}
 
-								@Override
-								public void updateProgress(long done, long total) {
-								}
-
-								@Override
-								public void retry(Throwable e, int current, int max) {
-								}
 							});
 						}
 						if (taskcallback != null) {
@@ -210,7 +200,7 @@ public class CombinedDownloaderImpl implements CombinedDownloader {
 						if (outsidecallback != null) {
 							callbacks.add(outsidecallback);
 						}
-						callbacks.add(new DownloadCallback<R>() {
+						callbacks.add(new AbstractDownloadCallback<R>() {
 
 							@Override
 							public void done(R result) {
@@ -227,13 +217,6 @@ public class CombinedDownloaderImpl implements CombinedDownloader {
 								activeTasksCountdown();
 							}
 
-							@Override
-							public void updateProgress(long done, long total) {
-							}
-
-							@Override
-							public void retry(Throwable e, int current, int max) {
-							}
 						});
 
 						@SuppressWarnings("unchecked")
@@ -259,11 +242,7 @@ public class CombinedDownloaderImpl implements CombinedDownloader {
 						List<CombinedDownloadCallback<R>> callbacks = new ArrayList<>();
 
 						if (fatal) {
-							callbacks.add(new CombinedDownloadCallback<R>() {
-
-								@Override
-								public void done(R result) {
-								}
+							callbacks.add(new AbstractCombinedDownloadCallback<R>() {
 
 								@Override
 								public void failed(Throwable e) {
@@ -273,11 +252,6 @@ public class CombinedDownloaderImpl implements CombinedDownloader {
 								@Override
 								public void cancelled() {
 									lifecycleCancel();
-								}
-
-								@Override
-								public <U> DownloadCallback<U> taskStart(DownloadTask<U> task) {
-									return null;
 								}
 
 							});

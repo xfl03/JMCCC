@@ -26,7 +26,7 @@ abstract public class CombinedDownloadTask<T> {
 	 * @return the CombinedDownloadTask
 	 * @throws NullPointerException if <code>tasks == null</code>
 	 */
-	public static CombinedDownloadTask<Object> multiple(DownloadTask<?>... tasks) {
+	public static CombinedDownloadTask<Void> multiple(DownloadTask<?>... tasks) {
 		Objects.requireNonNull(tasks);
 		return new MultipleCombinedDownloadTask(tasks);
 	}

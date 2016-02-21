@@ -1,29 +1,39 @@
 package org.to2mbn.jmccc.mcdownloader.provider.liteloader;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.json.JSONArray;
 import org.json.JSONObject;
-import org.to2mbn.jmccc.mcdownloader.RemoteVersionList;
-import org.to2mbn.jmccc.mcdownloader.download.DownloadCallback;
-import org.to2mbn.jmccc.mcdownloader.download.DownloadTask;
+import org.json.JSONTokener;
 import org.to2mbn.jmccc.mcdownloader.download.MemoryDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.ResultProcessor;
-import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadCallback;
+import org.to2mbn.jmccc.mcdownloader.download.combine.AbstractCombinedDownloadCallback;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadContext;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
-import org.to2mbn.jmccc.mcdownloader.provider.InstallProfileProcessor;
+import org.to2mbn.jmccc.mcdownloader.provider.AbstractMinecraftDownloadProvider;
+import org.to2mbn.jmccc.mcdownloader.provider.ExtendedDownloadProvider;
 import org.to2mbn.jmccc.mcdownloader.provider.MinecraftDownloadProvider;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
-import org.to2mbn.jmccc.version.Asset;
-import org.to2mbn.jmccc.version.Library;
-import org.to2mbn.jmccc.version.Version;
+import org.to2mbn.jmccc.util.FileUtils;
 
-public class LiteloaderDownloadProvider implements MinecraftDownloadProvider {
+public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvider implements ExtendedDownloadProvider {
 
-	private static final Pattern LITELOADER_VERSION_PATTERN = Pattern.compile("^([\\w\\.\\-]+)-LiteLoader[\\w\\.\\-]+$");
+	private static final Pattern LITELOADER_VERSION_PATTERN = Pattern.compile("^([\\w\\.\\-]+)-[lL]ite[lL]oader\\1+$");
+	
+	private MinecraftDownloadProvider upstreamProvider;
 
 	public CombinedDownloadTask<LiteloaderVersionList> liteloaderVersionList() {
 		try {
@@ -40,33 +50,45 @@ public class LiteloaderDownloadProvider implements MinecraftDownloadProvider {
 	}
 
 	@Override
-	public CombinedDownloadTask<Object> gameVersionJson(final MinecraftDirectory mcdir, final String version) {
-		if (!LITELOADER_VERSION_PATTERN.matcher(version).matches()) {
+	public CombinedDownloadTask<String> gameVersionJson(final MinecraftDirectory mcdir, final String version) {
+		Matcher matcher=LITELOADER_VERSION_PATTERN.matcher(version);
+		if (!matcher.matches()) {
 			return null;
 		}
-		final String mcversion = version.substring(0, version.indexOf("-LiteLoader"));
-		return new CombinedDownloadTask<Object>() {
+		final String mcversion = matcher.group(1);
+		return new CombinedDownloadTask<String>() {
 
 			@Override
-			public void execute(final CombinedDownloadContext<Object> context) throws Exception {
-				context.submit(liteloaderVersionList(), new CombinedDownloadCallback<LiteloaderVersionList>() {
+			public void execute(final CombinedDownloadContext<String> context) throws Exception {
+				context.submit(liteloaderVersionList(), new AbstractCombinedDownloadCallback<LiteloaderVersionList>() {
 
 					@Override
 					public void done(final LiteloaderVersionList versionList) {
 						try {
-							context.submit(new Callable<Object>() {
+							context.submit(new Callable<Void>() {
 
 								@Override
-								public Object call() throws Exception {
-									LiteloaderVersion liteloaderVersion = versionList.getLatestArtefact(mcversion);
-									context.submit(new MemoryDownloadTask(new URI("http://dl.liteloader.com/redist/" + mcversion + "/liteloader-installer-" + liteloaderVersion.getLiteloaderVersion().replace('_', '-') + ".jar")).andThen(new InstallProfileProcessor(mcdir.getVersionJson(version))), null, true);
-									context.awaitAllTasks(new Runnable() {
+								public Void call() throws Exception {
+									final LiteloaderVersion liteloaderVersion = versionList.getLatestArtefact(mcversion);
+									context.submit(upstreamProvider.gameVersionJson(mcdir, liteloaderVersion.getMinecraftVersion()), new AbstractCombinedDownloadCallback<String>() {
 
 										@Override
-										public void run() {
-											context.done(null);
+										public void done(String result) {
+											try {
+												context.submit(new Callable<Void>() {
+
+													@Override
+													public Void call() throws Exception {
+														context.done(createLiteloaderVersion(mcdir, liteloaderVersion));
+														return null;
+													}
+												}, null, true);
+											} catch (InterruptedException e) {
+												Thread.currentThread().interrupt();
+											}
 										}
-									});
+
+									}, true);
 									return null;
 								}
 							}, null, true);
@@ -75,47 +97,50 @@ public class LiteloaderDownloadProvider implements MinecraftDownloadProvider {
 						}
 					}
 
-					@Override
-					public void failed(Throwable e) {
-					}
-
-					@Override
-					public void cancelled() {
-					}
-
-					@Override
-					public <R> DownloadCallback<R> taskStart(DownloadTask<R> task) {
-						return null;
-					}
-
 				}, true);
 			}
 		};
 	}
 
 	@Override
-	public CombinedDownloadTask<RemoteVersionList> versionList() {
-		return null;
+	public void setUpstreamProvider(MinecraftDownloadProvider upstreamProvider) {
+		this.upstreamProvider = upstreamProvider;
 	}
 
-	@Override
-	public CombinedDownloadTask<Set<Asset>> assetsIndex(MinecraftDirectory mcdir, Version version) {
-		return null;
-	}
+	private String createLiteloaderVersion(MinecraftDirectory mcdir, LiteloaderVersion liteloader) throws IOException {
+		String mcversion = liteloader.getMinecraftVersion();
+		JSONObject versionjson;
+		try (Reader reader = new InputStreamReader(new BufferedInputStream(new FileInputStream(mcdir.getVersionJson(mcversion))), "UTF-8")) {
+			versionjson = new JSONObject(new JSONTokener(reader));
+		}
 
-	@Override
-	public CombinedDownloadTask<Object> gameJar(MinecraftDirectory mcdir, Version version) {
-		return null;
-	}
+		String version = String.format("%s-LiteLoader%s", mcversion, mcversion);
+		String minecraftArguments = String.format("%s --tweakClass %s", versionjson.getString("minecraftArguments"), liteloader.getTweakClass());
+		JSONArray libraries = new JSONArray();
+		JSONObject liteloaderLibrary = new JSONObject();
+		liteloaderLibrary.put("name", String.format("com.mumfrey:liteloader:%s", mcversion));
+		liteloaderLibrary.put("url", "http://dl.liteloader.com/versions/");
+		libraries.put(liteloaderLibrary);
+		for (JSONObject library : liteloader.getLibraries()) {
+			libraries.put(library);
+		}
 
-	@Override
-	public CombinedDownloadTask<Object> library(MinecraftDirectory mcdir, Library library) {
-		return null;
-	}
+		versionjson.put("inheritsFrom", mcversion);
+		versionjson.put("minecraftArguments", minecraftArguments);
+		versionjson.put("mainClass", "net.minecraft.launchwrapper.Launch");
+		versionjson.put("id", version);
+		versionjson.put("libraries", libraries);
+		versionjson.remove("downloads");
+		versionjson.remove("assets");
+		versionjson.remove("assetIndex");
 
-	@Override
-	public CombinedDownloadTask<Object> asset(MinecraftDirectory mcdir, Asset asset) {
-		return null;
+		File target = mcdir.getVersionJson(version);
+		FileUtils.prepareWrite(target);
+		try (Writer writer = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(target)), "UTF-8")) {
+			writer.write(versionjson.toString(4));
+		}
+
+		return version;
 	}
 
 }

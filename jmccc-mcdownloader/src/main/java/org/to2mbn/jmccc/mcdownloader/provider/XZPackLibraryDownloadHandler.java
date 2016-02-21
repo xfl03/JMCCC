@@ -8,13 +8,13 @@ import java.net.URI;
 import org.to2mbn.jmccc.mcdownloader.download.DownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.MemoryDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.ResultProcessor;
-import org.tukaani.xz.XZInputStream;
 import org.to2mbn.jmccc.version.Library;
+import org.tukaani.xz.XZInputStream;
 
 public class XZPackLibraryDownloadHandler implements LibraryDownloadHandler {
 
 	@Override
-	public DownloadTask<Object> createDownloadTask(File target, Library library, URI libraryUri) {
+	public DownloadTask<Void> createDownloadTask(File target, Library library, URI libraryUri) {
 		return new MemoryDownloadTask(libraryUri).andThen(new ResultProcessor<byte[], byte[]>() {
 
 			@Override
