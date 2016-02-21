@@ -1,6 +1,8 @@
 package org.to2mbn.jmccc.mcdownloader;
 
+import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -8,6 +10,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import org.apache.http.HttpHost;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.apache.http.impl.nio.reactor.IOReactorConfig;
@@ -93,34 +96,88 @@ public class MinecraftDownloaderBuilder {
 		return this;
 	}
 
-	public void setUseVersionDownloadInfo(boolean useVersionDownloadInfo) {
+	public MinecraftDownloaderBuilder setUseVersionDownloadInfo(boolean useVersionDownloadInfo) {
 		this.useVersionDownloadInfo = useVersionDownloadInfo;
+		return this;
 	}
 
-	public void setProxy(Proxy proxy) {
+	public MinecraftDownloaderBuilder setProxy(Proxy proxy) {
 		Objects.requireNonNull(proxy);
 		this.proxy = proxy;
+		return this;
 	}
 
 	public MinecraftDownloader build() {
-		MinecraftDownloadProvider provider = resolveProvider();
+		ExecutorService executor = null;
+		DownloaderService downloader = null;
+		MinecraftDownloader mcdownloader = null;
 
-		ExecutorService executor = new ThreadPoolExecutor(poolMaxThreads, poolMaxThreads, poolThreadLivingTime, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
+		try {
+			MinecraftDownloadProvider provider = resolveProvider();
 
-		// TODO: setup the proxy
-		DownloaderService downloader;
-		if (!disableApacheHttpAsyncClient && isApacheHttpAsyncClientAvailable()) {
-			HttpAsyncClientBuilder httpClientBuilder = HttpAsyncClientBuilder.create()
-					.setMaxConnTotal(maxConnections)
-					.setMaxConnPerRoute(maxConnectionsPerRouter)
-					.setDefaultIOReactorConfig(IOReactorConfig.custom().setConnectTimeout(connectTimeout).setSoTimeout(soTimeout).build())
-					.setDefaultRequestConfig(RequestConfig.custom().setConnectTimeout(connectTimeout).setSocketTimeout(soTimeout).build());
-			downloader = new HttpAsyncDownloader(httpClientBuilder, executor);
-		} else {
-			downloader = new JreHttpDownloader(maxConnections, connectTimeout, soTimeout, poolThreadLivingTime);
+			executor = new ThreadPoolExecutor(poolMaxThreads, poolMaxThreads, poolThreadLivingTime, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
+
+			if (!disableApacheHttpAsyncClient && isApacheHttpAsyncClientAvailable()) {
+				HttpHost proxyHost = resolveProxy();
+				HttpAsyncClientBuilder httpClientBuilder = HttpAsyncClientBuilder.create()
+						.setMaxConnTotal(maxConnections)
+						.setMaxConnPerRoute(maxConnectionsPerRouter)
+						.setProxy(proxyHost)
+						.setDefaultIOReactorConfig(IOReactorConfig.custom()
+								.setConnectTimeout(connectTimeout)
+								.setSoTimeout(soTimeout)
+								.build())
+						.setDefaultRequestConfig(RequestConfig.custom()
+								.setConnectTimeout(connectTimeout)
+								.setSocketTimeout(soTimeout)
+								.setProxy(proxyHost)
+								.build());
+				downloader = new HttpAsyncDownloader(httpClientBuilder, executor);
+			} else {
+				downloader = new JreHttpDownloader(maxConnections, connectTimeout, soTimeout, poolThreadLivingTime, proxy);
+			}
+
+			mcdownloader = new MinecraftDownloaderImpl(downloader, executor, provider, defaultTries);
+		} catch (Throwable e) {
+			if (executor != null) {
+				try {
+					executor.shutdown();
+				} catch (Throwable e1) {
+					e.addSuppressed(e1);
+				}
+			}
+			if (downloader != null) {
+				try {
+					downloader.shutdown();
+				} catch (Throwable e1) {
+					e.addSuppressed(e1);
+				}
+			}
+			if (mcdownloader != null) {
+				try {
+					mcdownloader.shutdown();
+				} catch (Throwable e1) {
+					e.addSuppressed(e1);
+				}
+			}
+			throw e;
 		}
 
-		return new MinecraftDownloaderImpl(downloader, executor, provider, defaultTries);
+		return mcdownloader;
+	}
+
+	private HttpHost resolveProxy() {
+		if (proxy.type() == Proxy.Type.DIRECT) {
+			return null;
+		}
+		if (proxy.type() == Proxy.Type.HTTP) {
+			SocketAddress socketAddress = proxy.address();
+			if (socketAddress instanceof InetSocketAddress) {
+				InetSocketAddress inetSocketAddress = (InetSocketAddress) socketAddress;
+				return new HttpHost(inetSocketAddress.getAddress(), inetSocketAddress.getPort());
+			}
+		}
+		throw new IllegalArgumentException("Proxy '" + proxy + "' is not supported");
 	}
 
 	private static boolean isApacheHttpAsyncClientAvailable() {
