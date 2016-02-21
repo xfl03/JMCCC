@@ -22,7 +22,9 @@ import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadContext;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.provider.MinecraftDownloadProvider;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
+import org.to2mbn.jmccc.util.ChecksumUtils;
 import org.to2mbn.jmccc.version.Asset;
+import org.to2mbn.jmccc.version.DownloadInfo;
 import org.to2mbn.jmccc.version.Library;
 import org.to2mbn.jmccc.version.Version;
 import org.to2mbn.jmccc.version.Versions;
@@ -32,17 +34,21 @@ public class IncrementallyDownloadTask extends CombinedDownloadTask<Version> {
 	private MinecraftDirectory mcdir;
 	private String version;
 	private MinecraftDownloadProvider downloadProvider;
+	private boolean checkLibrariesHash;
+	private boolean checkAssetsHash;
 
 	private Set<String> handledVersions = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
 	private String resolvedVersion;
 
-	public IncrementallyDownloadTask(MinecraftDownloadProvider downloadProvider, MinecraftDirectory mcdir, String version) {
+	public IncrementallyDownloadTask(MinecraftDownloadProvider downloadProvider, MinecraftDirectory mcdir, String version, boolean checkLibrariesHash, boolean checkAssetsHash) {
 		Objects.requireNonNull(mcdir);
 		Objects.requireNonNull(version);
 		Objects.requireNonNull(downloadProvider);
 		this.mcdir = mcdir;
 		this.version = version;
 		this.downloadProvider = downloadProvider;
+		this.checkLibrariesHash = checkLibrariesHash;
+		this.checkAssetsHash = checkAssetsHash;
 	}
 
 	@Override
@@ -59,12 +65,7 @@ public class IncrementallyDownloadTask extends CombinedDownloadTask<Version> {
 				}
 
 				final Version ver = Versions.resolveVersion(mcdir, resolvedVersion);
-				if (!mcdir.getVersionJar(ver.getRoot()).exists()) {
-					context.submit(downloadProvider.gameJar(mcdir, ver), null, true);
-				}
-				for (Library library : ver.getMissingLibraries(mcdir)) {
-					context.submit(downloadProvider.library(mcdir, library), null, true);
-				}
+
 				if (mcdir.getAssetIndex(ver.getAssets()).exists()) {
 					downloadAssets(context, Versions.resolveAssets(mcdir, ver.getAssets()));
 				} else {
@@ -88,6 +89,13 @@ public class IncrementallyDownloadTask extends CombinedDownloadTask<Version> {
 
 					}, true);
 				}
+
+				if (!mcdir.getVersionJar(ver.getRoot()).exists()) {
+					context.submit(downloadProvider.gameJar(mcdir, ver), null, true);
+				}
+
+				downloadLibraries(context, ver);
+
 				context.awaitAllTasks(new Runnable() {
 
 					@Override
@@ -142,25 +150,57 @@ public class IncrementallyDownloadTask extends CombinedDownloadTask<Version> {
 		}
 	}
 
-	private void downloadAssets(final CombinedDownloadContext<Version> context, Set<Asset> assets) throws NoSuchAlgorithmException, IOException, InterruptedException {
+	private void downloadAssets(final CombinedDownloadContext<Version> context, Set<Asset> assets) throws InterruptedException {
 		Map<String, Asset> hashMapping = new HashMap<>();
 		for (Asset asset : assets) {
 			// put the assets into a map
 			// to remove the elements which has the same hash
 			hashMapping.put(asset.getHash(), asset);
 		}
-		for (final Asset asset : hashMapping.values()) {
-			context.submit(new Callable<Void>() {
 
-				@Override
-				public Void call() throws Exception {
-					if (!asset.isValid(mcdir)) {
-						context.submit(downloadProvider.asset(mcdir, asset), null, false);
+		if (checkAssetsHash)
+			for (final Asset asset : hashMapping.values())
+				context.submit(new Callable<Void>() {
+
+					@Override
+					public Void call() throws Exception {
+						if (!asset.isValid(mcdir))
+							context.submit(downloadProvider.asset(mcdir, asset), null, false);
+
+						return null;
 					}
-					return null;
-				}
-			}, null, false);
-		}
+				}, null, false);
+
+		else
+			for (Asset asset : hashMapping.values())
+				if (!new File(mcdir.getAssetObjects(), asset.getPath()).isFile())
+					context.submit(downloadProvider.asset(mcdir, asset), null, false);
+	}
+
+	private void downloadLibraries(final CombinedDownloadContext<Version> context, Version version) throws InterruptedException {
+		if (checkLibrariesHash)
+			for (final Library library : version.getLibraries())
+				context.submit(new Callable<Void>() {
+
+					@Override
+					public Void call() throws Exception {
+						if (needDownload(new File(mcdir.getLibraries(), library.getPath()), library.getDownloadInfo()))
+							context.submit(downloadProvider.library(mcdir, library), null, true);
+
+						return null;
+					}
+				}, null, true);
+
+		else
+			for (Library library : version.getMissingLibraries(mcdir))
+				context.submit(downloadProvider.library(mcdir, library), null, true);
+	}
+
+	private boolean needDownload(File target, DownloadInfo info) throws NoSuchAlgorithmException, IOException {
+		if (info == null)
+			return !target.isFile();
+		else
+			return !ChecksumUtils.verify(target, info.getChecksum(), "SHA-1", info.getSize());
 	}
 
 	private JSONObject readJson(File file) throws IOException, JSONException {

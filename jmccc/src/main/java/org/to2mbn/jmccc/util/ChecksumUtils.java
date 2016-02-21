@@ -11,7 +11,7 @@ import java.util.Objects;
 
 public final class ChecksumUtils {
 
-	public static byte[] computeChecksum(InputStream in, String algorithm) throws IOException, NoSuchAlgorithmException {
+	public static byte[] compute(InputStream in, String algorithm) throws IOException, NoSuchAlgorithmException {
 		Objects.requireNonNull(in);
 		Objects.requireNonNull(algorithm);
 
@@ -24,41 +24,42 @@ public final class ChecksumUtils {
 		return checksum.digest();
 	}
 
-	public static byte[] computeChecksum(File file, String algorithm) throws IOException, NoSuchAlgorithmException {
+	public static byte[] compute(File file, String algorithm) throws IOException, NoSuchAlgorithmException {
 		Objects.requireNonNull(file);
 		Objects.requireNonNull(algorithm);
 
 		try (InputStream in = new FileInputStream(file)) {
-			return computeChecksum(in, algorithm);
+			return compute(in, algorithm);
 		}
 	}
 
-	public static boolean verifyChecksum(File file, byte[] checksum, String algorithm, long size) throws IOException, NoSuchAlgorithmException {
+	public static boolean verify(File file, byte[] checksum, String algorithm, long size) throws IOException, NoSuchAlgorithmException {
 		Objects.requireNonNull(file);
-		Objects.requireNonNull(checksum);
-		Objects.requireNonNull(algorithm);
+		if (checksum != null)
+			Objects.requireNonNull(algorithm);
 
-		if (!file.isFile()) {
+		if (!file.isFile())
 			return false;
-		}
 
-		if (size != -1 && file.length() != size) {
+		if (size != -1 && file.length() != size)
 			return false;
-		}
 
-		return Arrays.equals(checksum, computeChecksum(file, algorithm));
+		if (checksum != null)
+			return Arrays.equals(checksum, compute(file, algorithm));
+		else
+			return true;
 	}
 
-	public static boolean verifyChecksum(File file, String checksum, String algorithm, long size) throws IOException, NoSuchAlgorithmException {
-		return verifyChecksum(file, HexUtils.hexToBytes(checksum), algorithm, size);
+	public static boolean verify(File file, String checksum, String algorithm, long size) throws IOException, NoSuchAlgorithmException {
+		return verify(file, checksum == null ? null : HexUtils.hexToBytes(checksum), algorithm, size);
 	}
 
-	public static boolean verifyChecksum(File file, byte[] checksum, String algorithm) throws IOException, NoSuchAlgorithmException {
-		return verifyChecksum(file, checksum, algorithm, -1);
+	public static boolean verify(File file, byte[] checksum, String algorithm) throws IOException, NoSuchAlgorithmException {
+		return verify(file, checksum, algorithm, -1);
 	}
 
-	public static boolean verifyChecksum(File file, String checksum, String algorithm) throws IOException, NoSuchAlgorithmException {
-		return verifyChecksum(file, checksum, algorithm, -1);
+	public static boolean verify(File file, String checksum, String algorithm) throws IOException, NoSuchAlgorithmException {
+		return verify(file, checksum, algorithm, -1);
 	}
 
 	private ChecksumUtils() {

@@ -104,7 +104,7 @@ public class Asset implements Serializable {
 	 */
 	public boolean isValid(MinecraftDirectory dir) throws IOException, NoSuchAlgorithmException {
 		File file = new File(dir.getAssetObjects(), getPath());
-		return ChecksumUtils.verifyChecksum(file, getHash(), "SHA-1", size);
+		return ChecksumUtils.verify(file, getHash(), "SHA-1", size);
 	}
 
 	@Override

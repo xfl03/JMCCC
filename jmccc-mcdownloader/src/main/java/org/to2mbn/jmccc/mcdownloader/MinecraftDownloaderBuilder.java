@@ -40,6 +40,8 @@ public class MinecraftDownloaderBuilder {
 	private boolean disableApacheHttpAsyncClient = false;
 	private boolean useVersionDownloadInfo = true;
 	private Proxy proxy = Proxy.NO_PROXY;
+	private boolean checkLibrariesHash = true;
+	private boolean checkAssetsHash = true;
 
 	protected MinecraftDownloaderBuilder() {
 	}
@@ -107,6 +109,16 @@ public class MinecraftDownloaderBuilder {
 		return this;
 	}
 
+	public MinecraftDownloaderBuilder setCheckLibrariesHash(boolean checkLibrariesHash) {
+		this.checkLibrariesHash = checkLibrariesHash;
+		return this;
+	}
+
+	public MinecraftDownloaderBuilder setCheckAssetsHash(boolean checkAssetsHash) {
+		this.checkAssetsHash = checkAssetsHash;
+		return this;
+	}
+
 	public MinecraftDownloader build() {
 		ExecutorService executor = null;
 		DownloaderService downloader = null;
@@ -137,7 +149,7 @@ public class MinecraftDownloaderBuilder {
 				downloader = new JreHttpDownloader(maxConnections, connectTimeout, soTimeout, poolThreadLivingTime, proxy);
 			}
 
-			mcdownloader = new MinecraftDownloaderImpl(downloader, executor, provider, defaultTries);
+			mcdownloader = new MinecraftDownloaderImpl(downloader, executor, provider, defaultTries, checkLibrariesHash, checkAssetsHash);
 		} catch (Throwable e) {
 			if (executor != null) {
 				try {

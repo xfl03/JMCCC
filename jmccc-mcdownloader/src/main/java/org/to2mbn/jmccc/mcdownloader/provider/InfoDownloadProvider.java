@@ -130,7 +130,7 @@ public class InfoDownloadProvider extends AbstractMinecraftDownloadProvider impl
 
 				@Override
 				public Void process(Void arg) throws Exception {
-					if (!ChecksumUtils.verifyChecksum(target, info.getChecksum(), "SHA-1", info.getSize())) {
+					if (!ChecksumUtils.verify(target, info.getChecksum(), "SHA-1", info.getSize())) {
 						throw new IOException("checksums mismatch");
 					}
 					return null;
