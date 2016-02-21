@@ -1,7 +1,9 @@
 package org.to2mbn.jmccc.mcdownloader;
 
+import java.net.Proxy;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -12,82 +14,12 @@ import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import org.to2mbn.jmccc.mcdownloader.download.DownloaderService;
 import org.to2mbn.jmccc.mcdownloader.download.HttpAsyncDownloader;
 import org.to2mbn.jmccc.mcdownloader.download.JreHttpDownloader;
-import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
+import org.to2mbn.jmccc.mcdownloader.provider.ExtendedDownloadProvider;
 import org.to2mbn.jmccc.mcdownloader.provider.InfoDownloadProvider;
 import org.to2mbn.jmccc.mcdownloader.provider.MinecraftDownloadProvider;
 import org.to2mbn.jmccc.mcdownloader.provider.MojangDownloadProvider;
-import org.to2mbn.jmccc.option.MinecraftDirectory;
-import org.to2mbn.jmccc.version.Asset;
-import org.to2mbn.jmccc.version.Library;
-import org.to2mbn.jmccc.version.Version;
 
 public class MinecraftDownloaderBuilder {
-
-	private static class AppendedDownloadProvider implements MinecraftDownloadProvider {
-
-		MinecraftDownloadProvider prev;
-		MinecraftDownloadProvider current;
-
-		AppendedDownloadProvider(MinecraftDownloadProvider prev, MinecraftDownloadProvider current) {
-			this.prev = prev;
-			this.current = current;
-		}
-
-		@Override
-		public CombinedDownloadTask<RemoteVersionList> versionList() {
-			CombinedDownloadTask<RemoteVersionList> result = current.versionList();
-			if (result == null) {
-				result = prev.versionList();
-			}
-			return result;
-		}
-
-		@Override
-		public CombinedDownloadTask<Set<Asset>> assetsIndex(MinecraftDirectory mcdir, Version version) {
-			CombinedDownloadTask<Set<Asset>> result = current.assetsIndex(mcdir, version);
-			if (result == null) {
-				result = prev.assetsIndex(mcdir, version);
-			}
-			return result;
-		}
-
-		@Override
-		public CombinedDownloadTask<Void> gameJar(MinecraftDirectory mcdir, Version version) {
-			CombinedDownloadTask<Void> result = current.gameJar(mcdir, version);
-			if (result == null) {
-				result = prev.gameJar(mcdir, version);
-			}
-			return result;
-		}
-
-		@Override
-		public CombinedDownloadTask<String> gameVersionJson(MinecraftDirectory mcdir, String version) {
-			CombinedDownloadTask<String> result = current.gameVersionJson(mcdir, version);
-			if (result == null) {
-				result = prev.gameVersionJson(mcdir, version);
-			}
-			return result;
-		}
-
-		@Override
-		public CombinedDownloadTask<Void> library(MinecraftDirectory mcdir, Library library) {
-			CombinedDownloadTask<Void> result = current.library(mcdir, library);
-			if (result == null) {
-				result = prev.library(mcdir, library);
-			}
-			return result;
-		}
-
-		@Override
-		public CombinedDownloadTask<Void> asset(MinecraftDirectory mcdir, Asset asset) {
-			CombinedDownloadTask<Void> result = current.asset(mcdir, asset);
-			if (result == null) {
-				result = prev.asset(mcdir, asset);
-			}
-			return result;
-		}
-
-	}
 
 	public static MinecraftDownloaderBuilder create() {
 		return new MinecraftDownloaderBuilder();
@@ -95,7 +27,8 @@ public class MinecraftDownloaderBuilder {
 
 	private int maxConnections = 50;
 	private int maxConnectionsPerRouter = 10;
-	private MinecraftDownloadProvider provider = new MojangDownloadProvider();
+	private MinecraftDownloadProvider baseProvider = new MojangDownloadProvider();
+	private List<MinecraftDownloadProvider> appendProviders = new ArrayList<>();
 	private int poolMaxThreads = Runtime.getRuntime().availableProcessors();
 	private long poolThreadLivingTime = 1000 * 10;
 	private int defaultTries = 3;
@@ -103,6 +36,7 @@ public class MinecraftDownloaderBuilder {
 	private int soTimeout = 30000;
 	private boolean disableApacheHttpAsyncClient = false;
 	private boolean useVersionDownloadInfo = true;
+	private Proxy proxy = Proxy.NO_PROXY;
 
 	protected MinecraftDownloaderBuilder() {
 	}
@@ -117,9 +51,9 @@ public class MinecraftDownloaderBuilder {
 		return this;
 	}
 
-	public MinecraftDownloaderBuilder setProvider(MinecraftDownloadProvider provider) {
-		Objects.requireNonNull(provider);
-		this.provider = provider;
+	public MinecraftDownloaderBuilder setBaseProvider(MinecraftDownloadProvider baseprovider) {
+		Objects.requireNonNull(baseprovider);
+		this.baseProvider = baseprovider;
 		return this;
 	}
 
@@ -150,7 +84,7 @@ public class MinecraftDownloaderBuilder {
 
 	public MinecraftDownloaderBuilder appendProvider(MinecraftDownloadProvider appendProvider) {
 		Objects.requireNonNull(appendProvider);
-		provider = new AppendedDownloadProvider(provider, appendProvider);
+		appendProviders.add(appendProvider);
 		return this;
 	}
 
@@ -163,14 +97,17 @@ public class MinecraftDownloaderBuilder {
 		this.useVersionDownloadInfo = useVersionDownloadInfo;
 	}
 
+	public void setProxy(Proxy proxy) {
+		Objects.requireNonNull(proxy);
+		this.proxy = proxy;
+	}
+
 	public MinecraftDownloader build() {
-		MinecraftDownloadProvider provider = this.provider;
-		if (useVersionDownloadInfo) {
-			provider = new AppendedDownloadProvider(provider, new InfoDownloadProvider(provider));
-		}
+		MinecraftDownloadProvider provider = resolveProvider();
 
 		ExecutorService executor = new ThreadPoolExecutor(poolMaxThreads, poolMaxThreads, poolThreadLivingTime, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
 
+		// TODO: setup the proxy
 		DownloaderService downloader;
 		if (!disableApacheHttpAsyncClient && isApacheHttpAsyncClientAvailable()) {
 			HttpAsyncClientBuilder httpClientBuilder = HttpAsyncClientBuilder.create()
@@ -194,4 +131,103 @@ public class MinecraftDownloaderBuilder {
 		}
 		return true;
 	}
+
+	/*
+	 * Provider Model:
+	 * 
+	 * <Beginning(p1~p2)> <---------------Mid(p3~p6)------------------------->  <End(p7)>
+	 * p1======>p2========>p3=======================>p4=========>p5======>p6======>p7
+	 *  |  /|\   |  /|\     |               /||\      |    /||\  ............
+	 *  |___|    |___|     \|/               ||      \|/    ||   ............
+	 *                    p3.1(same as p1)   ||      p4.1   ||   ............
+	 *                      ||               ||       ||    ||   ............
+	 *                     \||/              ||      \||/   ||
+	 *                    p3.2(same as p2)   ||      p4.2   ||
+	 *                     \||/              ||      \||/   ||
+	 *                      ||_______________||       ||____||
+	 *                      |_________________|       |______|
+	 * ====>    parent is
+	 * ---->    upstream is
+	 * 
+	 * In binary tree:
+	 * 
+	 * Beginning:
+	 *                           *
+	 *                         /   \
+	 *                       p1 =>  *
+	 *                            /   \
+	 *                          p2 =>  ?(next)
+	 * =>    upstream is
+	 * 
+	 * Full:
+	 *     beginning---------\
+	 *                        \--------------->*
+	 *                                        / \
+	 *                                       /   \
+	 *                                      /     \
+	 *                                     /       \
+	 *                                    /         \
+	 *                                   /           \
+	 *                                  /             \
+	 *                                p3 =>beginning-> *
+	 *                                                / \
+	 *                                               /   \
+	 *                                              /     \
+	 *                                             /       \
+	 *                                            /         \
+	 *                                           /           \
+	 *                                          /             \
+	 *                                        p4 =>beginning-> *
+	 *                                                        / \
+	 *                                                       /   \
+	 *                                                      /     \
+	 *                                                     /       \
+	 *                                                    /         \
+	 *                                                   /           \
+	 *                                                  /             \
+	 *                                                p5 =>beginning-> *
+	 *                                                                / \
+	 *                                                               /   \
+	 *                                                              /     \
+	 *                                                             /       \
+	 *                                                            /         \
+	 *                                                           /           \
+	 *                                                          /             \
+	 *                                                        p6 =>beginning-> p7
+	 * =>    upstream is
+	 * ->    the '?' refers to (see 'Beginning' above)
+	 * 
+	 * In such a binary tree, all the left trees are leaves. All the right trees(except the right tree in the deepest level) are NOT leaves.
+	 * The leaves are DownloadProviders. When resolving download tasks, we first try the left tree, and then the right tree.
+	 */
+
+	private MinecraftDownloadProvider resolveProvider() {
+		MinecraftDownloadProvider right = baseProvider;
+		for (MinecraftDownloadProvider left : appendProviders) {
+			if (left instanceof ExtendedDownloadProvider) {
+				((ExtendedDownloadProvider) left).setUpstreamProvider(resolveBeginningProvider(right));
+			}
+			right = new AppendedDownloadProvider(left, right);
+		}
+		right = resolveBeginningProvider(right);
+		return right;
+	}
+
+	private MinecraftDownloadProvider resolveBeginningProvider(MinecraftDownloadProvider right) {
+		for (MinecraftDownloadProvider left : createBeginningProviders()) {
+			if (left instanceof ExtendedDownloadProvider) {
+				((ExtendedDownloadProvider) left).setUpstreamProvider(right);
+			}
+			right = new AppendedDownloadProvider(left, right);
+		}
+		return right;
+	}
+
+	protected List<MinecraftDownloadProvider> createBeginningProviders() {
+		List<MinecraftDownloadProvider> providers = new ArrayList<>();
+		if (useVersionDownloadInfo)
+			providers.add(new InfoDownloadProvider());
+		return providers;
+	}
+
 }

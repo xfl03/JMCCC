@@ -1,9 +1,12 @@
 package org.to2mbn.jmccc.mcdownloader.provider.liteloader;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class LiteloaderVersionList {
@@ -20,7 +23,19 @@ public class LiteloaderVersionList {
 				for (String artefactId : (Set<String>) liteloaderArtefactsJson.keySet()) {
 					JSONObject artefactJson = liteloaderArtefactsJson.getJSONObject(artefactId);
 					String liteloaderVersion = artefactJson.getString("version");
-					artefacts.put(artefactId, new LiteloaderVersion(mcversion, liteloaderVersion));
+					String file = artefactJson.optString("file", null);
+					String md5 = artefactJson.optString("md5", null);
+					String timestampStr = artefactJson.optString("timestamp", null);
+					Long timestamp = timestampStr == null ? null : Long.valueOf(timestampStr);
+					String tweakClass = artefactJson.optString("tweakClass", null);
+					JSONArray librariesJson = artefactJson.optJSONArray("libraries");
+					Set<JSONObject> libraries = null;
+					if (librariesJson != null) {
+						libraries = new HashSet<>();
+						for (int i = 0; i < librariesJson.length(); i++)
+							libraries.add(librariesJson.getJSONObject(i));
+					}
+					artefacts.put(artefactId, new LiteloaderVersion(mcversion, liteloaderVersion, file, md5, timestamp, tweakClass, Collections.unmodifiableSet(libraries)));
 				}
 				versions.put(mcversion, artefacts);
 			}
@@ -30,7 +45,7 @@ public class LiteloaderVersionList {
 
 	/**
 	 * The outside map's key is the minecraft version, value is the artifacts.
-	 * The inside map's key is the artefact name, value is artifact.
+	 * The inside map's key is the artifact name, value is artifact.
 	 */
 	private Map<String, Map<String, LiteloaderVersion>> versions;
 

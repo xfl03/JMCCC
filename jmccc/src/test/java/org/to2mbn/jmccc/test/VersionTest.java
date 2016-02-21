@@ -45,8 +45,7 @@ public class VersionTest extends MinecraftEnvironmentTest {
 				{ "1.8-forge1.8-11.14.3.1514", new Version("1.8-forge1.8-11.14.3.1514", "release", "net.minecraft.launchwrapper.Launch", "1.8", "--username ${auth_player_name} --version ${version_name} --gameDir ${game_directory} --assetsDir ${assets_root} --assetIndex ${assets_index_name} --uuid ${auth_uuid} --accessToken ${auth_access_token} --userProperties ${user_properties} --userType ${user_type} --tweakClass net.minecraftforge.fml.common.launcher.FMLTweaker", "1.8", hashSet(
 						new Library("net.minecraftforge", "forge", "1.8-11.14.3.1514", null, "http://files.minecraftforge.net/maven/", null),
 						new Library("io.netty", "netty-all", "4.0.15.Final", null),
-						new Library("com.typesafe.akka", "akka-actor_2.11", "2.3.3", null, "http://files.minecraftforge.net/maven/", new String[] { "ed62e9fc709ca0f2ff1a3220daa8b70a2870078e", "25a86ccfdb6f6dfe08971f4825d0a01be83a6f2e" }),
-						new Library("java3d", "vecmath", "1.5.2", null)),
+						new Library("com.typesafe.akka", "akka-actor_2.11", "2.3.3", null, "http://files.minecraftforge.net/maven/", new String[] { "ed62e9fc709ca0f2ff1a3220daa8b70a2870078e", "25a86ccfdb6f6dfe08971f4825d0a01be83a6f2e" })),
 						false, null, null),
 						new String[] { "1.8" }
 				},

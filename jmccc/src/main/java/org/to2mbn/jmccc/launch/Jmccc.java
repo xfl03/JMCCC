@@ -7,7 +7,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.channels.FileChannel;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -23,6 +22,7 @@ import org.to2mbn.jmccc.exec.LoggingMonitor;
 import org.to2mbn.jmccc.exec.ProcessMonitor;
 import org.to2mbn.jmccc.option.LaunchOption;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
+import org.to2mbn.jmccc.util.FileUtils;
 import org.to2mbn.jmccc.version.Asset;
 import org.to2mbn.jmccc.version.Library;
 import org.to2mbn.jmccc.version.Native;
@@ -190,7 +190,7 @@ public class Jmccc implements Launcher {
 		Set<Asset> assets = Versions.resolveAssets(mcdir, version.getAssets());
 		if (assets != null) {
 			for (Asset asset : assets) {
-				copyFile(mcdir.getAsset(asset), mcdir.getVirtualAsset(asset));
+				FileUtils.copyFile(mcdir.getAsset(asset), mcdir.getVirtualAsset(asset));
 			}
 		}
 	}
@@ -261,19 +261,6 @@ public class Jmccc implements Launcher {
 			}
 		}
 
-	}
-
-	private void copyFile(File src, File target) throws IOException {
-		File parent = target.getParentFile();
-		if (!parent.exists()) {
-			parent.mkdirs();
-		}
-
-		try (FileInputStream in = new FileInputStream(src); FileOutputStream out = new FileOutputStream(target)) {
-			FileChannel chin = in.getChannel();
-			FileChannel chout = out.getChannel();
-			chin.transferTo(0, chin.size(), chout);
-		}
 	}
 
 	private void printDebugCommandline(String[] commandline) {

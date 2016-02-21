@@ -23,13 +23,9 @@ import org.to2mbn.jmccc.version.LibraryInfo;
 import org.to2mbn.jmccc.version.Version;
 import org.to2mbn.jmccc.version.Versions;
 
-public class InfoDownloadProvider extends AbstractMinecraftDownloadProvider {
+public class InfoDownloadProvider extends AbstractMinecraftDownloadProvider implements ExtendedDownloadProvider {
 
-	private MinecraftDownloadProvider proxied;
-
-	public InfoDownloadProvider(MinecraftDownloadProvider proxied) {
-		this.proxied = proxied;
-	}
+	private MinecraftDownloadProvider upstreamProvider;
 
 	@Override
 	public CombinedDownloadTask<Set<Asset>> assetsIndex(final MinecraftDirectory mcdir, final Version version) {
@@ -51,7 +47,7 @@ public class InfoDownloadProvider extends AbstractMinecraftDownloadProvider {
 	public CombinedDownloadTask<Void> gameJar(MinecraftDirectory mcdir, Version version) {
 		Map<String, DownloadInfo> downloads = version.getDownloads();
 		if (downloads != null) {
-			return download(downloads.get("client"), mcdir.getVersionJar(version.getVersion()));
+			return download(downloads.get("client"), mcdir.getVersionJar(version.getRoot()));
 		}
 		return null;
 	}
@@ -67,14 +63,14 @@ public class InfoDownloadProvider extends AbstractMinecraftDownloadProvider {
 
 	@Override
 	public CombinedDownloadTask<String> gameVersionJson(final MinecraftDirectory mcdir, final String version) {
-		if (proxied == null) {
+		if (upstreamProvider == null) {
 			return null;
 		}
 		return new CombinedDownloadTask<String>() {
 
 			@Override
 			public void execute(final CombinedDownloadContext<String> context) throws Exception {
-				context.submit(proxied.versionList(), new AbstractCombinedDownloadCallback<RemoteVersionList>() {
+				context.submit(upstreamProvider.versionList(), new AbstractCombinedDownloadCallback<RemoteVersionList>() {
 
 					@Override
 					public void done(final RemoteVersionList result) {
@@ -99,7 +95,7 @@ public class InfoDownloadProvider extends AbstractMinecraftDownloadProvider {
 										}
 									}
 
-									context.submit(proxied.gameVersionJson(mcdir, version), new AbstractCombinedDownloadCallback<String>() {
+									context.submit(upstreamProvider.gameVersionJson(mcdir, version), new AbstractCombinedDownloadCallback<String>() {
 
 										@Override
 										public void done(String result) {
@@ -118,6 +114,11 @@ public class InfoDownloadProvider extends AbstractMinecraftDownloadProvider {
 				}, true);
 			}
 		};
+	}
+
+	@Override
+	public void setUpstreamProvider(MinecraftDownloadProvider upstreamProvider) {
+		this.upstreamProvider = upstreamProvider;
 	}
 
 	private CombinedDownloadTask<Void> download(final DownloadInfo info, final File target) {

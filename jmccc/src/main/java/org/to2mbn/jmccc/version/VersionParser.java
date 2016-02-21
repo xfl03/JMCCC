@@ -6,12 +6,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,36 +21,56 @@ import org.to2mbn.jmccc.util.Platform;
 
 class VersionParser {
 
-	public Version parseVersion(MinecraftDirectory minecraftDir, String name) throws IOException, JSONException {
-		Set<Library> libraries = new HashSet<>();
-
-		JSONObject json = readJson(minecraftDir.getVersionJson(name));
-		String version = json.getString("id");
-		String assets = json.optString("assets", "legacy");
-		String mainClass = json.getString("mainClass");
-		String launchArgs = json.getString("minecraftArguments");
-		String type = json.optString("type", null);
-		loadDepends(json.getJSONArray("libraries"), libraries);
-
-		Map<String, DownloadInfo> downloads = json.has("downloads") ? resolveDownloads(json.getJSONObject("downloads")) : null;
-		AssetIndexInfo assetIndexDownloadInfo = json.has("assetIndex") ? resolveAssetIndexInfo(json.getJSONObject("assetIndex")) : null;
-
+	public Version parseVersion(MinecraftDirectory mcdir, String id) throws IOException, JSONException {
+		String version;
 		String root;
 
-		if (json.has("inheritsFrom")) {
-			String inheritsFrom;
-			do {
-				inheritsFrom = json.getString("inheritsFrom");
-				json = readJson(minecraftDir.getVersionJson(inheritsFrom));
-				loadDepends(json.getJSONArray("libraries"), libraries);
-				assets = json.optString("assets", "legacy");
-			} while (json.has("inheritsFrom"));
-			root = inheritsFrom;
-		} else {
-			root = version;
-		}
+		String assets = "legacy";
+		String mainClass = null;
+		String launchArgs = null;
+		String type = null;
+		Map<String, Library> librariesMap = new HashMap<>();
+		Map<String, DownloadInfo> downloads = new HashMap<>();
+		AssetIndexInfo assetIndexInfo = null;
 
-		return new Version(version, type, mainClass, assets, launchArgs, root, Collections.unmodifiableSet(libraries), assets.equals("legacy"), assetIndexDownloadInfo, downloads);
+		Stack<JSONObject> hierarchy = parseVersionHierarchy(mcdir, id);
+		root = hierarchy.peek().getString("id");
+		version = hierarchy.get(0).getString("id");
+
+		JSONObject json;
+		do {
+			json = hierarchy.pop();
+
+			if (json.has("assets"))
+				assets = json.getString("assets");
+			if (json.has("mainClass"))
+				mainClass = json.getString("mainClass");
+			if (json.has("minecraftArguments"))
+				launchArgs = json.getString("minecraftArguments");
+			if (json.has("type"))
+				type = json.getString("type");
+			if (json.has("libraries"))
+				for (Library library : parseLibraries(json.getJSONArray("libraries")))
+					librariesMap.put(library.getDomain() + ":" + library.getName(), library);
+			if (json.has("downloads"))
+				downloads.putAll(resolveDownloads(json.getJSONObject("downloads")));
+			if (json.has("assetIndex"))
+				assetIndexInfo = resolveAssetIndexInfo(json.getJSONObject("assetIndex"));
+
+		} while (!hierarchy.isEmpty());
+
+		Set<Library> libraries = new HashSet<>(librariesMap.values());
+
+		return new Version(version,
+				type,
+				mainClass,
+				assets,
+				launchArgs,
+				root,
+				Collections.unmodifiableSet(libraries),
+				assets.equals("legacy"),
+				assetIndexInfo,
+				Collections.unmodifiableMap(downloads));
 	}
 
 	public Set<Asset> parseAssets(MinecraftDirectory minecraftDir, String name) throws IOException, JSONException {
@@ -67,16 +87,40 @@ class VersionParser {
 		return Collections.unmodifiableSet(assets);
 	}
 
-	private void loadDepends(JSONArray librariesList, Collection<Library> libraries) {
+	private Stack<JSONObject> parseVersionHierarchy(MinecraftDirectory mcdir, String id) throws IOException {
+
+		/*
+		 * The structure of the stack:
+		 * ^ index
+		 * |
+		 * |root version  | e.g. 1.8
+		 * |............  |
+		 * |child version | e.g. 1.8-forge1.8-11.14.3.1514
+		 * |______________|
+		 */
+
+		Stack<JSONObject> hierarchy = new Stack<>();
+		String currentId = id;
+		do {
+			JSONObject json = readJson(mcdir.getVersionJson(currentId));
+			hierarchy.push(json);
+			currentId = json.optString("inheritsFrom", null);
+		} while (currentId != null);
+		return hierarchy;
+	}
+
+	private Set<Library> parseLibraries(JSONArray librariesList) {
+		Set<Library> libraries = new HashSet<>();
 		for (int i = 0; i < librariesList.length(); i++) {
 			Library library = resolveLibrary(librariesList.getJSONObject(i));
 			if (library != null) {
 				libraries.add(library);
 			}
 		}
+		return libraries;
 	}
 
-	private boolean isAllowed(JSONArray rules) {
+	private boolean isAllowed(JSONArray rules) throws JSONException {
 		// by default it's allowed
 		if (rules.length() == 0) {
 			return true;
@@ -115,8 +159,65 @@ class VersionParser {
 		return allow;
 	}
 
-	private Library resolveLibrary(JSONObject json) {
+	private String[] resolveChecksums(JSONArray sumarray) throws JSONException {
+		String[] checksums = new String[sumarray.length()];
+		for (int i = 0; i < sumarray.length(); i++) {
+			checksums[i] = sumarray.getString(i);
+		}
+		return checksums;
+	}
+
+	private String resolveNative(JSONObject natives) throws JSONException {
+		String archName = Platform.CURRENT.name().toLowerCase();
+
+		if (natives.has(archName)) {
+			return natives.getString(archName).replaceAll("\\Q${arch}", Platform.isX64() ? "64" : "32");
+		} else {
+			return null;
+		}
+	}
+
+	private static Set<String> resolveExtractExclude(JSONObject extract) throws JSONException {
+		if (!extract.has("exclude")) {
+			return null;
+		}
+
+		Set<String> excludes = new HashSet<>();
+		JSONArray excludesArray = extract.getJSONArray("exclude");
+		for (int i = 0; i < excludesArray.length(); i++) {
+			excludes.add(excludesArray.getString(i));
+		}
+		return Collections.unmodifiableSet(excludes);
+	}
+
+	private LibraryInfo resolveLibraryDownload(JSONObject json, String natives) throws JSONException {
+		JSONObject downloads = json.optJSONObject("downloads");
+		if (downloads == null) {
+			return null;
+		}
+		JSONObject artifact;
+		if (natives == null) {
+			artifact = downloads.optJSONObject("artifact");
+		} else {
+			JSONObject classifiers = downloads.getJSONObject("classifiers");
+			if (classifiers == null) {
+				return null;
+			}
+			artifact = classifiers.optJSONObject(natives);
+		}
+		if (artifact == null) {
+			return null;
+		}
+		return resolveLibraryInfo(artifact);
+	}
+
+	private Library resolveLibrary(JSONObject json) throws JSONException {
 		if (json.has("rules") && !isAllowed(json.getJSONArray("rules"))) {
+			return null;
+		}
+
+		boolean clientreq = json.optBoolean("clientreq", true);
+		if (!clientreq) {
 			return null;
 		}
 
@@ -138,62 +239,17 @@ class VersionParser {
 		}
 	}
 
-	private LibraryInfo resolveLibraryDownload(JSONObject json, String natives) {
-		JSONObject downloads = json.optJSONObject("downloads");
-		if (downloads == null) {
-			return null;
-		}
-		JSONObject artifact;
-		if (natives == null) {
-			artifact = downloads.optJSONObject("artifact");
-		} else {
-			JSONObject classifiers = downloads.getJSONObject("classifiers");
-			if (classifiers == null) {
-				return null;
-			}
-			artifact = classifiers.optJSONObject(natives);
-		}
-		if (artifact == null) {
-			return null;
-		}
-		return resolveLibraryInfo(artifact);
+	private LibraryInfo resolveLibraryInfo(JSONObject json) {
+		DownloadInfo base = resolveDownloadInfo(json);
+		String path = json.optString("path", null);
+		return new LibraryInfo(base.getUrl(), base.getChecksum(), base.getSize(), path);
 	}
 
-	private String resolveNative(JSONObject natives) {
-		String archName = Platform.CURRENT.name().toLowerCase();
-
-		if (natives.has(archName)) {
-			return natives.getString(archName).replaceAll("\\Q${arch}", Platform.isX64() ? "64" : "32");
-		} else {
-			return null;
-		}
-	}
-
-	private Set<String> resolveExtractExclude(JSONObject extract) {
-		if (!extract.has("exclude")) {
-			return null;
-		}
-
-		Set<String> excludes = new HashSet<>();
-		JSONArray excludesArray = extract.getJSONArray("exclude");
-		for (int i = 0; i < excludesArray.length(); i++) {
-			excludes.add(excludesArray.getString(i));
-		}
-		return Collections.unmodifiableSet(excludes);
-	}
-
-	private String[] resolveChecksums(JSONArray sumarray) {
-		String[] checksums = new String[sumarray.length()];
-		for (int i = 0; i < sumarray.length(); i++) {
-			checksums[i] = sumarray.getString(i);
-		}
-		return checksums;
-	}
-
-	private JSONObject readJson(File file) throws IOException, JSONException {
-		try (Reader reader = new InputStreamReader(new BufferedInputStream(new FileInputStream(file)), "UTF-8")) {
-			return new JSONObject(new JSONTokener(reader));
-		}
+	private AssetIndexInfo resolveAssetIndexInfo(JSONObject json) throws JSONException {
+		DownloadInfo base = resolveDownloadInfo(json);
+		String id = json.getString("id");
+		long totalSize = json.optLong("totalSize", -1);
+		return new AssetIndexInfo(base.getUrl(), base.getChecksum(), base.getSize(), id, totalSize);
 	}
 
 	private DownloadInfo resolveDownloadInfo(JSONObject json) {
@@ -212,17 +268,10 @@ class VersionParser {
 		return Collections.unmodifiableMap(downloads);
 	}
 
-	private AssetIndexInfo resolveAssetIndexInfo(JSONObject json) {
-		DownloadInfo base = resolveDownloadInfo(json);
-		String id = json.getString("id");
-		long totalSize = json.optLong("totalSize", -1);
-		return new AssetIndexInfo(base.getUrl(), base.getChecksum(), base.getSize(), id, totalSize);
-	}
-
-	private LibraryInfo resolveLibraryInfo(JSONObject json) {
-		DownloadInfo base = resolveDownloadInfo(json);
-		String path = json.optString("path", null);
-		return new LibraryInfo(base.getUrl(), base.getChecksum(), base.getSize(), path);
+	private JSONObject readJson(File file) throws IOException, JSONException {
+		try (Reader reader = new InputStreamReader(new BufferedInputStream(new FileInputStream(file)), "UTF-8")) {
+			return new JSONObject(new JSONTokener(reader));
+		}
 	}
 
 }

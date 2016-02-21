@@ -7,7 +7,7 @@ import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.Objects;
-import org.to2mbn.jmccc.mcdownloader.download.util.FileUtils;
+import org.to2mbn.jmccc.util.FileUtils;
 
 /**
  * Describes a file download task.

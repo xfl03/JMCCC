@@ -1,18 +1,23 @@
 package org.to2mbn.jmccc.mcdownloader.provider.forge;
 
+import java.io.Serializable;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import org.json.JSONObject;
 
-public class ForgeVersionList {
+public class ForgeVersionList implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	@SuppressWarnings("unchecked")
 	public static ForgeVersionList fromJson(JSONObject json) {
 		Map<Integer, ForgeVersion> versions = new TreeMap<>();
 		Map<String, ForgeVersion> latests = new TreeMap<>();
 		Map<String, ForgeVersion> recommendeds = new TreeMap<>();
+		Map<String, ForgeVersion> forgeVersionMapping = new TreeMap<>();
 		ForgeVersion latest = null;
 		ForgeVersion recommended = null;
 
@@ -20,6 +25,7 @@ public class ForgeVersionList {
 		for (String strbuildnum : (Set<String>) versionsJson.keySet()) {
 			ForgeVersion version = ForgeVersion.fromJson(versionsJson.getJSONObject(strbuildnum));
 			versions.put(version.getBuildNumber(), version);
+			forgeVersionMapping.put(version.getForgeVersion(), version);
 		}
 		JSONObject promos = json.getJSONObject("promos");
 		for (String key : (Set<String>) promos.keySet()) {
@@ -36,22 +42,30 @@ public class ForgeVersionList {
 				recommendeds.put(key.substring(0, key.length() - 12), version);
 			}
 		}
-		return new ForgeVersionList(versions, latests, recommendeds, latest, recommended);
+		return new ForgeVersionList(Collections.unmodifiableMap(versions),
+				Collections.unmodifiableMap(latests),
+				Collections.unmodifiableMap(recommendeds),
+				Collections.unmodifiableMap(forgeVersionMapping),
+				latest,
+				recommended);
 	}
 
 	private Map<Integer, ForgeVersion> versions;
 	private Map<String, ForgeVersion> latests;
 	private Map<String, ForgeVersion> recommendeds;
+	private Map<String, ForgeVersion> forgeVersionMapping;
 	private ForgeVersion latest;
 	private ForgeVersion recommended;
 
-	public ForgeVersionList(Map<Integer, ForgeVersion> versions, Map<String, ForgeVersion> latests, Map<String, ForgeVersion> recommendeds, ForgeVersion latest, ForgeVersion recommended) {
+	public ForgeVersionList(Map<Integer, ForgeVersion> versions, Map<String, ForgeVersion> latests, Map<String, ForgeVersion> recommendeds, Map<String, ForgeVersion> forgeVersionMapping, ForgeVersion latest, ForgeVersion recommended) {
 		Objects.requireNonNull(versions);
 		Objects.requireNonNull(latests);
 		Objects.requireNonNull(recommendeds);
+		Objects.requireNonNull(forgeVersionMapping);
 		this.versions = versions;
 		this.latests = latests;
 		this.recommendeds = recommendeds;
+		this.forgeVersionMapping = forgeVersionMapping;
 		this.latest = latest;
 		this.recommended = recommended;
 	}
@@ -68,8 +82,9 @@ public class ForgeVersionList {
 	/**
 	 * Gets all the latest versions.
 	 * 
-	 * @return a map including all the latest versions, key is the minecraft version, value is the latest forge version
-	 *         of the minecraft version
+	 * @return a map including all the latest versions, key is the minecraft
+	 *         version, value is the latest forge version of the minecraft
+	 *         version
 	 */
 	public Map<String, ForgeVersion> getLatests() {
 		return latests;
@@ -78,8 +93,9 @@ public class ForgeVersionList {
 	/**
 	 * Gets all the recommended versions.
 	 * 
-	 * @return a map including all the recommended versions, key is the minecraft version, value is the recommended
-	 *         forge version of the minecraft version
+	 * @return a map including all the recommended versions, key is the
+	 *         minecraft version, value is the recommended forge version of the
+	 *         minecraft version
 	 */
 	public Map<String, ForgeVersion> getRecommendeds() {
 		return recommendeds;
@@ -98,7 +114,8 @@ public class ForgeVersionList {
 	 * Gets the latest forge version of the given minecraft version.
 	 * 
 	 * @param mcversion the minecraft version
-	 * @return the latest forge version of <code>mcversion</code>, null if unknown
+	 * @return the latest forge version of <code>mcversion</code>, null if
+	 *         unknown
 	 */
 	public ForgeVersion getLatest(String mcversion) {
 		return latests.get(mcversion);
@@ -117,15 +134,28 @@ public class ForgeVersionList {
 	 * Gets the recommended forge version of the given minecraft version.
 	 * 
 	 * @param mcversion the minecraft version
-	 * @return the recommended forge version of <code>mcversion</code>, null if unknown
+	 * @return the recommended forge version of <code>mcversion</code>, null if
+	 *         unknown
 	 */
 	public ForgeVersion getRecommended(String mcversion) {
 		return recommendeds.get(mcversion);
 	}
 
+	public Map<String, ForgeVersion> getForgeVersionMapping() {
+		return forgeVersionMapping;
+	}
+
+	public ForgeVersion get(int buildNumber) {
+		return versions.get(buildNumber);
+	}
+
+	public ForgeVersion get(String forgeVersion) {
+		return forgeVersionMapping.get(forgeVersion);
+	}
+
 	@Override
 	public int hashCode() {
-		return Objects.hash(versions, latests, recommendeds, latest, recommended);
+		return Objects.hash(versions, latests, recommendeds, forgeVersionMapping, latest, recommended);
 	}
 
 	@Override
@@ -135,13 +165,19 @@ public class ForgeVersionList {
 		}
 		if (obj instanceof ForgeVersionList) {
 			ForgeVersionList another = (ForgeVersionList) obj;
-			return versions.equals(another.versions) && latests.equals(another.latests) && recommendeds.equals(another.recommendeds) && Objects.equals(latest, another.latest) && Objects.equals(recommended, another.recommended);
+			return versions.equals(another.versions) &&
+					latests.equals(another.latests) &&
+					recommendeds.equals(another.recommendeds) &&
+					forgeVersionMapping.equals(another.forgeVersionMapping) &&
+					Objects.equals(latest, another.latest) &&
+					Objects.equals(recommended, another.recommended);
 		}
 		return false;
 	}
 
 	@Override
 	public String toString() {
-		return "ForgeVersionList [versions=" + versions.values() + ", latests=" + latests + ", recommendeds=" + recommendeds + ", latest=" + latest + ", recommended=" + recommended + "]";
+		return String.format("ForgeVersionList [versions=%s, latests=%s, recommendeds=%s, forgeVersionMapping=%s, latest=%s, recommended=%s]", versions, latests, recommendeds, forgeVersionMapping, latest, recommended);
 	}
+
 }

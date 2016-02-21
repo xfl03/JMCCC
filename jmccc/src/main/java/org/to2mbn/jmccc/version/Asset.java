@@ -2,12 +2,15 @@ package org.to2mbn.jmccc.version;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.util.ChecksumUtils;
 
-public class Asset {
+public class Asset implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private String virtualPath;
 	private String hash;

@@ -107,7 +107,7 @@ abstract public class URIDownloadProvider implements MinecraftDownloadProvider {
 		if (uri == null) {
 			return null;
 		}
-		return CombinedDownloadTask.single(new FileDownloadTask(uri, mcdir.getVersionJar(version.getVersion())));
+		return CombinedDownloadTask.single(new FileDownloadTask(uri, mcdir.getVersionJar(version.getRoot())));
 	}
 
 	@Deprecated
