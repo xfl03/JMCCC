@@ -6,8 +6,8 @@
 		<version>2.4-SNAPSHOT</version>
 	</parent>
 	<artifactId>jmccc-yggdrasil-authenticator</artifactId>
-	<name>jmccc-yggdrasil-authenticator</name>
-	<description>JMCCC yggdrasil authenticator</description>
+	<name>jmccc yggdrasil authenticator</name>
+	<description>The yggdrasil authentication feature of jmccc</description>
 	<dependencies>
 		<dependency>
 			<groupId>org.to2mbn</groupId>

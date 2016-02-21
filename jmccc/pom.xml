@@ -6,8 +6,8 @@
 		<version>2.4-SNAPSHOT</version>
 	</parent>
 	<artifactId>jmccc</artifactId>
-	<name>JMCCC</name>
-	<description>An open-source lightweight library for launching Minecraft.</description>
+	<name>jmccc</name>
+	<description>The launching feature of jmccc</description>
 	<dependencies>
 		<dependency>
 			<groupId>org.json</groupId>
