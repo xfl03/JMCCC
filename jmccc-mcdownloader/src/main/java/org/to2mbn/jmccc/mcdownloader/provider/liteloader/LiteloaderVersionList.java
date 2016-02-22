@@ -1,5 +1,6 @@
 package org.to2mbn.jmccc.mcdownloader.provider.liteloader;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -9,7 +10,9 @@ import java.util.TreeMap;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class LiteloaderVersionList {
+public class LiteloaderVersionList implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	@SuppressWarnings("unchecked")
 	public static LiteloaderVersionList fromJson(JSONObject json) {

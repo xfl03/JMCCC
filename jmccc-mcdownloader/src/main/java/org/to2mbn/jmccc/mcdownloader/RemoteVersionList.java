@@ -1,5 +1,6 @@
 package org.to2mbn.jmccc.mcdownloader;
 
+import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -14,7 +15,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class RemoteVersionList {
+public class RemoteVersionList implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private static final Pattern DATETIME_PATTERN = Pattern.compile("^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2})([+\\-]\\d{2}:?\\d{2})?$");
 
