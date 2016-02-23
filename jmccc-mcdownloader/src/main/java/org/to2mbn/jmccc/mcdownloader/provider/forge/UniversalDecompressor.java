@@ -48,7 +48,7 @@ public class UniversalDecompressor implements ResultProcessor<byte[], Void> {
 			}
 		}
 
-		return null;
+		throw new IllegalArgumentException("No universal jar found");
 	}
 
 	private boolean isUniversalJar(String name) {
