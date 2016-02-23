@@ -28,7 +28,7 @@ public class MemoryDownloadTask extends DownloadTask<byte[]> {
 	public DownloadSession<byte[]> createSession(final long length) throws IOException {
 		return new DownloadSession<byte[]>() {
 
-			ByteArrayOutputStream out = new ByteArrayOutputStream((int) length);
+			ByteArrayOutputStream out = new ByteArrayOutputStream(length == -1 ? 8192 : (int) length);
 			WritableByteChannel channel = Channels.newChannel(out);
 
 			@Override
