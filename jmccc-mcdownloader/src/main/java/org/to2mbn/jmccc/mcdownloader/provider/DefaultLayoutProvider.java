@@ -25,7 +25,7 @@ abstract public class DefaultLayoutProvider extends URIDownloadProvider {
 	@Deprecated
 	@Override
 	public URI getGameJar(Version version) {
-		return toURI(getVersionBaseURL() + version.getVersion() + "/" + version.getVersion() + ".jar");
+		return toURI(getVersionBaseURL() + version.getRoot() + "/" + version.getRoot() + ".jar");
 	}
 
 	@Deprecated

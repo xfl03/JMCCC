@@ -48,16 +48,16 @@ public class ForgeDownloadProvider extends AbstractMinecraftDownloadProvider imp
 
 	@Override
 	public CombinedDownloadTask<String> gameVersionJson(final MinecraftDirectory mcdir, final String version) {
-		final ResolvedForgeVersion forgeVersion = ResolvedForgeVersion.resolve(version);
-		if (forgeVersion == null) {
-			throw new IllegalArgumentException("Not in a valid forge version format");
-		}
-		try {
-			return CombinedDownloadTask.single(new MemoryDownloadTask(new URI(forgeInstallerUrl(forgeVersion))).andThen(new InstallProfileProcessor(mcdir)));
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-			return null;
-		}
+		ResolvedForgeVersion forgeVersion = ResolvedForgeVersion.resolve(version);
+
+		if (forgeVersion != null)
+			try {
+				return CombinedDownloadTask.single(new MemoryDownloadTask(new URI(forgeInstallerUrl(forgeVersion))).andThen(new InstallProfileProcessor(mcdir)));
+			} catch (URISyntaxException e) {
+				e.printStackTrace();
+			}
+
+		return null;
 	}
 
 	@Override
@@ -132,7 +132,7 @@ public class ForgeDownloadProvider extends AbstractMinecraftDownloadProvider imp
 	public CombinedDownloadTask<Void> gameJar(final MinecraftDirectory mcdir, final Version version) {
 		ResolvedForgeVersion forgeVersion = ResolvedForgeVersion.resolve(version.getVersion());
 		if (forgeVersion == null) {
-			throw new IllegalArgumentException("Not in a valid forge version format");
+			return null;
 		}
 
 		final String mcversion = forgeVersion.getMinecraftVersion();
@@ -269,7 +269,7 @@ public class ForgeDownloadProvider extends AbstractMinecraftDownloadProvider imp
 	protected String forgeInstallerUrl(ResolvedForgeVersion version) {
 		return "http://files.minecraftforge.net/maven/net/minecraftforge/forge/" + version + "/forge-" + version + "-installer.jar";
 	}
-	
+
 	protected String forgeUniversalUrl(ResolvedForgeVersion version) {
 		return "http://files.minecraftforge.net/maven/net/minecraftforge/forge/" + version + "/forge-" + version + "-universal.jar";
 	}
@@ -278,7 +278,7 @@ public class ForgeDownloadProvider extends AbstractMinecraftDownloadProvider imp
 		return "http://files.minecraftforge.net/maven/net/minecraftforge/forge/" + version + "/forge-" + version + "-universal.zip";
 	}
 
-	protected boolean decompressUniversalFromInstaller(){
+	protected boolean decompressUniversalFromInstaller() {
 		return false;
 	}
 

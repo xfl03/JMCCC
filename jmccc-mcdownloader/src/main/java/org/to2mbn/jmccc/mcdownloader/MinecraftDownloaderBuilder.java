@@ -28,8 +28,8 @@ public class MinecraftDownloaderBuilder {
 		return new MinecraftDownloaderBuilder();
 	}
 
-	private int maxConnections = 50;
-	private int maxConnectionsPerRouter = 10;
+	private int maxConnections;
+	private int maxConnectionsPerRouter;
 	private MinecraftDownloadProvider baseProvider = new MojangDownloadProvider();
 	private List<MinecraftDownloadProvider> appendProviders = new ArrayList<>();
 	private int poolMaxThreads = Runtime.getRuntime().availableProcessors();
@@ -146,7 +146,12 @@ public class MinecraftDownloaderBuilder {
 								.build());
 				downloader = new HttpAsyncDownloader(httpClientBuilder, executor);
 			} else {
-				downloader = new JreHttpDownloader(maxConnections, connectTimeout, soTimeout, poolThreadLivingTime, proxy);
+				downloader = new JreHttpDownloader(
+						maxConnections > 0 ? maxConnections : Runtime.getRuntime().availableProcessors() * 2,
+						connectTimeout,
+						soTimeout,
+						poolThreadLivingTime,
+						proxy);
 			}
 
 			mcdownloader = new MinecraftDownloaderImpl(downloader, executor, provider, defaultTries, checkLibrariesHash, checkAssetsHash);
