@@ -37,7 +37,7 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 
 	public CombinedDownloadTask<LiteloaderVersionList> liteloaderVersionList() {
 		try {
-			return CombinedDownloadTask.single(new MemoryDownloadTask(new URI("http://dl.liteloader.com/versions/versions.json")).andThen(new ResultProcessor<byte[], LiteloaderVersionList>() {
+			return CombinedDownloadTask.single(new MemoryDownloadTask(new URI(liteloaderVersionListUrl())).andThen(new ResultProcessor<byte[], LiteloaderVersionList>() {
 
 				@Override
 				public LiteloaderVersionList process(byte[] arg) throws Exception {
@@ -107,7 +107,7 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 		this.upstreamProvider = upstreamProvider;
 	}
 
-	private String createLiteloaderVersion(MinecraftDirectory mcdir, LiteloaderVersion liteloader) throws IOException {
+	protected String createLiteloaderVersion(MinecraftDirectory mcdir, LiteloaderVersion liteloader) throws IOException {
 		String mcversion = liteloader.getMinecraftVersion();
 		JSONObject versionjson;
 		try (Reader reader = new InputStreamReader(new BufferedInputStream(new FileInputStream(mcdir.getVersionJson(mcversion))), "UTF-8")) {
@@ -141,6 +141,10 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 		}
 
 		return version;
+	}
+
+	protected String liteloaderVersionListUrl() {
+		return "http://dl.liteloader.com/versions/versions.json";
 	}
 
 }
