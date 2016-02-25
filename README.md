@@ -181,8 +181,8 @@ MinecraftDownloader downloader = MinecraftDownloaderBuilder.create().appendProvi
 
 downloader.downloadIncrementally(dir, "1.8-forge1.8-11.14.3.1514", new CombinedDownloadCallback<Version>() {...});
 downloader.downloadIncrementally(dir, "1.7.10-LiteLoader1.7.10", new CombinedDownloadCallback<Version>() {...});
-downloader.download(forgeProvider.forgeVersionList(), new DownloadCallback<ForgeVersionList>() {...});
-downloader.download(liteloaderProvider.liteloaderVersionList(), new DownloadCallback<LiteloaderVersionList>() {...});
+downloader.download(forgeProvider.forgeVersionList(), new CombinedDownloadCallback<ForgeVersionList>() {...});
+downloader.download(liteloaderProvider.liteloaderVersionList(), new CombinedDownloadCallback<LiteloaderVersionList>() {...});
 ```
 
 ##### Customized download provider
@@ -207,7 +207,7 @@ option.setExtraJvmArguments(Arrays.asList(ExtraArgumentsTemplates.FML_IGNORE_INV
 See [wiki](https://github.com/to2mbn/JMCCC/wiki/Change-logs).
 
 ### Contributing
-Contributing is good. But please read the following requirements first before your PR.
+Contributing is good. But please read the following requirements first before you PR.
 * Use tabs.
 * No trailing whitespaces.
 * No \r\n line endings, \n only.
