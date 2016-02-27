@@ -133,7 +133,7 @@ public class MinecraftDownloaderBuilder {
 				HttpHost proxyHost = resolveProxy();
 				HttpAsyncClientBuilder httpClientBuilder = HttpAsyncClientBuilder.create()
 						.setMaxConnTotal(maxConnections)
-						.setMaxConnPerRoute(maxConnectionsPerRouter)
+						.setMaxConnPerRoute(maxConnectionsPerRouter == 0 ? maxConnections : maxConnectionsPerRouter)
 						.setProxy(proxyHost)
 						.setDefaultIOReactorConfig(IOReactorConfig.custom()
 								.setConnectTimeout(connectTimeout)

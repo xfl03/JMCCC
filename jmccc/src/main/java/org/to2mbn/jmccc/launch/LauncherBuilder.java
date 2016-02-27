@@ -57,7 +57,10 @@ public class LauncherBuilder {
 	 * <blockquote>
 	 * 
 	 * <pre>
-	 * jmccc: &lt;commandline&gt;
+	 * jmccc:
+	 * &lt;argument1&gt;
+	 * &lt;argument2&gt;
+	 * ......
 	 * </pre>
 	 * 
 	 * </blockquote>

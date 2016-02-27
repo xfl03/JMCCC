@@ -114,7 +114,7 @@ public class ForgeDownloadProvider extends AbstractMinecraftDownloadProvider imp
 
 	@Override
 	public CombinedDownloadTask<Void> gameJar(final MinecraftDirectory mcdir, final Version version) {
-		ResolvedForgeVersion forgeVersion = ResolvedForgeVersion.resolve(version.getVersion());
+		ResolvedForgeVersion forgeVersion = ResolvedForgeVersion.resolve(version.getRoot());
 		if (forgeVersion == null) {
 			return null;
 		}

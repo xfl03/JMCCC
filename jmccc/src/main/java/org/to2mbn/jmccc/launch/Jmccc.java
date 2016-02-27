@@ -264,11 +264,12 @@ public class Jmccc implements Launcher {
 	}
 
 	private void printDebugCommandline(String[] commandline) {
-		StringBuilder sb = new StringBuilder("jmccc:");
+		StringBuilder sb = new StringBuilder();
+		sb.append("jmccc:\n");
 		for (String arg : commandline) {
-			sb.append(' ').append(arg);
+			sb.append(arg).append('\n');
 		}
-		System.err.println(sb);
+		System.err.println(sb.toString());
 	}
 
 }
