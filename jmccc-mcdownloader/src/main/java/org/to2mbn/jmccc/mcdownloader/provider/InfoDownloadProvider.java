@@ -2,7 +2,6 @@ package org.to2mbn.jmccc.mcdownloader.provider;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -124,22 +123,16 @@ public class InfoDownloadProvider extends AbstractMinecraftDownloadProvider impl
 		if (info == null || info.getUrl() == null) {
 			return null;
 		}
-		try {
-			return CombinedDownloadTask.single(new FileDownloadTask(info.getUrl(), target).andThen(new ResultProcessor<Void, Void>() {
+		return CombinedDownloadTask.single(new FileDownloadTask(info.getUrl(), target).andThen(new ResultProcessor<Void, Void>() {
 
-				@Override
-				public Void process(Void arg) throws Exception {
-					if (!ChecksumUtils.verify(target, info.getChecksum(), "SHA-1", info.getSize())) {
-						throw new IOException("checksums mismatch");
-					}
-					return null;
+			@Override
+			public Void process(Void arg) throws Exception {
+				if (!ChecksumUtils.verify(target, info.getChecksum(), "SHA-1", info.getSize())) {
+					throw new IOException("checksums mismatch");
 				}
-			}));
-		} catch (URISyntaxException e) {
-			// ignore
-			e.printStackTrace();
-			return null;
-		}
+				return null;
+			}
+		}));
 	}
 
 }
