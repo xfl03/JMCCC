@@ -1,5 +1,6 @@
 package org.to2mbn.jmccc.mcdownloader.download.combine;
 
+import java.io.IOException;
 import java.util.Objects;
 import org.to2mbn.jmccc.mcdownloader.download.DownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.ResultProcessor;
@@ -19,16 +20,46 @@ abstract public class CombinedDownloadTask<T> {
 		return new SingleCombinedDownloadTask<T>(task);
 	}
 
-	/**
-	 * Creates a CombinedDownloadTask from a group of DownloadTasks.
-	 * 
-	 * @param tasks the download tasks, null element will be ignored
-	 * @return the CombinedDownloadTask
-	 * @throws NullPointerException if <code>tasks == null</code>
-	 */
 	public static CombinedDownloadTask<Void> multiple(DownloadTask<?>... tasks) {
 		Objects.requireNonNull(tasks);
+		CombinedDownloadTask<?>[] combinedTasks = new CombinedDownloadTask<?>[tasks.length];
+		for (int i = 0; i < tasks.length; i++) {
+			combinedTasks[i] = single(tasks[i]);
+		}
+		return multiple(combinedTasks);
+	}
+
+	public static CombinedDownloadTask<Void> multiple(CombinedDownloadTask<?>... tasks) {
+		Objects.requireNonNull(tasks);
 		return new MultipleCombinedDownloadTask(tasks);
+	}
+
+	@SafeVarargs
+	public static <T> CombinedDownloadTask<T> any(DownloadTask<T>... tasks) {
+		Objects.requireNonNull(tasks);
+
+		@SuppressWarnings("unchecked")
+		CombinedDownloadTask<T>[] combinedTasks = new CombinedDownloadTask[tasks.length];
+		for (int i = 0; i < tasks.length; i++) {
+			combinedTasks[i] = single(tasks[i]);
+		}
+		return any(combinedTasks);
+	}
+
+	@SafeVarargs
+	public static <T> CombinedDownloadTask<T> any(CombinedDownloadTask<T>... tasks) {
+		Objects.requireNonNull(tasks);
+		return any(new Class[] { IOException.class }, tasks);
+	}
+
+	@SafeVarargs
+	public static <T> CombinedDownloadTask<T> any(Class<? extends Throwable>[] expectedExceptions, CombinedDownloadTask<T>... tasks) {
+		Objects.requireNonNull(tasks);
+		Objects.requireNonNull(expectedExceptions);
+		if (tasks.length == 0) {
+			throw new IllegalArgumentException("The length of tasks cannot be zero");
+		}
+		return new AnyCombinedDownloadTask<>(tasks, expectedExceptions);
 	}
 
 	abstract public void execute(CombinedDownloadContext<T> context) throws Exception;

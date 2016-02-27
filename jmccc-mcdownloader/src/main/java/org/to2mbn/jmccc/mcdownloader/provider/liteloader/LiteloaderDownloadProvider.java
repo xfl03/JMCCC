@@ -13,8 +13,6 @@ import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.Callable;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -31,8 +29,6 @@ import org.to2mbn.jmccc.util.FileUtils;
 
 public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvider implements ExtendedDownloadProvider {
 
-	private static final Pattern LITELOADER_VERSION_PATTERN = Pattern.compile("^([\\w\\.\\-]+)-[lL]ite[lL]oader\\1+$");
-	
 	private MinecraftDownloadProvider upstreamProvider;
 
 	public CombinedDownloadTask<LiteloaderVersionList> liteloaderVersionList() {
@@ -50,12 +46,12 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 	}
 
 	@Override
-	public CombinedDownloadTask<String> gameVersionJson(final MinecraftDirectory mcdir, final String version) {
-		Matcher matcher=LITELOADER_VERSION_PATTERN.matcher(version);
-		if (!matcher.matches()) {
+	public CombinedDownloadTask<String> gameVersionJson(final MinecraftDirectory mcdir, String version) {
+		final ResolvedLiteloaderVersion liteloaderVersionInfo = ResolvedLiteloaderVersion.resolve(version);
+		if (liteloaderVersionInfo == null) {
 			return null;
 		}
-		final String mcversion = matcher.group(1);
+
 		return new CombinedDownloadTask<String>() {
 
 			@Override
@@ -69,17 +65,17 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 
 								@Override
 								public Void call() throws Exception {
-									final LiteloaderVersion liteloaderVersion = versionList.getLatestArtefact(mcversion);
-									context.submit(upstreamProvider.gameVersionJson(mcdir, liteloaderVersion.getMinecraftVersion()), new AbstractCombinedDownloadCallback<String>() {
+									final LiteloaderVersion liteloaderVersion = versionList.getLatestArtefact(liteloaderVersionInfo.getMinecraftVersion()).customize(liteloaderVersionInfo.getSuperVersion());
+									context.submit(upstreamProvider.gameVersionJson(mcdir, liteloaderVersion.getSuperVersion()), new AbstractCombinedDownloadCallback<String>() {
 
 										@Override
-										public void done(String result) {
+										public void done(final String resolvedSuperVersion) {
 											try {
 												context.submit(new Callable<Void>() {
 
 													@Override
 													public Void call() throws Exception {
-														context.done(createLiteloaderVersion(mcdir, liteloaderVersion));
+														context.done(createLiteloaderVersion(mcdir, liteloaderVersion.customize(resolvedSuperVersion)));
 														return null;
 													}
 												}, null, true);
@@ -108,24 +104,25 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 	}
 
 	protected String createLiteloaderVersion(MinecraftDirectory mcdir, LiteloaderVersion liteloader) throws IOException {
-		String mcversion = liteloader.getMinecraftVersion();
+		String superVersion = liteloader.getSuperVersion();
+		String minecraftVersion = liteloader.getMinecraftVersion();
 		JSONObject versionjson;
-		try (Reader reader = new InputStreamReader(new BufferedInputStream(new FileInputStream(mcdir.getVersionJson(mcversion))), "UTF-8")) {
+		try (Reader reader = new InputStreamReader(new BufferedInputStream(new FileInputStream(mcdir.getVersionJson(superVersion))), "UTF-8")) {
 			versionjson = new JSONObject(new JSONTokener(reader));
 		}
 
-		String version = String.format("%s-LiteLoader%s", mcversion, mcversion);
+		String version = String.format("%s-LiteLoader%s", superVersion, minecraftVersion);
 		String minecraftArguments = String.format("%s --tweakClass %s", versionjson.getString("minecraftArguments"), liteloader.getTweakClass());
 		JSONArray libraries = new JSONArray();
 		JSONObject liteloaderLibrary = new JSONObject();
-		liteloaderLibrary.put("name", String.format("com.mumfrey:liteloader:%s", mcversion));
+		liteloaderLibrary.put("name", String.format("com.mumfrey:liteloader:%s", minecraftVersion));
 		liteloaderLibrary.put("url", "http://dl.liteloader.com/versions/");
 		libraries.put(liteloaderLibrary);
 		for (JSONObject library : liteloader.getLibraries()) {
 			libraries.put(library);
 		}
 
-		versionjson.put("inheritsFrom", mcversion);
+		versionjson.put("inheritsFrom", superVersion);
 		versionjson.put("minecraftArguments", minecraftArguments);
 		versionjson.put("mainClass", "net.minecraft.launchwrapper.Launch");
 		versionjson.put("id", version);

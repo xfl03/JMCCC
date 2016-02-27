@@ -16,6 +16,7 @@ public class LiteloaderVersion implements Serializable {
 
 	private String minecraftVersion;
 	private String liteloaderVersion;
+	private String superVersion;
 	private String file;
 	private String md5;
 	private Long timestamp;
@@ -23,10 +24,16 @@ public class LiteloaderVersion implements Serializable {
 	private transient Set<JSONObject> libraries;
 
 	public LiteloaderVersion(String minecraftVersion, String liteloaderVersion, String file, String md5, Long timestamp, String tweakClass, Set<JSONObject> libraries) {
+		this(minecraftVersion, liteloaderVersion, minecraftVersion, file, md5, timestamp, tweakClass, libraries);
+	}
+
+	public LiteloaderVersion(String minecraftVersion, String liteloaderVersion, String superVersion, String file, String md5, Long timestamp, String tweakClass, Set<JSONObject> libraries) {
 		Objects.requireNonNull(minecraftVersion);
 		Objects.requireNonNull(liteloaderVersion);
+		Objects.requireNonNull(superVersion);
 		this.minecraftVersion = minecraftVersion;
 		this.liteloaderVersion = liteloaderVersion;
+		this.superVersion = superVersion;
 		this.file = file;
 		this.md5 = md5;
 		this.timestamp = timestamp;
@@ -42,8 +49,12 @@ public class LiteloaderVersion implements Serializable {
 		return liteloaderVersion;
 	}
 
+	public String getSuperVersion() {
+		return superVersion;
+	}
+
 	public String getVersionName() {
-		return minecraftVersion + "-LiteLoader" + minecraftVersion;
+		return superVersion + "-LiteLoader" + minecraftVersion;
 	}
 
 	public String getFile() {
@@ -66,6 +77,10 @@ public class LiteloaderVersion implements Serializable {
 		return libraries;
 	}
 
+	public LiteloaderVersion customize(String superVersion) {
+		return new LiteloaderVersion(minecraftVersion, liteloaderVersion, superVersion, file, md5, timestamp, tweakClass, libraries);
+	}
+
 	@Override
 	public String toString() {
 		return getVersionName();
@@ -73,7 +88,7 @@ public class LiteloaderVersion implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(minecraftVersion, liteloaderVersion, file, md5, timestamp, tweakClass, libraries);
+		return Objects.hash(minecraftVersion, liteloaderVersion, superVersion, file, md5, timestamp, tweakClass, libraries);
 	}
 
 	@Override
@@ -85,6 +100,7 @@ public class LiteloaderVersion implements Serializable {
 			LiteloaderVersion another = (LiteloaderVersion) obj;
 			return minecraftVersion.equals(another.minecraftVersion) &&
 					liteloaderVersion.equals(another.liteloaderVersion) &&
+					superVersion.equals(another.superVersion) &&
 					Objects.equals(file, another.file) &&
 					Objects.equals(md5, another.md5) &&
 					Objects.equals(timestamp, another.timestamp) &&
