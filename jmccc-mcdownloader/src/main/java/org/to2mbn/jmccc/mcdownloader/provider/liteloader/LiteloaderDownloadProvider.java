@@ -10,8 +10,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.concurrent.Callable;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -32,17 +30,13 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 	private MinecraftDownloadProvider upstreamProvider;
 
 	public CombinedDownloadTask<LiteloaderVersionList> liteloaderVersionList() {
-		try {
-			return CombinedDownloadTask.single(new MemoryDownloadTask(new URI(liteloaderVersionListUrl())).andThen(new ResultProcessor<byte[], LiteloaderVersionList>() {
+		return CombinedDownloadTask.single(new MemoryDownloadTask(liteloaderVersionListUrl()).andThen(new ResultProcessor<byte[], LiteloaderVersionList>() {
 
-				@Override
-				public LiteloaderVersionList process(byte[] arg) throws Exception {
-					return LiteloaderVersionList.fromJson(new JSONObject(new String(arg, "UTF-8")));
-				}
-			}));
-		} catch (URISyntaxException e) {
-			throw new IllegalStateException("unable to convert to URI", e);
-		}
+			@Override
+			public LiteloaderVersionList process(byte[] arg) throws Exception {
+				return LiteloaderVersionList.fromJson(new JSONObject(new String(arg, "UTF-8")));
+			}
+		}));
 	}
 
 	@Override

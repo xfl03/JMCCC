@@ -15,9 +15,21 @@ import java.nio.channels.WritableByteChannel;
 public class MemoryDownloadTask extends DownloadTask<byte[]> {
 
 	/**
-	 * Constructor of MemoryDownloadTask.
+	 * Constructs a MemoryDownloadTask.
 	 * 
-	 * @param uri the uri of the resource to download
+	 * @param uri the uri of resource to download
+	 * @throws NullPointerException if <code>uri==null</code>
+	 * @throws IllegalArgumentException if <code>uri</code> is not in a valid
+	 *             URI format
+	 */
+	public MemoryDownloadTask(String uri) {
+		super(uri);
+	}
+
+	/**
+	 * Constructs a MemoryDownloadTask.
+	 * 
+	 * @param uri the uri of resource to download
 	 * @throws NullPointerException if <code>uri==null</code>
 	 */
 	public MemoryDownloadTask(URI uri) {

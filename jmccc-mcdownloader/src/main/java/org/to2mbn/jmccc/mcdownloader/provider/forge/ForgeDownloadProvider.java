@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.concurrent.Callable;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -33,17 +31,13 @@ public class ForgeDownloadProvider extends AbstractMinecraftDownloadProvider imp
 	private MinecraftDownloadProvider upstreamProvider;
 
 	public CombinedDownloadTask<ForgeVersionList> forgeVersionList() {
-		try {
-			return CombinedDownloadTask.single(new MemoryDownloadTask(new URI(forgeVersionListUrl())).andThen(new ResultProcessor<byte[], ForgeVersionList>() {
+		return CombinedDownloadTask.single(new MemoryDownloadTask(forgeVersionListUrl()).andThen(new ResultProcessor<byte[], ForgeVersionList>() {
 
-				@Override
-				public ForgeVersionList process(byte[] arg) throws IOException {
-					return ForgeVersionList.fromJson(new JSONObject(new String(arg, "UTF-8")));
-				}
-			}));
-		} catch (URISyntaxException e) {
-			throw new IllegalStateException("unable to convert to URI", e);
-		}
+			@Override
+			public ForgeVersionList process(byte[] arg) throws IOException {
+				return ForgeVersionList.fromJson(new JSONObject(new String(arg, "UTF-8")));
+			}
+		}));
 	}
 
 	@Override
@@ -67,7 +61,7 @@ public class ForgeDownloadProvider extends AbstractMinecraftDownloadProvider imp
 				if (forgeVersion == null) {
 					throw new IllegalArgumentException("Not in a valid forge library version format");
 				}
-					return universalTask(forgeVersion, target);
+				return universalTask(forgeVersion, target);
 			} else if ("minecraftforge".equals(library.getName())) {
 
 				return new CombinedDownloadTask<Void>() {
@@ -186,14 +180,9 @@ public class ForgeDownloadProvider extends AbstractMinecraftDownloadProvider imp
 		String[] urls = forgeInstallerUrls(version);
 		@SuppressWarnings("unchecked")
 		DownloadTask<byte[]>[] tasks = new DownloadTask[urls.length];
-		try {
-			for (int i = 0; i < urls.length; i++) {
-				tasks[i] = new MemoryDownloadTask(new URI(urls[i]));
+		for (int i = 0; i < urls.length; i++) {
+			tasks[i] = new MemoryDownloadTask(urls[i]);
 
-			}
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-			return null;
 		}
 
 		return CombinedDownloadTask.any(tasks);
@@ -207,13 +196,8 @@ public class ForgeDownloadProvider extends AbstractMinecraftDownloadProvider imp
 			String[] urls = forgeUniversalUrls(version);
 			@SuppressWarnings("unchecked")
 			CombinedDownloadTask<Void>[] tasks = new CombinedDownloadTask[urls.length + 1];
-			try {
-				for (int i = 0; i < urls.length; i++) {
-					tasks[i] = CombinedDownloadTask.single(new FileDownloadTask(new URI(urls[i]), target));
-				}
-			} catch (URISyntaxException e) {
-				e.printStackTrace();
-				return null;
+			for (int i = 0; i < urls.length; i++) {
+				tasks[i] = CombinedDownloadTask.single(new FileDownloadTask(urls[i], target));
 			}
 			tasks[tasks.length - 1] = universalFromInstaller(version, target);
 

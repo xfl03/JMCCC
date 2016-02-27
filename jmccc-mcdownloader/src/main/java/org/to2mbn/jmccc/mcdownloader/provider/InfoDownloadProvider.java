@@ -2,7 +2,6 @@ package org.to2mbn.jmccc.mcdownloader.provider;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Set;
@@ -83,7 +82,7 @@ public class InfoDownloadProvider extends AbstractMinecraftDownloadProvider impl
 									if (remoteVersion != null) {
 										String url = remoteVersion.getUrl();
 										if (url != null) {
-											context.submit(new FileDownloadTask(new URI(url), mcdir.getVersionJson(remoteVersion.getVersion())), null, true);
+											context.submit(new FileDownloadTask(url, mcdir.getVersionJson(remoteVersion.getVersion())), null, true);
 											context.awaitAllTasks(new Runnable() {
 
 												@Override
@@ -126,7 +125,7 @@ public class InfoDownloadProvider extends AbstractMinecraftDownloadProvider impl
 			return null;
 		}
 		try {
-			return CombinedDownloadTask.single(new FileDownloadTask(new URI(info.getUrl()), target).andThen(new ResultProcessor<Void, Void>() {
+			return CombinedDownloadTask.single(new FileDownloadTask(info.getUrl(), target).andThen(new ResultProcessor<Void, Void>() {
 
 				@Override
 				public Void process(Void arg) throws Exception {
