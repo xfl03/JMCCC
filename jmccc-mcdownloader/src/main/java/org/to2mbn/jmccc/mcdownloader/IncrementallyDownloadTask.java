@@ -64,12 +64,13 @@ public class IncrementallyDownloadTask extends CombinedDownloadTask<Version> {
 					resolvedVersion = version;
 				}
 
-				final Version ver = Versions.resolveVersion(mcdir, resolvedVersion);
+				final Version versionModel = Versions.resolveVersion(mcdir, resolvedVersion);
 
-				if (mcdir.getAssetIndex(ver.getAssets()).exists()) {
-					downloadAssets(context, Versions.resolveAssets(mcdir, ver.getAssets()));
+				if (mcdir.getAssetIndex(versionModel).exists()) {
+					downloadAssets(context, Versions.resolveAssets(mcdir, versionModel));
+
 				} else {
-					context.submit(downloadProvider.assetsIndex(mcdir, ver), new AbstractCombinedDownloadCallback<Set<Asset>>() {
+					context.submit(downloadProvider.assetsIndex(mcdir, versionModel), new AbstractCombinedDownloadCallback<Set<Asset>>() {
 
 						@Override
 						public void done(final Set<Asset> result) {
@@ -90,17 +91,17 @@ public class IncrementallyDownloadTask extends CombinedDownloadTask<Version> {
 					}, true);
 				}
 
-				if (!mcdir.getVersionJar(ver.getRoot()).exists()) {
-					context.submit(downloadProvider.gameJar(mcdir, ver), null, true);
+				if (!mcdir.getVersionJar(versionModel).exists()) {
+					context.submit(downloadProvider.gameJar(mcdir, versionModel), null, true);
 				}
 
-				downloadLibraries(context, ver);
+				downloadLibraries(context, versionModel);
 
 				context.awaitAllTasks(new Runnable() {
 
 					@Override
 					public void run() {
-						context.done(ver);
+						context.done(versionModel);
 					}
 				});
 				return null;
@@ -151,6 +152,9 @@ public class IncrementallyDownloadTask extends CombinedDownloadTask<Version> {
 	}
 
 	private void downloadAssets(final CombinedDownloadContext<Version> context, Set<Asset> assets) throws InterruptedException {
+		if (assets == null)
+			return;
+
 		Map<String, Asset> hashMapping = new HashMap<>();
 		for (Asset asset : assets) {
 			// put the assets into a map
@@ -173,7 +177,7 @@ public class IncrementallyDownloadTask extends CombinedDownloadTask<Version> {
 
 		else
 			for (Asset asset : hashMapping.values())
-				if (!new File(mcdir.getAssetObjects(), asset.getPath()).isFile())
+				if (!mcdir.getAsset(asset).isFile())
 					context.submit(downloadProvider.asset(mcdir, asset), null, false);
 	}
 
@@ -184,7 +188,7 @@ public class IncrementallyDownloadTask extends CombinedDownloadTask<Version> {
 
 					@Override
 					public Void call() throws Exception {
-						if (needDownload(new File(mcdir.getLibraries(), library.getPath()), library.getDownloadInfo()))
+						if (needDownload(mcdir.getLibrary(library), library.getDownloadInfo()))
 							context.submit(downloadProvider.library(mcdir, library), null, true);
 
 						return null;

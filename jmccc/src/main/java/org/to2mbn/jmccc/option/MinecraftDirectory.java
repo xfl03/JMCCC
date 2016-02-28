@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.Objects;
 import org.to2mbn.jmccc.version.Asset;
+import org.to2mbn.jmccc.version.Library;
+import org.to2mbn.jmccc.version.Version;
 
 /**
  * Describes a minecraft directory.
@@ -75,12 +77,13 @@ public class MinecraftDirectory implements Serializable {
 	}
 
 	/**
-	 * Gets the saves directory.
+	 * Gets the library file.
 	 * 
-	 * @return the saves directory
+	 * @param library the library
+	 * @return the library file
 	 */
-	public File getSaves() {
-		return new File(rootDir, "saves");
+	public File getLibrary(Library library) {
+		return new File(getLibraries(), library.getPath());
 	}
 
 	/**
@@ -91,6 +94,16 @@ public class MinecraftDirectory implements Serializable {
 	 */
 	public File getNatives(String version) {
 		return new File(getVersion(version), version + "-natives");
+	}
+
+	/**
+	 * Gets the natives directory.
+	 * 
+	 * @param version the owner of the natives
+	 * @return the natives directory
+	 */
+	public File getNatives(Version version) {
+		return getNatives(version.getRoot());
 	}
 
 	/**
@@ -149,6 +162,16 @@ public class MinecraftDirectory implements Serializable {
 	}
 
 	/**
+	 * Gets the asset index file of the given version.
+	 * 
+	 * @param version the version
+	 * @return the asset index file
+	 */
+	public File getAssetIndex(Version version) {
+		return getAssetIndex(version.getAssets());
+	}
+
+	/**
 	 * Gets the base directory of the given version
 	 * 
 	 * @param version the version
@@ -169,6 +192,16 @@ public class MinecraftDirectory implements Serializable {
 	}
 
 	/**
+	 * Gets the json file of the given version
+	 * 
+	 * @param version the version
+	 * @return the json file of the given version
+	 */
+	public File getVersionJson(Version version) {
+		return getVersionJson(version.getVersion());
+	}
+
+	/**
 	 * Gets the jar file of the given version
 	 * 
 	 * @param version the version
@@ -176,6 +209,16 @@ public class MinecraftDirectory implements Serializable {
 	 */
 	public File getVersionJar(String version) {
 		return new File(getVersion(version), version + ".jar");
+	}
+
+	/**
+	 * Gets the jar file of the given version
+	 * 
+	 * @param version the version
+	 * @return the jar file of the given version
+	 */
+	public File getVersionJar(Version version) {
+		return getVersionJar(version.getRoot());
 	}
 
 	/**

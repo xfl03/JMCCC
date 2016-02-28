@@ -211,6 +211,7 @@ class VersionParser {
 		return resolveLibraryInfo(artifact);
 	}
 
+	@SuppressWarnings("deprecation")
 	private Library resolveLibrary(JSONObject json) throws JSONException {
 		if (json.has("rules") && !isAllowed(json.getJSONArray("rules"))) {
 			return null;

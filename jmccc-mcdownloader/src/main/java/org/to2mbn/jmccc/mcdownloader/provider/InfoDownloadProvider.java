@@ -27,13 +27,13 @@ public class InfoDownloadProvider extends AbstractMinecraftDownloadProvider impl
 
 	@Override
 	public CombinedDownloadTask<Set<Asset>> assetsIndex(final MinecraftDirectory mcdir, final Version version) {
-		CombinedDownloadTask<Void> task = download(version.getAssetIndexDownloadInfo(), mcdir.getAssetIndex(version.getAssets()));
+		CombinedDownloadTask<Void> task = download(version.getAssetIndexDownloadInfo(), mcdir.getAssetIndex(version));
 		if (task != null) {
 			return task.andThen(new ResultProcessor<Void, Set<Asset>>() {
 
 				@Override
 				public Set<Asset> process(Void arg) throws Exception {
-					return Versions.resolveAssets(mcdir, version.getAssets());
+					return Versions.resolveAssets(mcdir, version);
 				}
 			});
 		} else {
@@ -45,7 +45,7 @@ public class InfoDownloadProvider extends AbstractMinecraftDownloadProvider impl
 	public CombinedDownloadTask<Void> gameJar(MinecraftDirectory mcdir, Version version) {
 		Map<String, DownloadInfo> downloads = version.getDownloads();
 		if (downloads != null) {
-			return download(downloads.get("client"), mcdir.getVersionJar(version.getRoot()));
+			return download(downloads.get("client"), mcdir.getVersionJar(version));
 		}
 		return null;
 	}
@@ -54,7 +54,7 @@ public class InfoDownloadProvider extends AbstractMinecraftDownloadProvider impl
 	public CombinedDownloadTask<Void> library(MinecraftDirectory mcdir, Library library) {
 		LibraryInfo info = library.getDownloadInfo();
 		if (info != null) {
-			return download(info, new File(mcdir.getLibraries(), info.getPath()));
+			return download(info, mcdir.getLibrary(library));
 		}
 		return null;
 	}

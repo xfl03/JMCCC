@@ -46,6 +46,7 @@ abstract public class CombinedDownloadTask<T> {
 		return any(combinedTasks);
 	}
 
+	@SuppressWarnings("unchecked")
 	@SafeVarargs
 	public static <T> CombinedDownloadTask<T> any(CombinedDownloadTask<T>... tasks) {
 		Objects.requireNonNull(tasks);

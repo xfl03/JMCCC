@@ -74,7 +74,7 @@ class LaunchArgument {
 		}
 
 		// game jar file
-		cpBuilder.append(mcdir.getVersionJar(version.getRoot())).append(Platform.getPathSpearator());
+		cpBuilder.append(mcdir.getVersionJar(version)).append(Platform.getPathSpearator());
 
 		args.add(cpBuilder.toString());
 		// ==========END==========

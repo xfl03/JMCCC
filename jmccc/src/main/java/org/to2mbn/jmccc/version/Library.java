@@ -1,6 +1,5 @@
 package org.to2mbn.jmccc.version;
 
-import java.io.File;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Objects;
@@ -135,7 +134,7 @@ public class Library implements Serializable {
 	 * @return true if the library is missing in the given minecraft directory
 	 */
 	public boolean isMissing(MinecraftDirectory minecraftDir) {
-		return !new File(minecraftDir.getLibraries(), getPath()).isFile();
+		return !minecraftDir.getLibrary(this).isFile();
 	}
 
 	@Override

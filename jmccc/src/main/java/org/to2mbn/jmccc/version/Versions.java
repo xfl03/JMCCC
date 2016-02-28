@@ -24,7 +24,8 @@ public final class Versions {
 	 * @param version the version name
 	 * @return the version object, null if the version does not exist
 	 * @throws IOException if an I/O error has occurred during resolving version
-	 * @throws NullPointerException if <code>minecraftDir==null||version==null</code>
+	 * @throws NullPointerException if
+	 *             <code>minecraftDir==null || version==null</code>
 	 */
 	public static Version resolveVersion(MinecraftDirectory minecraftDir, String version) throws IOException {
 		Objects.requireNonNull(minecraftDir);
@@ -70,10 +71,27 @@ public final class Versions {
 	 * Resolves the asset index.
 	 * 
 	 * @param minecraftDir the minecraft directory
-	 * @param assets the name of the asset index, you can get this via {@link Version#getAssets()}
-	 * @return the asset index
-	 * @throws IOException if an I/O error has occurred during resolving asset index
-	 * @throws NullPointerException <code>minecraftDir==null||assets==null</code>
+	 * @param version the owner version of the asset index
+	 * @return the asset index, null if the asset index does not exist
+	 * @throws IOException if an I/O error occurs during resolving asset index
+	 * @throws NullPointerException if
+	 *             <code>minecraftDir==null || version==null</code>
+	 */
+	public static Set<Asset> resolveAssets(MinecraftDirectory minecraftDir, Version version) throws IOException {
+		return resolveAssets(minecraftDir, version.getAssets());
+	}
+
+	/**
+	 * Resolves the asset index.
+	 * 
+	 * @param minecraftDir the minecraft directory
+	 * @param assets the name of the asset index, you can get this via
+	 *            {@link Version#getAssets()}
+	 * @return the asset index, null if the asset index does not exist
+	 * @throws IOException if an I/O error has occurred during resolving asset
+	 *             index
+	 * @throws NullPointerException if
+	 *             <code>minecraftDir==null || assets==null</code>
 	 */
 	public static Set<Asset> resolveAssets(MinecraftDirectory minecraftDir, String assets) throws IOException {
 		Objects.requireNonNull(minecraftDir);

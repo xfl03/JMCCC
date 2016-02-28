@@ -54,7 +54,7 @@ public class ForgeDownloadProvider extends AbstractMinecraftDownloadProvider imp
 	public CombinedDownloadTask<Void> library(MinecraftDirectory mcdir, final Library library) {
 		if ("net.minecraftforge".equals(library.getDomain())) {
 			final String libraryVersion = library.getVersion();
-			final File target = new File(mcdir.getLibraries(), library.getPath());
+			final File target = mcdir.getLibrary(library);
 
 			if ("forge".equals(library.getName())) {
 				ResolvedForgeVersion forgeVersion = ResolvedForgeVersion.resolveShort(libraryVersion);
@@ -127,14 +127,14 @@ public class ForgeDownloadProvider extends AbstractMinecraftDownloadProvider imp
 
 								@Override
 								public Void call() throws Exception {
-									Version superversion = Versions.resolveVersion(mcdir, resolvedMcversion);
+									final Version superversion = Versions.resolveVersion(mcdir, resolvedMcversion);
 									context.submit(upstreamProvider.gameJar(mcdir, superversion).andThen(new ResultProcessor<Void, Void>() {
 
 										@Override
 										public Void process(Void arg) throws Exception {
-											File target = mcdir.getVersionJar(version.getRoot());
+											File target = mcdir.getVersionJar(version);
 											FileUtils.prepareWrite(target);
-											try (ZipInputStream in = new ZipInputStream(new FileInputStream(mcdir.getVersionJar(resolvedMcversion)));
+											try (ZipInputStream in = new ZipInputStream(new FileInputStream(mcdir.getVersionJar(superversion)));
 													ZipOutputStream out = new ZipOutputStream(new FileOutputStream(target));) {
 												ZipEntry entry;
 												byte[] buf = new byte[8192];

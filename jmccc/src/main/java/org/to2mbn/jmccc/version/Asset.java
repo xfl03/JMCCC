@@ -1,6 +1,5 @@
 package org.to2mbn.jmccc.version;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.security.NoSuchAlgorithmException;
@@ -103,8 +102,7 @@ public class Asset implements Serializable {
 	 * @throws NoSuchAlgorithmException if the default hash algorithm SHA-1 doesn't exist
 	 */
 	public boolean isValid(MinecraftDirectory dir) throws IOException, NoSuchAlgorithmException {
-		File file = new File(dir.getAssetObjects(), getPath());
-		return ChecksumUtils.verify(file, getHash(), "SHA-1", size);
+		return ChecksumUtils.verify(dir.getAsset(this), getHash(), "SHA-1", size);
 	}
 
 	@Override
