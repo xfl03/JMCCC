@@ -27,6 +27,9 @@ The snapshot repository:
 mvn clean install
 ```
 
+## License
+JMCCC is licensed under [the MIT license](https://to2mbn.github.io/jmccc/LICENSE.txt).
+
 ## Examples
 
 ### Minecraft launching
