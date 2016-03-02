@@ -174,6 +174,8 @@ public class CombinedDownloaderImpl implements CombinedDownloader {
 				public <R> Future<R> submit(DownloadTask<R> task, DownloadCallback<R> taskcallback, boolean fatal) throws InterruptedException {
 					Lock lock = rwlock.readLock();
 					lock.lock();
+					Lock globalLock = shutdownLock.readLock();
+					globalLock.lock();
 					try {
 						checkInterrupt();
 
@@ -226,6 +228,7 @@ public class CombinedDownloaderImpl implements CombinedDownloader {
 						activeSubtasks.add(taskfuture);
 						return taskfuture;
 					} finally {
+						globalLock.unlock();
 						lock.unlock();
 					}
 				}
@@ -234,8 +237,8 @@ public class CombinedDownloaderImpl implements CombinedDownloader {
 				public <R> Future<R> submit(CombinedDownloadTask<R> task, CombinedDownloadCallback<R> callback, boolean fatal) throws InterruptedException {
 					Lock lock = rwlock.readLock();
 					lock.lock();
-					Lock lock2 = shutdownLock.readLock();
-					lock2.lock();
+					Lock globalLock = shutdownLock.readLock();
+					globalLock.lock();
 					try {
 						checkInterrupt();
 
@@ -292,7 +295,7 @@ public class CombinedDownloaderImpl implements CombinedDownloader {
 						activeSubtasks.add(taskfuture);
 						return taskfuture;
 					} finally {
-						lock2.unlock();
+						globalLock.unlock();
 						lock.unlock();
 					}
 				}
