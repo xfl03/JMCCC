@@ -18,6 +18,7 @@ import org.to2mbn.jmccc.mcdownloader.download.DownloadCallback;
 import org.to2mbn.jmccc.mcdownloader.download.DownloadCallbackGroup;
 import org.to2mbn.jmccc.mcdownloader.download.DownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.Downloader;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.AbstractAsyncCallback;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.AsyncCallback;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.AsyncCallbackGroup;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.AsyncFuture;
@@ -96,17 +97,17 @@ public class CombinedDownloaderImpl implements CombinedDownloader {
 
 				@Override
 				public Future<?> submit(final Runnable task, final AsyncCallback<?> taskcallback, boolean fatal) throws InterruptedException {
-					return submit(new Callable<Object>() {
+					return submit(new Callable<Void>() {
 
 						@Override
-						public Object call() throws Exception {
+						public Void call() throws Exception {
 							task.run();
 							return null;
 						}
-					}, new AsyncCallback<Object>() {
+					}, new AsyncCallback<Void>() {
 
 						@Override
-						public void done(Object result) {
+						public void done(Void result) {
 							taskcallback.done(null);
 						}
 
@@ -123,51 +124,56 @@ public class CombinedDownloaderImpl implements CombinedDownloader {
 				}
 
 				@Override
-				public <R> Future<R> submit(final Callable<R> task, final AsyncCallback<R> taskcallback, final boolean fatal) throws InterruptedException {
+				public <R> Future<R> submit(Callable<R> task, AsyncCallback<R> taskcallback, boolean fatal) throws InterruptedException {
+					List<AsyncCallback<R>> callbacks = new ArrayList<>();
+					callbacks.add(new AsyncCallback<R>() {
+
+						@Override
+						public void done(R result) {
+							activeTasksCountdown();
+						}
+
+						@Override
+						public void failed(Throwable e) {
+							activeTasksCountdown();
+						}
+
+						@Override
+						public void cancelled() {
+							activeTasksCountdown();
+						}
+					});
+					if (fatal) {
+						callbacks.add(new AbstractAsyncCallback<R>() {
+
+							@Override
+							public void failed(Throwable e) {
+								lifecycleFailed(e);
+							}
+
+							@Override
+							public void cancelled() {
+								lifecycleCancel();
+							}
+						});
+					}
+					if (taskcallback != null) {
+						callbacks.add(taskcallback);
+					}
+					CallableTaskHandler<R> handler = new CallableTaskHandler<>(task, callbacks, executor);
+
 					Lock lock = rwlock.readLock();
 					lock.lock();
 					try {
 						checkInterrupt();
 						activeTasksCountup();
-						Future<R> taskfuture = executor.submit(new Callable<R>() {
-
-							@Override
-							public R call() throws Exception {
-								R val;
-								boolean notDone = true;
-								try {
-									val = task.call();
-									if (taskcallback != null) {
-										notDone = false;
-										taskcallback.done(val);
-									}
-								} catch (InterruptedException e) {
-									if (fatal) {
-										lifecycleCancel();
-									}
-									if (notDone && taskcallback != null) {
-										taskcallback.cancelled();
-									}
-									throw e;
-								} catch (Throwable e) {
-									if (fatal) {
-										lifecycleFailed(e);
-									}
-									if (notDone && taskcallback != null) {
-										taskcallback.failed(e);
-									}
-									throw e;
-								} finally {
-									activeTasksCountdown();
-								}
-								return val;
-							}
-						});
-						activeSubtasks.add(taskfuture);
-						return taskfuture;
+						activeSubtasks.add(handler.future);
 					} finally {
 						lock.unlock();
 					}
+
+					handler.run();
+					return handler.future;
 				}
 
 				@Override
