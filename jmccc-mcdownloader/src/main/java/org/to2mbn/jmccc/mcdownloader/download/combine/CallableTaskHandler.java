@@ -15,7 +15,7 @@ class CallableTaskHandler<T> implements Cancellable, Runnable {
 
 	private class CallableWrapper implements Callable<T> {
 
-		private Callable<T> wrapped;
+		private final Callable<T> wrapped;
 
 		public CallableWrapper(Callable<T> wrapped) {
 			this.wrapped = wrapped;
@@ -73,15 +73,15 @@ class CallableTaskHandler<T> implements Cancellable, Runnable {
 
 	}
 
-	public AsyncFuture<T> future;
+	public final AsyncFuture<T> future;
 
-	private Callable<T> callable;
-	private AsyncCallback<T> callback;
-	private ExecutorService excutor;
+	private final Callable<T> callable;
+	private final AsyncCallback<T> callback;
+	private final ExecutorService excutor;
 	private volatile Future<T> executingFuture;
 	private volatile boolean cancelled;
 	private volatile boolean running;
-	private Object lock;
+	private final Object lock = new Object();
 
 	public CallableTaskHandler(Callable<T> callable, Collection<AsyncCallback<T>> callbacks, ExecutorService excutor) {
 		this.callable = new CallableWrapper(callable);
