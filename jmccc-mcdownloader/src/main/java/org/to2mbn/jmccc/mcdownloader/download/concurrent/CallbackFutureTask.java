@@ -5,15 +5,15 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 
-public class AsyncFutureTask<V> extends FutureTask<V> {
+public class CallbackFutureTask<V> extends FutureTask<V> {
 
 	private volatile AsyncCallback<V> callback;
 
-	public AsyncFutureTask(Callable<V> callable) {
+	public CallbackFutureTask(Callable<V> callable) {
 		super(callable);
 	}
 
-	public AsyncFutureTask(Runnable runnable, V result) {
+	public CallbackFutureTask(Runnable runnable, V result) {
 		super(runnable, result);
 	}
 

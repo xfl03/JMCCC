@@ -24,7 +24,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.AsyncCallback;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.AsyncCallbackGroup;
-import org.to2mbn.jmccc.mcdownloader.download.concurrent.AsyncFutureTask;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackFutureTask;
 
 public class JdkHttpDownloader implements DownloaderService {
 
@@ -215,7 +215,7 @@ public class JdkHttpDownloader implements DownloaderService {
 		if (tries < 1)
 			throw new IllegalArgumentException("tries < 1");
 
-		AsyncFutureTask<T> task = new AsyncFutureTask<>(new CallableDownloadTask<>(
+		CallbackFutureTask<T> task = new CallbackFutureTask<>(new CallableDownloadTask<>(
 				downloadTask,
 				callback == null ? new NullDownloadCallback<T>() : callback,
 				tries));
