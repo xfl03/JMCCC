@@ -19,8 +19,8 @@ import org.to2mbn.jmccc.mcdownloader.download.DownloadCallbackGroup;
 import org.to2mbn.jmccc.mcdownloader.download.DownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.Downloader;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.AbstractAsyncCallback;
-import org.to2mbn.jmccc.mcdownloader.download.concurrent.AsyncCallback;
-import org.to2mbn.jmccc.mcdownloader.download.concurrent.AsyncCallbackGroup;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackGroup;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.AsyncFuture;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Cancellable;
 
@@ -28,7 +28,7 @@ public class CombinedDownloaderImpl implements CombinedDownloader {
 
 	private class TaskHandler<T> implements Cancellable, Runnable {
 
-		class Inactiver implements AsyncCallback<T> {
+		class Inactiver implements Callback<T> {
 
 			@Override
 			public void done(T result) {
@@ -64,7 +64,7 @@ public class CombinedDownloaderImpl implements CombinedDownloader {
 		Set<Future<?>> activeSubtasks = Collections.newSetFromMap(new ConcurrentHashMap<Future<?>, Boolean>());
 		ReadWriteLock rwlock = new ReentrantReadWriteLock();
 		CombinedDownloadContext<T> context;
-		AsyncCallback<T> groupcallback;
+		Callback<T> groupcallback;
 		volatile Future<?> mainfuture;
 		volatile boolean terminated = false;
 		volatile boolean cancelled = false;
@@ -77,7 +77,7 @@ public class CombinedDownloaderImpl implements CombinedDownloader {
 			this.callback = callback;
 			this.tries = tries;
 			future = new AsyncFuture<>(this);
-			groupcallback = AsyncCallbackGroup.group(new Inactiver(), future, callback);
+			groupcallback = CallbackGroup.group(new Inactiver(), future, callback);
 			context = new CombinedDownloadContext<T>() {
 
 				@Override
@@ -96,7 +96,7 @@ public class CombinedDownloaderImpl implements CombinedDownloader {
 				}
 
 				@Override
-				public Future<?> submit(final Runnable task, final AsyncCallback<?> taskcallback, boolean fatal) throws InterruptedException {
+				public Future<?> submit(final Runnable task, final Callback<?> taskcallback, boolean fatal) throws InterruptedException {
 					return submit(new Callable<Void>() {
 
 						@Override
@@ -104,7 +104,7 @@ public class CombinedDownloaderImpl implements CombinedDownloader {
 							task.run();
 							return null;
 						}
-					}, new AsyncCallback<Void>() {
+					}, new Callback<Void>() {
 
 						@Override
 						public void done(Void result) {
@@ -124,9 +124,9 @@ public class CombinedDownloaderImpl implements CombinedDownloader {
 				}
 
 				@Override
-				public <R> Future<R> submit(Callable<R> task, AsyncCallback<R> taskcallback, boolean fatal) throws InterruptedException {
-					List<AsyncCallback<R>> callbacks = new ArrayList<>();
-					callbacks.add(new AsyncCallback<R>() {
+				public <R> Future<R> submit(Callable<R> task, Callback<R> taskcallback, boolean fatal) throws InterruptedException {
+					List<Callback<R>> callbacks = new ArrayList<>();
+					callbacks.add(new Callback<R>() {
 
 						@Override
 						public void done(R result) {

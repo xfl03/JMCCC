@@ -5,7 +5,7 @@ import java.util.concurrent.Future;
 import org.to2mbn.jmccc.mcdownloader.download.DownloadCallback;
 import org.to2mbn.jmccc.mcdownloader.download.DownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.ResultProcessor;
-import org.to2mbn.jmccc.mcdownloader.download.concurrent.AsyncCallback;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
 
 class AppendedCombinedDownloadContext<R, S> implements CombinedDownloadContext<R> {
 
@@ -37,12 +37,12 @@ class AppendedCombinedDownloadContext<R, S> implements CombinedDownloadContext<R
 	}
 
 	@Override
-	public Future<?> submit(Runnable task, AsyncCallback<?> callback, boolean fatal) throws InterruptedException {
+	public Future<?> submit(Runnable task, Callback<?> callback, boolean fatal) throws InterruptedException {
 		return proxied.submit(task, callback, fatal);
 	}
 
 	@Override
-	public <U> Future<U> submit(Callable<U> task, AsyncCallback<U> callback, boolean fatal) throws InterruptedException {
+	public <U> Future<U> submit(Callable<U> task, Callback<U> callback, boolean fatal) throws InterruptedException {
 		return proxied.submit(task, callback, fatal);
 	}
 

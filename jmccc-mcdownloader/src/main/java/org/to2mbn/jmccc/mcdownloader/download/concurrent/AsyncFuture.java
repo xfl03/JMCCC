@@ -7,7 +7,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public class AsyncFuture<T> implements Future<T>, AsyncCallback<T> {
+public class AsyncFuture<T> implements Future<T>, Callback<T> {
 
 	private static final int RUNNING = 0;
 	private static final int DONE = 1;

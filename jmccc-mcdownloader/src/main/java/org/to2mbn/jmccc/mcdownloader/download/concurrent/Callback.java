@@ -1,6 +1,6 @@
 package org.to2mbn.jmccc.mcdownloader.download.concurrent;
 
-public interface AsyncCallback<T> {
+public interface Callback<T> {
 
 	/**
 	 * Calls when the operation completed successfully.

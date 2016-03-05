@@ -5,9 +5,9 @@ import java.util.List;
 import org.to2mbn.jmccc.mcdownloader.download.DownloadCallback;
 import org.to2mbn.jmccc.mcdownloader.download.DownloadCallbackGroup;
 import org.to2mbn.jmccc.mcdownloader.download.DownloadTask;
-import org.to2mbn.jmccc.mcdownloader.download.concurrent.AsyncCallbackGroup;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackGroup;
 
-public class CombinedDownloadCallbackGroup<T> extends AsyncCallbackGroup<T> implements CombinedDownloadCallback<T> {
+public class CombinedDownloadCallbackGroup<T> extends CallbackGroup<T> implements CombinedDownloadCallback<T> {
 
 	@SafeVarargs
 	public static <T> CombinedDownloadCallback<T> group(CombinedDownloadCallback<T>... callbacks) {

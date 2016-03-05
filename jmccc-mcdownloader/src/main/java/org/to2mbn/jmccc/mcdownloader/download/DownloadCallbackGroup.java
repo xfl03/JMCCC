@@ -1,8 +1,8 @@
 package org.to2mbn.jmccc.mcdownloader.download;
 
-import org.to2mbn.jmccc.mcdownloader.download.concurrent.AsyncCallbackGroup;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackGroup;
 
-public class DownloadCallbackGroup<T> extends AsyncCallbackGroup<T> implements DownloadCallback<T> {
+public class DownloadCallbackGroup<T> extends CallbackGroup<T> implements DownloadCallback<T> {
 
 	@SafeVarargs
 	public static <T> DownloadCallback<T> group(DownloadCallback<T>... callbacks) {

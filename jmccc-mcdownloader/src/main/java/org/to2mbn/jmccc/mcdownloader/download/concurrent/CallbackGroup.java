@@ -2,16 +2,16 @@ package org.to2mbn.jmccc.mcdownloader.download.concurrent;
 
 import java.util.Objects;
 
-public class AsyncCallbackGroup<T> implements AsyncCallback<T> {
+public class CallbackGroup<T> implements Callback<T> {
 
 	@SafeVarargs
-	public static <T> AsyncCallback<T> group(AsyncCallback<T>... callbacks) {
-		return new AsyncCallbackGroup<>(callbacks);
+	public static <T> Callback<T> group(Callback<T>... callbacks) {
+		return new CallbackGroup<>(callbacks);
 	}
 
-	private AsyncCallback<T>[] callbacks;
+	private Callback<T>[] callbacks;
 
-	public AsyncCallbackGroup(AsyncCallback<T>[] callbacks) {
+	public CallbackGroup(Callback<T>[] callbacks) {
 		Objects.requireNonNull(callbacks);
 		this.callbacks = callbacks;
 	}
@@ -19,7 +19,7 @@ public class AsyncCallbackGroup<T> implements AsyncCallback<T> {
 	@Override
 	public void done(T result) {
 		RuntimeException ex = null;
-		for (AsyncCallback<T> callback : callbacks) {
+		for (Callback<T> callback : callbacks) {
 			try {
 				callback.done(result);
 			} catch (Throwable e) {
@@ -37,7 +37,7 @@ public class AsyncCallbackGroup<T> implements AsyncCallback<T> {
 	@Override
 	public void failed(Throwable e) {
 		RuntimeException ex1 = null;
-		for (AsyncCallback<T> callback : callbacks) {
+		for (Callback<T> callback : callbacks) {
 			try {
 				callback.failed(e);
 			} catch (Throwable e1) {
@@ -55,7 +55,7 @@ public class AsyncCallbackGroup<T> implements AsyncCallback<T> {
 	@Override
 	public void cancelled() {
 		RuntimeException ex = null;
-		for (AsyncCallback<T> callback : callbacks) {
+		for (Callback<T> callback : callbacks) {
 			try {
 				callback.cancelled();
 			} catch (Throwable e) {

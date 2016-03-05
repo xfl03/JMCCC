@@ -7,7 +7,7 @@ import java.util.concurrent.FutureTask;
 
 public class CallbackFutureTask<V> extends FutureTask<V> {
 
-	private volatile AsyncCallback<V> callback;
+	private volatile Callback<V> callback;
 
 	public CallbackFutureTask(Callable<V> callable) {
 		super(callable);
@@ -17,17 +17,17 @@ public class CallbackFutureTask<V> extends FutureTask<V> {
 		super(runnable, result);
 	}
 
-	public AsyncCallback<V> getCallback() {
+	public Callback<V> getCallback() {
 		return callback;
 	}
 
-	public void setCallback(AsyncCallback<V> callback) {
+	public void setCallback(Callback<V> callback) {
 		this.callback = callback;
 	}
 
 	@Override
 	protected void done() {
-		AsyncCallback<V> c = callback;
+		Callback<V> c = callback;
 		if (c != null) {
 			V result;
 			try {

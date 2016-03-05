@@ -22,8 +22,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
-import org.to2mbn.jmccc.mcdownloader.download.concurrent.AsyncCallback;
-import org.to2mbn.jmccc.mcdownloader.download.concurrent.AsyncCallbackGroup;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackGroup;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackFutureTask;
 
 public class JdkHttpDownloader implements DownloaderService {
@@ -138,7 +138,7 @@ public class JdkHttpDownloader implements DownloaderService {
 
 	}
 
-	private class TaskInactiver<T> implements AsyncCallback<T> {
+	private class TaskInactiver<T> implements Callback<T> {
 
 		private final RunnableFuture<T> future;
 
@@ -220,9 +220,9 @@ public class JdkHttpDownloader implements DownloaderService {
 				callback == null ? new NullDownloadCallback<T>() : callback,
 				tries));
 
-		AsyncCallback<T> statusCallback = new TaskInactiver<>(task);
+		Callback<T> statusCallback = new TaskInactiver<>(task);
 		if (callback != null) {
-			statusCallback = AsyncCallbackGroup.group(statusCallback, callback);
+			statusCallback = CallbackGroup.group(statusCallback, callback);
 		}
 		task.setCallback(callback);
 

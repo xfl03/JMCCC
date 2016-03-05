@@ -25,8 +25,8 @@ import org.apache.http.nio.IOControl;
 import org.apache.http.nio.client.methods.AsyncByteConsumer;
 import org.apache.http.nio.client.methods.HttpAsyncMethods;
 import org.apache.http.protocol.HttpContext;
-import org.to2mbn.jmccc.mcdownloader.download.concurrent.AsyncCallback;
-import org.to2mbn.jmccc.mcdownloader.download.concurrent.AsyncCallbackGroup;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackGroup;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.AsyncFuture;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Cancellable;
 
@@ -36,11 +36,11 @@ public class HttpAsyncDownloader implements DownloaderService {
 
 	private class TaskHandler<T> implements Runnable, Cancellable {
 
-		class LifeCycleHandler implements AsyncCallback<T> {
+		class LifeCycleHandler implements Callback<T> {
 
-			AsyncCallback<T> proxied;
+			Callback<T> proxied;
 
-			LifeCycleHandler(AsyncCallback<T> proxied) {
+			LifeCycleHandler(Callback<T> proxied) {
 				this.proxied = proxied;
 			}
 
@@ -96,7 +96,7 @@ public class HttpAsyncDownloader implements DownloaderService {
 
 		}
 
-		class Inactiver implements AsyncCallback<T> {
+		class Inactiver implements Callback<T> {
 
 			@Override
 			public void done(T result) {
@@ -145,7 +145,7 @@ public class HttpAsyncDownloader implements DownloaderService {
 
 		DownloadTask<T> task;
 		AsyncFuture<T> futuer;
-		AsyncCallback<T> lifecycle;
+		Callback<T> lifecycle;
 		DownloadSession<T> session;
 		DownloadCallback<T> callback;
 		Future<T> downloadFuture;
@@ -158,7 +158,7 @@ public class HttpAsyncDownloader implements DownloaderService {
 			this.task = task;
 			this.callback = callback;
 			this.futuer = new AsyncFuture<>(this);
-			this.lifecycle = new LifeCycleHandler(AsyncCallbackGroup.group(new Inactiver(), futuer, callback));
+			this.lifecycle = new LifeCycleHandler(CallbackGroup.group(new Inactiver(), futuer, callback));
 			this.maxTries = maxTries;
 		}
 
