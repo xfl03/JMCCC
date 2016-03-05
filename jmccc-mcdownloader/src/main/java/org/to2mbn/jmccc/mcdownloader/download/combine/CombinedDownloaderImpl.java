@@ -18,7 +18,7 @@ import org.to2mbn.jmccc.mcdownloader.download.DownloadCallback;
 import org.to2mbn.jmccc.mcdownloader.download.DownloadCallbackGroup;
 import org.to2mbn.jmccc.mcdownloader.download.DownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.Downloader;
-import org.to2mbn.jmccc.mcdownloader.download.concurrent.AbstractCallback;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackAdapter;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackGroup;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.AsyncFuture;
@@ -144,7 +144,7 @@ public class CombinedDownloaderImpl implements CombinedDownloader {
 						}
 					});
 					if (fatal) {
-						callbacks.add(new AbstractCallback<R>() {
+						callbacks.add(new CallbackAdapter<R>() {
 
 							@Override
 							public void failed(Throwable e) {

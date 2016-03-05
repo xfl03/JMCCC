@@ -5,7 +5,7 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 
-public class CallbackFutureTask<V> extends FutureTask<V> {
+public class CallbackFutureTask<V> extends FutureTask<V> implements Cancellable {
 
 	private volatile Callback<V> callback;
 
