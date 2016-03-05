@@ -19,7 +19,7 @@ import org.to2mbn.jmccc.mcdownloader.download.DownloadCallback;
 import org.to2mbn.jmccc.mcdownloader.download.DownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.DownloaderService;
 import org.to2mbn.jmccc.mcdownloader.download.HttpAsyncDownloader;
-import org.to2mbn.jmccc.mcdownloader.download.JreHttpDownloader;
+import org.to2mbn.jmccc.mcdownloader.download.JdkHttpDownloader;
 import org.to2mbn.jmccc.mcdownloader.provider.ExtendedDownloadProvider;
 import org.to2mbn.jmccc.mcdownloader.provider.InfoDownloadProvider;
 import org.to2mbn.jmccc.mcdownloader.provider.MinecraftDownloadProvider;
@@ -172,7 +172,7 @@ public class MinecraftDownloaderBuilder {
 					}
 				};
 			} else {
-				downloader = new JreHttpDownloader(
+				downloader = new JdkHttpDownloader(
 						maxConnections > 0 ? maxConnections : Runtime.getRuntime().availableProcessors() * 2,
 						connectTimeout,
 						soTimeout,

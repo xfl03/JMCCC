@@ -48,7 +48,7 @@ public class HttpAsyncDownloader implements DownloaderService {
 			public void failed(Throwable e) {
 				if (session != null) {
 					try {
-						session.failed(e);
+						session.failed();
 					} catch (Throwable e1) {
 						if (e != e1) {
 							e.addSuppressed(e1);
@@ -80,7 +80,7 @@ public class HttpAsyncDownloader implements DownloaderService {
 			public void cancelled() {
 				if (session != null) {
 					try {
-						session.cancelled();
+						session.failed();
 					} catch (Throwable e) {
 						proxied.failed(e);
 						return;

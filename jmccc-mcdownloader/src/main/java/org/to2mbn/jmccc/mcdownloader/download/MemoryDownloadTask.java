@@ -49,7 +49,7 @@ public class MemoryDownloadTask extends DownloadTask<byte[]> {
 			}
 
 			@Override
-			public void failed(Throwable e) throws IOException {
+			public void failed() throws IOException {
 				close();
 			}
 
@@ -58,11 +58,6 @@ public class MemoryDownloadTask extends DownloadTask<byte[]> {
 				byte[] data = out.toByteArray();
 				close();
 				return data;
-			}
-
-			@Override
-			public void cancelled() throws IOException {
-				close();
 			}
 
 			private void close() {
