@@ -22,11 +22,11 @@ import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackAdapter;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackGroup;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.AsyncFuture;
-import org.to2mbn.jmccc.mcdownloader.download.concurrent.Cancellable;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.Cancelable;
 
 public class CombinedDownloaderImpl implements CombinedDownloader {
 
-	private class TaskHandler<T> implements Cancellable, Runnable {
+	private class TaskHandler<T> implements Cancelable, Runnable {
 
 		class Inactiver implements Callback<T> {
 

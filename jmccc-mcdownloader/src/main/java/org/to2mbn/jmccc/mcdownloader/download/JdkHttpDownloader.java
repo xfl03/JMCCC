@@ -23,8 +23,8 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
-import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackGroup;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackFutureTask;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackGroup;
 
 public class JdkHttpDownloader implements DownloaderService {
 
@@ -174,7 +174,7 @@ public class JdkHttpDownloader implements DownloaderService {
 
 	}
 
-	private final ExecutorService executor;
+	private ExecutorService executor;
 
 	private int connectTimeout;
 	private int readTimeout;
@@ -182,7 +182,7 @@ public class JdkHttpDownloader implements DownloaderService {
 
 	private volatile boolean shutdown;
 	private final ReadWriteLock rwlock = new ReentrantReadWriteLock();
-	private final Set<RunnableFuture<?>> tasks = Collections.newSetFromMap(new ConcurrentHashMap<RunnableFuture<?>, Boolean>());
+	private final Set<Future<?>> tasks = Collections.newSetFromMap(new ConcurrentHashMap<Future<?>, Boolean>());
 
 	public JdkHttpDownloader(int maxConns, int connectTimeout, int readTimeout, long poolThreadLivingTime, Proxy proxy) {
 		this.connectTimeout = connectTimeout;
@@ -229,12 +229,11 @@ public class JdkHttpDownloader implements DownloaderService {
 		Lock lock = rwlock.readLock();
 		lock.lock();
 		try {
-			if (shutdown) {
+			if (shutdown)
 				throw new RejectedExecutionException("The downloader has been shutdown.");
-			}
 
 			tasks.add(task);
-			executor.submit(task);
+			executor.execute(task);
 		} finally {
 			lock.unlock();
 		}
@@ -268,10 +267,11 @@ public class JdkHttpDownloader implements DownloaderService {
 
 			shutdown = true;
 
-			for (RunnableFuture<?> task : tasks)
+			for (Future<?> task : tasks)
 				task.cancel(true);
 
 			executor.shutdownNow();
+			executor = null;
 		} finally {
 			lock.unlock();
 		}

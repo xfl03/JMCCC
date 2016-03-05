@@ -10,7 +10,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-abstract public class CallbackAsyncFutureTask<V> implements RunnableFuture<V>, Cancellable {
+abstract public class CallbackAsyncFutureTask<V> implements RunnableFuture<V>, Cancelable {
+
+	private static void cancelCancelable(Object cancelable, boolean mayInterruptIfRunning) {
+		if (cancelable instanceof Future) {
+			((Future<?>) cancelable).cancel(mayInterruptIfRunning);
+		} else if (cancelable instanceof Cancelable) {
+			((Cancelable) cancelable).cancel(mayInterruptIfRunning);
+		}
+	}
 
 	private static class InterruptedExceptionMapper<V> implements Callback<V> {
 
@@ -41,11 +49,11 @@ abstract public class CallbackAsyncFutureTask<V> implements RunnableFuture<V>, C
 
 	}
 
-	private static class ThreadCancellableAdapter implements Cancellable {
+	private static class ThreadCancelableAdapter implements Cancelable {
 
 		private final Thread t;
 
-		public ThreadCancellableAdapter(Thread t) {
+		public ThreadCancelableAdapter(Thread t) {
 			this.t = t;
 		}
 
@@ -57,23 +65,20 @@ abstract public class CallbackAsyncFutureTask<V> implements RunnableFuture<V>, C
 
 	}
 
-	private class CancelProcesser implements Cancellable {
+	private class CancelProcesser implements Cancelable {
 
 		@Override
 		public boolean cancel(boolean mayInterruptIfRunning) {
-			for (Object cancellable : cancellables) {
-				if (cancellable instanceof Future) {
-					((Future<?>) cancellable).cancel(mayInterruptIfRunning);
-				} else if (cancellable instanceof Cancellable) {
-					((Cancellable) cancellable).cancel(mayInterruptIfRunning);
-				}
+			for (Object cancelable : cancelables) {
+				cancelCancelable(cancelable, mayInterruptIfRunning);
+				cancelables.remove(cancelable);
 			}
 			return true;
 		}
 
 	}
 
-	private final Set<Object> cancellables = Collections.newSetFromMap(new ConcurrentHashMap<Object, Boolean>());
+	private final Set<Object> cancelables = Collections.newSetFromMap(new ConcurrentHashMap<Object, Boolean>());
 	private final AsyncFuture<V> future;
 	private final Callback<V> lifecycle;
 
@@ -115,19 +120,19 @@ abstract public class CallbackAsyncFutureTask<V> implements RunnableFuture<V>, C
 	@Override
 	public void run() {
 		if (!future.isCancelled() && running.compareAndSet(false, true)) {
-			Cancellable canceller = new ThreadCancellableAdapter(Thread.currentThread());
-			addCancellable(canceller);
+			Cancelable canceller = new ThreadCancelableAdapter(Thread.currentThread());
+			addCancelable(canceller);
 			try {
-				if (future.isCancelled()) {
+				if (Thread.interrupted())
 					return;
-				}
+
 				try {
 					execute();
 				} catch (Throwable e) {
 					lifecycle.failed(e);
 				}
 			} finally {
-				removeCancellable(canceller);
+				removeCancelable(canceller);
 			}
 		}
 	}
@@ -143,20 +148,29 @@ abstract public class CallbackAsyncFutureTask<V> implements RunnableFuture<V>, C
 		return lifecycle;
 	}
 
-	protected void addCancellable(Cancellable cancelable) {
-		cancellables.add(cancelable);
+	protected void addCancelable(Cancelable cancelable) {
+		cancelables.add(cancelable);
+		cancelIfNecessary(cancelable);
 	}
 
-	protected void addCancellable(Future<?> cancelable) {
-		cancellables.add(cancelable);
+	protected void addCancelable(Future<?> cancelable) {
+		cancelables.add(cancelable);
+		cancelIfNecessary(cancelable);
 	}
 
-	protected void removeCancellable(Cancellable cancelable) {
-		cancellables.remove(cancelable);
+	protected void removeCancelable(Cancelable cancelable) {
+		cancelables.remove(cancelable);
 	}
 
-	protected void removeCancellable(Future<?> cancelable) {
-		cancellables.remove(cancelable);
+	protected void removeCancelable(Future<?> cancelable) {
+		cancelables.remove(cancelable);
+	}
+
+	private void cancelIfNecessary(Object cancelable) {
+		if (future.isCancelled()) {
+			cancelCancelable(cancelable, true);
+			cancelables.remove(cancelable);
+		}
 	}
 
 }

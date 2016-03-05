@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class AsyncFuture<V> implements Future<V>, Callback<V>, Cancellable {
+public class AsyncFuture<V> implements Future<V>, Callback<V>, Cancelable {
 
 	private static final int RUNNING = 0;
 	private static final int COMPLETING = 1;
@@ -16,7 +16,7 @@ public class AsyncFuture<V> implements Future<V>, Callback<V>, Cancellable {
 	private static final int FAILED = 3;
 	private static final int CANCELLED = 4;
 
-	private final Cancellable cancellable;
+	private final Cancelable cancelable;
 	private volatile Callback<V> callback;
 
 	private final AtomicInteger state = new AtomicInteger(RUNNING);
@@ -29,8 +29,8 @@ public class AsyncFuture<V> implements Future<V>, Callback<V>, Cancellable {
 		this(null);
 	}
 
-	public AsyncFuture(Cancellable cancellable) {
-		this.cancellable = cancellable;
+	public AsyncFuture(Cancelable cancelable) {
+		this.cancelable = cancelable;
 	}
 
 	public Callback<V> getCallback() {
@@ -134,8 +134,8 @@ public class AsyncFuture<V> implements Future<V>, Callback<V>, Cancellable {
 	}
 
 	private void cancelUnderlying() {
-		if (cancellable != null)
-			cancellable.cancel(true);
+		if (cancelable != null)
+			cancelable.cancel(true);
 	}
 
 	private boolean isRunning() {
