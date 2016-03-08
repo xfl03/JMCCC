@@ -36,6 +36,8 @@ public class CallbackFutureTask<V> extends FutureTask<V> implements Cancelable {
 				throw new AssertionError(e);
 			} catch (ExecutionException e) {
 				Throwable exception = e.getCause();
+				if (exception == null)
+					exception = e;
 				c.failed(exception);
 				return;
 			} catch (CancellationException e) {

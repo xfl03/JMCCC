@@ -97,11 +97,12 @@ public class IncrementallyDownloadTask extends CombinedDownloadTask<Version> {
 
 				downloadLibraries(context, versionModel);
 
-				context.awaitAllTasks(new Runnable() {
+				context.awaitAllTasks(new Callable<Void>() {
 
 					@Override
-					public void run() {
+					public Void call() throws Exception {
 						context.done(versionModel);
+						return null;
 					}
 				});
 				return null;

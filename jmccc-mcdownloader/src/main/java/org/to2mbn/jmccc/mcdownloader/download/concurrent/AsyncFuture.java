@@ -1,5 +1,6 @@
 package org.to2mbn.jmccc.mcdownloader.download.concurrent;
 
+import java.util.Objects;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -20,7 +21,7 @@ public class AsyncFuture<V> implements Future<V>, Callback<V>, Cancelable {
 	private volatile Callback<V> callback;
 
 	private final AtomicInteger state = new AtomicInteger(RUNNING);
-	private volatile Throwable e;
+	private volatile Throwable exception;
 	private volatile V result;
 
 	private final CountDownLatch latch = new CountDownLatch(1);
@@ -57,6 +58,11 @@ public class AsyncFuture<V> implements Future<V>, Callback<V>, Cancelable {
 		return state.get() == DONE;
 	}
 
+	public boolean isExceptional() {
+		int s = state.get();
+		return s == FAILED || s == CANCELLED;
+	}
+
 	@Override
 	public V get() throws InterruptedException, ExecutionException {
 		if (isRunning()) {
@@ -67,6 +73,7 @@ public class AsyncFuture<V> implements Future<V>, Callback<V>, Cancelable {
 
 	@Override
 	public V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+		Objects.requireNonNull(unit);
 		if (isRunning()) {
 			if (!latch.await(timeout, unit)) {
 				throw new TimeoutException();
@@ -90,8 +97,9 @@ public class AsyncFuture<V> implements Future<V>, Callback<V>, Cancelable {
 
 	@Override
 	public void failed(Throwable e) {
+		Objects.requireNonNull(e);
 		if (state.compareAndSet(RUNNING, COMPLETING)) {
-			this.e = e;
+			this.exception = e;
 			state.set(FAILED);
 
 			terminated();
@@ -99,6 +107,18 @@ public class AsyncFuture<V> implements Future<V>, Callback<V>, Cancelable {
 			Callback<V> c = callback;
 			if (c != null)
 				c.failed(e);
+		} else {
+
+			while (state.get() == COMPLETING)
+				Thread.yield();
+			if (state.get() == FAILED && this.exception != e)
+				assert exception != null;
+				synchronized (exception) {
+					for (Throwable e1 : exception.getSuppressed())
+						if (e1 == e)
+							return;
+					exception.addSuppressed(e);
+				}
 		}
 	}
 
@@ -123,7 +143,7 @@ public class AsyncFuture<V> implements Future<V>, Callback<V>, Cancelable {
 				return result;
 
 			case FAILED:
-				throw new ExecutionException(e);
+				throw new ExecutionException(exception);
 
 			case CANCELLED:
 				throw new CancellationException();

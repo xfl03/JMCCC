@@ -15,7 +15,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
@@ -24,7 +23,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackFutureTask;
-import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackGroup;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callbacks;
 
 public class JdkHttpDownloader implements DownloaderService {
 
@@ -138,37 +137,17 @@ public class JdkHttpDownloader implements DownloaderService {
 
 	}
 
-	private class TaskInactiver<T> implements Callback<T> {
+	private class TaskInactiver implements Runnable {
 
-		private final RunnableFuture<T> future;
+		private final Future<?> future;
 
-		public TaskInactiver(RunnableFuture<T> future) {
+		public TaskInactiver(Future<?> future) {
 			Objects.requireNonNull(future);
 			this.future = future;
 		}
 
 		@Override
-		public void done(T result) {
-			doFinally();
-		}
-
-		@Override
-		public void failed(Throwable e) {
-			doFinally();
-		}
-
-		@Override
-		public void cancelled() {
-			doFinally();
-		}
-
-		private void doFinally() {
-			/*
-			* ## When the task terminates
-			* ++++ read lock
-			* 	1. Remove itself from tasks. ......................................................... write tasks
-			* ---- read unlock
-			 */
+		public void run() {
 			tasks.remove(future);
 		}
 
@@ -185,6 +164,8 @@ public class JdkHttpDownloader implements DownloaderService {
 	private final Set<Future<?>> tasks = Collections.newSetFromMap(new ConcurrentHashMap<Future<?>, Boolean>());
 
 	public JdkHttpDownloader(int maxConns, int connectTimeout, int readTimeout, long poolThreadLivingTime, Proxy proxy) {
+		Objects.requireNonNull(proxy);
+
 		this.connectTimeout = connectTimeout;
 		this.readTimeout = readTimeout;
 		this.proxy = proxy;
@@ -220,9 +201,9 @@ public class JdkHttpDownloader implements DownloaderService {
 				callback == null ? new NullDownloadCallback<T>() : callback,
 				tries));
 
-		Callback<T> statusCallback = new TaskInactiver<>(task);
+		Callback<T> statusCallback = Callbacks.whatever(new TaskInactiver(task));
 		if (callback != null) {
-			statusCallback = CallbackGroup.group(statusCallback, callback);
+			statusCallback = Callbacks.group(statusCallback, callback);
 		}
 		task.setCallback(callback);
 
@@ -266,15 +247,15 @@ public class JdkHttpDownloader implements DownloaderService {
 			}
 
 			shutdown = true;
-
-			for (Future<?> task : tasks)
-				task.cancel(true);
-
-			executor.shutdownNow();
-			executor = null;
 		} finally {
 			lock.unlock();
 		}
+
+		for (Future<?> task : tasks)
+			task.cancel(true);
+
+		executor.shutdownNow();
+		executor = null;
 	}
 
 	@Override

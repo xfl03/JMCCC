@@ -3,16 +3,11 @@ package org.to2mbn.jmccc.mcdownloader.download.combine;
 import java.util.ArrayList;
 import java.util.List;
 import org.to2mbn.jmccc.mcdownloader.download.DownloadCallback;
-import org.to2mbn.jmccc.mcdownloader.download.DownloadCallbackGroup;
+import org.to2mbn.jmccc.mcdownloader.download.DownloadCallbacks;
 import org.to2mbn.jmccc.mcdownloader.download.DownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackGroup;
 
 public class CombinedDownloadCallbackGroup<T> extends CallbackGroup<T> implements CombinedDownloadCallback<T> {
-
-	@SafeVarargs
-	public static <T> CombinedDownloadCallback<T> group(CombinedDownloadCallback<T>... callbacks) {
-		return new CombinedDownloadCallbackGroup<>(callbacks);
-	}
 
 	private CombinedDownloadCallback<T>[] callbacks;
 
@@ -44,7 +39,7 @@ public class CombinedDownloadCallbackGroup<T> extends CallbackGroup<T> implement
 		}
 		@SuppressWarnings("unchecked")
 		DownloadCallback<R>[] callbacksArray = listeners.toArray(new DownloadCallback[listeners.size()]);
-		return listeners.isEmpty() ? null : new DownloadCallbackGroup<R>(callbacksArray);
+		return listeners.isEmpty() ? null : DownloadCallbacks.group(callbacksArray);
 	}
 
 }

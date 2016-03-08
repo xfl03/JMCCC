@@ -1,501 +1,412 @@
 package org.to2mbn.jmccc.mcdownloader.download.combine;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import org.to2mbn.jmccc.mcdownloader.download.AbstractDownloadCallback;
 import org.to2mbn.jmccc.mcdownloader.download.DownloadCallback;
-import org.to2mbn.jmccc.mcdownloader.download.DownloadCallbackGroup;
+import org.to2mbn.jmccc.mcdownloader.download.DownloadCallbacks;
 import org.to2mbn.jmccc.mcdownloader.download.DownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.Downloader;
-import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackAdapter;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
-import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackGroup;
-import org.to2mbn.jmccc.mcdownloader.download.concurrent.AsyncFuture;
-import org.to2mbn.jmccc.mcdownloader.download.concurrent.Cancelable;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackAdapter;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackAsyncFutureTask;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackFutureTask;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callbacks;
 
 public class CombinedDownloaderImpl implements CombinedDownloader {
 
-	private class TaskHandler<T> implements Cancelable, Runnable {
+	private class CombinedAsyncTask<T> extends CallbackAsyncFutureTask<T> implements CombinedDownloadContext<T> {
 
-		class Inactiver implements Callback<T> {
+		private class ExceptionCatcher implements InvocationHandler {
 
-			@Override
-			public void done(T result) {
-				inactive();
+			private Object target;
+
+			public ExceptionCatcher(Object target) {
+				Objects.requireNonNull(target);
+				this.target = target;
 			}
 
 			@Override
+			public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+				try {
+					return method.invoke(target, args);
+				} catch (Throwable e) {
+					Throwable exception = e;
+					if (e instanceof InvocationTargetException) {
+						exception = e.getCause();
+						if (exception == null)
+							exception = e;
+					}
+					lifecycle().failed(exception);
+				}
+				return null;
+			}
+
+		}
+
+		private class SubtaskCounter {
+
+			private final List<Callable<?>> taskWaitNodes = new Vector<>();
+			private volatile int count = 0;
+
+			public void countUp() {
+				synchronized (this) {
+					count++;
+					if (count < 1)
+						throw new IllegalStateException("Invalid task count: " + count);
+				}
+			}
+
+			public void countDown() {
+				List<Callable<?>> copiedWaitNodes = null;
+				synchronized (this) {
+					count--;
+					if (count == 0) {
+						copiedWaitNodes = new Vector<>(taskWaitNodes);
+						taskWaitNodes.clear();
+					} else if (count < 0) {
+						throw new IllegalStateException("Invalid task count: " + count);
+					}
+				}
+
+				if (copiedWaitNodes != null)
+					for (Callable<?> waitNode : copiedWaitNodes)
+						doCallback(waitNode);
+			}
+
+			public void awaitAllTasks(Callable<Void> callback) {
+				synchronized (this) {
+					if (count > 0) {
+						taskWaitNodes.add(callback);
+						return;
+					}
+				}
+				doCallback(callback);
+			}
+
+			private void doCallback(Callable<?> callback) {
+				try {
+					callback.call();
+				} catch (Throwable e) {
+					lifecycle().failed(e);
+				}
+			}
+
+		}
+
+		private class SubtaskCountdownAction implements Runnable{
+			
+			@Override
+			public void run() {
+				subtaskCounter.countDown();				
+			}
+		}
+		
+		private class FatalSubtaskCallback<R> extends CallbackAdapter<R> {
+
+			@Override
 			public void failed(Throwable e) {
-				inactive();
+				lifecycle().failed(e);
 			}
 
 			@Override
 			public void cancelled() {
-				inactive();
-			}
-
-			void inactive() {
-				Lock lock = shutdownLock.readLock();
-				lock.lock();
-				try {
-					activeTasks.remove(TaskHandler.this);
-				} finally {
-					lock.unlock();
-				}
+				lifecycle().cancelled();
 			}
 
 		}
 
-		AsyncFuture<T> future;
-		CombinedDownloadTask<T> task;
-		CombinedDownloadCallback<T> callback;
-		int tries;
-		Set<Future<?>> activeSubtasks = Collections.newSetFromMap(new ConcurrentHashMap<Future<?>, Boolean>());
-		ReadWriteLock rwlock = new ReentrantReadWriteLock();
-		CombinedDownloadContext<T> context;
-		Callback<T> groupcallback;
-		volatile Future<?> mainfuture;
-		volatile boolean terminated = false;
-		volatile boolean cancelled = false;
-		volatile int activeTasksCount = 0;
-		volatile List<Runnable> activeTasksCountZeroCallbacks = new ArrayList<>();
-		Object activeTasksCountLock = new Object();
+		private class SubDownloadTaskMapper<R> extends AbstractCombinedDownloadCallback<R> {
 
-		TaskHandler(CombinedDownloadTask<T> task, CombinedDownloadCallback<T> callback, int tries) {
+			@Override
+			public <S> DownloadCallback<S> taskStart(DownloadTask<S> task) {
+				return callback.taskStart(task);
+			}
+
+		}
+
+		private final CombinedDownloadTask<T> task;
+		private final CombinedDownloadCallback<T> callback;
+		private final int tries;
+		private final SubtaskCountdownAction countdownAction=new SubtaskCountdownAction();
+		private final SubtaskCounter subtaskCounter = new SubtaskCounter();
+
+		public CombinedAsyncTask(CombinedDownloadTask<T> task, CombinedDownloadCallback<T> callback, int tries) {
+			Objects.requireNonNull(task);
+			Objects.requireNonNull(callback);
+			if (tries < 1)
+				throw new IllegalArgumentException(String.valueOf(tries));
+
 			this.task = task;
 			this.callback = callback;
 			this.tries = tries;
-			future = new AsyncFuture<>(this);
-			groupcallback = CallbackGroup.group(new Inactiver(), future, callback);
-			context = new CombinedDownloadContext<T>() {
-
-				@Override
-				public void done(T result) {
-					lifecycleDone(result);
-				}
-
-				@Override
-				public void failed(Throwable e) {
-					lifecycleFailed(e);
-				}
-
-				@Override
-				public void cancelled() {
-					lifecycleCancel();
-				}
-
-				@Override
-				public Future<?> submit(final Runnable task, final Callback<?> taskcallback, boolean fatal) throws InterruptedException {
-					return submit(new Callable<Void>() {
-
-						@Override
-						public Void call() throws Exception {
-							task.run();
-							return null;
-						}
-					}, new Callback<Void>() {
-
-						@Override
-						public void done(Void result) {
-							taskcallback.done(null);
-						}
-
-						@Override
-						public void failed(Throwable e) {
-							taskcallback.failed(e);
-						}
-
-						@Override
-						public void cancelled() {
-							taskcallback.cancelled();
-						}
-					}, fatal);
-				}
-
-				@Override
-				public <R> Future<R> submit(Callable<R> task, Callback<R> taskcallback, boolean fatal) throws InterruptedException {
-					List<Callback<R>> callbacks = new ArrayList<>();
-					callbacks.add(new Callback<R>() {
-
-						@Override
-						public void done(R result) {
-							activeTasksCountdown();
-						}
-
-						@Override
-						public void failed(Throwable e) {
-							activeTasksCountdown();
-						}
-
-						@Override
-						public void cancelled() {
-							activeTasksCountdown();
-						}
-					});
-					if (fatal) {
-						callbacks.add(new CallbackAdapter<R>() {
-
-							@Override
-							public void failed(Throwable e) {
-								lifecycleFailed(e);
-							}
-
-							@Override
-							public void cancelled() {
-								lifecycleCancel();
-							}
-						});
-					}
-					if (taskcallback != null) {
-						callbacks.add(taskcallback);
-					}
-					CallableTaskHandler<R> handler = new CallableTaskHandler<>(task, callbacks, executor);
-
-					Lock lock = rwlock.readLock();
-					lock.lock();
-					try {
-						checkInterrupt();
-						activeTasksCountup();
-						activeSubtasks.add(handler.future);
-					} finally {
-						lock.unlock();
-					}
-
-					handler.run();
-					return handler.future;
-				}
-
-				@Override
-				public <R> Future<R> submit(DownloadTask<R> task, DownloadCallback<R> taskcallback, boolean fatal) throws InterruptedException {
-					Lock lock = rwlock.readLock();
-					lock.lock();
-					Lock globalLock = shutdownLock.readLock();
-					globalLock.lock();
-					try {
-						checkInterrupt();
-
-						DownloadCallback<R> outsidecallback = TaskHandler.this.callback.taskStart(task);
-						List<DownloadCallback<R>> callbacks = new ArrayList<>();
-						if (fatal) {
-							callbacks.add(new AbstractDownloadCallback<R>() {
-
-								@Override
-								public void failed(Throwable e) {
-									lifecycleFailed(e);
-								}
-
-								@Override
-								public void cancelled() {
-									lifecycleCancel();
-								}
-
-							});
-						}
-						if (taskcallback != null) {
-							callbacks.add(taskcallback);
-						}
-						if (outsidecallback != null) {
-							callbacks.add(outsidecallback);
-						}
-						callbacks.add(new AbstractDownloadCallback<R>() {
-
-							@Override
-							public void done(R result) {
-								activeTasksCountdown();
-							}
-
-							@Override
-							public void failed(Throwable e) {
-								activeTasksCountdown();
-							}
-
-							@Override
-							public void cancelled() {
-								activeTasksCountdown();
-							}
-
-						});
-
-						@SuppressWarnings("unchecked")
-						DownloadCallback<R>[] callbacksArray = callbacks.toArray(new DownloadCallback[callbacks.size()]);
-						activeTasksCountup();
-						Future<R> taskfuture = downloader.download(task, new DownloadCallbackGroup<R>(callbacksArray), TaskHandler.this.tries);
-						activeSubtasks.add(taskfuture);
-						return taskfuture;
-					} finally {
-						globalLock.unlock();
-						lock.unlock();
-					}
-				}
-
-				@Override
-				public <R> Future<R> submit(CombinedDownloadTask<R> task, CombinedDownloadCallback<R> callback, boolean fatal) throws InterruptedException {
-					Lock lock = rwlock.readLock();
-					lock.lock();
-					Lock globalLock = shutdownLock.readLock();
-					globalLock.lock();
-					try {
-						checkInterrupt();
-
-						List<CombinedDownloadCallback<R>> callbacks = new ArrayList<>();
-
-						if (fatal) {
-							callbacks.add(new AbstractCombinedDownloadCallback<R>() {
-
-								@Override
-								public void failed(Throwable e) {
-									lifecycleFailed(e);
-								}
-
-								@Override
-								public void cancelled() {
-									lifecycleCancel();
-								}
-
-							});
-						}
-
-						if (callback != null) {
-							callbacks.add(callback);
-						}
-
-						callbacks.add(new CombinedDownloadCallback<R>() {
-
-							@Override
-							public void done(R result) {
-								activeTasksCountdown();
-							}
-
-							@Override
-							public void failed(Throwable e) {
-								activeTasksCountdown();
-							}
-
-							@Override
-							public void cancelled() {
-								activeTasksCountdown();
-							}
-
-							@Override
-							public <S> DownloadCallback<S> taskStart(DownloadTask<S> task) {
-								return TaskHandler.this.callback.taskStart(task);
-							}
-
-						});
-
-						@SuppressWarnings("unchecked")
-						CombinedDownloadCallback<R>[] callbacksArray = callbacks.toArray(new CombinedDownloadCallback[callbacks.size()]);
-						activeTasksCountup();
-						Future<R> taskfuture = download(task, new CombinedDownloadCallbackGroup<>(callbacksArray), TaskHandler.this.tries);
-						activeSubtasks.add(taskfuture);
-						return taskfuture;
-					} finally {
-						globalLock.unlock();
-						lock.unlock();
-					}
-				}
-
-				void checkInterrupt() throws InterruptedException {
-					if (Thread.interrupted() || cancelled || shutdown) {
-						throw new InterruptedException();
-					}
-				}
-
-				@Override
-				public void awaitAllTasks(Runnable callback) throws InterruptedException {
-					synchronized (activeTasksCountLock) {
-						if (activeTasksCount != 0) {
-							activeTasksCountZeroCallbacks.add(callback);
-							return;
-						}
-					}
-					callback.run();
-				}
-
-				void activeTasksCountup() {
-					synchronized (activeTasksCountLock) {
-						activeTasksCount++;
-					}
-				}
-
-				void activeTasksCountdown() {
-					List<Runnable> callbacks = null;
-					synchronized (activeTasksCountLock) {
-						activeTasksCount--;
-						if (activeTasksCount < 0) {
-							throw new IllegalStateException("illegal active tasks count: " + activeTasksCount);
-						}
-						if (activeTasksCount == 0) {
-							callbacks = activeTasksCountZeroCallbacks;
-							activeTasksCountZeroCallbacks = new ArrayList<>();
-						}
-					}
-					if (callbacks != null) {
-						for (Runnable callback : callbacks) {
-							callback.run();
-						}
-					}
-				}
-
-			};
-		}
-
-		void start() {
-			mainfuture = executor.submit(this);
 		}
 
 		@Override
-		public boolean cancel(boolean mayInterruptIfRunning) {
-			lifecycleCancel();
-			return true;
-		}
+		public <R> Future<R> submit(Callable<R> task, Callback<R> injectedCallback, boolean fatal) throws InterruptedException {
+			Objects.requireNonNull(task);
 
-		void doCancel() {
-			if (!cancelled) {
-				Lock lock = rwlock.writeLock();
-				lock.lock();
-				try {
-					cancelled = true;
-				} finally {
-					lock.unlock();
-				}
-				if (mainfuture != null) {
-					mainfuture.cancel(true);
-				}
-				for (Future<?> subfuture : activeSubtasks) {
-					subfuture.cancel(true);
-				}
-				lifecycleCancel();
-			}
-		}
+			CallbackFutureTask<R> futureTask = new CallbackFutureTask<>(task);
+			List<Callback<R>> callbacks=new ArrayList<>();
+			
+			/* TODO: Change to `callbacks.add(wrapCallback(Callbacks.whatever(countdownAction)));` in java 8 */
+			Callback<R> countdownCallback=Callbacks.whatever(countdownAction);
+			callbacks.add(wrapCallback(countdownCallback));
+			
+			if (fatal)
+				callbacks.add(wrapCallback(new FatalSubtaskCallback<R>()));
 
-		@Override
-		public void run() {
-			if (cancelled) {
-				lifecycleCancel();
-				return;
-			}
-			try {
-				task.execute(context);
-			} catch (InterruptedException e) {
-				lifecycleCancel();
-			} catch (Throwable e) {
-				lifecycleFailed(e);
-			}
-		}
+			FutureManager<R> futureManager = createFutureManager();
+			futureManager.setFuture(futureTask);
+			callbacks.add(wrapCallback(futureManager));
 
-		void lifecycleDone(T result) {
-			if (!terminated) {
-				Lock lock = rwlock.writeLock();
-				lock.lock();
-				try {
-					if (!terminated) {
-						terminated = true;
-						groupcallback.done(result);
-					}
-				} finally {
-					lock.unlock();
-				}
-			}
-		}
+			if (injectedCallback != null)
+				callbacks.add(wrapCallback(injectedCallback));
 
-		void lifecycleFailed(Throwable ex) {
-			if (!terminated) {
-				Lock lock = rwlock.writeLock();
-				lock.lock();
-				try {
-					if (!terminated) {
-						terminated = true;
-						doCancel();
-						groupcallback.failed(ex);
-					}
-				} finally {
-					lock.unlock();
-				}
-			}
-		}
+			futureTask.setCallback(Callbacks.group(callbacks));
 
-		void lifecycleCancel() {
-			if (!terminated) {
-				Lock lock = rwlock.writeLock();
-				lock.lock();
-				try {
-					if (!terminated) {
-						terminated = true;
-						doCancel();
-						groupcallback.cancelled();
-					}
-				} finally {
-					lock.unlock();
-				}
-			}
-		}
-
-	}
-
-	private ExecutorService executor;
-	private Downloader downloader;
-	private Set<TaskHandler<?>> activeTasks = Collections.newSetFromMap(new ConcurrentHashMap<TaskHandler<?>, Boolean>());
-	private volatile boolean shutdown = false;
-	private ReadWriteLock shutdownLock = new ReentrantReadWriteLock();
-
-	public CombinedDownloaderImpl(ExecutorService executor, Downloader downloader) {
-		this.executor = executor;
-		this.downloader = downloader;
-	}
-
-	@Override
-	public <T> Future<T> download(CombinedDownloadTask<T> task, CombinedDownloadCallback<T> callback) {
-		return download(task, callback, 1);
-	}
-
-	@Override
-	public <T> Future<T> download(CombinedDownloadTask<T> task, CombinedDownloadCallback<T> callback, int tries) {
-		Objects.requireNonNull(task);
-		if (tries < 1) {
-			throw new IllegalArgumentException("tries < 1");
-		}
-		Lock lock = shutdownLock.readLock();
-		lock.lock();
-		try {
-			if (shutdown) {
-				throw new RejectedExecutionException("already shutdown");
-			}
-			TaskHandler<T> handler = new TaskHandler<>(task, callback == null ? new NullCombinedDownloadCallback<T>() : callback, tries);
-			activeTasks.add(handler);
-			handler.start();
-			return handler.future;
-		} finally {
-			lock.unlock();
-		}
-	}
-
-	@Override
-	public void shutdown() {
-		if (!shutdown) {
-			Lock lock = shutdownLock.writeLock();
+			Lock lock = globalRwlock.readLock();
 			lock.lock();
 			try {
-				shutdown = true;
+				checkInterrupted();
+
+				subtaskCounter.countUp();
+				executor.execute(futureTask);
 			} finally {
 				lock.unlock();
 			}
 
-			for (TaskHandler<?> task : activeTasks) {
-				task.cancel(true);
+			return futureTask;
+		}
+
+		@Override
+		public <R> Future<R> submit(DownloadTask<R> task, DownloadCallback<R> injectedCallback, boolean fatal) throws InterruptedException {
+			Objects.requireNonNull(task);
+
+			List<DownloadCallback<R>> callbacks = new ArrayList<>();
+
+			/* TODO: Change to `callbacks.add(wrapDownloadCallback(DownloadCallbacks.whatever(countdownAction)));` in java 8 */
+			DownloadCallback<R> countdownCallback = DownloadCallbacks.whatever(countdownAction);
+			callbacks.add(wrapDownloadCallback(countdownCallback));
+
+			if (fatal)
+				callbacks.add(wrapDownloadCallback(DownloadCallbacks.fromCallback(new FatalSubtaskCallback<R>())));
+
+			FutureManager<R> futureManager = createFutureManager();
+			callbacks.add(DownloadCallbacks.fromCallback(futureManager));
+
+			if (injectedCallback != null)
+				callbacks.add(wrapDownloadCallback(injectedCallback));
+
+			Future<R> future;
+
+			Lock lock = globalRwlock.readLock();
+			lock.lock();
+			try {
+				checkInterrupted();
+
+				subtaskCounter.countUp();
+				future = downloader.download(task, DownloadCallbacks.group(callbacks), tries);
+				futureManager.setFuture(future);
+			} finally {
+				lock.unlock();
+			}
+
+			return future;
+		}
+
+		@Override
+		public <R> Future<R> submit(CombinedDownloadTask<R> task, CombinedDownloadCallback<R> injectedCallback, boolean fatal) throws InterruptedException {
+			Objects.requireNonNull(task);
+
+			List<CombinedDownloadCallback<R>> callbacks = new ArrayList<>();
+
+			/* TODO: Change to `callbacks.add(wrapCombinedDownloadCallback(CombinedDownloadCallbacks.whatever(countdownAction)));` in java 8 */
+			CombinedDownloadCallback<R> countdownCallback = CombinedDownloadCallbacks.whatever(countdownAction);
+			callbacks.add(wrapCombinedDownloadCallback(countdownCallback));
+
+			if (fatal)
+				callbacks.add(wrapCombinedDownloadCallback(CombinedDownloadCallbacks.fromCallback(new FatalSubtaskCallback<R>())));
+
+			FutureManager<R> futureManager = createFutureManager();
+			callbacks.add(CombinedDownloadCallbacks.fromCallback(futureManager));
+
+			if (injectedCallback != null)
+				callbacks.add(wrapCombinedDownloadCallback(injectedCallback));
+
+			callbacks.add(new SubDownloadTaskMapper<R>());
+
+			Future<R> future;
+
+			Lock lock = globalRwlock.readLock();
+			lock.lock();
+			try {
+				checkInterrupted();
+
+				subtaskCounter.countUp();
+				future = CombinedDownloaderImpl.this.download(task, CombinedDownloadCallbacks.group(callbacks), tries);
+				futureManager.setFuture(future);
+			} finally {
+				lock.unlock();
+			}
+
+			return future;
+		}
+
+		@Override
+		public void awaitAllTasks(Callable<Void> callback) throws InterruptedException {
+			checkInterrupted();
+			subtaskCounter.awaitAllTasks(callback);
+		}
+
+		@Override
+		protected void execute() throws Exception {
+			task.execute(this);
+		}
+
+		@Override
+		public void done(T result) {
+			lifecycle().done(result);
+		}
+
+		@Override
+		public void failed(Throwable e) {
+			lifecycle().failed(e);
+		}
+
+		@Override
+		public void cancelled() {
+			lifecycle().cancelled();
+		}
+
+		private void checkInterrupted() throws InterruptedException {
+			if (Thread.interrupted() || isExceptional() || shutdown) {
+				throw new InterruptedException();
 			}
 		}
+		
+		@SuppressWarnings("unchecked")
+		private <R> R wrapExceptionHandler(Class<?> clazz, R obj) {
+			InvocationHandler handler=new ExceptionCatcher(obj);
+			return (R) Proxy.newProxyInstance(getClass().getClassLoader(), new Class<?>[]{clazz}, handler);
+		}
+
+		private <R> Callback<R> wrapCallback(Callback<R> callback) {
+			return wrapExceptionHandler(Callback.class, callback);
+		}
+
+		private <R> DownloadCallback<R> wrapDownloadCallback(DownloadCallback<R> callback) {
+			return wrapExceptionHandler(DownloadCallback.class, callback);
+		}
+
+		private <R> CombinedDownloadCallback<R> wrapCombinedDownloadCallback(CombinedDownloadCallback<R> callback) {
+			return wrapExceptionHandler(CombinedDownloadCallback.class, callback);
+		}
+
+	}
+
+	private class TaskInactiver implements Runnable {
+
+		private final Future<?> future;
+
+		public TaskInactiver(Future<?> future) {
+			Objects.requireNonNull(future);
+			this.future = future;
+		}
+
+		@Override
+		public void run() {
+			tasks.remove(future);
+		}
+
+	}
+
+	private Executor executor;
+	private Downloader downloader;
+	private int defaultTries;
+
+	private volatile boolean shutdown;
+	private final ReadWriteLock globalRwlock = new ReentrantReadWriteLock();
+	private final Set<Future<?>> tasks = Collections.newSetFromMap(new ConcurrentHashMap<Future<?>, Boolean>());
+
+	public CombinedDownloaderImpl(Executor executor, Downloader downloader, int defaultTries) {
+		Objects.requireNonNull(executor);
+		Objects.requireNonNull(downloader);
+		if (defaultTries < 1)
+			throw new IllegalArgumentException(String.valueOf(defaultTries));
+
+		this.executor = executor;
+		this.downloader = downloader;
+		this.defaultTries = defaultTries;
+	}
+
+	@Override
+	public <T> Future<T> download(CombinedDownloadTask<T> downloadTask, CombinedDownloadCallback<T> callback, int tries) {
+		Objects.requireNonNull(downloadTask);
+		if (tries < 1)
+			throw new IllegalArgumentException("tries < 1");
+
+		CombinedAsyncTask<T> task = new CombinedAsyncTask<>(downloadTask, callback == null ? new NullCombinedDownloadCallback<T>() : callback, tries);
+		Callback<T> statusCallback = Callbacks.whatever(new TaskInactiver(task));
+		if (callback != null) {
+			statusCallback = Callbacks.group(statusCallback, callback);
+		}
+		task.setCallback(callback);
+
+		Lock lock = globalRwlock.readLock();
+		lock.lock();
+		try {
+			if (shutdown)
+				throw new RejectedExecutionException("The downloader has been shutdown.");
+
+			tasks.add(task);
+			executor.execute(task);
+		} finally {
+			lock.unlock();
+		}
+
+		return task;
+	}
+
+	@Override
+	public void shutdown() {
+		Lock lock = globalRwlock.writeLock();
+		lock.lock();
+		try {
+			if (shutdown) {
+				return;
+			}
+
+			shutdown = true;
+		} finally {
+			lock.unlock();
+		}
+
+		for (Future<?> task : tasks)
+			task.cancel(true);
+
+		executor = null;
+		downloader = null;
+	}
+
+	@Override
+	public <T> Future<T> download(CombinedDownloadTask<T> task, CombinedDownloadCallback<T> callback) {
+		return download(task, callback, defaultTries);
 	}
 
 	@Override

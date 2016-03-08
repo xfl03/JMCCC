@@ -27,7 +27,7 @@ import org.apache.http.nio.protocol.HttpAsyncResponseConsumer;
 import org.apache.http.protocol.HttpContext;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackAsyncFutureTask;
-import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackGroup;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callbacks;
 
 public class HttpAsyncDownloader implements DownloaderService {
 
@@ -159,27 +159,13 @@ public class HttpAsyncDownloader implements DownloaderService {
 
 		private class DownloadRetryHandler implements DownloadCallback<T> {
 
-			private volatile Future<?> future;
-			private volatile boolean removed = false;
-			private final Object lock = new Object();
-
-			public void setFuture(Future<?> future) {
-				synchronized (lock) {
-					this.future = future;
-					if (removed)
-						AsyncDownloadTask.this.removeCancelable(future);
-				}
-			}
-
 			@Override
 			public void done(T result) {
-				removeCancelable();
 				lifecycle().done(result);
 			}
 
 			@Override
 			public void failed(Throwable e) {
-				removeCancelable();
 				currentTries++;
 				if (e instanceof IOException && currentTries < maxTries) {
 					callback.retry(e, currentTries, maxTries);
@@ -191,7 +177,6 @@ public class HttpAsyncDownloader implements DownloaderService {
 
 			@Override
 			public void cancelled() {
-				removeCancelable();
 				lifecycle().cancelled();
 			}
 
@@ -203,14 +188,6 @@ public class HttpAsyncDownloader implements DownloaderService {
 			@Override
 			public void retry(Throwable e, int current, int max) {
 				throw new AssertionError("This method shouldn't be invoked.");
-			}
-
-			private void removeCancelable() {
-				synchronized (lock) {
-					removed = true;
-					if (future != null)
-						AsyncDownloadTask.this.removeCancelable(future);
-				}
 			}
 
 		}
@@ -238,39 +215,30 @@ public class HttpAsyncDownloader implements DownloaderService {
 		}
 
 		private void download() {
+			if (Thread.interrupted() || isExceptional()) {
+				lifecycle().cancelled();
+				return;
+			}
+
+			FutureManager<T> manager = createFutureManager();
 			DownloadRetryHandler retryHandler = new DownloadRetryHandler();
-			DownloadSessionHandler<T> handler = new DownloadSessionHandler<>(task, retryHandler);
+			DownloadSessionHandler<T> handler = new DownloadSessionHandler<>(task, DownloadCallbacks.group(DownloadCallbacks.fromCallback(manager), retryHandler));
 			Future<T> downloadFuture = httpClient.execute(HttpAsyncMethods.createGet(task.getURI()), handler.consumer, handler.callback);
-			addCancelable(downloadFuture);
-			retryHandler.setFuture(downloadFuture);
+			manager.setFuture(downloadFuture);
 		}
 
 	}
 
-	private class TaskInactiver<T> implements Callback<T> {
+	private class TaskInactiver implements Runnable {
 
-		private final Future<T> task;
+		private final Future<?> task;
 
-		public TaskInactiver(Future<T> task) {
+		public TaskInactiver(Future<?> task) {
 			this.task = task;
 		}
 
 		@Override
-		public void done(T result) {
-			inactive();
-		}
-
-		@Override
-		public void failed(Throwable e) {
-			inactive();
-		}
-
-		@Override
-		public void cancelled() {
-			inactive();
-		}
-
-		private void inactive() {
+		public void run() {
 			/*
 			* ## When the task terminates
 			* ++++ read lock
@@ -356,9 +324,9 @@ public class HttpAsyncDownloader implements DownloaderService {
 			throw new IllegalArgumentException("tries < 1");
 
 		CallbackAsyncFutureTask<T> task = new AsyncDownloadTask<T>(downloadTask, callback == null ? new NullDownloadCallback<T>() : callback, tries);
-		Callback<T> statusCallback = new TaskInactiver<>(task);
+		Callback<T> statusCallback = Callbacks.whatever(new TaskInactiver(task));
 		if (callback != null)
-			statusCallback = CallbackGroup.group(statusCallback, callback);
+			statusCallback = Callbacks.group(statusCallback, callback);
 		task.setCallback(statusCallback);
 
 		Lock lock = rwlock.readLock();
@@ -400,7 +368,7 @@ public class HttpAsyncDownloader implements DownloaderService {
 		 * 
 		 */
 		boolean isTasksEmpty;
-		
+
 		Lock lock = rwlock.writeLock();
 		lock.lock();
 		try {
@@ -409,8 +377,8 @@ public class HttpAsyncDownloader implements DownloaderService {
 			}
 
 			status = SHUTDOWNING;
-			isTasksEmpty=tasks.isEmpty();
-			if (isTasksEmpty){
+			isTasksEmpty = tasks.isEmpty();
+			if (isTasksEmpty) {
 				status = SHUTDOWNED;
 			}
 		} finally {

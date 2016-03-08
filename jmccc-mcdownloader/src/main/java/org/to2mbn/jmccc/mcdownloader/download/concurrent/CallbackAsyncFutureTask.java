@@ -1,6 +1,7 @@
 package org.to2mbn.jmccc.mcdownloader.download.concurrent;
 
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
@@ -11,6 +12,12 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 abstract public class CallbackAsyncFutureTask<V> implements RunnableFuture<V>, Cancelable {
+
+	protected static interface FutureManager<T> extends Callback<T> {
+
+		void setFuture(Future<?> future);
+
+	}
 
 	private static void cancelCancelable(Object cancelable, boolean mayInterruptIfRunning) {
 		if (cancelable instanceof Future) {
@@ -78,6 +85,50 @@ abstract public class CallbackAsyncFutureTask<V> implements RunnableFuture<V>, C
 
 	}
 
+	private class FutureManagerImpl<R> implements FutureManager<R> {
+
+		private volatile Future<?> subfuture;
+		private volatile boolean terminated = false;
+		private final Object lock = new Object();
+
+		@Override
+		public void done(R result) {
+			removeFuture();
+		}
+
+		@Override
+		public void failed(Throwable e) {
+			removeFuture();
+		}
+
+		@Override
+		public void cancelled() {
+			removeFuture();
+		}
+
+		@Override
+		public void setFuture(Future<?> subfuture) {
+			Objects.requireNonNull(subfuture);
+			synchronized (lock) {
+				if (!terminated) {
+					this.subfuture = subfuture;
+					addCancelable(subfuture);
+				}
+			}
+		}
+
+		private void removeFuture() {
+			synchronized (lock) {
+				terminated = true;
+				if (subfuture != null) {
+					removeCancelable(subfuture);
+					subfuture = null;
+				}
+			}
+		}
+
+	}
+
 	private final Set<Object> cancelables = Collections.newSetFromMap(new ConcurrentHashMap<Object, Boolean>());
 	private final AsyncFuture<V> future;
 	private final Callback<V> lifecycle;
@@ -115,6 +166,10 @@ abstract public class CallbackAsyncFutureTask<V> implements RunnableFuture<V>, C
 	@Override
 	public boolean isDone() {
 		return future.isDone();
+	}
+
+	public boolean isExceptional() {
+		return future.isExceptional();
 	}
 
 	@Override
@@ -164,6 +219,10 @@ abstract public class CallbackAsyncFutureTask<V> implements RunnableFuture<V>, C
 
 	protected void removeCancelable(Future<?> cancelable) {
 		cancelables.remove(cancelable);
+	}
+
+	protected <R> FutureManager<R> createFutureManager() {
+		return new FutureManagerImpl<R>();
 	}
 
 	private void cancelIfNecessary(Object cancelable) {

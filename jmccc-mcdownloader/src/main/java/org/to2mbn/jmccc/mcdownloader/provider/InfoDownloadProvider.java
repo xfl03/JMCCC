@@ -82,11 +82,13 @@ public class InfoDownloadProvider extends AbstractMinecraftDownloadProvider impl
 										String url = remoteVersion.getUrl();
 										if (url != null) {
 											context.submit(new FileDownloadTask(url, mcdir.getVersionJson(remoteVersion.getVersion())), null, true);
-											context.awaitAllTasks(new Runnable() {
+											// TODO: use callback
+											context.awaitAllTasks(new Callable<Void>() {
 
 												@Override
-												public void run() {
+												public Void call() throws Exception {
 													context.done(remoteVersion.getVersion());
+													return null;
 												}
 											});
 											return null;

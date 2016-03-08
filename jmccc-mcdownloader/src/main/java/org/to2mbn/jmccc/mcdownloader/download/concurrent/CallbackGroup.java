@@ -4,11 +4,6 @@ import java.util.Objects;
 
 public class CallbackGroup<T> implements Callback<T> {
 
-	@SafeVarargs
-	public static <T> Callback<T> group(Callback<T>... callbacks) {
-		return new CallbackGroup<>(callbacks);
-	}
-
 	private Callback<T>[] callbacks;
 
 	public CallbackGroup(Callback<T>[] callbacks) {

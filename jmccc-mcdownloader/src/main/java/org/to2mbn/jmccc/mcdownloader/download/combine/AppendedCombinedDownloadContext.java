@@ -36,10 +36,6 @@ class AppendedCombinedDownloadContext<R, S> implements CombinedDownloadContext<R
 		proxied.cancelled();
 	}
 
-	@Override
-	public Future<?> submit(Runnable task, Callback<?> callback, boolean fatal) throws InterruptedException {
-		return proxied.submit(task, callback, fatal);
-	}
 
 	@Override
 	public <U> Future<U> submit(Callable<U> task, Callback<U> callback, boolean fatal) throws InterruptedException {
@@ -56,7 +52,7 @@ class AppendedCombinedDownloadContext<R, S> implements CombinedDownloadContext<R
 	}
 
 	@Override
-	public void awaitAllTasks(Runnable callback) throws InterruptedException {
+	public void awaitAllTasks(Callable<Void> callback) throws InterruptedException {
 		proxied.awaitAllTasks(callback);
 	}
 
