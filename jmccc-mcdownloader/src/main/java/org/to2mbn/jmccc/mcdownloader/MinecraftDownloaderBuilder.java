@@ -27,6 +27,8 @@ import org.to2mbn.jmccc.mcdownloader.provider.MojangDownloadProvider;
 
 public class MinecraftDownloaderBuilder {
 
+	private static final int BIO_MAX_CONNECTIONS = 20;
+
 	public static MinecraftDownloaderBuilder create() {
 		return new MinecraftDownloaderBuilder();
 	}
@@ -45,6 +47,7 @@ public class MinecraftDownloaderBuilder {
 	private Proxy proxy = Proxy.NO_PROXY;
 	private boolean checkLibrariesHash = true;
 	private boolean checkAssetsHash = true;
+	private boolean disableBioConnectionsLimit = false;
 
 	protected MinecraftDownloaderBuilder() {
 	}
@@ -98,6 +101,11 @@ public class MinecraftDownloaderBuilder {
 
 	public MinecraftDownloaderBuilder disableApacheHttpAsyncClient() {
 		disableApacheHttpAsyncClient = true;
+		return this;
+	}
+
+	public MinecraftDownloaderBuilder disableBioConnectionsLimit() {
+		disableBioConnectionsLimit = true;
 		return this;
 	}
 
@@ -172,8 +180,12 @@ public class MinecraftDownloaderBuilder {
 					}
 				};
 			} else {
+				int conns = maxConnections > 0 ? maxConnections : Runtime.getRuntime().availableProcessors() * 2;
+				if (!disableBioConnectionsLimit)
+					conns = Math.min(conns, BIO_MAX_CONNECTIONS);
+
 				downloader = new JdkHttpDownloader(
-						maxConnections > 0 ? maxConnections : Runtime.getRuntime().availableProcessors() * 2,
+						conns,
 						connectTimeout,
 						soTimeout,
 						poolThreadLivingTime,
