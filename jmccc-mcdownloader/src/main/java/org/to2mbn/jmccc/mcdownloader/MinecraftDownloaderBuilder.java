@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -15,8 +14,6 @@ import org.apache.http.HttpHost;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.apache.http.impl.nio.reactor.IOReactorConfig;
-import org.to2mbn.jmccc.mcdownloader.download.DownloadCallback;
-import org.to2mbn.jmccc.mcdownloader.download.DownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.DownloaderService;
 import org.to2mbn.jmccc.mcdownloader.download.HttpAsyncDownloader;
 import org.to2mbn.jmccc.mcdownloader.download.JdkHttpDownloader;
@@ -155,30 +152,7 @@ public class MinecraftDownloaderBuilder {
 								.setSocketTimeout(soTimeout)
 								.setProxy(proxyHost)
 								.build());
-				downloader = new HttpAsyncDownloader(httpClientBuilder, executor) {
-
-					@Override
-					public <T> Future<T> download(DownloadTask<T> task, DownloadCallback<T> callback) {
-						Future<T> future = super.download(task, callback);
-						try {
-							future.get();
-						} catch (Exception e) {
-							;
-						}
-						return future;
-					}
-
-					@Override
-					public <T> Future<T> download(DownloadTask<T> task, DownloadCallback<T> callback, int tries) {
-						Future<T> future = super.download(task, callback, tries);
-						try {
-							future.get();
-						} catch (Exception e) {
-							;
-						}
-						return future;
-					}
-				};
+				downloader = new HttpAsyncDownloader(httpClientBuilder, executor);
 			} else {
 				int conns = maxConnections > 0 ? maxConnections : Runtime.getRuntime().availableProcessors() * 2;
 				if (!disableBioConnectionsLimit)
