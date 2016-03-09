@@ -250,7 +250,7 @@ public class CombinedDownloaderImpl implements CombinedDownloader {
 			if (injectedCallback != null)
 				callbacks.add(wrapCombinedDownloadCallback(injectedCallback));
 
-			callbacks.add(new SubDownloadTaskMapper<R>());
+			callbacks.add(wrapCombinedDownloadCallback(new SubDownloadTaskMapper<R>()));
 
 			if (fatal)
 				callbacks.add(wrapCombinedDownloadCallback(CombinedDownloadCallbacks.fromCallback(new FatalSubtaskCallback<R>())));

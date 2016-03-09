@@ -13,13 +13,13 @@ public class CallbackGroup<T> implements Callback<T> {
 
 	@Override
 	public void done(T result) {
-		RuntimeException ex = null;
+		EventDispatchException ex = null;
 		for (Callback<T> callback : callbacks) {
 			try {
 				callback.done(result);
 			} catch (Throwable e) {
 				if (ex == null) {
-					ex = new RuntimeException();
+					ex = new EventDispatchException();
 				}
 				ex.addSuppressed(e);
 			}
@@ -31,13 +31,13 @@ public class CallbackGroup<T> implements Callback<T> {
 
 	@Override
 	public void failed(Throwable e) {
-		RuntimeException ex1 = null;
+		EventDispatchException ex1 = null;
 		for (Callback<T> callback : callbacks) {
 			try {
 				callback.failed(e);
 			} catch (Throwable e1) {
 				if (ex1 == null) {
-					ex1 = new RuntimeException();
+					ex1 = new EventDispatchException();
 				}
 				ex1.addSuppressed(e1);
 			}
@@ -49,13 +49,13 @@ public class CallbackGroup<T> implements Callback<T> {
 
 	@Override
 	public void cancelled() {
-		RuntimeException ex = null;
+		EventDispatchException ex = null;
 		for (Callback<T> callback : callbacks) {
 			try {
 				callback.cancelled();
 			} catch (Throwable e) {
 				if (ex == null) {
-					ex = new RuntimeException();
+					ex = new EventDispatchException();
 				}
 				ex.addSuppressed(e);
 			}

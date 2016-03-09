@@ -111,7 +111,7 @@ public class AsyncFuture<V> implements Future<V>, Callback<V>, Cancelable {
 
 			while (state.get() == COMPLETING)
 				Thread.yield();
-			if (state.get() == FAILED && this.exception != e)
+			if (state.get() == FAILED && this.exception != e) {
 				assert exception != null;
 				synchronized (exception) {
 					for (Throwable e1 : exception.getSuppressed())
@@ -119,6 +119,7 @@ public class AsyncFuture<V> implements Future<V>, Callback<V>, Cancelable {
 							return;
 					exception.addSuppressed(e);
 				}
+			}
 		}
 	}
 

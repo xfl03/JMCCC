@@ -6,6 +6,7 @@ import org.to2mbn.jmccc.mcdownloader.download.DownloadCallback;
 import org.to2mbn.jmccc.mcdownloader.download.DownloadCallbacks;
 import org.to2mbn.jmccc.mcdownloader.download.DownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackGroup;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.EventDispatchException;
 
 public class CombinedDownloadCallbackGroup<T> extends CallbackGroup<T> implements CombinedDownloadCallback<T> {
 
@@ -19,16 +20,17 @@ public class CombinedDownloadCallbackGroup<T> extends CallbackGroup<T> implement
 	@Override
 	public <R> DownloadCallback<R> taskStart(DownloadTask<R> task) {
 		List<DownloadCallback<R>> listeners = new ArrayList<>();
-		RuntimeException ex = null;
+		EventDispatchException ex = null;
 		for (CombinedDownloadCallback<T> callback : callbacks) {
 			DownloadCallback<R> listener = null;
 			try {
 				listener = callback.taskStart(task);
 			} catch (Throwable e) {
 				if (ex == null) {
-					ex = new RuntimeException();
+					ex = new EventDispatchException();
+				} else {
+					ex.addSuppressed(e);
 				}
-				ex.addSuppressed(e);
 			}
 			if (listener != null) {
 				listeners.add(listener);
