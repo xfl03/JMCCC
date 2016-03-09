@@ -134,8 +134,8 @@ public class CombinedDownloaderImpl implements CombinedDownloader {
 		private class SubDownloadTaskMapper<R> extends AbstractCombinedDownloadCallback<R> {
 
 			@Override
-			public <S> DownloadCallback<S> taskStart(DownloadTask<S> task) {
-				return callback.taskStart(task);
+			public <S> DownloadCallback<S> taskStart(DownloadTask<S> subtask) {
+				return callback.taskStart(subtask);
 			}
 
 		}
@@ -167,9 +167,6 @@ public class CombinedDownloaderImpl implements CombinedDownloader {
 			/* TODO: Change to `callbacks.add(wrapCallback(Callbacks.whatever(countdownAction)));` in java 8 */
 			Callback<R> countdownCallback=Callbacks.whatever(countdownAction);
 			callbacks.add(wrapCallback(countdownCallback));
-			
-			if (fatal)
-				callbacks.add(wrapCallback(new FatalSubtaskCallback<R>()));
 
 			FutureManager<R> futureManager = createFutureManager();
 			futureManager.setFuture(futureTask);
@@ -177,6 +174,9 @@ public class CombinedDownloaderImpl implements CombinedDownloader {
 
 			if (injectedCallback != null)
 				callbacks.add(wrapCallback(injectedCallback));
+
+			if (fatal)
+				callbacks.add(wrapCallback(new FatalSubtaskCallback<R>()));
 
 			futureTask.setCallback(Callbacks.group(callbacks));
 
@@ -204,14 +204,18 @@ public class CombinedDownloaderImpl implements CombinedDownloader {
 			DownloadCallback<R> countdownCallback = DownloadCallbacks.whatever(countdownAction);
 			callbacks.add(wrapDownloadCallback(countdownCallback));
 
-			if (fatal)
-				callbacks.add(wrapDownloadCallback(DownloadCallbacks.fromCallback(new FatalSubtaskCallback<R>())));
-
 			FutureManager<R> futureManager = createFutureManager();
 			callbacks.add(DownloadCallbacks.fromCallback(futureManager));
 
 			if (injectedCallback != null)
 				callbacks.add(wrapDownloadCallback(injectedCallback));
+
+			DownloadCallback<R> foreignCallback = callback.taskStart(task);
+			if (foreignCallback != null)
+				callbacks.add(wrapDownloadCallback(foreignCallback));
+
+			if (fatal)
+				callbacks.add(wrapDownloadCallback(DownloadCallbacks.fromCallback(new FatalSubtaskCallback<R>())));
 
 			Future<R> future;
 
@@ -240,9 +244,6 @@ public class CombinedDownloaderImpl implements CombinedDownloader {
 			CombinedDownloadCallback<R> countdownCallback = CombinedDownloadCallbacks.whatever(countdownAction);
 			callbacks.add(wrapCombinedDownloadCallback(countdownCallback));
 
-			if (fatal)
-				callbacks.add(wrapCombinedDownloadCallback(CombinedDownloadCallbacks.fromCallback(new FatalSubtaskCallback<R>())));
-
 			FutureManager<R> futureManager = createFutureManager();
 			callbacks.add(CombinedDownloadCallbacks.fromCallback(futureManager));
 
@@ -250,6 +251,9 @@ public class CombinedDownloaderImpl implements CombinedDownloader {
 				callbacks.add(wrapCombinedDownloadCallback(injectedCallback));
 
 			callbacks.add(new SubDownloadTaskMapper<R>());
+
+			if (fatal)
+				callbacks.add(wrapCombinedDownloadCallback(CombinedDownloadCallbacks.fromCallback(new FatalSubtaskCallback<R>())));
 
 			Future<R> future;
 

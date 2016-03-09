@@ -83,6 +83,10 @@ public class HttpAsyncDownloader implements DownloaderService {
 			protected T buildResult(HttpContext context) throws Exception {
 				T result = null;
 				try {
+					if (session == null) {
+						throw new IllegalStateException("Download session is not active");
+					}
+
 					result = session.completed();
 					resultBuildingEx = null;
 				} catch (Throwable e) {
@@ -112,22 +116,26 @@ public class HttpAsyncDownloader implements DownloaderService {
 
 			@Override
 			public void failed(Exception ex) {
-				try {
-					session.failed();
-				} catch (Throwable e) {
-					if (e != ex)
-						ex.addSuppressed(e);
+				if (session != null) {
+					try {
+						session.failed();
+					} catch (Throwable e) {
+						if (e != ex)
+							ex.addSuppressed(e);
+					}
 				}
 				adapted.failed(ex);
 			}
 
 			@Override
 			public void cancelled() {
-				try {
-					session.failed();
-				} catch (Throwable e) {
-					adapted.failed(e);
-					return;
+				if (session != null) {
+					try {
+						session.failed();
+					} catch (Throwable e) {
+						adapted.failed(e);
+						return;
+					}
 				}
 				adapted.cancelled();
 			}
@@ -302,6 +310,8 @@ public class HttpAsyncDownloader implements DownloaderService {
 		Objects.requireNonNull(bootstrapPool);
 		this.httpClient = builder.build();
 		this.bootstrapPool = bootstrapPool;
+
+		httpClient.start();
 	}
 
 	@Override
