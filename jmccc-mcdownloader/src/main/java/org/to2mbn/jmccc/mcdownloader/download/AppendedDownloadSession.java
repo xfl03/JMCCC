@@ -24,13 +24,8 @@ class AppendedDownloadSession<R, S> implements DownloadSession<S> {
 	}
 
 	@Override
-	public void failed(Throwable e) throws Exception {
-		proxied.failed(e);
-	}
-
-	@Override
-	public void cancelled() throws Exception {
-		proxied.cancelled();
+	public void failed() throws Exception {
+		proxied.failed();
 	}
 
 }

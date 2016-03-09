@@ -89,7 +89,7 @@ public class FileDownloadTask extends DownloadTask<Void> {
 			}
 
 			@Override
-			public void failed(Throwable e) throws IOException {
+			public void failed() throws IOException {
 				close();
 				partFile.delete();
 			}
@@ -103,12 +103,6 @@ public class FileDownloadTask extends DownloadTask<Void> {
 				}
 				partFile.renameTo(target);
 				return null;
-			}
-
-			@Override
-			public void cancelled() throws IOException {
-				close();
-				partFile.delete();
 			}
 
 			private void close() throws IOException {

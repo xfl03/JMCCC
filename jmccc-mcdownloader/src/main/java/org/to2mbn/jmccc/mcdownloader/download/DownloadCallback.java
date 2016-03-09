@@ -1,8 +1,8 @@
 package org.to2mbn.jmccc.mcdownloader.download;
 
-import org.to2mbn.jmccc.mcdownloader.download.concurrent.AsyncCallback;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
 
-public interface DownloadCallback<T> extends AsyncCallback<T> {
+public interface DownloadCallback<T> extends Callback<T> {
 
 	/**
 	 * Calls when the progress of the download operation updated.
