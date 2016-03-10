@@ -205,7 +205,7 @@ public class CombinedDownloaderImpl implements CombinedDownloader {
 			callbacks.add(wrapDownloadCallback(countdownCallback));
 
 			FutureManager<R> futureManager = createFutureManager();
-			callbacks.add(DownloadCallbacks.fromCallback(futureManager));
+			callbacks.add(wrapDownloadCallback(DownloadCallbacks.fromCallback(futureManager)));
 
 			if (injectedCallback != null)
 				callbacks.add(wrapDownloadCallback(injectedCallback));
@@ -245,7 +245,7 @@ public class CombinedDownloaderImpl implements CombinedDownloader {
 			callbacks.add(wrapCombinedDownloadCallback(countdownCallback));
 
 			FutureManager<R> futureManager = createFutureManager();
-			callbacks.add(CombinedDownloadCallbacks.fromCallback(futureManager));
+			callbacks.add(wrapCombinedDownloadCallback(CombinedDownloadCallbacks.fromCallback(futureManager)));
 
 			if (injectedCallback != null)
 				callbacks.add(wrapCombinedDownloadCallback(injectedCallback));
