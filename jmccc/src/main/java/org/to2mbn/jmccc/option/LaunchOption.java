@@ -2,6 +2,7 @@ package org.to2mbn.jmccc.option;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import org.to2mbn.jmccc.auth.Authenticator;
 import org.to2mbn.jmccc.version.Version;
@@ -73,6 +74,11 @@ public class LaunchOption implements Serializable {
 	 * null
 	 */
 	private List<String> extraMinecraftArguments;
+
+	/**
+	 * Customized minecraft commandline variables, default to null
+	 */
+	private Map<String, String> commandlineVariables;
 
 	/**
 	 * Creates a LaunchOption with the default JavaOption and
@@ -327,9 +333,37 @@ public class LaunchOption implements Serializable {
 		this.runtimeDirectory = runtimeDirectory;
 	}
 
+	/**
+	 * Gets the customized minecraft commandline variables, default to null.
+	 * <p>
+	 * When generating launch commandline, the variables in
+	 * {@link Version#getLaunchArgs()} will be replaced. For example,
+	 * <code>${version_name}</code> will be replaced by the version id. Some
+	 * variables are automatically replaced by the launcher. If you want to add
+	 * customized variables, you can set the values of the variables via
+	 * {@link #setCommandlineVariables(Map)}. The customized values can override
+	 * default values.
+	 * 
+	 * @return the customized minecraft commandline variables, default to null
+	 */
+	public Map<String, String> getCommandlineVariables() {
+		return commandlineVariables;
+	}
+
+	/**
+	 * Sets the customized minecraft commandline variables, can be null.
+	 * 
+	 * @param commandlineVariables the customized minecraft commandline
+	 *            variables to set, can be null
+	 * @see #getCommandlineVariables()
+	 */
+	public void setCommandlineVariables(Map<String, String> commandlineVariables) {
+		this.commandlineVariables = commandlineVariables;
+	}
+
 	@Override
 	public String toString() {
-		return String.format("LaunchOption [maxMemory=%s, minMemory=%s, version=%s, authenticator=%s, serverInfo=%s, windowSize=%s, javaOption=%s, minecraftDirectory=%s, runtimeDirectory=%s, extraJvmArguments=%s, extraMinecraftArguments=%s]", maxMemory, minMemory, version, authenticator, serverInfo, windowSize, javaOption, minecraftDirectory, runtimeDirectory, extraJvmArguments, extraMinecraftArguments);
+		return String.format("LaunchOption [maxMemory=%s, minMemory=%s, version=%s, authenticator=%s, serverInfo=%s, windowSize=%s, javaOption=%s, minecraftDirectory=%s, runtimeDirectory=%s, extraJvmArguments=%s, extraMinecraftArguments=%s, commandlineVariables=%s]", maxMemory, minMemory, version, authenticator, serverInfo, windowSize, javaOption, minecraftDirectory, runtimeDirectory, extraJvmArguments, extraMinecraftArguments, commandlineVariables);
 	}
 
 	@Override
@@ -349,14 +383,15 @@ public class LaunchOption implements Serializable {
 					Objects.equals(serverInfo, another.serverInfo) &&
 					Objects.equals(windowSize, another.windowSize) &&
 					Objects.equals(extraJvmArguments, another.extraJvmArguments) &&
-					Objects.equals(extraMinecraftArguments, another.extraMinecraftArguments);
+					Objects.equals(extraMinecraftArguments, another.extraMinecraftArguments) &&
+					Objects.equals(commandlineVariables, another.commandlineVariables);
 		}
 		return false;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(maxMemory, minMemory, version, authenticator, minecraftDirectory, runtimeDirectory, javaOption, serverInfo, windowSize, extraJvmArguments, extraMinecraftArguments);
+		return Objects.hash(maxMemory, minMemory, version, authenticator, minecraftDirectory, runtimeDirectory, javaOption, serverInfo, windowSize, extraJvmArguments, extraMinecraftArguments, commandlineVariables);
 	}
 
 }

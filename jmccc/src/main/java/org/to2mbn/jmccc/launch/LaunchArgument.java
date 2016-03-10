@@ -2,6 +2,7 @@ package org.to2mbn.jmccc.launch;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -19,13 +20,13 @@ class LaunchArgument {
 	private LaunchOption launchOption;
 	private File nativesPath;
 	private Set<File> libraries;
-	private Map<String, String> tokens;
+	private Map<String, String> defaultVariables;
 
-	public LaunchArgument(LaunchOption launchOption, Map<String, String> tokens, Set<File> libraries, File nativesPath) {
+	public LaunchArgument(LaunchOption launchOption, Map<String, String> defaultVariables, Set<File> libraries, File nativesPath) {
 		this.launchOption = launchOption;
 		this.libraries = libraries;
 		this.nativesPath = nativesPath;
-		this.tokens = tokens;
+		this.defaultVariables = defaultVariables;
 	}
 
 	public String[] generateCommandline() {
@@ -83,7 +84,7 @@ class LaunchArgument {
 		args.add(version.getMainClass());
 
 		// template arguments
-		args.addAll(getFormattedTokens());
+		args.addAll(getFormattedMinecraftArguments());
 
 		// extra minecraft arguments
 		if (launchOption.getExtraMinecraftArguments() != null) {
@@ -124,12 +125,18 @@ class LaunchArgument {
 		return args.toArray(new String[args.size()]);
 	}
 
-	private List<String> getFormattedTokens() {
+	private List<String> getFormattedMinecraftArguments() {
+		Map<String, String> variables = new HashMap<>();
+		variables.putAll(defaultVariables);
+		Map<String, String> customizedVariables = launchOption.getCommandlineVariables();
+		if (customizedVariables != null)
+			variables.putAll(customizedVariables);
+
 		String templete = launchOption.getVersion().getLaunchArgs();
 		List<String> args = new ArrayList<>();
 		for (String arg : templete.split(" ")) {
-			for (Entry<String, String> token : tokens.entrySet()) {
-				arg = arg.replace("${" + token.getKey() + "}", token.getValue());
+			for (Entry<String, String> var : variables.entrySet()) {
+				arg = arg.replace("${" + var.getKey() + "}", var.getValue());
 			}
 			args.add(arg);
 		}
@@ -149,7 +156,7 @@ class LaunchArgument {
 	}
 
 	public Map<String, String> getTokens() {
-		return tokens;
+		return defaultVariables;
 	}
 
 }
