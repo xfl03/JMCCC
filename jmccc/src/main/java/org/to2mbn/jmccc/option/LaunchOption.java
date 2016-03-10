@@ -1,11 +1,13 @@
 package org.to2mbn.jmccc.option;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import org.to2mbn.jmccc.auth.Authenticator;
 import org.to2mbn.jmccc.version.Version;
+import org.to2mbn.jmccc.version.Versions;
 
 /**
  * Notes for serialization:<br>
@@ -81,19 +83,21 @@ public class LaunchOption implements Serializable {
 	private Map<String, String> commandlineVariables;
 
 	/**
-	 * Creates a LaunchOption with the default JavaOption and
-	 * MinecraftDirectory.
+	 * Resolves the given version and creates a LaunchOption using the default
+	 * java environment.
 	 * 
-	 * @param version the version to launch
+	 * @param version the version id
 	 * @param authenticator the authenticator
+	 * @param minecraftDir the minecraft directory
+	 * @throws IOException if an I/O error has occurred during resolving version
 	 * @throws NullPointerException if any of the arguments is null
 	 */
-	public LaunchOption(Version version, Authenticator authenticator) {
-		this(version, authenticator, new MinecraftDirectory(), new JavaOption());
+	public LaunchOption(String version, Authenticator authenticator, MinecraftDirectory minecraftDir) throws IOException {
+		this(Versions.resolveVersion(minecraftDir, version), authenticator, minecraftDir, new JavaOption());
 	}
 
 	/**
-	 * Creates a LaunchOption with the default JavaOption.
+	 * Creates a LaunchOption using the default java environment.
 	 * 
 	 * @param version the version to launch
 	 * @param authenticator the authenticator
@@ -110,7 +114,7 @@ public class LaunchOption implements Serializable {
 	 * @param version the version to launch
 	 * @param authenticator the authenticator
 	 * @param minecraftDir the minecraft directory
-	 * @param javaOption the JavaOption
+	 * @param javaOption the java environment
 	 * @throws NullPointerException if any of the arguments is null
 	 */
 	public LaunchOption(Version version, Authenticator authenticator, MinecraftDirectory minecraftDir, JavaOption javaOption) {

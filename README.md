@@ -36,7 +36,7 @@ JMCCC is licensed under [the MIT license](https://to2mbn.github.io/jmccc/LICENSE
 ```java
 MinecraftDirectory dir = new MinecraftDirectory("/home/user/.minecraft");
 Launcher launcher = LauncherBuilder.buildDefault();
-launcher.launch(new LaunchOption(Versions.resolveVersion(dir, "1.8"), new OfflineAuthenticator("user"), dir), new GameProcessListener() {
+launcher.launch(new LaunchOption("1.9", new OfflineAuthenticator("user"), dir), new GameProcessListener() {
 
     @Override
     public void onLog(String log) {
@@ -54,7 +54,7 @@ launcher.launch(new LaunchOption(Versions.resolveVersion(dir, "1.8"), new Offlin
     }
 });
 ```
-In the example above, we use `/home/user/.minecraft` as the .minecraft directory, and launches Minecraft 1.8 with an offline
+In the example above, we use `/home/user/.minecraft` as the .minecraft directory, and launches Minecraft 1.9 with an offline
 account `user`. And the logs output from game process will print to stdout and stderr. When the game process terminated,
 this program will print `Exit code: <process exit code>` to stderr, and then the monitor threads terminates.
 
@@ -112,11 +112,11 @@ If you want to save the authentication, you ought to call `getCurrentSession()` 
 > jmccc-mcdownloader can work on top of [Apache HttpAsyncClient](http://hc.apache.org/httpcomponents-asyncclient-dev/) or JDK. Note that the JDK implementation uses BIO, so you should limit your max connections, because each connetion will start a thread. If you want to use Apache HttpAsyncClient, just put it in the classpath. This is an optional dependency in the POM.
 
 ##### Minecraft downloading
-The following code snippet downloads minecraft 1.8.8:
+The following code snippet downloads minecraft 1.9:
 ```java
 MinecraftDirectory dir = new MinecraftDirectory("/home/user/.minecraft");
 MinecraftDownloader downloader=MinecraftDownloaderBuilder.create().build();
-downloader.downloadIncrementally(dir, "1.8.8", new CombinedDownloadCallback<Version>() {
+downloader.downloadIncrementally(dir, "1.9", new CombinedDownloadCallback<Version>() {
 	
 	@Override
 	public void failed(Throwable e) {
@@ -190,7 +190,7 @@ downloader.download(liteloaderProvider.liteloaderVersionList(), new CombinedDown
 
 ##### Customized download provider
 ```java
-MinecraftDownloader downloader = MinecraftDownloaderBuilder.create().setProvider(new CustomizedDownloadProvider()).build();
+MinecraftDownloader downloader = MinecraftDownloaderBuilder.create().setBaseProvider(new CustomizedDownloadProvider()).build();
 ```
 
 Finally, don't forget to shutdown the downloader.
