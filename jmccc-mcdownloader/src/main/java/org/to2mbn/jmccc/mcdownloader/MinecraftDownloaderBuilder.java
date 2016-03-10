@@ -16,7 +16,7 @@ import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import org.to2mbn.jmccc.mcdownloader.download.DownloaderService;
 import org.to2mbn.jmccc.mcdownloader.download.HttpAsyncDownloader;
-import org.to2mbn.jmccc.mcdownloader.download.JreHttpDownloader;
+import org.to2mbn.jmccc.mcdownloader.download.JdkHttpDownloader;
 import org.to2mbn.jmccc.mcdownloader.provider.ExtendedDownloadProvider;
 import org.to2mbn.jmccc.mcdownloader.provider.InfoDownloadProvider;
 import org.to2mbn.jmccc.mcdownloader.provider.MinecraftDownloadProvider;
@@ -24,12 +24,14 @@ import org.to2mbn.jmccc.mcdownloader.provider.MojangDownloadProvider;
 
 public class MinecraftDownloaderBuilder {
 
+	private static final int BIO_MAX_CONNECTIONS = 20;
+
 	public static MinecraftDownloaderBuilder create() {
 		return new MinecraftDownloaderBuilder();
 	}
 
-	private int maxConnections = 50;
-	private int maxConnectionsPerRouter = 10;
+	private int maxConnections;
+	private int maxConnectionsPerRouter;
 	private MinecraftDownloadProvider baseProvider = new MojangDownloadProvider();
 	private List<MinecraftDownloadProvider> appendProviders = new ArrayList<>();
 	private int poolMaxThreads = Runtime.getRuntime().availableProcessors();
@@ -42,6 +44,7 @@ public class MinecraftDownloaderBuilder {
 	private Proxy proxy = Proxy.NO_PROXY;
 	private boolean checkLibrariesHash = true;
 	private boolean checkAssetsHash = true;
+	private boolean disableBioConnectionsLimit = false;
 
 	protected MinecraftDownloaderBuilder() {
 	}
@@ -98,6 +101,11 @@ public class MinecraftDownloaderBuilder {
 		return this;
 	}
 
+	public MinecraftDownloaderBuilder disableBioConnectionsLimit() {
+		disableBioConnectionsLimit = true;
+		return this;
+	}
+
 	public MinecraftDownloaderBuilder setUseVersionDownloadInfo(boolean useVersionDownloadInfo) {
 		this.useVersionDownloadInfo = useVersionDownloadInfo;
 		return this;
@@ -133,7 +141,7 @@ public class MinecraftDownloaderBuilder {
 				HttpHost proxyHost = resolveProxy();
 				HttpAsyncClientBuilder httpClientBuilder = HttpAsyncClientBuilder.create()
 						.setMaxConnTotal(maxConnections)
-						.setMaxConnPerRoute(maxConnectionsPerRouter)
+						.setMaxConnPerRoute(maxConnectionsPerRouter == 0 ? maxConnections : maxConnectionsPerRouter)
 						.setProxy(proxyHost)
 						.setDefaultIOReactorConfig(IOReactorConfig.custom()
 								.setConnectTimeout(connectTimeout)
@@ -146,7 +154,16 @@ public class MinecraftDownloaderBuilder {
 								.build());
 				downloader = new HttpAsyncDownloader(httpClientBuilder, executor);
 			} else {
-				downloader = new JreHttpDownloader(maxConnections, connectTimeout, soTimeout, poolThreadLivingTime, proxy);
+				int conns = maxConnections > 0 ? maxConnections : Runtime.getRuntime().availableProcessors() * 2;
+				if (!disableBioConnectionsLimit)
+					conns = Math.min(conns, BIO_MAX_CONNECTIONS);
+
+				downloader = new JdkHttpDownloader(
+						conns,
+						connectTimeout,
+						soTimeout,
+						poolThreadLivingTime,
+						proxy);
 			}
 
 			mcdownloader = new MinecraftDownloaderImpl(downloader, executor, provider, defaultTries, checkLibrariesHash, checkAssetsHash);

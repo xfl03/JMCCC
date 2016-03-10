@@ -3,16 +3,12 @@ package org.to2mbn.jmccc.mcdownloader.download.combine;
 import java.util.ArrayList;
 import java.util.List;
 import org.to2mbn.jmccc.mcdownloader.download.DownloadCallback;
-import org.to2mbn.jmccc.mcdownloader.download.DownloadCallbackGroup;
+import org.to2mbn.jmccc.mcdownloader.download.DownloadCallbacks;
 import org.to2mbn.jmccc.mcdownloader.download.DownloadTask;
-import org.to2mbn.jmccc.mcdownloader.download.concurrent.AsyncCallbackGroup;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackGroup;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.EventDispatchException;
 
-public class CombinedDownloadCallbackGroup<T> extends AsyncCallbackGroup<T> implements CombinedDownloadCallback<T> {
-
-	@SafeVarargs
-	public static <T> CombinedDownloadCallback<T> group(CombinedDownloadCallback<T>... callbacks) {
-		return new CombinedDownloadCallbackGroup<>(callbacks);
-	}
+public class CombinedDownloadCallbackGroup<T> extends CallbackGroup<T> implements CombinedDownloadCallback<T> {
 
 	private CombinedDownloadCallback<T>[] callbacks;
 
@@ -24,16 +20,17 @@ public class CombinedDownloadCallbackGroup<T> extends AsyncCallbackGroup<T> impl
 	@Override
 	public <R> DownloadCallback<R> taskStart(DownloadTask<R> task) {
 		List<DownloadCallback<R>> listeners = new ArrayList<>();
-		RuntimeException ex = null;
+		EventDispatchException ex = null;
 		for (CombinedDownloadCallback<T> callback : callbacks) {
 			DownloadCallback<R> listener = null;
 			try {
 				listener = callback.taskStart(task);
 			} catch (Throwable e) {
 				if (ex == null) {
-					ex = new RuntimeException();
+					ex = new EventDispatchException();
+				} else {
+					ex.addSuppressed(e);
 				}
-				ex.addSuppressed(e);
 			}
 			if (listener != null) {
 				listeners.add(listener);
@@ -44,7 +41,7 @@ public class CombinedDownloadCallbackGroup<T> extends AsyncCallbackGroup<T> impl
 		}
 		@SuppressWarnings("unchecked")
 		DownloadCallback<R>[] callbacksArray = listeners.toArray(new DownloadCallback[listeners.size()]);
-		return listeners.isEmpty() ? null : new DownloadCallbackGroup<R>(callbacksArray);
+		return listeners.isEmpty() ? null : DownloadCallbacks.group(callbacksArray);
 	}
 
 }

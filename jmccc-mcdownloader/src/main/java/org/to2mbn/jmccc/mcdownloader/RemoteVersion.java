@@ -1,9 +1,12 @@
 package org.to2mbn.jmccc.mcdownloader;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
 
-public class RemoteVersion {
+public class RemoteVersion implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private String version;
 	private Date uploadTime;

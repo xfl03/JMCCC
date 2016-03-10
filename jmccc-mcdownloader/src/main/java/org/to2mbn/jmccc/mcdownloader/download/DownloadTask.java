@@ -2,6 +2,7 @@ package org.to2mbn.jmccc.mcdownloader.download;
 
 import java.io.IOException;
 import java.net.URI;
+import org.to2mbn.jmccc.mcdownloader.download.util.URIUtils;
 
 /**
  * Describes a download task.
@@ -17,7 +18,19 @@ abstract public class DownloadTask<T> {
 	private URI uri;
 
 	/**
-	 * Constructor of DownloadTask.
+	 * Constructs a DownloadTask.
+	 * 
+	 * @param uri the uri of resource to download
+	 * @throws NullPointerException if <code>uri==null</code>
+	 * @throws IllegalArgumentException if <code>uri</code> is not in a valid
+	 *             URI format
+	 */
+	public DownloadTask(String uri) {
+		this(URIUtils.toURI(uri));
+	}
+
+	/**
+	 * Constructs a DownloadTask.
 	 * 
 	 * @param uri the uri of resource to download
 	 * @throws NullPointerException if <code>uri==null</code>

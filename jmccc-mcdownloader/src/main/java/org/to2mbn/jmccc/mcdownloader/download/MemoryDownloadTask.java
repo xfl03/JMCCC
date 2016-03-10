@@ -15,9 +15,21 @@ import java.nio.channels.WritableByteChannel;
 public class MemoryDownloadTask extends DownloadTask<byte[]> {
 
 	/**
-	 * Constructor of MemoryDownloadTask.
+	 * Constructs a MemoryDownloadTask.
 	 * 
-	 * @param uri the uri of the resource to download
+	 * @param uri the uri of resource to download
+	 * @throws NullPointerException if <code>uri==null</code>
+	 * @throws IllegalArgumentException if <code>uri</code> is not in a valid
+	 *             URI format
+	 */
+	public MemoryDownloadTask(String uri) {
+		super(uri);
+	}
+
+	/**
+	 * Constructs a MemoryDownloadTask.
+	 * 
+	 * @param uri the uri of resource to download
 	 * @throws NullPointerException if <code>uri==null</code>
 	 */
 	public MemoryDownloadTask(URI uri) {
@@ -28,7 +40,7 @@ public class MemoryDownloadTask extends DownloadTask<byte[]> {
 	public DownloadSession<byte[]> createSession(final long length) throws IOException {
 		return new DownloadSession<byte[]>() {
 
-			ByteArrayOutputStream out = new ByteArrayOutputStream((int) length);
+			ByteArrayOutputStream out = new ByteArrayOutputStream(length == -1 ? 8192 : (int) length);
 			WritableByteChannel channel = Channels.newChannel(out);
 
 			@Override
@@ -37,7 +49,7 @@ public class MemoryDownloadTask extends DownloadTask<byte[]> {
 			}
 
 			@Override
-			public void failed(Throwable e) throws IOException {
+			public void failed() throws IOException {
 				close();
 			}
 
@@ -46,11 +58,6 @@ public class MemoryDownloadTask extends DownloadTask<byte[]> {
 				byte[] data = out.toByteArray();
 				close();
 				return data;
-			}
-
-			@Override
-			public void cancelled() throws IOException {
-				close();
 			}
 
 			private void close() {

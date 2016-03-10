@@ -1,6 +1,6 @@
 package org.to2mbn.jmccc.mcdownloader.download.concurrent;
 
-public interface Cancellable {
+public interface Cancelable {
 
 	/**
 	 * Cancels the pending task.

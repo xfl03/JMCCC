@@ -1,13 +1,9 @@
 package org.to2mbn.jmccc.mcdownloader.download;
 
-import org.to2mbn.jmccc.mcdownloader.download.concurrent.AsyncCallbackGroup;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackGroup;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.EventDispatchException;
 
-public class DownloadCallbackGroup<T> extends AsyncCallbackGroup<T> implements DownloadCallback<T> {
-
-	@SafeVarargs
-	public static <T> DownloadCallback<T> group(DownloadCallback<T>... callbacks) {
-		return new DownloadCallbackGroup<>(callbacks);
-	}
+public class DownloadCallbackGroup<T> extends CallbackGroup<T> implements DownloadCallback<T> {
 
 	private DownloadCallback<T>[] callbacks;
 
@@ -18,13 +14,13 @@ public class DownloadCallbackGroup<T> extends AsyncCallbackGroup<T> implements D
 
 	@Override
 	public void updateProgress(long done, long total) {
-		RuntimeException ex = null;
+		EventDispatchException ex = null;
 		for (DownloadCallback<T> callback : callbacks) {
 			try {
 				callback.updateProgress(done, total);
 			} catch (Throwable e) {
 				if (ex == null) {
-					ex = new RuntimeException();
+					ex = new EventDispatchException();
 				}
 				ex.addSuppressed(e);
 			}
@@ -36,13 +32,13 @@ public class DownloadCallbackGroup<T> extends AsyncCallbackGroup<T> implements D
 
 	@Override
 	public void retry(Throwable e, int current, int max) {
-		RuntimeException ex1 = null;
+		EventDispatchException ex1 = null;
 		for (DownloadCallback<T> callback : callbacks) {
 			try {
 				callback.retry(e, current, max);
 			} catch (Throwable e1) {
 				if (ex1 == null) {
-					ex1 = new RuntimeException();
+					ex1 = new EventDispatchException();
 				}
 				ex1.addSuppressed(e1);
 			}

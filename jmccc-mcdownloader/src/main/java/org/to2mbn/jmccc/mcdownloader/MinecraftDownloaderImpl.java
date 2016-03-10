@@ -37,7 +37,7 @@ public class MinecraftDownloaderImpl implements MinecraftDownloader {
 		this.tries = tries;
 		this.checkLibrariesHash = checkLibrariesHash;
 		this.checkAssetsHash = checkAssetsHash;
-		combinedDownloader = new CombinedDownloaderImpl(executor, downloader);
+		combinedDownloader = new CombinedDownloaderImpl(executor, downloader, tries);
 	}
 
 	@Override

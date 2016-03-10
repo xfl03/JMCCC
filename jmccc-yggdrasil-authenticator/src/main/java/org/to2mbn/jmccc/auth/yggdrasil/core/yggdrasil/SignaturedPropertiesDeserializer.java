@@ -54,9 +54,6 @@ public class SignaturedPropertiesDeserializer implements Serializable, Propertie
 		this.signaturePublicKey = signaturePublicKey;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.to2mbn.jmccc.auth.yggdrasil.core.yggdrasil.PropertiesDeserializer#toProperties(org.json.JSONArray, boolean)
-	 */
 	@Override
 	public Map<String, String> toProperties(JSONArray props, boolean forceSignature) throws SignatureException, InvalidKeyException, NoSuchAlgorithmException, JSONException {
 		if (props == null) {

@@ -19,11 +19,26 @@ public class FileDownloadTask extends DownloadTask<Void> {
 	private File target;
 
 	/**
-	 * Constructor of FileDownloadTask.
+	 * Constructs a FileDownloadTask.
 	 * 
 	 * @param uri the uri of the resource to download
 	 * @param target the folder to save the file
-	 * @throws NullPointerException if <code>uri==null||target==null</code>
+	 * @throws NullPointerException if <code>uri==null || target==null</code>
+	 * @throws IllegalArgumentException if <code>uri</code> is not in a valid
+	 *             URI format
+	 */
+	public FileDownloadTask(String uri, File target) {
+		super(uri);
+		Objects.requireNonNull(target);
+		this.target = target;
+	}
+
+	/**
+	 * Constructs a FileDownloadTask.
+	 * 
+	 * @param uri the uri of the resource to download
+	 * @param target the folder to save the file
+	 * @throws NullPointerException if <code>uri==null || target==null</code>
 	 */
 	public FileDownloadTask(URI uri, File target) {
 		super(uri);
@@ -74,7 +89,7 @@ public class FileDownloadTask extends DownloadTask<Void> {
 			}
 
 			@Override
-			public void failed(Throwable e) throws IOException {
+			public void failed() throws IOException {
 				close();
 				partFile.delete();
 			}
@@ -88,12 +103,6 @@ public class FileDownloadTask extends DownloadTask<Void> {
 				}
 				partFile.renameTo(target);
 				return null;
-			}
-
-			@Override
-			public void cancelled() throws IOException {
-				close();
-				partFile.delete();
 			}
 
 			private void close() throws IOException {

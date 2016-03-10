@@ -61,10 +61,10 @@ public final class ExtraArgumentsTemplates {
 	 * @see #OSX_DOCK_NAME
 	 */
 	public static String OSX_DOCK_ICON(MinecraftDirectory minecraftDir, Version version) throws IOException {
-		Set<Asset> assetIndex = Versions.resolveAssets(minecraftDir, version.getAssets());
-		if (assetIndex == null) {
+		Set<Asset> assetIndex = Versions.resolveAssets(minecraftDir, version);
+		if (assetIndex == null)
 			return null;
-		}
+
 		return OSX_DOCK_ICON(minecraftDir, assetIndex);
 	}
 

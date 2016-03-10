@@ -139,9 +139,9 @@ public class Jmccc implements Launcher {
 		}
 
 		Set<File> javaLibraries = new HashSet<>();
-		File nativesDir = mcdir.getNatives(version.getVersion());
+		File nativesDir = mcdir.getNatives(version);
 		for (Library library : version.getLibraries()) {
-			File libraryFile = new File(mcdir.getLibraries(), library.getPath());
+			File libraryFile = mcdir.getLibrary(library);
 			if (library instanceof Native) {
 				try {
 					decompressZipWithExcludes(libraryFile, nativesDir, ((Native) library).getExtractExcludes());
@@ -187,18 +187,16 @@ public class Jmccc implements Launcher {
 	}
 
 	private void buildLegacyAssets(MinecraftDirectory mcdir, Version version) throws IOException {
-		Set<Asset> assets = Versions.resolveAssets(mcdir, version.getAssets());
-		if (assets != null) {
-			for (Asset asset : assets) {
+		Set<Asset> assets = Versions.resolveAssets(mcdir, version);
+		if (assets != null)
+			for (Asset asset : assets)
 				FileUtils.copyFile(mcdir.getAsset(asset), mcdir.getVirtualAsset(asset));
-			}
-		}
 	}
 
 	private void decompressZipWithExcludes(File zip, File outputDir, Set<String> excludes) throws IOException {
-		if (!outputDir.exists()) {
+		if (!outputDir.exists())
 			outputDir.mkdirs();
-		}
+
 		try (ZipInputStream in = new ZipInputStream(new FileInputStream(zip))) {
 			ZipEntry entry;
 			byte[] buf = null;
@@ -264,11 +262,12 @@ public class Jmccc implements Launcher {
 	}
 
 	private void printDebugCommandline(String[] commandline) {
-		StringBuilder sb = new StringBuilder("jmccc:");
+		StringBuilder sb = new StringBuilder();
+		sb.append("jmccc:\n");
 		for (String arg : commandline) {
-			sb.append(' ').append(arg);
+			sb.append(arg).append('\n');
 		}
-		System.err.println(sb);
+		System.err.println(sb.toString());
 	}
 
 }

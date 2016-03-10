@@ -6,8 +6,8 @@
 		<version>2.5-SNAPSHOT</version>
 	</parent>
 	<artifactId>jmccc-mcdownloader</artifactId>
-	<name>jmccc-mcdownloader</name>
-	<description>Minecraft Game&amp;Assets Downloader Library for JMCCC</description>
+	<name>jmccc mcdownloader</name>
+	<description>The download feature of jmccc</description>
 	<dependencies>
 		<dependency>
 			<groupId>org.to2mbn</groupId>

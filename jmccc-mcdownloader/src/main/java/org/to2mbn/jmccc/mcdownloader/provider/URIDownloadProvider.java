@@ -1,6 +1,5 @@
 package org.to2mbn.jmccc.mcdownloader.provider;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Comparator;
@@ -95,7 +94,7 @@ abstract public class URIDownloadProvider implements MinecraftDownloadProvider {
 
 			@Override
 			public Set<Asset> process(Void arg) throws IOException {
-				return Versions.resolveAssets(mcdir, version.getAssets());
+				return Versions.resolveAssets(mcdir, version);
 			}
 		}));
 	}
@@ -107,7 +106,7 @@ abstract public class URIDownloadProvider implements MinecraftDownloadProvider {
 		if (uri == null) {
 			return null;
 		}
-		return CombinedDownloadTask.single(new FileDownloadTask(uri, mcdir.getVersionJar(version.getRoot())));
+		return CombinedDownloadTask.single(new FileDownloadTask(uri, mcdir.getVersionJar(version)));
 	}
 
 	@Deprecated
@@ -144,7 +143,7 @@ abstract public class URIDownloadProvider implements MinecraftDownloadProvider {
 		if (handler == null) {
 			throw new IllegalArgumentException("unable to resolve library download handler, path: " + path);
 		}
-		return CombinedDownloadTask.single(handler.createDownloadTask(new File(mcdir.getLibraries(), library.getPath()), library, uri));
+		return CombinedDownloadTask.single(handler.createDownloadTask(mcdir.getLibrary(library), library, uri));
 	}
 
 	@Override
@@ -153,7 +152,7 @@ abstract public class URIDownloadProvider implements MinecraftDownloadProvider {
 		if (uri == null) {
 			return null;
 		}
-		return CombinedDownloadTask.single(new FileDownloadTask(uri, new File(mcdir.getAssetObjects(), asset.getPath())));
+		return CombinedDownloadTask.single(new FileDownloadTask(uri, mcdir.getAsset(asset)));
 	}
 
 	public void registerLibraryDownloadHandler(String postfix, LibraryDownloadHandler handler) {

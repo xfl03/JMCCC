@@ -2,29 +2,24 @@ package org.to2mbn.jmccc.mcdownloader.download.concurrent;
 
 import java.util.Objects;
 
-public class AsyncCallbackGroup<T> implements AsyncCallback<T> {
+public class CallbackGroup<T> implements Callback<T> {
 
-	@SafeVarargs
-	public static <T> AsyncCallback<T> group(AsyncCallback<T>... callbacks) {
-		return new AsyncCallbackGroup<>(callbacks);
-	}
+	private Callback<T>[] callbacks;
 
-	private AsyncCallback<T>[] callbacks;
-
-	public AsyncCallbackGroup(AsyncCallback<T>[] callbacks) {
+	public CallbackGroup(Callback<T>[] callbacks) {
 		Objects.requireNonNull(callbacks);
 		this.callbacks = callbacks;
 	}
 
 	@Override
 	public void done(T result) {
-		RuntimeException ex = null;
-		for (AsyncCallback<T> callback : callbacks) {
+		EventDispatchException ex = null;
+		for (Callback<T> callback : callbacks) {
 			try {
 				callback.done(result);
 			} catch (Throwable e) {
 				if (ex == null) {
-					ex = new RuntimeException();
+					ex = new EventDispatchException();
 				}
 				ex.addSuppressed(e);
 			}
@@ -36,13 +31,13 @@ public class AsyncCallbackGroup<T> implements AsyncCallback<T> {
 
 	@Override
 	public void failed(Throwable e) {
-		RuntimeException ex1 = null;
-		for (AsyncCallback<T> callback : callbacks) {
+		EventDispatchException ex1 = null;
+		for (Callback<T> callback : callbacks) {
 			try {
 				callback.failed(e);
 			} catch (Throwable e1) {
 				if (ex1 == null) {
-					ex1 = new RuntimeException();
+					ex1 = new EventDispatchException();
 				}
 				ex1.addSuppressed(e1);
 			}
@@ -54,13 +49,13 @@ public class AsyncCallbackGroup<T> implements AsyncCallback<T> {
 
 	@Override
 	public void cancelled() {
-		RuntimeException ex = null;
-		for (AsyncCallback<T> callback : callbacks) {
+		EventDispatchException ex = null;
+		for (Callback<T> callback : callbacks) {
 			try {
 				callback.cancelled();
 			} catch (Throwable e) {
 				if (ex == null) {
-					ex = new RuntimeException();
+					ex = new EventDispatchException();
 				}
 				ex.addSuppressed(e);
 			}

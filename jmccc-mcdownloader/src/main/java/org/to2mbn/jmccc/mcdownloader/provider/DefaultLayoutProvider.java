@@ -1,7 +1,7 @@
 package org.to2mbn.jmccc.mcdownloader.provider;
 
 import java.net.URI;
-import java.net.URISyntaxException;
+import org.to2mbn.jmccc.mcdownloader.download.util.URIUtils;
 import org.to2mbn.jmccc.version.Asset;
 import org.to2mbn.jmccc.version.Library;
 import org.to2mbn.jmccc.version.Version;
@@ -19,43 +19,35 @@ abstract public class DefaultLayoutProvider extends URIDownloadProvider {
 		if (library.getChecksums() != null) {
 			url += ".pack.xz";
 		}
-		return toURI(url);
+		return URIUtils.toURI(url);
 	}
 
 	@Deprecated
 	@Override
 	public URI getGameJar(Version version) {
-		return toURI(getVersionBaseURL() + version.getVersion() + "/" + version.getVersion() + ".jar");
+		return URIUtils.toURI(getVersionBaseURL() + version.getRoot() + "/" + version.getRoot() + ".jar");
 	}
 
 	@Deprecated
 	@Override
 	public URI getGameVersionJson(String version) {
-		return toURI(getVersionBaseURL() + version + "/" + version + ".json");
+		return URIUtils.toURI(getVersionBaseURL() + version + "/" + version + ".json");
 	}
 
 	@Deprecated
 	@Override
 	public URI getAssetIndex(Version version) {
-		return toURI(getAssetIndexBaseURL() + version.getAssets() + ".json");
+		return URIUtils.toURI(getAssetIndexBaseURL() + version.getAssets() + ".json");
 	}
 
 	@Override
 	public URI getVersionList() {
-		return toURI(getVersionListURL());
+		return URIUtils.toURI(getVersionListURL());
 	}
 
 	@Override
 	public URI getAsset(Asset asset) {
-		return toURI(getAssetBaseURL() + asset.getPath());
-	}
-
-	private URI toURI(String uri) {
-		try {
-			return new URI(uri);
-		} catch (URISyntaxException e) {
-			throw new IllegalStateException("unable to convert " + uri + " to URI", e);
-		}
+		return URIUtils.toURI(getAssetBaseURL() + asset.getPath());
 	}
 
 	@Deprecated

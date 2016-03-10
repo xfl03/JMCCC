@@ -1,40 +1,25 @@
 package org.to2mbn.jmccc.mcdownloader.download.combine;
 
-import org.to2mbn.jmccc.mcdownloader.download.DownloadCallback;
+import org.to2mbn.jmccc.mcdownloader.download.AbstractDownloadCallback;
 import org.to2mbn.jmccc.mcdownloader.download.DownloadTask;
 
-class SingleCombinedDownloadTask<U> extends CombinedDownloadTask<U> {
+class SingleCombinedDownloadTask<T> extends CombinedDownloadTask<T> {
 
-	DownloadTask<U> task;
+	DownloadTask<T> task;
 
-	public SingleCombinedDownloadTask(DownloadTask<U> task) {
+	public SingleCombinedDownloadTask(DownloadTask<T> task) {
 		this.task = task;
 	}
 
 	@Override
-	public void execute(final CombinedDownloadContext<U> context) throws Exception {
-		context.submit(task, new DownloadCallback<U>() {
+	public void execute(final CombinedDownloadContext<T> context) throws Exception {
+		context.submit(task, new AbstractDownloadCallback<T>() {
 
 			@Override
-			public void done(U result) {
+			public void done(T result) {
 				context.done(result);
 			}
 
-			@Override
-			public void failed(Throwable e) {
-			}
-
-			@Override
-			public void cancelled() {
-			}
-
-			@Override
-			public void updateProgress(long done, long total) {
-			}
-
-			@Override
-			public void retry(Throwable e, int current, int max) {
-			}
 		}, true);
 	}
 

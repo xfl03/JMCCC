@@ -25,6 +25,7 @@ public class VersionTest extends MinecraftEnvironmentTest {
 
 	@Parameters
 	public static Collection<Object[]> data() {
+		@SuppressWarnings("deprecation")
 		Object[][] params = new Object[][] {
 				{ "1.6.4", new Version("1.6.4", "release", "net.minecraft.client.main.Main", "legacy", "--username ${auth_player_name} --session ${auth_session} --version ${version_name} --gameDir ${game_directory} --assetsDir ${game_assets}", "1.6.4", hashSet(
 						new Library("net.sf.jopt-simple", "jopt-simple", "4.5", null),
