@@ -3,7 +3,7 @@ package org.to2mbn.jmccc.mcdownloader.download;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackGroup;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.EventDispatchException;
 
-public class DownloadCallbackGroup<T> extends CallbackGroup<T> implements DownloadCallback<T> {
+class DownloadCallbackGroup<T> extends CallbackGroup<T> implements DownloadCallback<T> {
 
 	private DownloadCallback<T>[] callbacks;
 

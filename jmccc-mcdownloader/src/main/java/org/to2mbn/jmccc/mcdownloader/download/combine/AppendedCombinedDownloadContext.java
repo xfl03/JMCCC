@@ -21,8 +21,8 @@ class AppendedCombinedDownloadContext<R, S> implements CombinedDownloadContext<R
 	public void done(R result) {
 		try {
 			proxied.done(processor.process(result));
-		} catch (Exception e) {
-			throw new IllegalStateException("unable to convert result", e);
+		} catch (Throwable e) {
+			proxied.failed(e);
 		}
 	}
 

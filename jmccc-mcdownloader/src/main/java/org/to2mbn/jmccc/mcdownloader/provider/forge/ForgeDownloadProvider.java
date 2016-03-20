@@ -9,12 +9,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 import org.json.JSONObject;
-import org.to2mbn.jmccc.mcdownloader.download.DownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.FileDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.MemoryDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.ResultProcessor;
-import org.to2mbn.jmccc.mcdownloader.download.combine.AbstractCombinedDownloadCallback;
-import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadContext;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.provider.AbstractMinecraftDownloadProvider;
 import org.to2mbn.jmccc.mcdownloader.provider.ExtendedDownloadProvider;
@@ -41,11 +38,18 @@ public class ForgeDownloadProvider extends AbstractMinecraftDownloadProvider imp
 	}
 
 	@Override
-	public CombinedDownloadTask<String> gameVersionJson(final MinecraftDirectory mcdir, final String version) {
-		ResolvedForgeVersion forgeVersion = ResolvedForgeVersion.resolve(version);
+	public CombinedDownloadTask<String> gameVersionJson(final MinecraftDirectory mcdir, String version) {
+		final ResolvedForgeVersion forgeVersion = ResolvedForgeVersion.resolve(version);
 
-		if (forgeVersion != null)
-			return installerTask(forgeVersion).andThen(new InstallProfileProcessor(mcdir));
+		if (forgeVersion != null) {
+			return forgeVersion(forgeVersion).andThenDownload(new ResultProcessor<ForgeVersion, CombinedDownloadTask<String>>() {
+
+				@Override
+				public CombinedDownloadTask<String> process(ForgeVersion arg) throws Exception {
+					return installerTask(arg).andThen(new InstallProfileProcessor(mcdir));
+				}
+			});
+		}
 
 		return null;
 	}
@@ -57,50 +61,13 @@ public class ForgeDownloadProvider extends AbstractMinecraftDownloadProvider imp
 			final File target = mcdir.getLibrary(library);
 
 			if ("forge".equals(library.getName())) {
-				ResolvedForgeVersion forgeVersion = ResolvedForgeVersion.resolveShort(libraryVersion);
+				final ResolvedForgeVersion forgeVersion = ResolvedForgeVersion.resolveShort(libraryVersion);
 				if (forgeVersion == null) {
 					throw new IllegalArgumentException("Not in a valid forge library version format");
 				}
-				return universalTask(forgeVersion, target);
+				return universalTask(forgeVersion.getForgeVersion(), target);
 			} else if ("minecraftforge".equals(library.getName())) {
-
-				return new CombinedDownloadTask<Void>() {
-
-					@Override
-					public void execute(final CombinedDownloadContext<Void> context) throws Exception {
-						context.submit(forgeVersionList(), new AbstractCombinedDownloadCallback<ForgeVersionList>() {
-
-							@Override
-							public void done(final ForgeVersionList forgeVersionList) {
-								try {
-									context.submit(new Callable<Void>() {
-
-										@Override
-										public Void call() throws Exception {
-											ForgeVersion forgeVersionInfo = forgeVersionList.get(libraryVersion);
-											if (forgeVersionInfo == null) {
-												throw new IllegalArgumentException("forge version " + libraryVersion + " not found");
-											}
-
-											ResolvedForgeVersion forgeVersion = new ResolvedForgeVersion(forgeVersionInfo);
-											context.submit(universalTask(forgeVersion, target), new AbstractCombinedDownloadCallback<Void>() {
-
-												@Override
-												public void done(Void result) {
-													context.done(null);
-												}
-											}, true);
-
-											return null;
-										}
-									}, null, true);
-								} catch (InterruptedException e) {
-									Thread.currentThread().interrupt();
-								}
-							}
-						}, true);
-					}
-				};
+				return universalTask(libraryVersion, target);
 			}
 		}
 		return null;
@@ -114,61 +81,50 @@ public class ForgeDownloadProvider extends AbstractMinecraftDownloadProvider imp
 		}
 
 		final String mcversion = forgeVersion.getMinecraftVersion();
-		return new CombinedDownloadTask<Void>() {
+		return upstreamProvider.gameVersionJson(mcdir, mcversion).andThenDownload(new ResultProcessor<String, CombinedDownloadTask<Version>>() {
 
 			@Override
-			public void execute(final CombinedDownloadContext<Void> context) throws Exception {
-				context.submit(upstreamProvider.gameVersionJson(mcdir, mcversion), new AbstractCombinedDownloadCallback<String>() {
+			public CombinedDownloadTask<Version> process(String resolvedMcversion) throws Exception {
+				final Version superversion = Versions.resolveVersion(mcdir, resolvedMcversion);
+				return upstreamProvider.gameJar(mcdir, superversion).andThen(new ResultProcessor<Void, Version>() {
 
 					@Override
-					public void done(final String resolvedMcversion) {
-						try {
-							context.submit(new Callable<Void>() {
-
-								@Override
-								public Void call() throws Exception {
-									final Version superversion = Versions.resolveVersion(mcdir, resolvedMcversion);
-									context.submit(upstreamProvider.gameJar(mcdir, superversion).andThen(new ResultProcessor<Void, Void>() {
-
-										@Override
-										public Void process(Void arg) throws Exception {
-											File target = mcdir.getVersionJar(version);
-											FileUtils.prepareWrite(target);
-											try (ZipInputStream in = new ZipInputStream(new FileInputStream(mcdir.getVersionJar(superversion)));
-													ZipOutputStream out = new ZipOutputStream(new FileOutputStream(target));) {
-												ZipEntry entry;
-												byte[] buf = new byte[8192];
-												int read;
-												while ((entry = in.getNextEntry()) != null) {
-													if (!entry.getName().startsWith("META-INF/")) {
-														out.putNextEntry(entry);
-														while ((read = in.read(buf)) != -1) {
-															out.write(buf, 0, read);
-														}
-														out.closeEntry();
-													}
-													in.closeEntry();
-												}
-											}
-											return null;
-										}
-									}), new AbstractCombinedDownloadCallback<Void>() {
-
-										@Override
-										public void done(Void result) {
-											context.done(null);
-										}
-									}, true);
-									return null;
-								}
-							}, null, true);
-						} catch (InterruptedException e) {
-							Thread.currentThread().interrupt();
-						}
+					public Version process(Void arg) throws Exception {
+						return superversion;
 					}
-				}, true);
+				});
 			}
-		};
+		}).andThenCall(new ResultProcessor<Version, Callable<Void>>() {
+
+			@Override
+			public Callable<Void> process(final Version superversion) throws Exception {
+				return new Callable<Void>() {
+
+					@Override
+					public Void call() throws Exception {
+						File target = mcdir.getVersionJar(version);
+						FileUtils.prepareWrite(target);
+						try (ZipInputStream in = new ZipInputStream(new FileInputStream(mcdir.getVersionJar(superversion)));
+								ZipOutputStream out = new ZipOutputStream(new FileOutputStream(target));) {
+							ZipEntry entry;
+							byte[] buf = new byte[8192];
+							int read;
+							while ((entry = in.getNextEntry()) != null) {
+								if (!entry.getName().startsWith("META-INF/")) {
+									out.putNextEntry(entry);
+									while ((read = in.read(buf)) != -1) {
+										out.write(buf, 0, read);
+									}
+									out.closeEntry();
+								}
+								in.closeEntry();
+							}
+						}
+						return null;
+					}
+				};
+			}
+		});
 	}
 
 	@Override
@@ -176,69 +132,69 @@ public class ForgeDownloadProvider extends AbstractMinecraftDownloadProvider imp
 		this.upstreamProvider = upstreamProvider;
 	}
 
-	private CombinedDownloadTask<byte[]> installerTask(ResolvedForgeVersion version) {
-		String[] urls = forgeInstallerUrls(version);
-		@SuppressWarnings("unchecked")
-		DownloadTask<byte[]>[] tasks = new DownloadTask[urls.length];
-		for (int i = 0; i < urls.length; i++) {
-			tasks[i] = new MemoryDownloadTask(urls[i]);
-
-		}
-
-		return CombinedDownloadTask.any(tasks);
-	}
-
-	private CombinedDownloadTask<Void> universalTask(ResolvedForgeVersion version, File target) {
-		if (decompressUniversalFromInstaller()) {
-			return universalFromInstaller(version, target);
-
-		} else {
-			String[] urls = forgeUniversalUrls(version);
-			@SuppressWarnings("unchecked")
-			CombinedDownloadTask<Void>[] tasks = new CombinedDownloadTask[urls.length + 1];
-			for (int i = 0; i < urls.length; i++) {
-				tasks[i] = CombinedDownloadTask.single(new FileDownloadTask(urls[i], target));
-			}
-			tasks[tasks.length - 1] = universalFromInstaller(version, target);
-
-			return CombinedDownloadTask.any(tasks);
-		}
-	}
-
-	private CombinedDownloadTask<Void> universalFromInstaller(ResolvedForgeVersion version, File target) {
-		UniversalDecompressor processor = new UniversalDecompressor(target, version);
-		return installerTask(version).andThen(processor);
+	protected boolean decompressUniversalFromInstaller() {
+		return false;
 	}
 
 	protected String forgeVersionListUrl() {
 		return "http://files.minecraftforge.net/maven/net/minecraftforge/forge/json";
 	}
 
-	protected String[] forgeInstallerUrls(ResolvedForgeVersion version) {
-		return new String[] {
-				"http://files.minecraftforge.net/maven/net/minecraftforge/forge/" + version + "/forge-" + version + "-installer.jar",
-				"http://files.minecraftforge.net/maven/net/minecraftforge/forge/" + version + "-" + version.getMinecraftVersion() + "/forge-" + version + "-" + version.getMinecraftVersion() + "-installer.jar",
-				"http://files.minecraftforge.net/maven/net/minecraftforge/forge/" + version + "-prerelease/forge-" + version + "-prerelease-installer.jar",
-				"http://files.minecraftforge.net/maven/net/minecraftforge/forge/" + version + "-new/forge-" + version + "-new-installer.jar",
-				"http://files.minecraftforge.net/maven/net/minecraftforge/forge/" + version + "-1710ls/forge-" + version + "-1710ls-installer.jar",
-				"http://files.minecraftforge.net/maven/net/minecraftforge/forge/" + version + "-mc172/forge-" + version + "-mc172-installer.jar"
-		};
+	protected CombinedDownloadTask<byte[]> installerTask(ForgeVersion version) {
+		String downloadname = resolveForgeDownloadName(version);
+		return CombinedDownloadTask.single(new MemoryDownloadTask("http://files.minecraftforge.net/maven/net/minecraftforge/forge/" + downloadname + "/forge-" + downloadname + "-installer.jar"));
 	}
 
-	protected String[] forgeUniversalUrls(ResolvedForgeVersion version) {
-		return new String[] {
-				"http://files.minecraftforge.net/maven/net/minecraftforge/forge/" + version + "/forge-" + version + "-universal.jar",
-				"http://files.minecraftforge.net/maven/net/minecraftforge/forge/" + version + "/forge-" + version + "-universal.zip",
-				"http://files.minecraftforge.net/maven/net/minecraftforge/forge/" + version + "-" + version.getMinecraftVersion() + "/forge-" + version + "-" + version.getMinecraftVersion() + "-universal.jar",
-				"http://files.minecraftforge.net/maven/net/minecraftforge/forge/" + version + "-prerelease/forge-" + version + "-prerelease-universal.jar",
-				"http://files.minecraftforge.net/maven/net/minecraftforge/forge/" + version + "-new/forge-" + version + "-new-universal.jar",
-				"http://files.minecraftforge.net/maven/net/minecraftforge/forge/" + version + "-1710ls/forge-" + version + "-1710ls-universal.jar",
-				"http://files.minecraftforge.net/maven/net/minecraftforge/forge/" + version + "-mc172/forge-" + version + "-mc172-universal.jar"
-		};
+	protected CombinedDownloadTask<Void> directUniversalTask(ForgeVersion version, File target) {
+		String downloadname = resolveForgeDownloadName(version);
+		return CombinedDownloadTask.any(
+				new FileDownloadTask("http://files.minecraftforge.net/maven/net/minecraftforge/forge/" + downloadname + "/forge-" + downloadname + "-universal.jar", target),
+				new FileDownloadTask("http://files.minecraftforge.net/maven/net/minecraftforge/forge/" + downloadname + "/forge-" + downloadname + "-universal.zip", target));
 	}
 
-	protected boolean decompressUniversalFromInstaller() {
-		return false;
+	private CombinedDownloadTask<Void> universalTask(ForgeVersion version, File target) {
+		if (decompressUniversalFromInstaller()) {
+			return installerTask(version).andThen(new UniversalDecompressor(target, version));
+		} else {
+			return directUniversalTask(version, target);
+		}
+	}
+
+	private CombinedDownloadTask<Void> universalTask(String forgeVersion, final File target) {
+		return forgeVersion(forgeVersion).andThenDownload(new ResultProcessor<ForgeVersion, CombinedDownloadTask<Void>>() {
+
+			@Override
+			public CombinedDownloadTask<Void> process(ForgeVersion forge) throws Exception {
+				return universalTask(forge, target);
+			}
+		});
+	}
+
+	private String resolveForgeDownloadName(ForgeVersion forge) {
+		String downloadname = forge.getMinecraftVersion() + "-" + forge.getForgeVersion();
+		String branch = forge.getBranch();
+		if (branch != null) {
+			downloadname += "-" + branch;
+		}
+		return downloadname;
+	}
+
+	private CombinedDownloadTask<ForgeVersion> forgeVersion(final String ver) {
+		return forgeVersionList().andThen(new ResultProcessor<ForgeVersionList, ForgeVersion>() {
+
+			@Override
+			public ForgeVersion process(ForgeVersionList versionList) throws Exception {
+				ForgeVersion forge = versionList.get(ver);
+				if (forge == null) {
+					throw new IllegalArgumentException("Forge version not found: " + ver);
+				}
+				return forge;
+			}
+		});
+	}
+
+	private CombinedDownloadTask<ForgeVersion> forgeVersion(ResolvedForgeVersion ver) {
+		return forgeVersion(ver.getForgeVersion());
 	}
 
 }

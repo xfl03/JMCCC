@@ -17,7 +17,7 @@ public class UniversalDecompressor implements ResultProcessor<byte[], Void> {
 	private File target;
 	private String[] names;
 
-	public UniversalDecompressor(File target, ResolvedForgeVersion version) {
+	public UniversalDecompressor(File target, ForgeVersion version) {
 		this.target = target;
 
 		names = new String[] {

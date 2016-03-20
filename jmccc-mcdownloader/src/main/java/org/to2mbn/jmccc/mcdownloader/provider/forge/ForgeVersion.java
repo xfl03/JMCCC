@@ -2,26 +2,23 @@ package org.to2mbn.jmccc.mcdownloader.provider.forge;
 
 import java.io.Serializable;
 import java.util.Objects;
-import org.json.JSONObject;
 
 public class ForgeVersion implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 
-	public static ForgeVersion fromJson(JSONObject json) {
-		return new ForgeVersion(json.getString("mcversion"), json.getString("version"), json.getInt("build"));
-	}
-
 	private String minecraftVersion;
 	private String forgeVersion;
 	private int buildNumber;
+	private String branch;
 
-	public ForgeVersion(String minecraftVersion, String forgeVersion, int buildNumber) {
+	public ForgeVersion(String minecraftVersion, String forgeVersion, int buildNumber, String branch) {
 		Objects.requireNonNull(minecraftVersion);
 		Objects.requireNonNull(forgeVersion);
 		this.minecraftVersion = minecraftVersion;
 		this.forgeVersion = forgeVersion;
 		this.buildNumber = buildNumber;
+		this.branch = branch;
 	}
 
 	public String getMinecraftVersion() {
@@ -36,6 +33,10 @@ public class ForgeVersion implements Serializable {
 		return buildNumber;
 	}
 
+	public String getBranch() {
+		return branch;
+	}
+
 	public String getVersionName() {
 		return minecraftVersion + "-forge" + minecraftVersion + "-" + forgeVersion;
 	}
@@ -47,7 +48,7 @@ public class ForgeVersion implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(minecraftVersion, forgeVersion, buildNumber);
+		return Objects.hash(minecraftVersion, forgeVersion, buildNumber, branch);
 	}
 
 	@Override
@@ -57,7 +58,7 @@ public class ForgeVersion implements Serializable {
 		}
 		if (obj instanceof ForgeVersion) {
 			ForgeVersion another = (ForgeVersion) obj;
-			return minecraftVersion.equals(another.minecraftVersion) && forgeVersion.equals(forgeVersion) && buildNumber == another.buildNumber;
+			return minecraftVersion.equals(another.minecraftVersion) && forgeVersion.equals(forgeVersion) && buildNumber == another.buildNumber && Objects.equals(branch, another.branch);
 		}
 		return false;
 	}
