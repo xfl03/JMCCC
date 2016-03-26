@@ -1,6 +1,10 @@
 package org.to2mbn.jmccc.mcdownloader.download.concurrent;
 
-abstract public class CallbackAdapter<V> implements Callback<V> {
+import org.to2mbn.jmccc.mcdownloader.download.DownloadCallback;
+import org.to2mbn.jmccc.mcdownloader.download.DownloadTask;
+import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadCallback;
+
+abstract public class CallbackAdapter<V> implements Callback<V>, DownloadCallback<V>, CombinedDownloadCallback<V> {
 
 	@Override
 	public void done(V result) {
@@ -12,6 +16,19 @@ abstract public class CallbackAdapter<V> implements Callback<V> {
 
 	@Override
 	public void cancelled() {
+	}
+
+	@Override
+	public void updateProgress(long done, long total) {
+	}
+
+	@Override
+	public void retry(Throwable e, int current, int max) {
+	}
+
+	@Override
+	public <R> DownloadCallback<R> taskStart(DownloadTask<R> task) {
+		return null;
 	}
 
 }

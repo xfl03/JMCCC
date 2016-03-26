@@ -2,6 +2,7 @@ package org.to2mbn.jmccc.mcdownloader.download.combine;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.concurrent.Callable;
 import org.to2mbn.jmccc.mcdownloader.download.DownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.ResultProcessor;
 
@@ -67,6 +68,24 @@ abstract public class CombinedDownloadTask<T> {
 
 	public <R> CombinedDownloadTask<R> andThen(ResultProcessor<T, R> processor) {
 		return new AppendedCombinedDownloadTask<>(this, processor);
+	}
+
+	public <R> CombinedDownloadTask<R> andThenDownload(ResultProcessor<T, CombinedDownloadTask<R>> then) {
+		return new ExtendedDownloadTaskCombinedDownloadTask<>(this, then);
+	}
+
+	public <R> CombinedDownloadTask<R> andThenCall(ResultProcessor<T, Callable<R>> then) {
+		return new ExtendedCallableCombinedDownloadTask<>(this, then);
+	}
+
+	public <R> CombinedDownloadTask<R> andThenReturn(final R result) {
+		return new AppendedCombinedDownloadTask<>(this, new ResultProcessor<T, R>() {
+
+			@Override
+			public R process(T arg) throws Exception {
+				return result;
+			}
+		});
 	}
 
 }

@@ -11,18 +11,18 @@ import org.to2mbn.jmccc.util.FileUtils;
 
 public class UniversalDecompressor implements ResultProcessor<byte[], Void> {
 
-	private static final String NAME_TEMPLATE = "forge-%s-%s-universal.jar";
-	private static final String OLD_NAME_TEMPLATE = "minecraftforge-universal-%s-%s.jar";
+	private static final String NAME_TEMPLATE = "forge-%s-universal.jar";
+	private static final String OLD_NAME_TEMPLATE = "minecraftforge-universal-%s.jar";
 
 	private File target;
 	private String[] names;
 
-	public UniversalDecompressor(File target, ResolvedForgeVersion version) {
+	public UniversalDecompressor(File target, String fullVersion) {
 		this.target = target;
 
 		names = new String[] {
-				String.format(NAME_TEMPLATE, version.getMinecraftVersion(), version.getForgeVersion()),
-				String.format(OLD_NAME_TEMPLATE, version.getMinecraftVersion(), version.getForgeVersion())
+				String.format(NAME_TEMPLATE, fullVersion),
+				String.format(OLD_NAME_TEMPLATE, fullVersion)
 		};
 	}
 

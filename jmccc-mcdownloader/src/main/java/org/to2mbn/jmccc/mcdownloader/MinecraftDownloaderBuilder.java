@@ -1,8 +1,7 @@
 package org.to2mbn.jmccc.mcdownloader;
 
-import java.net.InetSocketAddress;
+import java.io.File;
 import java.net.Proxy;
-import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -10,12 +9,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import org.apache.http.HttpHost;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
-import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import org.to2mbn.jmccc.mcdownloader.download.DownloaderService;
-import org.to2mbn.jmccc.mcdownloader.download.HttpAsyncDownloader;
 import org.to2mbn.jmccc.mcdownloader.download.JdkHttpDownloader;
 import org.to2mbn.jmccc.mcdownloader.provider.ExtendedDownloadProvider;
 import org.to2mbn.jmccc.mcdownloader.provider.InfoDownloadProvider;
@@ -24,27 +18,33 @@ import org.to2mbn.jmccc.mcdownloader.provider.MojangDownloadProvider;
 
 public class MinecraftDownloaderBuilder {
 
-	private static final int BIO_MAX_CONNECTIONS = 20;
+	static final int BIO_MAX_CONNECTIONS = 20;
 
 	public static MinecraftDownloaderBuilder create() {
 		return new MinecraftDownloaderBuilder();
 	}
 
-	private int maxConnections;
-	private int maxConnectionsPerRouter;
-	private MinecraftDownloadProvider baseProvider = new MojangDownloadProvider();
-	private List<MinecraftDownloadProvider> appendProviders = new ArrayList<>();
-	private int poolMaxThreads = Runtime.getRuntime().availableProcessors();
-	private long poolThreadLivingTime = 1000 * 10;
-	private int defaultTries = 3;
-	private int connectTimeout = 10000;
-	private int soTimeout = 30000;
-	private boolean disableApacheHttpAsyncClient = false;
-	private boolean useVersionDownloadInfo = true;
-	private Proxy proxy = Proxy.NO_PROXY;
-	private boolean checkLibrariesHash = true;
-	private boolean checkAssetsHash = true;
-	private boolean disableBioConnectionsLimit = false;
+	int maxConnections;
+	int maxConnectionsPerRouter;
+	MinecraftDownloadProvider baseProvider = new MojangDownloadProvider();
+	List<MinecraftDownloadProvider> appendProviders = new ArrayList<>();
+	int poolMaxThreads = Runtime.getRuntime().availableProcessors();
+	long poolThreadLivingTime = 1000 * 10; // ms
+	int defaultTries = 3;
+	int connectTimeout = 10000; // ms
+	int soTimeout = 30000;// ms
+	boolean disableApacheHttpAsyncClient = false;
+	boolean useVersionDownloadInfo = true;
+	Proxy proxy = Proxy.NO_PROXY;
+	boolean checkLibrariesHash = true;
+	boolean checkAssetsHash = true;
+	boolean disableBioConnectionsLimit = false;
+	boolean disableEhcache = false;
+	long cacheLiveTime = 1000 * 60 * 60 * 2; // ms
+	long heapCacheSize = 32;// mb
+	long offheapCacheSize = 0;// mb
+	long diskCacheSize = 0;// mb
+	File diskCacheDir;
 
 	protected MinecraftDownloaderBuilder() {
 	}
@@ -106,6 +106,11 @@ public class MinecraftDownloaderBuilder {
 		return this;
 	}
 
+	public MinecraftDownloaderBuilder disableEhcache() {
+		disableEhcache = true;
+		return this;
+	}
+
 	public MinecraftDownloaderBuilder setUseVersionDownloadInfo(boolean useVersionDownloadInfo) {
 		this.useVersionDownloadInfo = useVersionDownloadInfo;
 		return this;
@@ -127,6 +132,31 @@ public class MinecraftDownloaderBuilder {
 		return this;
 	}
 
+	public MinecraftDownloaderBuilder setCacheLiveTime(long cacheLiveTime, TimeUnit timeUnit) {
+		this.cacheLiveTime = timeUnit.toMillis(cacheLiveTime);
+		return this;
+	}
+
+	public MinecraftDownloaderBuilder setHeapCacheSize(long heapCacheSize) {
+		this.heapCacheSize = heapCacheSize;
+		return this;
+	}
+
+	public MinecraftDownloaderBuilder setOffheapCacheSize(long offheapCacheSize) {
+		this.offheapCacheSize = offheapCacheSize;
+		return this;
+	}
+
+	public MinecraftDownloaderBuilder setDiskCacheSize(long diskCacheSize) {
+		this.diskCacheSize = diskCacheSize;
+		return this;
+	}
+
+	public MinecraftDownloaderBuilder setDiskCacheDir(File diskCacheDir) {
+		this.diskCacheDir = diskCacheDir;
+		return this;
+	}
+
 	public MinecraftDownloader build() {
 		ExecutorService executor = null;
 		DownloaderService downloader = null;
@@ -138,21 +168,7 @@ public class MinecraftDownloaderBuilder {
 			executor = new ThreadPoolExecutor(poolMaxThreads, poolMaxThreads, poolThreadLivingTime, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
 
 			if (!disableApacheHttpAsyncClient && isApacheHttpAsyncClientAvailable()) {
-				HttpHost proxyHost = resolveProxy();
-				HttpAsyncClientBuilder httpClientBuilder = HttpAsyncClientBuilder.create()
-						.setMaxConnTotal(maxConnections)
-						.setMaxConnPerRoute(maxConnectionsPerRouter == 0 ? maxConnections : maxConnectionsPerRouter)
-						.setProxy(proxyHost)
-						.setDefaultIOReactorConfig(IOReactorConfig.custom()
-								.setConnectTimeout(connectTimeout)
-								.setSoTimeout(soTimeout)
-								.build())
-						.setDefaultRequestConfig(RequestConfig.custom()
-								.setConnectTimeout(connectTimeout)
-								.setSocketTimeout(soTimeout)
-								.setProxy(proxyHost)
-								.build());
-				downloader = new HttpAsyncDownloader(httpClientBuilder, executor);
+				downloader = ApacheHttpAsyncClientFeature.createApacheHttpAsyncClient(executor, this);
 			} else {
 				int conns = maxConnections > 0 ? maxConnections : Runtime.getRuntime().availableProcessors() * 2;
 				if (!disableBioConnectionsLimit)
@@ -164,6 +180,10 @@ public class MinecraftDownloaderBuilder {
 						soTimeout,
 						poolThreadLivingTime,
 						proxy);
+			}
+
+			if (!disableEhcache && isEhcacheAvailable()) {
+				downloader = EhcacheFeature.createCachedDownloader(downloader, this);
 			}
 
 			mcdownloader = new MinecraftDownloaderImpl(downloader, executor, provider, defaultTries, checkLibrariesHash, checkAssetsHash);
@@ -195,23 +215,18 @@ public class MinecraftDownloaderBuilder {
 		return mcdownloader;
 	}
 
-	private HttpHost resolveProxy() {
-		if (proxy.type() == Proxy.Type.DIRECT) {
-			return null;
-		}
-		if (proxy.type() == Proxy.Type.HTTP) {
-			SocketAddress socketAddress = proxy.address();
-			if (socketAddress instanceof InetSocketAddress) {
-				InetSocketAddress inetSocketAddress = (InetSocketAddress) socketAddress;
-				return new HttpHost(inetSocketAddress.getAddress(), inetSocketAddress.getPort());
-			}
-		}
-		throw new IllegalArgumentException("Proxy '" + proxy + "' is not supported");
-	}
-
 	private static boolean isApacheHttpAsyncClientAvailable() {
 		try {
 			Class.forName("org.apache.http.impl.nio.client.HttpAsyncClientBuilder");
+		} catch (ClassNotFoundException e) {
+			return false;
+		}
+		return true;
+	}
+
+	private static boolean isEhcacheAvailable() {
+		try {
+			Class.forName("org.ehcache.config.builders.CacheManagerBuilder");
 		} catch (ClassNotFoundException e) {
 			return false;
 		}

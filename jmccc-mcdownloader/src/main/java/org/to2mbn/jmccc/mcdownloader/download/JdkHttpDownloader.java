@@ -24,6 +24,7 @@ import java.util.logging.Logger;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackFutureTask;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callbacks;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.EmptyCallback;
 
 public class JdkHttpDownloader implements DownloaderService {
 
@@ -198,7 +199,7 @@ public class JdkHttpDownloader implements DownloaderService {
 
 		CallbackFutureTask<T> task = new CallbackFutureTask<>(new CallableDownloadTask<>(
 				downloadTask,
-				callback == null ? new NullDownloadCallback<T>() : callback,
+				callback == null ? new EmptyCallback<T>() : callback,
 				tries));
 
 		Callback<T> statusCallback = Callbacks.whatever(new TaskInactiver(task));

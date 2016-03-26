@@ -28,6 +28,7 @@ import org.apache.http.protocol.HttpContext;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackAsyncFutureTask;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callbacks;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.EmptyCallback;
 
 public class HttpAsyncDownloader implements DownloaderService {
 
@@ -333,7 +334,7 @@ public class HttpAsyncDownloader implements DownloaderService {
 		if (tries < 1)
 			throw new IllegalArgumentException("tries < 1");
 
-		CallbackAsyncFutureTask<T> task = new AsyncDownloadTask<T>(downloadTask, callback == null ? new NullDownloadCallback<T>() : callback, tries);
+		CallbackAsyncFutureTask<T> task = new AsyncDownloadTask<T>(downloadTask, callback == null ? new EmptyCallback<T>() : callback, tries);
 		Callback<T> statusCallback = Callbacks.whatever(new TaskInactiver(task));
 		if (callback != null)
 			statusCallback = Callbacks.group(statusCallback, callback);

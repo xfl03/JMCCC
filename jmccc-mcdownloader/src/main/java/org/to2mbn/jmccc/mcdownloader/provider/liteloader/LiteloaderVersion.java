@@ -17,27 +17,23 @@ public class LiteloaderVersion implements Serializable {
 	private String minecraftVersion;
 	private String liteloaderVersion;
 	private String superVersion;
-	private String file;
-	private String md5;
-	private Long timestamp;
 	private String tweakClass;
+	private String repoUrl;
 	private transient Set<JSONObject> libraries;
 
-	public LiteloaderVersion(String minecraftVersion, String liteloaderVersion, String file, String md5, Long timestamp, String tweakClass, Set<JSONObject> libraries) {
-		this(minecraftVersion, liteloaderVersion, minecraftVersion, file, md5, timestamp, tweakClass, libraries);
+	public LiteloaderVersion(String minecraftVersion, String liteloaderVersion, String tweakClass, String repoUrl, Set<JSONObject> libraries) {
+		this(minecraftVersion, liteloaderVersion, minecraftVersion, tweakClass, repoUrl, libraries);
 	}
 
-	public LiteloaderVersion(String minecraftVersion, String liteloaderVersion, String superVersion, String file, String md5, Long timestamp, String tweakClass, Set<JSONObject> libraries) {
+	public LiteloaderVersion(String minecraftVersion, String liteloaderVersion, String superVersion, String tweakClass, String repoUrl, Set<JSONObject> libraries) {
 		Objects.requireNonNull(minecraftVersion);
 		Objects.requireNonNull(liteloaderVersion);
 		Objects.requireNonNull(superVersion);
 		this.minecraftVersion = minecraftVersion;
 		this.liteloaderVersion = liteloaderVersion;
 		this.superVersion = superVersion;
-		this.file = file;
-		this.md5 = md5;
-		this.timestamp = timestamp;
 		this.tweakClass = tweakClass;
+		this.repoUrl = repoUrl;
 		this.libraries = libraries;
 	}
 
@@ -57,20 +53,12 @@ public class LiteloaderVersion implements Serializable {
 		return superVersion + "-LiteLoader" + minecraftVersion;
 	}
 
-	public String getFile() {
-		return file;
-	}
-
-	public String getMd5() {
-		return md5;
-	}
-
-	public Long getTimestamp() {
-		return timestamp;
-	}
-
 	public String getTweakClass() {
 		return tweakClass;
+	}
+
+	public String getRepoUrl() {
+		return repoUrl;
 	}
 
 	public Set<JSONObject> getLibraries() {
@@ -78,7 +66,7 @@ public class LiteloaderVersion implements Serializable {
 	}
 
 	public LiteloaderVersion customize(String superVersion) {
-		return new LiteloaderVersion(minecraftVersion, liteloaderVersion, superVersion, file, md5, timestamp, tweakClass, libraries);
+		return new LiteloaderVersion(minecraftVersion, liteloaderVersion, superVersion, tweakClass, repoUrl, libraries);
 	}
 
 	@Override
@@ -88,7 +76,7 @@ public class LiteloaderVersion implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(minecraftVersion, liteloaderVersion, superVersion, file, md5, timestamp, tweakClass, libraries);
+		return Objects.hash(minecraftVersion, liteloaderVersion, superVersion, tweakClass, repoUrl, libraries);
 	}
 
 	@Override
@@ -101,10 +89,8 @@ public class LiteloaderVersion implements Serializable {
 			return minecraftVersion.equals(another.minecraftVersion) &&
 					liteloaderVersion.equals(another.liteloaderVersion) &&
 					superVersion.equals(another.superVersion) &&
-					Objects.equals(file, another.file) &&
-					Objects.equals(md5, another.md5) &&
-					Objects.equals(timestamp, another.timestamp) &&
 					Objects.equals(tweakClass, another.tweakClass) &&
+					Objects.equals(repoUrl, another.repoUrl) &&
 					Objects.equals(libraries, another.libraries);
 		}
 		return false;

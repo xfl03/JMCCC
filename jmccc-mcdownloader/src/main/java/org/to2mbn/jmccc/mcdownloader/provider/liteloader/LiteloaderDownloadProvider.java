@@ -10,14 +10,14 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.math.BigDecimal;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.to2mbn.jmccc.mcdownloader.download.MemoryDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.ResultProcessor;
-import org.to2mbn.jmccc.mcdownloader.download.combine.AbstractCombinedDownloadCallback;
-import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadContext;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.provider.AbstractMinecraftDownloadProvider;
 import org.to2mbn.jmccc.mcdownloader.provider.ExtendedDownloadProvider;
@@ -36,60 +36,47 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 			public LiteloaderVersionList process(byte[] arg) throws Exception {
 				return LiteloaderVersionList.fromJson(new JSONObject(new String(arg, "UTF-8")));
 			}
-		}));
+		}).cacheable());
 	}
 
 	@Override
 	public CombinedDownloadTask<String> gameVersionJson(final MinecraftDirectory mcdir, String version) {
-		final ResolvedLiteloaderVersion liteloaderVersionInfo = ResolvedLiteloaderVersion.resolve(version);
-		if (liteloaderVersionInfo == null) {
+		final ResolvedLiteloaderVersion liteloaderInfo = ResolvedLiteloaderVersion.resolve(version);
+		if (liteloaderInfo == null) {
 			return null;
 		}
 
-		return new CombinedDownloadTask<String>() {
+		return upstreamProvider.gameVersionJson(mcdir, liteloaderInfo.getSuperVersion()).andThenDownload(new ResultProcessor<String, CombinedDownloadTask<LiteloaderVersion>>() {
 
 			@Override
-			public void execute(final CombinedDownloadContext<String> context) throws Exception {
-				context.submit(liteloaderVersionList(), new AbstractCombinedDownloadCallback<LiteloaderVersionList>() {
+			public CombinedDownloadTask<LiteloaderVersion> process(final String resolvedSuperversion) throws Exception {
+				return liteloaderVersionList().andThen(new ResultProcessor<LiteloaderVersionList, LiteloaderVersion>() {
 
 					@Override
-					public void done(final LiteloaderVersionList versionList) {
-						try {
-							context.submit(new Callable<Void>() {
+					public LiteloaderVersion process(LiteloaderVersionList versionList) throws Exception {
+						String mcversion = liteloaderInfo.getMinecraftVersion();
+						LiteloaderVersion genericLiteloader = versionList.getLatest(mcversion);
 
-								@Override
-								public Void call() throws Exception {
-									final LiteloaderVersion liteloaderVersion = versionList.getLatestArtefact(liteloaderVersionInfo.getMinecraftVersion()).customize(liteloaderVersionInfo.getSuperVersion());
-									context.submit(upstreamProvider.gameVersionJson(mcdir, liteloaderVersion.getSuperVersion()), new AbstractCombinedDownloadCallback<String>() {
-
-										@Override
-										public void done(final String resolvedSuperVersion) {
-											try {
-												context.submit(new Callable<Void>() {
-
-													@Override
-													public Void call() throws Exception {
-														context.done(createLiteloaderVersion(mcdir, liteloaderVersion.customize(resolvedSuperVersion)));
-														return null;
-													}
-												}, null, true);
-											} catch (InterruptedException e) {
-												Thread.currentThread().interrupt();
-											}
-										}
-
-									}, true);
-									return null;
-								}
-							}, null, true);
-						} catch (InterruptedException e) {
-							context.cancelled();
+						if (genericLiteloader == null) {
+							throw new IllegalArgumentException("Liteloader version not found: " + liteloaderInfo);
 						}
+						return genericLiteloader.customize(resolvedSuperversion);
 					}
-
-				}, true);
+				});
 			}
-		};
+		}).andThenCall(new ResultProcessor<LiteloaderVersion, Callable<String>>() {
+
+			@Override
+			public Callable<String> process(final LiteloaderVersion liteloader) throws Exception {
+				return new Callable<String>() {
+
+					@Override
+					public String call() throws Exception {
+						return createLiteloaderVersion(mcdir, liteloader);
+					}
+				};
+			}
+		});
 	}
 
 	@Override
@@ -100,20 +87,39 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 	protected String createLiteloaderVersion(MinecraftDirectory mcdir, LiteloaderVersion liteloader) throws IOException {
 		String superVersion = liteloader.getSuperVersion();
 		String minecraftVersion = liteloader.getMinecraftVersion();
+		String repoUrl = liteloader.getRepoUrl();
+		String tweakClass = liteloader.getTweakClass();
+		Set<JSONObject> liteloaderLibraries = liteloader.getLibraries();
+
 		JSONObject versionjson;
 		try (Reader reader = new InputStreamReader(new BufferedInputStream(new FileInputStream(mcdir.getVersionJson(superVersion))), "UTF-8")) {
 			versionjson = new JSONObject(new JSONTokener(reader));
 		}
 
 		String version = String.format("%s-LiteLoader%s", superVersion, minecraftVersion);
-		String minecraftArguments = String.format("%s --tweakClass %s", versionjson.getString("minecraftArguments"), liteloader.getTweakClass());
+		String minecraftArguments = String.format("%s --tweakClass %s", versionjson.getString("minecraftArguments"),
+				tweakClass == null ? "com.mumfrey.liteloader.launch.LiteLoaderTweaker" : tweakClass);
 		JSONArray libraries = new JSONArray();
 		JSONObject liteloaderLibrary = new JSONObject();
 		liteloaderLibrary.put("name", String.format("com.mumfrey:liteloader:%s", minecraftVersion));
-		liteloaderLibrary.put("url", "http://dl.liteloader.com/versions/");
+		liteloaderLibrary.put("url", repoUrl == null ? "http://dl.liteloader.com/versions/" : repoUrl);
 		libraries.put(liteloaderLibrary);
-		for (JSONObject library : liteloader.getLibraries()) {
-			libraries.put(library);
+		if (liteloaderLibraries != null) {
+			String launchwrapperPrefix = launchwrapperName() + ":";
+			for (JSONObject library : liteloaderLibraries) {
+				String name = library.optString("name", null);
+				if (name != null) {
+					String leastLaunchwrapperVersion = leastLaunchwrapperVersion();
+					if (leastLaunchwrapperVersion != null && name.startsWith(launchwrapperPrefix)) {
+						String actualVersion = name.substring(launchwrapperPrefix.length());
+						if (isLessThan(actualVersion, leastLaunchwrapperVersion)) {
+							library.put("name", launchwrapperPrefix + leastLaunchwrapperVersion);
+						}
+					}
+				}
+
+				libraries.put(library);
+			}
 		}
 
 		versionjson.put("inheritsFrom", superVersion);
@@ -136,6 +142,27 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 
 	protected String liteloaderVersionListUrl() {
 		return "http://dl.liteloader.com/versions/versions.json";
+	}
+
+	protected String leastLaunchwrapperVersion() {
+		return "1.7";
+	}
+
+	protected String launchwrapperName() {
+		return "net.minecraft:launchwrapper";
+	}
+
+	private static boolean isLessThan(String a, String b) {
+		try {
+			BigDecimal decimalA = new BigDecimal(a);
+			BigDecimal decimalB = new BigDecimal(b);
+			if (decimalA.compareTo(decimalB) < 0) {
+				return true;
+			}
+		} catch (NumberFormatException e) {
+			;
+		}
+		return false;
 	}
 
 }

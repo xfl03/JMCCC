@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
@@ -20,16 +21,20 @@ public class LiteloaderVersionList implements Serializable {
 		JSONObject versionsJson = json.getJSONObject("versions");
 		for (String mcversion : (Set<String>) versionsJson.keySet()) {
 			Map<String, LiteloaderVersion> artefacts = new TreeMap<>();
-			JSONObject artefactsJson = versionsJson.getJSONObject(mcversion).optJSONObject("artefacts");
+			JSONObject versionRootJson = versionsJson.getJSONObject(mcversion);
+
+			String repoUrl = null;
+			JSONObject repoJson = versionRootJson.optJSONObject("repo");
+			if (repoJson != null) {
+				repoUrl = repoJson.optString("url", null);
+			}
+
+			JSONObject artefactsJson = versionRootJson.optJSONObject("artefacts");
 			if (artefactsJson != null) {
 				JSONObject liteloaderArtefactsJson = artefactsJson.getJSONObject("com.mumfrey:liteloader");
 				for (String artefactId : (Set<String>) liteloaderArtefactsJson.keySet()) {
 					JSONObject artefactJson = liteloaderArtefactsJson.getJSONObject(artefactId);
 					String liteloaderVersion = artefactJson.getString("version");
-					String file = artefactJson.optString("file", null);
-					String md5 = artefactJson.optString("md5", null);
-					String timestampStr = artefactJson.optString("timestamp", null);
-					Long timestamp = timestampStr == null ? null : Long.valueOf(timestampStr);
 					String tweakClass = artefactJson.optString("tweakClass", null);
 					JSONArray librariesJson = artefactJson.optJSONArray("libraries");
 					Set<JSONObject> libraries = null;
@@ -38,7 +43,7 @@ public class LiteloaderVersionList implements Serializable {
 						for (int i = 0; i < librariesJson.length(); i++)
 							libraries.add(librariesJson.getJSONObject(i));
 					}
-					artefacts.put(artefactId, new LiteloaderVersion(mcversion, liteloaderVersion, file, md5, timestamp, tweakClass, Collections.unmodifiableSet(libraries)));
+					artefacts.put(artefactId, new LiteloaderVersion(mcversion, liteloaderVersion, tweakClass, repoUrl, Collections.unmodifiableSet(libraries)));
 				}
 				versions.put(mcversion, artefacts);
 			}
@@ -51,10 +56,20 @@ public class LiteloaderVersionList implements Serializable {
 	 * The inside map's key is the artifact name, value is artifact.
 	 */
 	private Map<String, Map<String, LiteloaderVersion>> versions;
+	private Map<String, LiteloaderVersion> latests;
 
 	public LiteloaderVersionList(Map<String, Map<String, LiteloaderVersion>> versions) {
 		Objects.requireNonNull(versions);
 		this.versions = versions;
+
+		Map<String, LiteloaderVersion> latests = new TreeMap<>();
+		for (Entry<String, Map<String, LiteloaderVersion>> entry : versions.entrySet()) {
+			LiteloaderVersion latest = entry.getValue().get("latest");
+			if (latest != null) {
+				latests.put(entry.getKey(), latest);
+			}
+		}
+		this.latests = Collections.unmodifiableMap(latests);
 	}
 
 	public Map<String, Map<String, LiteloaderVersion>> getAllArtefacts() {
@@ -73,8 +88,26 @@ public class LiteloaderVersionList implements Serializable {
 		return null;
 	}
 
-	public LiteloaderVersion getLatestArtefact(String minecraftVersion) {
+	/**
+	 * Gets the latest liteloader of the given minecraft version.
+	 * 
+	 * @param minecraftVersion the minecraft version
+	 * @return the liteloader version, null if there's no such a liteloader
+	 *         version
+	 */
+	public LiteloaderVersion getLatest(String minecraftVersion) {
 		return getArtefact(minecraftVersion, "latest");
+	}
+
+	/**
+	 * Gets all the latest liteloaders.
+	 * <p>
+	 * The key is the minecraft version, the value is the liteloader version.
+	 * 
+	 * @return all the latest liteloaders
+	 */
+	public Map<String, LiteloaderVersion> getLatests() {
+		return latests;
 	}
 
 	@Override

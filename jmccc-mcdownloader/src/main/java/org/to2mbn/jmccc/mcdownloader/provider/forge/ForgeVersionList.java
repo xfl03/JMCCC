@@ -2,10 +2,12 @@ package org.to2mbn.jmccc.mcdownloader.provider.forge;
 
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class ForgeVersionList implements Serializable {
@@ -21,11 +23,29 @@ public class ForgeVersionList implements Serializable {
 		ForgeVersion latest = null;
 		ForgeVersion recommended = null;
 
+		Map<Integer, String> branches = new HashMap<>();
+		JSONObject branchesJson = json.optJSONObject("branches");
+		if (branchesJson != null) {
+			for (String mcversion : (Set<String>) branchesJson.keySet()) {
+				JSONArray builds = branchesJson.getJSONArray(mcversion);
+				for (int i = 0; i < builds.length(); i++) {
+					int buildnum = builds.getInt(i);
+					branches.put(buildnum, mcversion);
+				}
+			}
+		}
+
 		JSONObject versionsJson = json.getJSONObject("number");
 		for (String strbuildnum : (Set<String>) versionsJson.keySet()) {
-			ForgeVersion version = ForgeVersion.fromJson(versionsJson.getJSONObject(strbuildnum));
-			versions.put(version.getBuildNumber(), version);
-			forgeVersionMapping.put(version.getForgeVersion(), version);
+			JSONObject versionJson = versionsJson.getJSONObject(strbuildnum);
+			String mcversion = versionJson.getString("mcversion");
+			String forgeversion = versionJson.getString("version");
+			int buildnum = versionJson.getInt("build");
+			String branch = branches.get(buildnum);
+			ForgeVersion version = new ForgeVersion(mcversion, forgeversion, buildnum, branch);
+
+			versions.put(buildnum, version);
+			forgeVersionMapping.put(forgeversion, version);
 		}
 		JSONObject promos = json.getJSONObject("promos");
 		for (String key : (Set<String>) promos.keySet()) {

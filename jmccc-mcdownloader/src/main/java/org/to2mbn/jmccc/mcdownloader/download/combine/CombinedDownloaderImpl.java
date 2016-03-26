@@ -27,6 +27,7 @@ import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackAdapter;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackAsyncFutureTask;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackFutureTask;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callbacks;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.EmptyCallback;
 
 public class CombinedDownloaderImpl implements CombinedDownloader {
 
@@ -131,7 +132,7 @@ public class CombinedDownloaderImpl implements CombinedDownloader {
 
 		}
 
-		private class SubDownloadTaskMapper<R> extends AbstractCombinedDownloadCallback<R> {
+		private class SubDownloadTaskMapper<R> extends CallbackAdapter<R> {
 
 			@Override
 			public <S> DownloadCallback<S> taskStart(DownloadTask<S> subtask) {
@@ -365,7 +366,7 @@ public class CombinedDownloaderImpl implements CombinedDownloader {
 		if (tries < 1)
 			throw new IllegalArgumentException("tries < 1");
 
-		CombinedAsyncTask<T> task = new CombinedAsyncTask<>(downloadTask, callback == null ? new NullCombinedDownloadCallback<T>() : callback, tries);
+		CombinedAsyncTask<T> task = new CombinedAsyncTask<>(downloadTask, callback == null ? new EmptyCallback<T>() : callback, tries);
 		Callback<T> statusCallback = Callbacks.whatever(new TaskInactiver(task));
 		if (callback != null) {
 			statusCallback = Callbacks.group(statusCallback, callback);

@@ -2,6 +2,7 @@ package org.to2mbn.jmccc.mcdownloader.download.combine;
 
 import java.util.Collection;
 import java.util.Objects;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.AdaptedCallback;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callbacks;
 
@@ -21,8 +22,7 @@ public final class CombinedDownloadCallbacks {
 	}
 
 	public static <T> CombinedDownloadCallback<T> fromCallback(Callback<T> callback) {
-		Objects.requireNonNull(callback);
-		return new CombinedDownloadCallbackFromCallback<>(callback);
+		return new AdaptedCallback<>(callback);
 	}
 
 	public static <T> CombinedDownloadCallback<T> whatever(Runnable callback) {
