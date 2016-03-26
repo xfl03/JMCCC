@@ -20,7 +20,7 @@ class ExtendedCallableCombinedDownloadTask<R, S> extends CombinedDownloadTask<S>
 
 	@Override
 	public void execute(final CombinedDownloadContext<S> context) throws Exception {
-		context.submit(prev, new AbstractCombinedDownloadCallback<R>() {
+		context.submit(prev, new CallbackAdapter<R>() {
 
 			@Override
 			public void done(R result1) {

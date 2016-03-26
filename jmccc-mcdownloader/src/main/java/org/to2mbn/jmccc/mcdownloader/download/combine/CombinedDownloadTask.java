@@ -78,4 +78,14 @@ abstract public class CombinedDownloadTask<T> {
 		return new ExtendedCallableCombinedDownloadTask<>(this, then);
 	}
 
+	public <R> CombinedDownloadTask<R> andThenReturn(final R result) {
+		return new AppendedCombinedDownloadTask<>(this, new ResultProcessor<T, R>() {
+
+			@Override
+			public R process(T arg) throws Exception {
+				return result;
+			}
+		});
+	}
+
 }

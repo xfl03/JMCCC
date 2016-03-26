@@ -1,6 +1,7 @@
 package org.to2mbn.jmccc.mcdownloader.download.combine;
 
 import java.util.concurrent.Callable;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackAdapter;
 
 class AnyCombinedDownloadTask<T> extends CombinedDownloadTask<T> {
 
@@ -19,7 +20,7 @@ class AnyCombinedDownloadTask<T> extends CombinedDownloadTask<T> {
 
 	public void executeSubtask(final CombinedDownloadContext<T> context, final int index, final Throwable oldEx) throws InterruptedException {
 		CombinedDownloadTask<T> task = tasks[index];
-		context.submit(task, new AbstractCombinedDownloadCallback<T>() {
+		context.submit(task, new CallbackAdapter<T>() {
 
 			@Override
 			public void done(T result) {

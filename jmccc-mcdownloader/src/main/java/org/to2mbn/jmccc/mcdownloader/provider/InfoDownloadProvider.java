@@ -4,13 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import org.to2mbn.jmccc.mcdownloader.RemoteVersion;
 import org.to2mbn.jmccc.mcdownloader.RemoteVersionList;
 import org.to2mbn.jmccc.mcdownloader.download.FileDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.ResultProcessor;
-import org.to2mbn.jmccc.mcdownloader.download.combine.AbstractCombinedDownloadCallback;
-import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadContext;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.util.ChecksumUtils;
@@ -63,57 +60,27 @@ public class InfoDownloadProvider extends AbstractMinecraftDownloadProvider impl
 	public CombinedDownloadTask<String> gameVersionJson(final MinecraftDirectory mcdir, final String version) {
 		if (upstreamProvider == null) {
 			return null;
-		}
-		return new CombinedDownloadTask<String>() {
+		} else {
+			return upstreamProvider.versionList().andThenDownload(new ResultProcessor<RemoteVersionList, CombinedDownloadTask<String>>() {
 
-			@Override
-			public void execute(final CombinedDownloadContext<String> context) throws Exception {
-				context.submit(upstreamProvider.versionList(), new AbstractCombinedDownloadCallback<RemoteVersionList>() {
+				@Override
+				public CombinedDownloadTask<String> process(RemoteVersionList result) throws Exception {
+					final RemoteVersion remoteVersion = result.getVersions().get(version);
+					if (remoteVersion != null && remoteVersion.getUrl() != null) {
+						return CombinedDownloadTask.single(new FileDownloadTask(remoteVersion.getUrl(), mcdir.getVersionJson(remoteVersion.getVersion())).cacheable())
+								.andThen(new ResultProcessor<Void, String>() {
 
-					@Override
-					public void done(final RemoteVersionList result) {
-						try {
-							context.submit(new Callable<Void>() {
-
-								@Override
-								public Void call() throws Exception {
-									final RemoteVersion remoteVersion = result.getVersions().get(version);
-									if (remoteVersion != null) {
-										String url = remoteVersion.getUrl();
-										if (url != null) {
-											context.submit(new FileDownloadTask(url, mcdir.getVersionJson(remoteVersion.getVersion())), null, true);
-											// TODO: use callback
-											context.awaitAllTasks(new Callable<Void>() {
-
-												@Override
-												public Void call() throws Exception {
-													context.done(remoteVersion.getVersion());
-													return null;
-												}
-											});
-											return null;
-										}
-									}
-
-									context.submit(upstreamProvider.gameVersionJson(mcdir, version), new AbstractCombinedDownloadCallback<String>() {
-
-										@Override
-										public void done(String result) {
-											context.done(result);
-										}
-
-									}, true);
-									return null;
-								}
-							}, null, true);
-						} catch (InterruptedException e) {
-							Thread.currentThread().interrupt();
-						}
+							@Override
+							public String process(Void arg) throws Exception {
+								return remoteVersion.getVersion();
+							}
+						});
 					}
 
-				}, true);
-			}
-		};
+					return upstreamProvider.gameVersionJson(mcdir, version);
+				}
+			});
+		}
 	}
 
 	@Override

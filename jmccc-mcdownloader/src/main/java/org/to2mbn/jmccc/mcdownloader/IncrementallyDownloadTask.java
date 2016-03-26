@@ -17,9 +17,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
-import org.to2mbn.jmccc.mcdownloader.download.combine.AbstractCombinedDownloadCallback;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadContext;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackAdapter;
 import org.to2mbn.jmccc.mcdownloader.provider.MinecraftDownloadProvider;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.util.ChecksumUtils;
@@ -70,7 +70,7 @@ public class IncrementallyDownloadTask extends CombinedDownloadTask<Version> {
 					downloadAssets(context, Versions.resolveAssets(mcdir, versionModel));
 
 				} else {
-					context.submit(downloadProvider.assetsIndex(mcdir, versionModel), new AbstractCombinedDownloadCallback<Set<Asset>>() {
+					context.submit(downloadProvider.assetsIndex(mcdir, versionModel), new CallbackAdapter<Set<Asset>>() {
 
 						@Override
 						public void done(final Set<Asset> result) {
@@ -126,7 +126,7 @@ public class IncrementallyDownloadTask extends CombinedDownloadTask<Version> {
 				handleVersionJson(inheritsFrom, context, callback);
 			}
 		} else {
-			context.submit(downloadProvider.gameVersionJson(mcdir, currentVersion), new AbstractCombinedDownloadCallback<String>() {
+			context.submit(downloadProvider.gameVersionJson(mcdir, currentVersion), new CallbackAdapter<String>() {
 
 				@Override
 				public void done(final String currentResolvedVersion) {

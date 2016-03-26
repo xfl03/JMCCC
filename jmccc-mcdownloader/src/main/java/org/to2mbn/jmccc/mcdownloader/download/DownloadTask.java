@@ -2,6 +2,7 @@ package org.to2mbn.jmccc.mcdownloader.download;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Objects;
 import org.to2mbn.jmccc.mcdownloader.download.util.URIUtils;
 
 /**
@@ -49,6 +50,15 @@ abstract public class DownloadTask<T> {
 	}
 
 	/**
+	 * Returns true if the result of the download task can be cached.
+	 * 
+	 * @return true if the result of the download task can be cached
+	 */
+	public boolean isCacheable() {
+		return false;
+	}
+
+	/**
 	 * Calls when the download task begins.
 	 * 
 	 * @return a new download session
@@ -68,7 +78,16 @@ abstract public class DownloadTask<T> {
 	}
 
 	public <R> DownloadTask<R> andThen(ResultProcessor<T, R> processor) {
+		Objects.requireNonNull(processor);
 		return new AppendedDownloadTask<>(processor, this);
+	}
+
+	public DownloadTask<T> cacheable() {
+		return cacheable(true);
+	}
+
+	public DownloadTask<T> cacheable(boolean cacheable) {
+		return new CachedDownloadTask<>(this, cacheable);
 	}
 
 }

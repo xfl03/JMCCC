@@ -80,7 +80,7 @@ abstract public class URIDownloadProvider implements MinecraftDownloadProvider {
 			public RemoteVersionList process(byte[] arg) throws Exception {
 				return RemoteVersionList.fromJson(new JSONObject(new String(arg, "UTF-8")));
 			}
-		}));
+		}).cacheable());
 	}
 
 	@Deprecated
@@ -116,7 +116,7 @@ abstract public class URIDownloadProvider implements MinecraftDownloadProvider {
 		if (uri == null) {
 			return null;
 		}
-		return CombinedDownloadTask.single(new FileDownloadTask(uri, mcdir.getVersionJson(version))).andThen(new ResultProcessor<Void, String>() {
+		return CombinedDownloadTask.single(new FileDownloadTask(uri, mcdir.getVersionJson(version)).cacheable()).andThen(new ResultProcessor<Void, String>() {
 
 			@Override
 			public String process(Void arg) throws Exception {

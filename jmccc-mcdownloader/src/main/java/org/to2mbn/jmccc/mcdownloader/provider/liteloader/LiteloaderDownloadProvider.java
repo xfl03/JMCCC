@@ -10,6 +10,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.math.BigDecimal;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -34,7 +36,7 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 			public LiteloaderVersionList process(byte[] arg) throws Exception {
 				return LiteloaderVersionList.fromJson(new JSONObject(new String(arg, "UTF-8")));
 			}
-		}));
+		}).cacheable());
 	}
 
 	@Override
@@ -52,7 +54,9 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 
 					@Override
 					public LiteloaderVersion process(LiteloaderVersionList versionList) throws Exception {
-						LiteloaderVersion genericLiteloader = versionList.getLatestArtefact(liteloaderInfo.getMinecraftVersion());
+						String mcversion = liteloaderInfo.getMinecraftVersion();
+						LiteloaderVersion genericLiteloader = versionList.getLatest(mcversion);
+
 						if (genericLiteloader == null) {
 							throw new IllegalArgumentException("Liteloader version not found: " + liteloaderInfo);
 						}
@@ -83,20 +87,39 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 	protected String createLiteloaderVersion(MinecraftDirectory mcdir, LiteloaderVersion liteloader) throws IOException {
 		String superVersion = liteloader.getSuperVersion();
 		String minecraftVersion = liteloader.getMinecraftVersion();
+		String repoUrl = liteloader.getRepoUrl();
+		String tweakClass = liteloader.getTweakClass();
+		Set<JSONObject> liteloaderLibraries = liteloader.getLibraries();
+
 		JSONObject versionjson;
 		try (Reader reader = new InputStreamReader(new BufferedInputStream(new FileInputStream(mcdir.getVersionJson(superVersion))), "UTF-8")) {
 			versionjson = new JSONObject(new JSONTokener(reader));
 		}
 
 		String version = String.format("%s-LiteLoader%s", superVersion, minecraftVersion);
-		String minecraftArguments = String.format("%s --tweakClass %s", versionjson.getString("minecraftArguments"), liteloader.getTweakClass());
+		String minecraftArguments = String.format("%s --tweakClass %s", versionjson.getString("minecraftArguments"),
+				tweakClass == null ? "com.mumfrey.liteloader.launch.LiteLoaderTweaker" : tweakClass);
 		JSONArray libraries = new JSONArray();
 		JSONObject liteloaderLibrary = new JSONObject();
 		liteloaderLibrary.put("name", String.format("com.mumfrey:liteloader:%s", minecraftVersion));
-		liteloaderLibrary.put("url", "http://dl.liteloader.com/versions/");
+		liteloaderLibrary.put("url", repoUrl == null ? "http://dl.liteloader.com/versions/" : repoUrl);
 		libraries.put(liteloaderLibrary);
-		for (JSONObject library : liteloader.getLibraries()) {
-			libraries.put(library);
+		if (liteloaderLibraries != null) {
+			String launchwrapperPrefix = launchwrapperName() + ":";
+			for (JSONObject library : liteloaderLibraries) {
+				String name = library.optString("name", null);
+				if (name != null) {
+					String leastLaunchwrapperVersion = leastLaunchwrapperVersion();
+					if (leastLaunchwrapperVersion != null && name.startsWith(launchwrapperPrefix)) {
+						String actualVersion = name.substring(launchwrapperPrefix.length());
+						if (isLessThan(actualVersion, leastLaunchwrapperVersion)) {
+							library.put("name", launchwrapperPrefix + leastLaunchwrapperVersion);
+						}
+					}
+				}
+
+				libraries.put(library);
+			}
 		}
 
 		versionjson.put("inheritsFrom", superVersion);
@@ -119,6 +142,27 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 
 	protected String liteloaderVersionListUrl() {
 		return "http://dl.liteloader.com/versions/versions.json";
+	}
+
+	protected String leastLaunchwrapperVersion() {
+		return "1.7";
+	}
+
+	protected String launchwrapperName() {
+		return "net.minecraft:launchwrapper";
+	}
+
+	private static boolean isLessThan(String a, String b) {
+		try {
+			BigDecimal decimalA = new BigDecimal(a);
+			BigDecimal decimalB = new BigDecimal(b);
+			if (decimalA.compareTo(decimalB) < 0) {
+				return true;
+			}
+		} catch (NumberFormatException e) {
+			;
+		}
+		return false;
 	}
 
 }
