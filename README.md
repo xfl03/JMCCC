@@ -116,7 +116,7 @@ The following code snippet downloads minecraft 1.9:
 ```java
 MinecraftDirectory dir = new MinecraftDirectory("/home/user/.minecraft");
 MinecraftDownloader downloader=MinecraftDownloaderBuilder.create().build();
-downloader.downloadIncrementally(dir, "1.9", new CombinedDownloadCallback<Version>() {
+downloader.downloadIncrementally(dir, "1.9", new CallbackAdapter<Version>() {
 	
 	@Override
 	public void failed(Throwable e) {
@@ -137,7 +137,7 @@ downloader.downloadIncrementally(dir, "1.9", new CombinedDownloadCallback<Versio
 	public <R> DownloadCallback<R> taskStart(DownloadTask<R> task) {
 		// when a new sub download task starts
 		// return a DownloadCallback to listen the status of the task
-		return new DownloadCallback<R>() {
+		return new CallbackAdapter<R>() {
 
 			@Override
 			public void done(R result) {
@@ -182,10 +182,10 @@ ForgeDownloadProvider forgeProvider = new ForgeDownloadProvider();
 LiteloaderDownloadProvider liteloaderProvider = new LiteloaderDownloadProvider();
 MinecraftDownloader downloader = MinecraftDownloaderBuilder.create().appendProvider(forgeProvider).appendProvider(liteloaderProvider).build();
 
-downloader.downloadIncrementally(dir, "1.8-forge1.8-11.14.3.1514", new CombinedDownloadCallback<Version>() {...});
-downloader.downloadIncrementally(dir, "1.7.10-LiteLoader1.7.10", new CombinedDownloadCallback<Version>() {...});
-downloader.download(forgeProvider.forgeVersionList(), new CombinedDownloadCallback<ForgeVersionList>() {...});
-downloader.download(liteloaderProvider.liteloaderVersionList(), new CombinedDownloadCallback<LiteloaderVersionList>() {...});
+downloader.downloadIncrementally(dir, "1.8-forge1.8-11.14.3.1514", new CallbackAdapter<Version>() {...});
+downloader.downloadIncrementally(dir, "1.7.10-LiteLoader1.7.10", new CallbackAdapter<Version>() {...});
+downloader.download(forgeProvider.forgeVersionList(), new CallbackAdapter<ForgeVersionList>() {...});
+downloader.download(liteloaderProvider.liteloaderVersionList(), new CallbackAdapter<LiteloaderVersionList>() {...});
 ```
 
 ##### Customized download provider
