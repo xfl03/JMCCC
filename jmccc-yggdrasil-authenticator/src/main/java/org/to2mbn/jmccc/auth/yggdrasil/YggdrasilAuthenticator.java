@@ -7,11 +7,10 @@ import java.util.Objects;
 import org.to2mbn.jmccc.auth.AuthInfo;
 import org.to2mbn.jmccc.auth.AuthenticationException;
 import org.to2mbn.jmccc.auth.Authenticator;
-import org.to2mbn.jmccc.auth.yggdrasil.core.Agent;
 import org.to2mbn.jmccc.auth.yggdrasil.core.AuthenticationService;
 import org.to2mbn.jmccc.auth.yggdrasil.core.GameProfile;
 import org.to2mbn.jmccc.auth.yggdrasil.core.Session;
-import org.to2mbn.jmccc.auth.yggdrasil.core.yggdrasil.YggdrasilAuthenticationService;
+import org.to2mbn.jmccc.auth.yggdrasil.core.yggdrasil.YggdrasilServiceBuilder;
 import org.to2mbn.jmccc.util.UUIDUtils;
 
 /**
@@ -68,7 +67,7 @@ public class YggdrasilAuthenticator implements Authenticator, Serializable {
 	 *             authentication
 	 */
 	public static YggdrasilAuthenticator token(String accessToken, String clientToken) throws AuthenticationException {
-		return token(accessToken, createAuthenticationService(clientToken));
+		return token(accessToken, YggdrasilServiceBuilder.defaultAuthenticationService(clientToken));
 	}
 
 	/**
@@ -98,7 +97,7 @@ public class YggdrasilAuthenticator implements Authenticator, Serializable {
 	 *             authentication
 	 */
 	public static YggdrasilAuthenticator password(String username, String password) throws AuthenticationException {
-		return password(username, password, null, createAuthenticationService());
+		return password(username, password, null, YggdrasilServiceBuilder.defaultAuthenticationService());
 	}
 
 	/**
@@ -113,7 +112,7 @@ public class YggdrasilAuthenticator implements Authenticator, Serializable {
 	 *             authentication
 	 */
 	public static YggdrasilAuthenticator password(String username, String password, CharacterSelector characterSelector) throws AuthenticationException {
-		return password(username, password, characterSelector, createAuthenticationService());
+		return password(username, password, characterSelector, YggdrasilServiceBuilder.defaultAuthenticationService());
 	}
 
 	/**
@@ -129,7 +128,7 @@ public class YggdrasilAuthenticator implements Authenticator, Serializable {
 	 *             authentication
 	 */
 	public static YggdrasilAuthenticator password(String username, String password, CharacterSelector characterSelector, String clientToken) throws AuthenticationException {
-		return password(username, password, characterSelector, createAuthenticationService(clientToken));
+		return password(username, password, characterSelector, YggdrasilServiceBuilder.defaultAuthenticationService(clientToken));
 	}
 
 	/**
@@ -180,14 +179,6 @@ public class YggdrasilAuthenticator implements Authenticator, Serializable {
 		return auth;
 	}
 
-	private static AuthenticationService createAuthenticationService() {
-		return createAuthenticationService(UUIDUtils.randomUnsignedUUID());
-	}
-
-	private static AuthenticationService createAuthenticationService(String clientToken) {
-		return new YggdrasilAuthenticationService(clientToken, Agent.MINECRAFT);
-	}
-
 	private static final long serialVersionUID = 1L;
 
 	private AuthenticationService authenticationService;
@@ -197,7 +188,7 @@ public class YggdrasilAuthenticator implements Authenticator, Serializable {
 	 * Constructs a YggdrasilAuthenticator with a random client token.
 	 */
 	public YggdrasilAuthenticator() {
-		this(createAuthenticationService());
+		this(YggdrasilServiceBuilder.defaultAuthenticationService());
 	}
 
 	/**
@@ -206,7 +197,7 @@ public class YggdrasilAuthenticator implements Authenticator, Serializable {
 	 * @param clientToken the client token
 	 */
 	public YggdrasilAuthenticator(String clientToken) {
-		this(createAuthenticationService(clientToken));
+		this(YggdrasilServiceBuilder.defaultAuthenticationService(clientToken));
 	}
 
 	/**

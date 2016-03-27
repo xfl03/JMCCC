@@ -16,25 +16,18 @@ import org.to2mbn.jmccc.auth.yggdrasil.core.GameProfile;
 import org.to2mbn.jmccc.auth.yggdrasil.core.RemoteAuthenticationException;
 import org.to2mbn.jmccc.auth.yggdrasil.core.Session;
 import org.to2mbn.jmccc.auth.yggdrasil.core.UserType;
+import org.to2mbn.jmccc.auth.yggdrasil.core.io.JSONHttpRequester;
 import org.to2mbn.jmccc.util.UUIDUtils;
 
-public class YggdrasilAuthenticationService extends YggdrasilService implements AuthenticationService {
-
-	private static final long serialVersionUID = 1L;
+public class YggdrasilAuthenticationService extends AbstractYggdrasilService implements AuthenticationService {
 
 	private String clientToken;
 	private Agent agent;
 
-	public YggdrasilAuthenticationService(String clientToken, Agent agent) {
-		super();
-		this.clientToken = Objects.requireNonNull(clientToken);
-		this.agent = Objects.requireNonNull(agent);
-	}
-
-	public YggdrasilAuthenticationService(String clientToken, Agent agent, PropertiesDeserializer propertiesDeserializer, YggdrasilAPIProvider api) {
-		super(propertiesDeserializer, api);
-		this.clientToken = Objects.requireNonNull(clientToken);
-		this.agent = Objects.requireNonNull(agent);
+	public YggdrasilAuthenticationService(JSONHttpRequester requester, PropertiesDeserializer propertiesDeserializer, YggdrasilAPIProvider api, String clientToken, Agent agent) {
+		super(requester, propertiesDeserializer, api);
+		this.clientToken = clientToken;
+		this.agent = agent;
 	}
 
 	@Override
@@ -101,7 +94,7 @@ public class YggdrasilAuthenticationService extends YggdrasilService implements 
 		}
 
 		try {
-			checkEmptyResponse(response);
+			requireEmptyResponse(response);
 		} catch (RemoteAuthenticationException e) {
 			if ("ForbiddenOperationException".equals(e.getRemoteExceptionName())) {
 				return false;
@@ -123,7 +116,7 @@ public class YggdrasilAuthenticationService extends YggdrasilService implements 
 		} catch (JSONException | IOException e) {
 			throw new RequestException(e);
 		}
-		checkEmptyResponse(response);
+		requireEmptyResponse(response);
 	}
 
 	@Override
@@ -140,7 +133,7 @@ public class YggdrasilAuthenticationService extends YggdrasilService implements 
 		} catch (JSONException | IOException e) {
 			throw new RequestException(e);
 		}
-		checkEmptyResponse(response);
+		requireEmptyResponse(response);
 	}
 
 	public String getClientToken() {
@@ -152,7 +145,7 @@ public class YggdrasilAuthenticationService extends YggdrasilService implements 
 	}
 
 	private Session handleAuthResponse(JSONObject response) throws AuthenticationException {
-		checkResponse(response);
+		requireNonEmptyResponse(response);
 
 		try {
 			if (!clientToken.equals(response.getString("clientToken"))) {

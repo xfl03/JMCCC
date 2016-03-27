@@ -24,6 +24,10 @@ public class MinecraftDownloaderBuilder {
 		return new MinecraftDownloaderBuilder();
 	}
 
+	public static MinecraftDownloader buildDefault() {
+		return new MinecraftDownloaderBuilder().build();
+	}
+
 	int maxConnections;
 	int maxConnectionsPerRouter;
 	MinecraftDownloadProvider baseProvider = new MojangDownloadProvider();
