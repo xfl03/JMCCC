@@ -1,5 +1,6 @@
 package org.to2mbn.jmccc.auth.yggdrasil.core.yggdrasil;
 
+import java.io.Serializable;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
@@ -12,7 +13,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.to2mbn.jmccc.auth.yggdrasil.core.util.Base64;
 
-public class PropertiesDeserializer {
+public class PropertiesDeserializer implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private PublicKey signaturePublicKey;
 

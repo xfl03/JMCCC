@@ -16,7 +16,6 @@ import org.to2mbn.jmccc.auth.yggdrasil.core.Agent;
 import org.to2mbn.jmccc.auth.yggdrasil.core.AuthenticationService;
 import org.to2mbn.jmccc.auth.yggdrasil.core.ProfileService;
 import org.to2mbn.jmccc.auth.yggdrasil.core.io.JSONHttpRequester;
-import org.to2mbn.jmccc.util.UUIDUtils;
 
 public class YggdrasilServiceBuilder {
 
@@ -28,10 +27,6 @@ public class YggdrasilServiceBuilder {
 		return new YggdrasilServiceBuilder().buildAuthenticationService();
 	}
 
-	public static AuthenticationService defaultAuthenticationService(String clientToken) {
-		return new YggdrasilServiceBuilder().setClientToken(clientToken).buildAuthenticationService();
-	}
-
 	public static ProfileService defaultProfileService() {
 		return new YggdrasilServiceBuilder().buildProfileService();
 	}
@@ -41,7 +36,6 @@ public class YggdrasilServiceBuilder {
 	private boolean useDefaultSessionPublicKey = true;
 	private Agent agent;
 	private Proxy proxy;
-	private String clientToken;
 
 	protected YggdrasilServiceBuilder() {
 	}
@@ -74,6 +68,11 @@ public class YggdrasilServiceBuilder {
 		}
 	}
 
+	public YggdrasilServiceBuilder loadSessionPublicKey(String keyFile) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+		Objects.requireNonNull(keyFile);
+		return loadSessionPublicKey(new File(keyFile));
+	}
+
 	public YggdrasilServiceBuilder setAgent(Agent agent) {
 		this.agent = agent;
 		return this;
@@ -84,13 +83,8 @@ public class YggdrasilServiceBuilder {
 		return this;
 	}
 
-	public YggdrasilServiceBuilder setClientToken(String clientToken) {
-		this.clientToken = clientToken;
-		return this;
-	}
-
 	public AuthenticationService buildAuthenticationService() {
-		return new YggdrasilAuthenticationService(buildJSONHttpRequester(), buildPropertiesDeserializer(), buildAPIProvider(), buildClientToken(), buildAgent());
+		return new YggdrasilAuthenticationService(buildJSONHttpRequester(), buildPropertiesDeserializer(), buildAPIProvider(), buildAgent());
 	}
 
 	public ProfileService buildProfileService() {
@@ -99,10 +93,6 @@ public class YggdrasilServiceBuilder {
 
 	private Agent buildAgent() {
 		return agent == null ? Agent.MINECRAFT : agent;
-	}
-
-	private String buildClientToken() {
-		return clientToken == null ? UUIDUtils.randomUnsignedUUID() : clientToken;
 	}
 
 	private YggdrasilAPIProvider buildAPIProvider() {

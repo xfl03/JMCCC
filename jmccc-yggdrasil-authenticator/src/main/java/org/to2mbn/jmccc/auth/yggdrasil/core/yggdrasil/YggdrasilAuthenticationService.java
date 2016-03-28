@@ -21,19 +21,18 @@ import org.to2mbn.jmccc.util.UUIDUtils;
 
 public class YggdrasilAuthenticationService extends AbstractYggdrasilService implements AuthenticationService {
 
-	private String clientToken;
 	private Agent agent;
 
-	public YggdrasilAuthenticationService(JSONHttpRequester requester, PropertiesDeserializer propertiesDeserializer, YggdrasilAPIProvider api, String clientToken, Agent agent) {
+	public YggdrasilAuthenticationService(JSONHttpRequester requester, PropertiesDeserializer propertiesDeserializer, YggdrasilAPIProvider api, Agent agent) {
 		super(requester, propertiesDeserializer, api);
-		this.clientToken = clientToken;
 		this.agent = agent;
 	}
 
 	@Override
-	public Session login(String username, String password) throws AuthenticationException {
+	public Session login(String username, String password, String clientToken) throws AuthenticationException {
 		Objects.requireNonNull(username);
 		Objects.requireNonNull(password);
+		Objects.requireNonNull(clientToken);
 
 		Map<String, Object> request = new HashMap<>();
 		request.put("agent", agent);
@@ -47,16 +46,17 @@ public class YggdrasilAuthenticationService extends AbstractYggdrasilService imp
 		} catch (JSONException | IOException e) {
 			throw new RequestException(e);
 		}
-		return handleAuthResponse(response);
+		return handleAuthResponse(response, clientToken);
 	}
 
 	@Override
-	public Session refresh(String accessToken) throws AuthenticationException {
-		return selectProfile(accessToken, null);
+	public Session refresh(String clientToken, String accessToken) throws AuthenticationException {
+		return selectProfile(clientToken, accessToken, null);
 	}
 
 	@Override
-	public Session selectProfile(String accessToken, UUID profile) throws AuthenticationException {
+	public Session selectProfile(String clientToken, String accessToken, UUID profile) throws AuthenticationException {
+		Objects.requireNonNull(clientToken);
 		Objects.requireNonNull(accessToken);
 
 		Map<String, Object> request = new HashMap<>();
@@ -76,15 +76,22 @@ public class YggdrasilAuthenticationService extends AbstractYggdrasilService imp
 		} catch (JSONException | IOException e) {
 			throw new RequestException(e);
 		}
-		return handleAuthResponse(response);
+		return handleAuthResponse(response, clientToken);
 	}
 
 	@Override
 	public boolean validate(String accessToken) throws AuthenticationException {
+		return validate(null, accessToken);
+	}
+
+	@Override
+	public boolean validate(String clientToken, String accessToken) throws AuthenticationException {
 		Objects.requireNonNull(accessToken);
 
 		Map<String, Object> request = new HashMap<>();
-		request.put("clientToken", clientToken);
+		if (clientToken != null) {
+			request.put("clientToken", clientToken);
+		}
 		request.put("accessToken", accessToken);
 		JSONObject response;
 		try {
@@ -104,7 +111,8 @@ public class YggdrasilAuthenticationService extends AbstractYggdrasilService imp
 	}
 
 	@Override
-	public void invalidate(String accessToken) throws AuthenticationException {
+	public void invalidate(String clientToken, String accessToken) throws AuthenticationException {
+		Objects.requireNonNull(clientToken);
 		Objects.requireNonNull(accessToken);
 
 		Map<String, Object> request = new HashMap<>();
@@ -136,19 +144,15 @@ public class YggdrasilAuthenticationService extends AbstractYggdrasilService imp
 		requireEmptyResponse(response);
 	}
 
-	public String getClientToken() {
-		return clientToken;
-	}
-
 	public Agent getAgent() {
 		return agent;
 	}
 
-	private Session handleAuthResponse(JSONObject response) throws AuthenticationException {
+	private Session handleAuthResponse(JSONObject response, String clientToken) throws AuthenticationException {
 		requireNonEmptyResponse(response);
 
 		try {
-			if (!clientToken.equals(response.getString("clientToken"))) {
+			if (clientToken != null && !clientToken.equals(response.getString("clientToken"))) {
 				throw new AuthenticationException("clientToken changed from " + clientToken + " to " + response.getString("clientToken"));
 			}
 
@@ -175,7 +179,7 @@ public class YggdrasilAuthenticationService extends AbstractYggdrasilService imp
 					availableProfiles[i] = toGameProfile(profilesArray.getJSONObject(i));
 				}
 			}
-			return new Session(userId, accessToken, selectedProfile, availableProfiles, userId, userProperties, UserType.MOJANG);
+			return new Session(clientToken, accessToken, selectedProfile, availableProfiles, userId, userProperties, UserType.MOJANG);
 		} catch (JSONException e) {
 			throw new ResponseFormatException(e);
 		}
