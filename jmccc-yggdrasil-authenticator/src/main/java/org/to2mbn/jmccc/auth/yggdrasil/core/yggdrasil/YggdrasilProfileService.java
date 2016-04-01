@@ -16,19 +16,14 @@ import org.to2mbn.jmccc.auth.yggdrasil.core.PlayerTextures;
 import org.to2mbn.jmccc.auth.yggdrasil.core.ProfileService;
 import org.to2mbn.jmccc.auth.yggdrasil.core.PropertiesGameProfile;
 import org.to2mbn.jmccc.auth.yggdrasil.core.Texture;
+import org.to2mbn.jmccc.auth.yggdrasil.core.io.JSONHttpRequester;
 import org.to2mbn.jmccc.auth.yggdrasil.core.util.Base64;
 import org.to2mbn.jmccc.util.UUIDUtils;
 
-public class YggdrasilProfileService extends YggdrasilService implements ProfileService {
+public class YggdrasilProfileService extends AbstractYggdrasilService implements ProfileService {
 
-	private static final long serialVersionUID = 1L;
-
-	public YggdrasilProfileService() {
-		super();
-	}
-
-	public YggdrasilProfileService(PropertiesDeserializer propertiesDeserializer, YggdrasilAPIProvider api) {
-		super(propertiesDeserializer, api);
+	public YggdrasilProfileService(JSONHttpRequester requester, PropertiesDeserializer propertiesDeserializer, YggdrasilAPIProvider api) {
+		super(requester, propertiesDeserializer, api);
 	}
 
 	@Override
@@ -43,7 +38,7 @@ public class YggdrasilProfileService extends YggdrasilService implements Profile
 		} catch (JSONException | IOException e) {
 			throw new RequestException(e);
 		}
-		checkResponse(response);
+		requireNonEmptyResponse(response);
 
 		Map<String, String> properties;
 		try {
@@ -82,7 +77,7 @@ public class YggdrasilProfileService extends YggdrasilService implements Profile
 		}
 		try {
 			if (rawResponse instanceof JSONObject) {
-				checkResponse((JSONObject) rawResponse);
+				requireNonEmptyResponse((JSONObject) rawResponse);
 				throw new JSONException("response should be a json array");
 			}
 			JSONArray response = (JSONArray) rawResponse;

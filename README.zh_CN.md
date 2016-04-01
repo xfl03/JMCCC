@@ -1,13 +1,10 @@
-[中文版Readme](https://github.com/to2mbn/JMCCC/blob/master/README.zh_CN.md)
-
 # JMCCC
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Southern-InfinityStudio/JMCCC?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Build Status](https://travis-ci.org/to2mbn/JMCCC.svg?branch=master)](https://travis-ci.org/to2mbn/JMCCC)<br/>
-An open-source lightweight library for launching and downloading Minecraft.
+一个用于启动和下载Minecraft的轻量级开源类库。
 
-## Download
-You can get the latest releases from [the maven central repository](https://search.maven.org/#search|ga|1|g%3A%22org.to2mbn%22).
+如果您使用Maven/Gradle，您可以直接将jmccc作为一个依赖添加（可以在[Maven中心仓库](https://search.maven.org/#search|ga|1|g%3A%22org.to2mbn%22)找到）。
 
-The snapshot repository:
+快照版本可以从Sonatype Nexus下载：
 ```xml
 <repository>
 	<id>ossrh</id>
@@ -18,23 +15,23 @@ The snapshot repository:
 </repository>
 ```
 
-|ArtifactId                   |Description                                    |
-|-----------------------------|-----------------------------------------------|
-|jmccc                        |Provides classes for launching minecraft.      |
-|jmccc-yggdrasil-authenticator|Provides the yggdrasil authentication feature. |
-|jmccc-mcdownloader           |Provides the download feature.                 |
+|ArtifactId                   |用途                           |
+|-----------------------------|-------------------------------|
+|jmccc                        |启动Minecraft                  |
+|jmccc-yggdrasil-authenticator|正版（Yggdrasil）验证的相关支持 |
+|jmccc-mcdownloader           |下载Minecraft                  |
 
-## Compile
+## 编译
 ```
-mvn clean install
+mvn clean package
 ```
 
 ## License
 JMCCC is licensed under [the MIT license](https://to2mbn.github.io/jmccc/LICENSE.txt).
 
-## Examples
+## 例子
 
-### Minecraft launching
+### 启动Minecraft
 ```java
 MinecraftDirectory dir = new MinecraftDirectory("/home/user/.minecraft");
 Launcher launcher = LauncherBuilder.buildDefault();
@@ -56,17 +53,15 @@ launcher.launch(new LaunchOption("1.9", new OfflineAuthenticator("user"), dir), 
     }
 });
 ```
-In the example above, we use `/home/user/.minecraft` as the .minecraft directory, and launches Minecraft 1.9 with an offline
-account `user`. And the logs output from game process will print to stdout and stderr. When the game process terminated,
-this program will print `Exit code: <process exit code>` to stderr, and then the monitor threads terminates.
+上面的例子中，我们启动了Minecraft 1.9。其中将`/home/user/.minecraft`作为.minecraft目录，使用了`user`这个离线账户，并且游戏进程的日志将被打印到控制台。当游戏进程结束的时候，会向控制台打印`Exit code: <退出码>`，接着用来监视游戏进程的线程会自动结束。
 
-### Yggdrasil authentication
-#### Login with password
+### 正版登录
+#### 用密码登录
 ```java
 YggdrasilAuthenticator.password("<username>", "<password>")
 ```
 
-#### Interactive login
+#### 交互式登录
 ```java
 YggdrasilAuthenticator authenticator = new YggdrasilAuthenticator() {
 
@@ -98,23 +93,23 @@ YggdrasilAuthenticator authenticator = new YggdrasilAuthenticator() {
 authenticator.auth();
 System.out.println("Logged in!");
 ```
-The console output:
+控制台输出是这样的：
 ```
 login: <username>
 password: <password>
 Logged in!
 ```
 
-When method `auth()` is called, YggdrasilAuthenticator validates the current token. If the current token is not available, YggdrasilAuthenticator will try refreshing the token. When YggdrasilAuthenticator failed to refresh, it will call method `tryPasswordLogin()` to ask the password for authentication. If no password is available, YggdrasilAuthenticator will throw a `AuthenticationException`. The default implementation of `tryPasswordLogin()` returns `null`, you may need to override it.
+调用`auth()`方法时，YggdrasilAuthenticator先检查当前的token是否可用，假如不可用则尝试刷新一下token。假如刷新失败，则调用`tryPasswordLogin()`方法来询问密码，尝试使用密码来登录（您可能需要重写这个方法）。如果密码不可用，则会抛出一个`AuthenticationException`。`tryPasswordLogin()`的默认实现返回`null`。
 
-If you want to update the current token manually, you ought to call `refresh()`, `refreshWithToken(String, String)` or `refreshWithPassword(String, String)`.
-If you want to save the authentication, you ought to call `getCurrentSession()` to get the current authentication and serialize it, and call `setCurrentSession(Session)` to load the authentication.
+调用`refresh()`，`refreshWithToken(String, String)`，`refreshWithPassword(String, String)`方法可以手动刷新token。
+调用`getCurrentSession()`可以获取当前的token。您可以把它保存下来，等到下一次使用时调用`setCurrentSession(Session)`来加载token。（可以用来实现记住密码一类的功能）
 
-### Game & Asset Download
-> jmccc-mcdownloader can work on top of [Apache HttpAsyncClient](http://hc.apache.org/httpcomponents-asyncclient-dev/) or JDK. Note that the JDK implementation uses BIO, so you should limit your max connections, because each connetion will start a thread. If you want to use Apache HttpAsyncClient, just put it in the classpath. This is an optional dependency in the POM.
+### 下载
+> jmccc-mcdownloader既可以使用[Apache HttpAsyncClient](http://hc.apache.org/httpcomponents-asyncclient-dev/)作为下载的底层实现，也可以直接使用JDK作为底层实现。需要注意的是基于JDK的实现使用的是阻塞式IO，所以在打开大量链接时会占用很多资源（因为一个链接就需要一个线程）。Apache HttpAsyncClient使用的是非阻塞式IO，所以没有这个问题。如果您想使用Apache HttpAsyncClient，则只需要将相关的依赖加入到classpath即可。
 
-##### Minecraft downloading
-The following code snippet downloads minecraft 1.9:
+##### 下载Minecraft
+下面的代码演示了如何下载Minecraft 1.9。
 ```java
 MinecraftDirectory dir = new MinecraftDirectory("/home/user/.minecraft");
 MinecraftDownloader downloader=MinecraftDownloaderBuilder.create().build();
@@ -122,62 +117,62 @@ downloader.downloadIncrementally(dir, "1.9", new CallbackAdapter<Version>() {
 	
 	@Override
 	public void failed(Throwable e) {
-		// when the task fails
+		// 当下载失败时调用此方法
 	}
 	
 	@Override
 	public void done(Version result) {
-		// when the task finishes
+		// 当下载成功时调用此方法
 	}
 	
 	@Override
 	public void cancelled() {
-		// when the task cancels
+		// 当下载被取消时调用此方法
 	}
 	
 	@Override
 	public <R> DownloadCallback<R> taskStart(DownloadTask<R> task) {
-		// when a new sub download task starts
-		// return a DownloadCallback to listen the status of the task
+		// 当派生出一个新的子任务时调用此方法
+		// 可以返回一个DownloadCallback对象来监视该子任务的进度
 		return new CallbackAdapter<R>() {
 
 			@Override
 			public void done(R result) {
-				// when the sub download task finishes
+				// 当子任务成功时调用此方法
 			}
 
 			@Override
 			public void failed(Throwable e) {
-				// when the sub download task fails
+				// 当子任务失败时调用此方法
 			}
 
 			@Override
 			public void cancelled() {
-				// when the sub download task cancels
+				// 当子任务被取消时调用此方法
 			}
 
 			@Override
 			public void updateProgress(long done, long total) {
-				// when the progress of the sub download task has updated
+				// 当子任务的下载进度发生变化时调用此方法
 			}
 
 			@Override
 			public void retry(Throwable e, int current, int max) {
-				// when the sub download task fails, and the downloader decides to retry the task
-				// in this case, failed() won't be called
+				// 当子任务出错，但下载器决定重试该任务时调用
+				// 这种情况下，failed()方法是不会被调用的
 			}
 		};
 	}
 });
 ```
-`MinecraftDownloader.downloadIncrementally()` will find out the missing libraries, broken assets, etc, and download them.
+`MinecraftDownloader.downloadIncrementally()`将会找出缺失或损坏的文件，并自动下载。
 
-##### Minecraft version list downloading
+##### 获取版本列表
 ```java
 downloader.fetchRemoteVersionList(new CombinedDownloadCallback<RemoteVersionList>() {...});
 ```
 
-##### Forge and LiteLoader supports
+##### 下载Forge/Liteloader
 ```java
 MinecraftDirectory dir = new MinecraftDirectory("/home/user/.minecraft");
 ForgeDownloadProvider forgeProvider = new ForgeDownloadProvider();
@@ -190,26 +185,27 @@ downloader.download(forgeProvider.forgeVersionList(), new CallbackAdapter<ForgeV
 downloader.download(liteloaderProvider.liteloaderVersionList(), new CallbackAdapter<LiteloaderVersionList>() {...});
 ```
 
-##### Customized download provider
+##### 自定义下载源
 ```java
 MinecraftDownloader downloader = MinecraftDownloaderBuilder.create().setBaseProvider(new CustomizedDownloadProvider()).build();
 ```
+注：CustomizedDownloadProvider代表您自己的下载源。
 
-Finally, don't forget to shutdown the downloader.
+最后不要忘记关闭下载器。
 ```java
 downloader.shutdown();
 ```
 
-### Forge
-JMCCC won't add fml options (such as `-Dfml.ignoreInvalidMinecraftCertificates=true` and `-Dfml.ignorePatchDiscrepancies=true`) to the command line automatically.
-If you have problems launching forge, you may need to add these arguments manually.
-These arguments are already defined in class `ExtraArgumentsTemplates`.
+### 关于Forge
+jmccc不像其它一些启动器，jmccc不会自动添加类似于`-Dfml.ignoreInvalidMinecraftCertificates=true`或`-Dfml.ignorePatchDiscrepancies=true`之类的FML选项。
+所以可能会无法启动一些Forge版本，您可能需要手动添加这些选项。
+这些参数都已经在`ExtraArgumentsTemplates`中被预先定义好了，您只需要引用一下即可。
 ```java
 option.setExtraJvmArguments(Arrays.asList(ExtraArgumentsTemplates.FML_IGNORE_INVALID_MINECRAFT_CERTIFICATES, ExtraArgumentsTemplates.FML_IGNORE_PATCH_DISCREPANCISE));
 ```
 
-### Change Logs
-See [wiki](https://github.com/to2mbn/JMCCC/wiki/Change-logs).
+### 更新日志
+见[wiki](https://github.com/to2mbn/JMCCC/wiki/Change-logs).
 
 ### Contributing
 Contributing is good. But please read the following requirements first before you PR.

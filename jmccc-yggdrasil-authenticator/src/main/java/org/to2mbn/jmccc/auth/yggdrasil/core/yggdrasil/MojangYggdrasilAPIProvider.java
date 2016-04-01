@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.UUID;
 import org.to2mbn.jmccc.util.UUIDUtils;
 
-public class DefaultYggdrasilAPIProvider implements YggdrasilAPIProvider, Serializable {
+public class MojangYggdrasilAPIProvider implements YggdrasilAPIProvider, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
