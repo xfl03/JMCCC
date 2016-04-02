@@ -9,8 +9,8 @@
 	<description>Jmccc is an open-source lightweight library for launching and downloading Minecraft.</description>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<jar.source>1.7</jar.source>
-		<jar.target>1.7</jar.target>
+		<jar.source>1.8</jar.source>
+		<jar.target>1.8</jar.target>
 	</properties>
 	<issueManagement>
 		<url>https://github.com/to2mbn/JMCCC/issues</url>
@@ -123,8 +123,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.5.1</version>
 				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
+					<source>1.8</source>
+					<target>1.8</target>
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
