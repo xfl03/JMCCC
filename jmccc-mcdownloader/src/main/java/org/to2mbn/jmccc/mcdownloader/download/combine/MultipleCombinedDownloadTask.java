@@ -1,7 +1,5 @@
 package org.to2mbn.jmccc.mcdownloader.download.combine;
 
-import java.util.concurrent.Callable;
-
 class MultipleCombinedDownloadTask extends CombinedDownloadTask<Void> {
 
 	CombinedDownloadTask<?>[] tasks;
@@ -17,14 +15,7 @@ class MultipleCombinedDownloadTask extends CombinedDownloadTask<Void> {
 				context.submit(task, null, true);
 			}
 		}
-		context.awaitAllTasks(new Callable<Void>() {
-
-			@Override
-			public Void call() throws Exception {
-				context.done(null);
-				return null;
-			}
-		});
+		context.awaitAllTasks(() -> context.done(null));
 	}
 
 }

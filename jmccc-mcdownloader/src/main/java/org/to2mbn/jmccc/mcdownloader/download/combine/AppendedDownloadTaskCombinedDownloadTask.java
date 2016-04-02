@@ -4,12 +4,12 @@ import java.util.Objects;
 import org.to2mbn.jmccc.mcdownloader.download.ResultProcessor;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackAdapter;
 
-class ExtendedDownloadTaskCombinedDownloadTask<R, S> extends CombinedDownloadTask<S> {
+class AppendedDownloadTaskCombinedDownloadTask<R, S> extends CombinedDownloadTask<S> {
 
 	private final CombinedDownloadTask<R> prev;
 	private final ResultProcessor<R, CombinedDownloadTask<S>> next;
 
-	public ExtendedDownloadTaskCombinedDownloadTask(CombinedDownloadTask<R> prev, ResultProcessor<R, CombinedDownloadTask<S>> next) {
+	public AppendedDownloadTaskCombinedDownloadTask(CombinedDownloadTask<R> prev, ResultProcessor<R, CombinedDownloadTask<S>> next) {
 		Objects.requireNonNull(prev);
 		Objects.requireNonNull(next);
 

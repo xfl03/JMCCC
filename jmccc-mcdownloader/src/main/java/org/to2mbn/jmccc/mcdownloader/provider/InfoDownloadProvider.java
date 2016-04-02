@@ -5,9 +5,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 import org.to2mbn.jmccc.mcdownloader.RemoteVersion;
-import org.to2mbn.jmccc.mcdownloader.RemoteVersionList;
 import org.to2mbn.jmccc.mcdownloader.download.FileDownloadTask;
-import org.to2mbn.jmccc.mcdownloader.download.ResultProcessor;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.util.ChecksumUtils;
@@ -26,13 +24,7 @@ public class InfoDownloadProvider extends AbstractMinecraftDownloadProvider impl
 	public CombinedDownloadTask<Set<Asset>> assetsIndex(final MinecraftDirectory mcdir, final Version version) {
 		CombinedDownloadTask<Void> task = download(version.getAssetIndexDownloadInfo(), mcdir.getAssetIndex(version));
 		if (task != null) {
-			return task.andThen(new ResultProcessor<Void, Set<Asset>>() {
-
-				@Override
-				public Set<Asset> process(Void arg) throws Exception {
-					return Versions.resolveAssets(mcdir, version);
-				}
-			});
+			return task.andThen(dummy -> Versions.resolveAssets(mcdir, version));
 		} else {
 			return null;
 		}
@@ -57,29 +49,20 @@ public class InfoDownloadProvider extends AbstractMinecraftDownloadProvider impl
 	}
 
 	@Override
-	public CombinedDownloadTask<String> gameVersionJson(final MinecraftDirectory mcdir, final String version) {
+	public CombinedDownloadTask<String> gameVersionJson(MinecraftDirectory mcdir, String version) {
 		if (upstreamProvider == null) {
 			return null;
 		} else {
-			return upstreamProvider.versionList().andThenDownload(new ResultProcessor<RemoteVersionList, CombinedDownloadTask<String>>() {
+			return upstreamProvider.versionList()
+					.andThenDownload(result -> {
+						RemoteVersion remoteVersion = result.getVersions().get(version);
+						if (remoteVersion != null && remoteVersion.getUrl() != null) {
+							return CombinedDownloadTask.single(new FileDownloadTask(remoteVersion.getUrl(), mcdir.getVersionJson(remoteVersion.getVersion())).cacheable())
+									.andThenReturn(remoteVersion.getVersion());
+						}
 
-				@Override
-				public CombinedDownloadTask<String> process(RemoteVersionList result) throws Exception {
-					final RemoteVersion remoteVersion = result.getVersions().get(version);
-					if (remoteVersion != null && remoteVersion.getUrl() != null) {
-						return CombinedDownloadTask.single(new FileDownloadTask(remoteVersion.getUrl(), mcdir.getVersionJson(remoteVersion.getVersion())).cacheable())
-								.andThen(new ResultProcessor<Void, String>() {
-
-							@Override
-							public String process(Void arg) throws Exception {
-								return remoteVersion.getVersion();
-							}
-						});
-					}
-
-					return upstreamProvider.gameVersionJson(mcdir, version);
-				}
-			});
+						return upstreamProvider.gameVersionJson(mcdir, version);
+					});
 		}
 	}
 
@@ -92,16 +75,13 @@ public class InfoDownloadProvider extends AbstractMinecraftDownloadProvider impl
 		if (info == null || info.getUrl() == null) {
 			return null;
 		}
-		return CombinedDownloadTask.single(new FileDownloadTask(info.getUrl(), target).andThen(new ResultProcessor<Void, Void>() {
-
-			@Override
-			public Void process(Void arg) throws Exception {
-				if (!ChecksumUtils.verify(target, info.getChecksum(), "SHA-1", info.getSize())) {
-					throw new IOException("checksums mismatch");
-				}
-				return null;
-			}
-		}));
+		return CombinedDownloadTask.single(new FileDownloadTask(info.getUrl(), target)
+				.andThen(dummy -> {
+					if (!ChecksumUtils.verify(target, info.getChecksum(), "SHA-1", info.getSize())) {
+						throw new IOException("checksums mismatch");
+					}
+					return null;
+				}));
 	}
 
 }

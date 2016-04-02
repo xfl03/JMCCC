@@ -56,57 +56,42 @@ public class IncrementallyDownloadTask extends CombinedDownloadTask<Version> {
 		handledVersions.clear();
 		resolvedVersion = null;
 
-		handleVersionJson(version, context, new Callable<Void>() {
+		handleVersionJson(version, context, () -> {
+			if (resolvedVersion == null) {
+				resolvedVersion = version;
+			}
 
-			@Override
-			public Void call() throws Exception {
-				if (resolvedVersion == null) {
-					resolvedVersion = version;
-				}
+			Version versionModel = Versions.resolveVersion(mcdir, resolvedVersion);
 
-				final Version versionModel = Versions.resolveVersion(mcdir, resolvedVersion);
+			if (mcdir.getAssetIndex(versionModel).exists()) {
+				downloadAssets(context, Versions.resolveAssets(mcdir, versionModel));
 
-				if (mcdir.getAssetIndex(versionModel).exists()) {
-					downloadAssets(context, Versions.resolveAssets(mcdir, versionModel));
-
-				} else {
-					context.submit(downloadProvider.assetsIndex(mcdir, versionModel), new CallbackAdapter<Set<Asset>>() {
-
-						@Override
-						public void done(final Set<Asset> result) {
-							try {
-								context.submit(new Callable<Void>() {
-
-									@Override
-									public Void call() throws Exception {
-										downloadAssets(context, result);
-										return null;
-									}
-								}, null, true);
-							} catch (InterruptedException e) {
-								context.cancelled();
-							}
-						}
-
-					}, true);
-				}
-
-				if (!mcdir.getVersionJar(versionModel).exists()) {
-					context.submit(downloadProvider.gameJar(mcdir, versionModel), null, true);
-				}
-
-				downloadLibraries(context, versionModel);
-
-				context.awaitAllTasks(new Callable<Void>() {
+			} else {
+				context.submit(downloadProvider.assetsIndex(mcdir, versionModel), new CallbackAdapter<Set<Asset>>() {
 
 					@Override
-					public Void call() throws Exception {
-						context.done(versionModel);
-						return null;
+					public void done(final Set<Asset> result) {
+						try {
+							context.submit(() -> {
+								downloadAssets(context, result);
+								return null;
+							}, null, true);
+						} catch (InterruptedException e) {
+							context.cancelled();
+						}
 					}
-				});
-				return null;
+
+				}, true);
 			}
+
+			if (!mcdir.getVersionJar(versionModel).exists()) {
+				context.submit(downloadProvider.gameJar(mcdir, versionModel), null, true);
+			}
+
+			downloadLibraries(context, versionModel);
+
+			context.awaitAllTasks(() -> context.done(versionModel));
+			return null;
 		});
 	}
 
@@ -131,17 +116,13 @@ public class IncrementallyDownloadTask extends CombinedDownloadTask<Version> {
 				@Override
 				public void done(final String currentResolvedVersion) {
 					try {
-						context.submit(new Callable<Void>() {
-
-							@Override
-							public Void call() throws Exception {
-								if (version.equals(currentVersion)) {
-									resolvedVersion = currentResolvedVersion;
-								}
-
-								handleVersionJson(currentResolvedVersion, context, callback);
-								return null;
+						context.submit(() -> {
+							if (version.equals(currentVersion)) {
+								resolvedVersion = currentResolvedVersion;
 							}
+
+							handleVersionJson(currentResolvedVersion, context, callback);
+							return null;
 						}, null, true);
 					} catch (InterruptedException e) {
 						context.cancelled();
@@ -165,15 +146,11 @@ public class IncrementallyDownloadTask extends CombinedDownloadTask<Version> {
 
 		if (checkAssetsHash)
 			for (final Asset asset : hashMapping.values())
-				context.submit(new Callable<Void>() {
+				context.submit(() -> {
+					if (!asset.isValid(mcdir))
+						context.submit(downloadProvider.asset(mcdir, asset), null, false);
 
-					@Override
-					public Void call() throws Exception {
-						if (!asset.isValid(mcdir))
-							context.submit(downloadProvider.asset(mcdir, asset), null, false);
-
-						return null;
-					}
+					return null;
 				}, null, false);
 
 		else
@@ -185,15 +162,11 @@ public class IncrementallyDownloadTask extends CombinedDownloadTask<Version> {
 	private void downloadLibraries(final CombinedDownloadContext<Version> context, Version version) throws InterruptedException {
 		if (checkLibrariesHash)
 			for (final Library library : version.getLibraries())
-				context.submit(new Callable<Void>() {
+				context.submit(() -> {
+					if (needDownload(mcdir.getLibrary(library), library.getDownloadInfo()))
+						context.submit(downloadProvider.library(mcdir, library), null, true);
 
-					@Override
-					public Void call() throws Exception {
-						if (needDownload(mcdir.getLibrary(library), library.getDownloadInfo()))
-							context.submit(downloadProvider.library(mcdir, library), null, true);
-
-						return null;
-					}
+					return null;
 				}, null, true);
 
 		else
