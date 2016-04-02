@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.concurrent.ThreadFactory;
 
 public class DaemonStreamPumpMonitor extends ProcessMonitor {
 
@@ -33,14 +32,10 @@ public class DaemonStreamPumpMonitor extends ProcessMonitor {
 	}
 
 	public DaemonStreamPumpMonitor(Process process) {
-		super(process, new ThreadFactory() {
-
-			@Override
-			public Thread newThread(Runnable r) {
-				Thread t = new Thread(r, "process-daemon-monitor-" + r);
-				t.setDaemon(true);
-				return t;
-			}
+		super(process, r -> {
+			Thread t = new Thread(r, "process-daemon-monitor-" + r);
+			t.setDaemon(true);
+			return t;
 		});
 	}
 

@@ -1,8 +1,6 @@
 package org.to2mbn.jmccc.mcdownloader.provider;
 
-import java.io.IOException;
 import java.net.URI;
-import java.util.Comparator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -12,7 +10,6 @@ import org.json.JSONObject;
 import org.to2mbn.jmccc.mcdownloader.RemoteVersionList;
 import org.to2mbn.jmccc.mcdownloader.download.FileDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.MemoryDownloadTask;
-import org.to2mbn.jmccc.mcdownloader.download.ResultProcessor;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.version.Asset;
@@ -22,16 +19,12 @@ import org.to2mbn.jmccc.version.Versions;
 
 abstract public class URIDownloadProvider implements MinecraftDownloadProvider {
 
-	private Map<String, LibraryDownloadHandler> libraryHandlers = new ConcurrentSkipListMap<>(new Comparator<String>() {
-
-		@Override
-		public int compare(String o1, String o2) {
-			int result = o2.length() - o1.length();
-			if (result == 0) {
-				result = o1.compareTo(o2);
-			}
-			return result;
+	private Map<String, LibraryDownloadHandler> libraryHandlers = new ConcurrentSkipListMap<>((o1, o2) -> {
+		int result = o2.length() - o1.length();
+		if (result == 0) {
+			result = o1.compareTo(o2);
 		}
+		return result;
 	});
 
 	@Deprecated
@@ -74,13 +67,7 @@ abstract public class URIDownloadProvider implements MinecraftDownloadProvider {
 		if (uri == null) {
 			return null;
 		}
-		return CombinedDownloadTask.single(new MemoryDownloadTask(uri).andThen(new ResultProcessor<byte[], RemoteVersionList>() {
-
-			@Override
-			public RemoteVersionList process(byte[] arg) throws Exception {
-				return RemoteVersionList.fromJson(new JSONObject(new String(arg, "UTF-8")));
-			}
-		}).cacheable());
+		return CombinedDownloadTask.single(new MemoryDownloadTask(uri).andThen(data -> RemoteVersionList.fromJson(new JSONObject(new String(data, "UTF-8")))).cacheable());
 	}
 
 	@Deprecated
@@ -90,13 +77,7 @@ abstract public class URIDownloadProvider implements MinecraftDownloadProvider {
 		if (uri == null) {
 			return null;
 		}
-		return CombinedDownloadTask.single(new FileDownloadTask(uri, mcdir.getAssetIndex(version.getAssets())).andThen(new ResultProcessor<Void, Set<Asset>>() {
-
-			@Override
-			public Set<Asset> process(Void arg) throws IOException {
-				return Versions.resolveAssets(mcdir, version);
-			}
-		}));
+		return CombinedDownloadTask.single(new FileDownloadTask(uri, mcdir.getAssetIndex(version.getAssets())).andThen(dummy -> Versions.resolveAssets(mcdir, version)));
 	}
 
 	@Deprecated
@@ -116,13 +97,7 @@ abstract public class URIDownloadProvider implements MinecraftDownloadProvider {
 		if (uri == null) {
 			return null;
 		}
-		return CombinedDownloadTask.single(new FileDownloadTask(uri, mcdir.getVersionJson(version)).cacheable()).andThen(new ResultProcessor<Void, String>() {
-
-			@Override
-			public String process(Void arg) throws Exception {
-				return version;
-			}
-		});
+		return CombinedDownloadTask.single(new FileDownloadTask(uri, mcdir.getVersionJson(version)).cacheable()).andThen(dummy -> version);
 	}
 
 	@Deprecated
