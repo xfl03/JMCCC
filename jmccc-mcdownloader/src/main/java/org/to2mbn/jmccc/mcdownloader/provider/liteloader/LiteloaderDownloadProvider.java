@@ -10,7 +10,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
-import java.math.BigDecimal;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import org.json.JSONArray;
@@ -22,10 +21,13 @@ import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.provider.AbstractMinecraftDownloadProvider;
 import org.to2mbn.jmccc.mcdownloader.provider.ExtendedDownloadProvider;
 import org.to2mbn.jmccc.mcdownloader.provider.MinecraftDownloadProvider;
+import org.to2mbn.jmccc.mcdownloader.util.VersionComparator;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.util.FileUtils;
 
 public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvider implements ExtendedDownloadProvider {
+
+	private final VersionComparator versionComparator = new VersionComparator();
 
 	private MinecraftDownloadProvider upstreamProvider;
 
@@ -112,7 +114,8 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 					String leastLaunchwrapperVersion = leastLaunchwrapperVersion();
 					if (leastLaunchwrapperVersion != null && name.startsWith(launchwrapperPrefix)) {
 						String actualVersion = name.substring(launchwrapperPrefix.length());
-						if (isLessThan(actualVersion, leastLaunchwrapperVersion)) {
+						if (versionComparator.compare(actualVersion, leastLaunchwrapperVersion) < -1) {
+							System.err.println(library);
 							library.put("name", launchwrapperPrefix + leastLaunchwrapperVersion);
 						}
 					}
@@ -150,19 +153,6 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 
 	protected String launchwrapperName() {
 		return "net.minecraft:launchwrapper";
-	}
-
-	private static boolean isLessThan(String a, String b) {
-		try {
-			BigDecimal decimalA = new BigDecimal(a);
-			BigDecimal decimalB = new BigDecimal(b);
-			if (decimalA.compareTo(decimalB) < 0) {
-				return true;
-			}
-		} catch (NumberFormatException e) {
-			;
-		}
-		return false;
 	}
 
 }

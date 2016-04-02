@@ -3,7 +3,7 @@ package org.to2mbn.jmccc.mcdownloader.download;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Objects;
-import org.to2mbn.jmccc.mcdownloader.download.util.URIUtils;
+import org.to2mbn.jmccc.mcdownloader.util.URIUtils;
 
 /**
  * Describes a download task.

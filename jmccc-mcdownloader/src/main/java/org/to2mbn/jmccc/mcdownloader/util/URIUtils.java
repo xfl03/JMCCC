@@ -1,4 +1,4 @@
-package org.to2mbn.jmccc.mcdownloader.download.util;
+package org.to2mbn.jmccc.mcdownloader.util;
 
 import java.net.URI;
 import java.net.URISyntaxException;

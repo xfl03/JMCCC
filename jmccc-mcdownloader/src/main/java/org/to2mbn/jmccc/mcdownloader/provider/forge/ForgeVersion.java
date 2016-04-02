@@ -13,7 +13,6 @@ public class ForgeVersion implements Serializable {
 	private String branch;
 
 	public ForgeVersion(String minecraftVersion, String forgeVersion, int buildNumber, String branch) {
-		Objects.requireNonNull(minecraftVersion);
 		Objects.requireNonNull(forgeVersion);
 		this.minecraftVersion = minecraftVersion;
 		this.forgeVersion = forgeVersion;
