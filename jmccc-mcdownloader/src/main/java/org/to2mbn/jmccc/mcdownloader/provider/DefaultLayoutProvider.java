@@ -1,7 +1,7 @@
 package org.to2mbn.jmccc.mcdownloader.provider;
 
 import java.net.URI;
-import org.to2mbn.jmccc.mcdownloader.download.util.URIUtils;
+import org.to2mbn.jmccc.mcdownloader.util.URIUtils;
 import org.to2mbn.jmccc.version.Asset;
 import org.to2mbn.jmccc.version.Library;
 import org.to2mbn.jmccc.version.Version;

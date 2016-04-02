@@ -2,17 +2,19 @@ package org.to2mbn.jmccc.mcdownloader.provider.forge;
 
 import java.io.Serializable;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
-import org.json.JSONArray;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class ForgeVersionList implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+	private static final Logger LOGGER = Logger.getLogger(ForgeVersionList.class.getCanonicalName());
 
 	@SuppressWarnings("unchecked")
 	public static ForgeVersionList fromJson(JSONObject json) {
@@ -23,29 +25,21 @@ public class ForgeVersionList implements Serializable {
 		ForgeVersion latest = null;
 		ForgeVersion recommended = null;
 
-		Map<Integer, String> branches = new HashMap<>();
-		JSONObject branchesJson = json.optJSONObject("branches");
-		if (branchesJson != null) {
-			for (String mcversion : (Set<String>) branchesJson.keySet()) {
-				JSONArray builds = branchesJson.getJSONArray(mcversion);
-				for (int i = 0; i < builds.length(); i++) {
-					int buildnum = builds.getInt(i);
-					branches.put(buildnum, mcversion);
-				}
-			}
-		}
-
 		JSONObject versionsJson = json.getJSONObject("number");
 		for (String strbuildnum : (Set<String>) versionsJson.keySet()) {
 			JSONObject versionJson = versionsJson.getJSONObject(strbuildnum);
-			String mcversion = versionJson.getString("mcversion");
-			String forgeversion = versionJson.getString("version");
-			int buildnum = versionJson.getInt("build");
-			String branch = branches.get(buildnum);
-			ForgeVersion version = new ForgeVersion(mcversion, forgeversion, buildnum, branch);
+			try {
+				String mcversion = versionJson.getString("mcversion");
+				String forgeversion = versionJson.getString("version");
+				int buildnum = versionJson.getInt("build");
+				String branch = versionJson.optString("branch", null);
+				ForgeVersion version = new ForgeVersion(mcversion, forgeversion, buildnum, branch);
 
-			versions.put(buildnum, version);
-			forgeVersionMapping.put(forgeversion, version);
+				versions.put(buildnum, version);
+				forgeVersionMapping.put(forgeversion, version);
+			} catch (JSONException e) {
+				LOGGER.log(Level.WARNING, "Couldn't parse forge version, skipping: " + versionJson, e);
+			}
 		}
 		JSONObject promos = json.getJSONObject("promos");
 		for (String key : (Set<String>) promos.keySet()) {
