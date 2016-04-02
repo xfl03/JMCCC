@@ -18,15 +18,15 @@ public class OfflineAuthenticator implements Authenticator, Serializable {
 	 * Constructs an OfflineAuthenticator.
 	 * 
 	 * @param playerName the player name
-	 * @throws NullPointerException if <code>playerName==null</code>
-	 * @throws IllegalArgumentException if <code>playerName.length()==0</code>
+	 * @throws NullPointerException if <code>playerName == null</code>
+	 * @throws IllegalArgumentException if <code>playerName.length() == 0</code>
 	 */
 	public OfflineAuthenticator(String playerName) {
 		Objects.requireNonNull(playerName);
 		this.playerName = playerName;
 
-		if (this.playerName.length() == 0) {
-			throw new IllegalArgumentException("Zero length player name");
+		if (playerName.length() == 0) {
+			throw new IllegalArgumentException("Player name cannot be empty");
 		}
 	}
 

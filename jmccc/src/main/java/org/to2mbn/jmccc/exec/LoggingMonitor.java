@@ -6,20 +6,18 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.function.Consumer;
 import org.to2mbn.jmccc.util.Platform;
 
 public class LoggingMonitor extends ProcessMonitor {
 
 	private class LogMonitor implements Runnable {
 
-		/**
-		 * False for stdout, true for stderr
-		 */
-		private boolean isErr;
+		private Consumer<String> handler;
 		private InputStream in;
 
-		public LogMonitor(boolean isErr, InputStream in) {
-			this.isErr = isErr;
+		public LogMonitor(Consumer<String> handler, InputStream in) {
+			this.handler = handler;
 			this.in = in;
 		}
 
@@ -50,11 +48,7 @@ public class LoggingMonitor extends ProcessMonitor {
 							buffer.delete(buffer.length() - eol.length, buffer.length());
 							String log = buffer.toString();
 							buffer.delete(0, buffer.length());
-							if (isErr) {
-								listener.onErrorLog(log);
-							} else {
-								listener.onLog(log);
-							}
+							handler.accept(log);
 						}
 					}
 
@@ -99,7 +93,10 @@ public class LoggingMonitor extends ProcessMonitor {
 
 	@Override
 	protected Collection<? extends Runnable> createMonitors() {
-		return Arrays.asList(new LogMonitor(false, process.getInputStream()), new LogMonitor(true, process.getErrorStream()), new ExitMonitor());
+		return Arrays.asList(
+				new LogMonitor(listener::onLog, process.getInputStream()),
+				new LogMonitor(listener::onErrorLog, process.getErrorStream()),
+				new ExitMonitor());
 	}
 
 }

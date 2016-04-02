@@ -8,11 +8,11 @@ public class AuthInfo implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private String username;
-	private String token;
-	private String uuid;
-	private Map<String, String> properties;
-	private String userType;
+	private final String username;
+	private final String token;
+	private final String uuid;
+	private final Map<String, String> properties;
+	private final String userType;
 
 	/**
 	 * Constructs an AuthInfo.

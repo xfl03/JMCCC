@@ -19,7 +19,7 @@ public class MinecraftDirectory implements Serializable {
 	/**
 	 * The '.minecraft' dir.
 	 */
-	protected File rootDir;
+	private final File rootDir;
 
 	/**
 	 * Creates a MinecraftDirectory with the '.minecraft' directory in the current directory.
@@ -253,7 +253,7 @@ public class MinecraftDirectory implements Serializable {
 		}
 		if (obj instanceof MinecraftDirectory) {
 			MinecraftDirectory another = (MinecraftDirectory) obj;
-			return rootDir.equals(another.rootDir);
+			return Objects.equals(rootDir, another.rootDir);
 		}
 		return false;
 	}

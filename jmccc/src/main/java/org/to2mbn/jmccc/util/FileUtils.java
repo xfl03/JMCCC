@@ -10,7 +10,7 @@ public final class FileUtils {
 
 	public static void mkdirs(File dir) throws IOException {
 		if (!dir.mkdirs()) {
-			throw new IOException("Cannot mkdirs: " + dir);
+			throw new IOException("Couldn't mkdirs: " + dir);
 		}
 	}
 	

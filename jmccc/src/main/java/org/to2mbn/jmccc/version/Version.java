@@ -11,16 +11,16 @@ public class Version implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private String version;
-	private String type;
-	private String mainClass;
-	private String assets;
-	private String launchArgs;
-	private String root;
-	private Set<Library> libraries;
-	private boolean legacy;
-	private AssetIndexInfo assetIndexDownloadInfo;
-	private Map<String, DownloadInfo> downloads;
+	private final String version;
+	private final String type;
+	private final String mainClass;
+	private final String assets;
+	private final String launchArgs;
+	private final String root;
+	private final Set<Library> libraries;
+	private final boolean legacy;
+	private final AssetIndexInfo assetIndexDownloadInfo;
+	private final Map<String, DownloadInfo> downloads;
 
 	/**
 	 * Constructor of Version.
@@ -68,7 +68,8 @@ public class Version implements Serializable {
 	}
 
 	/**
-	 * Gets the type of the version, e.g. "snapshot", "release", null if the type is unknown.
+	 * Gets the type of the version, e.g. "snapshot", "release", null if the
+	 * type is unknown.
 	 * 
 	 * @return the type of the version, null if the type is unknown
 	 */
@@ -132,7 +133,8 @@ public class Version implements Serializable {
 	 * Returns the missing libraries in the given minecraft directory.
 	 * 
 	 * @param minecraftDir the minecraft directory to check
-	 * @return true the missing libraries in the given minecraft directory, an empty set if no library is missing
+	 * @return true the missing libraries in the given minecraft directory, an
+	 *         empty set if no library is missing
 	 */
 	public Set<Library> getMissingLibraries(MinecraftDirectory minecraftDir) {
 		Set<Library> missing = new HashSet<>();
@@ -147,7 +149,8 @@ public class Version implements Serializable {
 	/**
 	 * Returns true if the version is lower than 1.8
 	 *
-	 * @return true if the version is lower than 1.8, as well as using the legacy assets index
+	 * @return true if the version is lower than 1.8, as well as using the
+	 *         legacy assets index
 	 */
 	public boolean isLegacy() {
 		return legacy;
@@ -183,7 +186,14 @@ public class Version implements Serializable {
 		}
 		if (obj instanceof Version) {
 			Version another = (Version) obj;
-			return version.equals(another.version) && Objects.equals(type, another.type) && mainClass.equals(another.mainClass) && assets.equals(another.assets) && launchArgs.equals(another.launchArgs) && root.equals(another.root) && libraries.equals(another.libraries) && legacy == another.legacy;
+			return Objects.equals(version, another.version) &&
+					Objects.equals(type, another.type) &&
+					Objects.equals(mainClass, another.mainClass) &&
+					Objects.equals(assets, another.assets) &&
+					Objects.equals(launchArgs, another.launchArgs) &&
+					Objects.equals(root, another.root) &&
+					Objects.equals(libraries, another.libraries) &&
+					legacy == another.legacy;
 		}
 		return false;
 	}

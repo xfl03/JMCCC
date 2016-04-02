@@ -2,9 +2,12 @@ package org.to2mbn.jmccc.option;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import org.to2mbn.jmccc.auth.Authenticator;
 import org.to2mbn.jmccc.version.Version;
 import org.to2mbn.jmccc.version.Versions;
@@ -21,45 +24,34 @@ public class LaunchOption implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * The max memory of game JVM(MB), default to 1024
+	 * The max memory of JVM(MB), default to 1024
 	 */
 	private int maxMemory = 1024;
 
 	/**
-	 * The max memory of game JVM(MB)
+	 * The max memory of JVM(MB)
 	 */
 	private int minMemory;
 
 	/**
-	 * The version of the game to launch
+	 * The version to launch
 	 */
-	private Version version;
+	private final Version version;
 
 	/**
 	 * The authenticator
 	 */
-	private Authenticator authenticator;
-
-	/**
-	 * The server to join when the game finished initializing, null if you don't
-	 * join a server automatically
-	 */
-	private ServerInfo serverInfo;
-
-	/**
-	 * The size of game window, default to null
-	 */
-	private WindowSize windowSize;
-
-	/**
-	 * The java environment option
-	 */
-	private JavaOption javaOption;
+	private final Authenticator authenticator;
 
 	/**
 	 * The minecraft directory
 	 */
-	private MinecraftDirectory minecraftDirectory;
+	private final MinecraftDirectory minecraftDirectory;
+
+	/**
+	 * The java environment
+	 */
+	private JavaEnvironment javaEnvironment;
 
 	/**
 	 * The runtime directory
@@ -67,45 +59,41 @@ public class LaunchOption implements Serializable {
 	private MinecraftDirectory runtimeDirectory;
 
 	/**
-	 * The extra arguments to append to the jvm command line, default to null
+	 * The server to join when the game finishes initialization
 	 */
-	private List<String> extraJvmArguments;
+	private Optional<ServerInfo> serverInfo = Optional.empty();
 
 	/**
-	 * The extra arguments to append to the minecraft command line, default to
-	 * null
+	 * The size of the game window
 	 */
-	private List<String> extraMinecraftArguments;
+	private Optional<WindowSize> windowSize = Optional.empty();
 
 	/**
-	 * Customized minecraft commandline variables, default to null
+	 * The extra arguments to append to the jvm command line
 	 */
-	private Map<String, String> commandlineVariables;
+	private List<String> extraJvmArguments = new ArrayList<>();
 
 	/**
-	 * Resolves the given version and creates a LaunchOption using the default
-	 * java environment.
+	 * The extra arguments to append to the minecraft command line
+	 */
+	private List<String> extraMinecraftArguments = new ArrayList<>();
+
+	/**
+	 * Customized minecraft commandline variables
+	 */
+	private Map<String, String> commandlineVariables = new HashMap<>();
+
+	/**
+	 * Resolves the given version and creates a LaunchOption.
 	 * 
 	 * @param version the version id
 	 * @param authenticator the authenticator
 	 * @param minecraftDir the minecraft directory
 	 * @throws IOException if an I/O error has occurred during resolving version
-	 * @throws NullPointerException if any of the arguments is null
+	 * @throws NullPointerException if any of the arguments is {@code null}
 	 */
 	public LaunchOption(String version, Authenticator authenticator, MinecraftDirectory minecraftDir) throws IOException {
-		this(Versions.resolveVersion(minecraftDir, version), authenticator, minecraftDir, new JavaOption());
-	}
-
-	/**
-	 * Creates a LaunchOption using the default java environment.
-	 * 
-	 * @param version the version to launch
-	 * @param authenticator the authenticator
-	 * @param minecraftDir the minecraft directory
-	 * @throws NullPointerException if any of the arguments is null
-	 */
-	public LaunchOption(Version version, Authenticator authenticator, MinecraftDirectory minecraftDir) {
-		this(version, authenticator, minecraftDir, new JavaOption());
+		this(Versions.resolveVersion(minecraftDir, version), authenticator, minecraftDir);
 	}
 
 	/**
@@ -114,19 +102,18 @@ public class LaunchOption implements Serializable {
 	 * @param version the version to launch
 	 * @param authenticator the authenticator
 	 * @param minecraftDir the minecraft directory
-	 * @param javaOption the java environment
-	 * @throws NullPointerException if any of the arguments is null
+	 * @throws NullPointerException if any of the arguments is {@code null}
 	 */
-	public LaunchOption(Version version, Authenticator authenticator, MinecraftDirectory minecraftDir, JavaOption javaOption) {
+	public LaunchOption(Version version, Authenticator authenticator, MinecraftDirectory minecraftDir) {
 		Objects.requireNonNull(version);
 		Objects.requireNonNull(authenticator);
-		Objects.requireNonNull(javaOption);
 		Objects.requireNonNull(minecraftDir);
 
 		this.version = version;
 		this.authenticator = authenticator;
 		this.minecraftDirectory = minecraftDir;
-		this.javaOption = javaOption;
+
+		this.javaEnvironment = JavaEnvironment.current();
 		this.runtimeDirectory = minecraftDir;
 	}
 
@@ -158,12 +145,23 @@ public class LaunchOption implements Serializable {
 	}
 
 	/**
-	 * Gets the JavaOption.
+	 * Gets the java environment.
 	 * 
-	 * @return the JavaOption
+	 * @return the java environment
 	 */
-	public JavaOption getJavaOption() {
-		return javaOption;
+	public JavaEnvironment getJavaEnvironment() {
+		return javaEnvironment;
+	}
+
+	/**
+	 * Sets the java environment.
+	 * 
+	 * @param javaEnvironment the java environment to set
+	 * @throws NullPointerException if {@code javaEnvironment} is {@code null}
+	 */
+	public void setJavaEnvironment(JavaEnvironment javaEnvironment) {
+		Objects.requireNonNull(javaEnvironment);
+		this.javaEnvironment = javaEnvironment;
 	}
 
 	/**
@@ -183,7 +181,7 @@ public class LaunchOption implements Serializable {
 	 * If <code>maxMemory == 0</code>, the max memory option won't be specified.
 	 * 
 	 * @param maxMemory the max memory(MB) to set
-	 * @throws IllegalArgumentException if <code>maxMemory&lt;0</code>
+	 * @throws IllegalArgumentException if <code>maxMemory &lt; 0</code>
 	 */
 	public void setMaxMemory(int maxMemory) {
 		if (maxMemory < 0) {
@@ -210,7 +208,7 @@ public class LaunchOption implements Serializable {
 	 * If <code>minMemory == 0</code>, the min memory option won't be specified.
 	 * 
 	 * @param minMemory the min memory(MB) to set
-	 * @throws IllegalArgumentException if <code>minMemory&lt;0</code>
+	 * @throws IllegalArgumentException if <code>minMemory &lt; 0</code>
 	 */
 	public void setMinMemory(int minMemory) {
 		if (minMemory < 0) {
@@ -221,51 +219,76 @@ public class LaunchOption implements Serializable {
 	}
 
 	/**
-	 * Gets the server info, default to null.
+	 * Gets the server info.
 	 * <p>
-	 * If the server is specified, minecraft will join the specified server
+	 * If the info server is specified, minecraft will join the specified server
 	 * automatically.
 	 * 
-	 * @return the server info, default to null
+	 * @return the server info
 	 */
-	public ServerInfo getServerInfo() {
+	public Optional<ServerInfo> getServerInfo() {
 		return serverInfo;
 	}
 
 	/**
 	 * Sets the server info.
 	 * 
-	 * @param serverInfo the server info to set
+	 * @param serverInfo the server info to set, can be {@code null}
 	 */
 	public void setServerInfo(ServerInfo serverInfo) {
+		this.serverInfo = Optional.ofNullable(serverInfo);
+	}
+
+	/**
+	 * Sets the server info.
+	 * 
+	 * @param serverInfo the server info to set
+	 * @throws NullPointerException if {@code serverInfo} is {@code null} (
+	 *             please use an empty {@link Optional} instead of {@code null}
+	 *             )
+	 */
+	public void setServerInfo(Optional<ServerInfo> serverInfo) {
+		Objects.requireNonNull(serverInfo);
 		this.serverInfo = serverInfo;
 	}
 
 	/**
-	 * Gets the window size, default to null.
+	 * Gets the window size.
 	 * 
-	 * @return the window size, default to null
+	 * @return the window size
 	 */
-	public WindowSize getWindowSize() {
+	public Optional<WindowSize> getWindowSize() {
 		return windowSize;
 	}
 
 	/**
 	 * Sets the window size.
 	 * 
-	 * @param windowSize the window size to set
+	 * @param windowSize the window size to set, can be {@code null}
 	 */
 	public void setWindowSize(WindowSize windowSize) {
+		this.windowSize = Optional.ofNullable(windowSize);
+	}
+
+	/**
+	 * Sets the window size.
+	 * 
+	 * @param windowSize the windows size to set
+	 * @throws NullPointerException if {@code windowSize} is {@code null} (
+	 *             please use an empty {@link Optional} instead of {@code null}
+	 *             )
+	 */
+	public void setWindowSize(Optional<WindowSize> windowSize) {
+		Objects.requireNonNull(windowSize);
 		this.windowSize = windowSize;
 	}
 
 	/**
-	 * Gets the extra jvm arguments, default to null.
+	 * Gets the extra jvm arguments.
 	 * <p>
-	 * The arguments will be added to the JVM arguments. Null elements are
-	 * allowed, if an element is null, it won't be added to the JVM arguments.
+	 * The arguments will be added to the JVM arguments.
 	 * 
-	 * @return the extra jvm arguments, default to null
+	 * @return the extra jvm arguments
 	 */
 	public List<String> getExtraJvmArguments() {
 		return extraJvmArguments;
@@ -278,17 +301,25 @@ public class LaunchOption implements Serializable {
 	 * @see #getExtraJvmArguments()
 	 */
 	public void setExtraJvmArguments(List<String> extraJvmArguments) {
-		this.extraJvmArguments = extraJvmArguments;
+		this.extraJvmArguments = new ArrayList<>(extraJvmArguments);
 	}
 
 	/**
-	 * Gets the extra minecraft arguments, default to null.
-	 * <p>
-	 * The arguments will be added to the minecraft arguments. Null elements are
-	 * allowed, if an element is null, it won't be added to the minecraft
-	 * arguments.
+	 * Adds an argument to the jvm arguments.
 	 * 
-	 * @return the extra minecraft arguments, default to null.
+	 * @param extraJvmArgument the argument to add to the jvm arguments
+	 */
+	public void addExtraJvmArgument(String extraJvmArgument) {
+		Objects.requireNonNull(extraJvmArgument);
+		this.extraJvmArguments.add(extraJvmArgument);
+	}
+
+	/**
+	 * Gets the extra minecraft arguments.
+	 * <p>
+	 * The arguments will be added to the minecraft arguments.
+	 * 
+	 * @return the extra minecraft arguments.
 	 */
 	public List<String> getExtraMinecraftArguments() {
 		return extraMinecraftArguments;
@@ -301,7 +332,18 @@ public class LaunchOption implements Serializable {
 	 * @see #getExtraMinecraftArguments()
 	 */
 	public void setExtraMinecraftArguments(List<String> extraMinecraftArguments) {
-		this.extraMinecraftArguments = extraMinecraftArguments;
+		this.extraMinecraftArguments = new ArrayList<>(extraMinecraftArguments);
+	}
+
+	/**
+	 * Adds an argument to the minecraft arguments.
+	 * 
+	 * @param extraMinecraftArgument the argument to add to the minecraft
+	 *            arguments
+	 */
+	public void addExtraMinecraftArgument(String extraMinecraftArgument) {
+		Objects.requireNonNull(extraMinecraftArgument);
+		this.extraMinecraftArguments.add(extraMinecraftArgument);
 	}
 
 	/**
@@ -329,7 +371,7 @@ public class LaunchOption implements Serializable {
 	 * directories, use this.
 	 * 
 	 * @param runtimeDirectory the minecraft runtime directory
-	 * @throws NullPointerException <code>runtimeDirectory=null</code>
+	 * @throws NullPointerException <code>runtimeDirectory == null</code>
 	 * @see #getRuntimeDirectory()
 	 */
 	public void setRuntimeDirectory(MinecraftDirectory runtimeDirectory) {
@@ -338,7 +380,7 @@ public class LaunchOption implements Serializable {
 	}
 
 	/**
-	 * Gets the customized minecraft commandline variables, default to null.
+	 * Gets the customized minecraft commandline variables.
 	 * <p>
 	 * When generating launch commandline, the variables in
 	 * {@link Version#getLaunchArgs()} will be replaced. For example,
@@ -348,26 +390,39 @@ public class LaunchOption implements Serializable {
 	 * {@link #setCommandlineVariables(Map)}. The customized values can override
 	 * default values.
 	 * 
-	 * @return the customized minecraft commandline variables, default to null
+	 * @return the customized minecraft commandline variables
 	 */
 	public Map<String, String> getCommandlineVariables() {
 		return commandlineVariables;
 	}
 
 	/**
-	 * Sets the customized minecraft commandline variables, can be null.
+	 * Sets the customized minecraft commandline variables.
 	 * 
 	 * @param commandlineVariables the customized minecraft commandline
-	 *            variables to set, can be null
+	 *            variables to set
 	 * @see #getCommandlineVariables()
 	 */
 	public void setCommandlineVariables(Map<String, String> commandlineVariables) {
-		this.commandlineVariables = commandlineVariables;
+		this.commandlineVariables = new HashMap<>(commandlineVariables);
+	}
+
+	/**
+	 * Adds a variable to the minecraft commandline variables.
+	 * 
+	 * @param key the name of the variable
+	 * @param value the value of the variable
+	 * @see #getCommandlineVariables()
+	 */
+	public void addCommandlineVariable(String key, String value) {
+		Objects.requireNonNull(key);
+		Objects.requireNonNull(value);
+		this.commandlineVariables.put(key, value);
 	}
 
 	@Override
 	public String toString() {
-		return String.format("LaunchOption [maxMemory=%s, minMemory=%s, version=%s, authenticator=%s, serverInfo=%s, windowSize=%s, javaOption=%s, minecraftDirectory=%s, runtimeDirectory=%s, extraJvmArguments=%s, extraMinecraftArguments=%s, commandlineVariables=%s]", maxMemory, minMemory, version, authenticator, serverInfo, windowSize, javaOption, minecraftDirectory, runtimeDirectory, extraJvmArguments, extraMinecraftArguments, commandlineVariables);
+		return String.format("LaunchOption [maxMemory=%s, minMemory=%s, version=%s, authenticator=%s, serverInfo=%s, windowSize=%s, javaOption=%s, minecraftDirectory=%s, runtimeDirectory=%s, extraJvmArguments=%s, extraMinecraftArguments=%s, commandlineVariables=%s]", maxMemory, minMemory, version, authenticator, serverInfo, windowSize, javaEnvironment, minecraftDirectory, runtimeDirectory, extraJvmArguments, extraMinecraftArguments, commandlineVariables);
 	}
 
 	@Override
@@ -379,11 +434,11 @@ public class LaunchOption implements Serializable {
 			LaunchOption another = (LaunchOption) obj;
 			return maxMemory == another.maxMemory &&
 					minMemory == another.minMemory &&
-					version.equals(another.version) &&
-					authenticator.equals(another.authenticator) &&
-					minecraftDirectory.equals(another.minecraftDirectory) &&
-					runtimeDirectory.equals(another.runtimeDirectory) &&
-					javaOption.equals(another.javaOption) &&
+					Objects.equals(version, another.version) &&
+					Objects.equals(authenticator, another.authenticator) &&
+					Objects.equals(minecraftDirectory, another.minecraftDirectory) &&
+					Objects.equals(runtimeDirectory, another.runtimeDirectory) &&
+					Objects.equals(javaEnvironment, another.javaEnvironment) &&
 					Objects.equals(serverInfo, another.serverInfo) &&
 					Objects.equals(windowSize, another.windowSize) &&
 					Objects.equals(extraJvmArguments, another.extraJvmArguments) &&
@@ -395,7 +450,7 @@ public class LaunchOption implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(maxMemory, minMemory, version, authenticator, minecraftDirectory, runtimeDirectory, javaOption, serverInfo, windowSize, extraJvmArguments, extraMinecraftArguments, commandlineVariables);
+		return Objects.hash(maxMemory, minMemory, version, authenticator, minecraftDirectory, runtimeDirectory, javaEnvironment, serverInfo, windowSize, extraJvmArguments, extraMinecraftArguments, commandlineVariables);
 	}
 
 }
