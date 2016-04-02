@@ -15,11 +15,10 @@ public class LiteloaderVersionList implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	@SuppressWarnings("unchecked")
 	public static LiteloaderVersionList fromJson(JSONObject json) {
 		Map<String, Map<String, LiteloaderVersion>> versions = new TreeMap<>();
 		JSONObject versionsJson = json.getJSONObject("versions");
-		for (String mcversion : (Set<String>) versionsJson.keySet()) {
+		for (String mcversion : versionsJson.keySet()) {
 			Map<String, LiteloaderVersion> artefacts = new TreeMap<>();
 			JSONObject versionRootJson = versionsJson.getJSONObject(mcversion);
 
@@ -32,7 +31,7 @@ public class LiteloaderVersionList implements Serializable {
 			JSONObject artefactsJson = versionRootJson.optJSONObject("artefacts");
 			if (artefactsJson != null) {
 				JSONObject liteloaderArtefactsJson = artefactsJson.getJSONObject("com.mumfrey:liteloader");
-				for (String artefactId : (Set<String>) liteloaderArtefactsJson.keySet()) {
+				for (String artefactId : liteloaderArtefactsJson.keySet()) {
 					JSONObject artefactJson = liteloaderArtefactsJson.getJSONObject(artefactId);
 					String liteloaderVersion = artefactJson.getString("version");
 					String tweakClass = artefactJson.optString("tweakClass", null);
