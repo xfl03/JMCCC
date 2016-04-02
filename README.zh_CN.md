@@ -1,10 +1,10 @@
 # JMCCC
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Southern-InfinityStudio/JMCCC?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Build Status](https://travis-ci.org/to2mbn/JMCCC.svg?branch=master)](https://travis-ci.org/to2mbn/JMCCC)<br/>
-一个用于启动和下载Minecraft的轻量级开源类库。
+一个用来下载并启动Minecraft的轻量级开源类库。
 
 如果您使用Maven/Gradle，您可以直接将jmccc作为一个依赖添加（可以在[Maven中心仓库](https://search.maven.org/#search|ga|1|g%3A%22org.to2mbn%22)找到）。
 
-快照版本可以从Sonatype Nexus下载：
+开发版本（snapshots）可以从Sonatype Nexus下载：
 ```xml
 <repository>
 	<id>ossrh</id>
