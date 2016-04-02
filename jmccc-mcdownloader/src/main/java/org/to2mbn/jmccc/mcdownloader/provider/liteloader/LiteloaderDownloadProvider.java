@@ -115,7 +115,6 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 					if (leastLaunchwrapperVersion != null && name.startsWith(launchwrapperPrefix)) {
 						String actualVersion = name.substring(launchwrapperPrefix.length());
 						if (versionComparator.compare(actualVersion, leastLaunchwrapperVersion) < -1) {
-							System.err.println(library);
 							library.put("name", launchwrapperPrefix + leastLaunchwrapperVersion);
 						}
 					}
