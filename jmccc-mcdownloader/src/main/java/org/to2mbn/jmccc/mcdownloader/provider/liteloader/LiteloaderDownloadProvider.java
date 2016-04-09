@@ -11,7 +11,6 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -66,17 +65,11 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 					}
 				});
 			}
-		}).andThenCall(new ResultProcessor<LiteloaderVersion, Callable<String>>() {
+		}).andThen(new ResultProcessor<LiteloaderVersion, String>() {
 
 			@Override
-			public Callable<String> process(final LiteloaderVersion liteloader) throws Exception {
-				return new Callable<String>() {
-
-					@Override
-					public String call() throws Exception {
-						return createLiteloaderVersion(mcdir, liteloader);
-					}
-				};
+			public String process(final LiteloaderVersion liteloader) throws Exception {
+				return createLiteloaderVersion(mcdir, liteloader);
 			}
 		});
 	}

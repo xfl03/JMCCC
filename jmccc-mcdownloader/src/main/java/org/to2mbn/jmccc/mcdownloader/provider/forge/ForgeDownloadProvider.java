@@ -12,7 +12,6 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -59,12 +58,12 @@ public class ForgeDownloadProvider extends AbstractMinecraftDownloadProvider imp
 					return CombinedDownloadTask.any(installer(resolveFullVersion(forgeVersion)).andThen(new InstallProfileProcessor(mcdir)),
 							upstreamProvider.gameVersionJson(mcdir, forgeVersion.getMinecraftVersion()).andThen(new ResultProcessor<String, String>() {
 
-						// for old forge versions
-						@Override
-						public String process(String superversion) throws Exception {
-							return createForgeVersionJson(mcdir, forgeVersion);
-						}
-					}));
+								// for old forge versions
+								@Override
+								public String process(String superversion) throws Exception {
+									return createForgeVersionJson(mcdir, forgeVersion);
+								}
+							}));
 				}
 			});
 		}
@@ -130,81 +129,69 @@ public class ForgeDownloadProvider extends AbstractMinecraftDownloadProvider imp
 						}
 					});
 				}
-			}).andThenCall(new ResultProcessor<Version, Callable<Void>>() {
+			}).andThen(new ResultProcessor<Version, Void>() {
 
 				@Override
-				public Callable<Void> process(final Version superVersion) throws Exception {
-					return new Callable<Void>() {
+				public Void process(final Version superVersion) throws Exception {
+					File target = mcdir.getVersionJar(version);
+					FileUtils.prepareWrite(target);
+					try (ZipInputStream in = new ZipInputStream(new FileInputStream(mcdir.getVersionJar(superVersion)));
+							ZipInputStream universalIn = new ZipInputStream(new FileInputStream(universalFile));
+							ZipOutputStream out = new ZipOutputStream(new FileOutputStream(target));) {
+						ZipEntry entry;
+						byte[] buf = new byte[8192];
+						int read;
 
-						@Override
-						public Void call() throws Exception {
-							File target = mcdir.getVersionJar(version);
-							FileUtils.prepareWrite(target);
-							try (ZipInputStream in = new ZipInputStream(new FileInputStream(mcdir.getVersionJar(superVersion)));
-									ZipInputStream universalIn = new ZipInputStream(new FileInputStream(universalFile));
-									ZipOutputStream out = new ZipOutputStream(new FileOutputStream(target));) {
-								ZipEntry entry;
-								byte[] buf = new byte[8192];
-								int read;
+						Set<String> universalEntries = new HashSet<>();
 
-								Set<String> universalEntries = new HashSet<>();
-
-								while ((entry = universalIn.getNextEntry()) != null) {
-									universalEntries.add(entry.getName());
-									out.putNextEntry(entry);
-									while ((read = universalIn.read(buf)) != -1) {
-										out.write(buf, 0, read);
-									}
-									out.closeEntry();
-									universalIn.closeEntry();
-								}
-
-								while ((entry = in.getNextEntry()) != null) {
-									if (!entry.getName().startsWith("META-INF/") && !universalEntries.contains(entry.getName())) {
-										out.putNextEntry(entry);
-										while ((read = in.read(buf)) != -1) {
-											out.write(buf, 0, read);
-										}
-										out.closeEntry();
-									}
-									in.closeEntry();
-								}
+						while ((entry = universalIn.getNextEntry()) != null) {
+							universalEntries.add(entry.getName());
+							out.putNextEntry(entry);
+							while ((read = universalIn.read(buf)) != -1) {
+								out.write(buf, 0, read);
 							}
-							return null;
+							out.closeEntry();
+							universalIn.closeEntry();
 						}
-					};
+
+						while ((entry = in.getNextEntry()) != null) {
+							if (!entry.getName().startsWith("META-INF/") && !universalEntries.contains(entry.getName())) {
+								out.putNextEntry(entry);
+								while ((read = in.read(buf)) != -1) {
+									out.write(buf, 0, read);
+								}
+								out.closeEntry();
+							}
+							in.closeEntry();
+						}
+					}
+					return null;
 				}
 			});
 		} else {
-			return baseTask.andThenCall(new ResultProcessor<Version, Callable<Void>>() {
+			return baseTask.andThen(new ResultProcessor<Version, Void>() {
 
 				@Override
-				public Callable<Void> process(final Version superVersion) throws Exception {
-					return new Callable<Void>() {
-
-						@Override
-						public Void call() throws Exception {
-							File target = mcdir.getVersionJar(version);
-							FileUtils.prepareWrite(target);
-							try (ZipInputStream in = new ZipInputStream(new FileInputStream(mcdir.getVersionJar(superVersion)));
-									ZipOutputStream out = new ZipOutputStream(new FileOutputStream(target));) {
-								ZipEntry entry;
-								byte[] buf = new byte[8192];
-								int read;
-								while ((entry = in.getNextEntry()) != null) {
-									if (!entry.getName().startsWith("META-INF/")) {
-										out.putNextEntry(entry);
-										while ((read = in.read(buf)) != -1) {
-											out.write(buf, 0, read);
-										}
-										out.closeEntry();
-									}
-									in.closeEntry();
+				public Void process(final Version superVersion) throws Exception {
+					File target = mcdir.getVersionJar(version);
+					FileUtils.prepareWrite(target);
+					try (ZipInputStream in = new ZipInputStream(new FileInputStream(mcdir.getVersionJar(superVersion)));
+							ZipOutputStream out = new ZipOutputStream(new FileOutputStream(target));) {
+						ZipEntry entry;
+						byte[] buf = new byte[8192];
+						int read;
+						while ((entry = in.getNextEntry()) != null) {
+							if (!entry.getName().startsWith("META-INF/")) {
+								out.putNextEntry(entry);
+								while ((read = in.read(buf)) != -1) {
+									out.write(buf, 0, read);
 								}
+								out.closeEntry();
 							}
-							return null;
+							in.closeEntry();
 						}
-					};
+					}
+					return null;
 				}
 			});
 		}
