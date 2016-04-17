@@ -90,10 +90,19 @@ public class LaunchOption implements Serializable {
 	 * @param authenticator the authenticator
 	 * @param minecraftDir the minecraft directory
 	 * @throws IOException if an I/O error has occurred during resolving version
+	 * @throws IllegalArgumentException if the given version does not exist
 	 * @throws NullPointerException if any of the arguments is null
 	 */
 	public LaunchOption(String version, Authenticator authenticator, MinecraftDirectory minecraftDir) throws IOException {
-		this(Versions.resolveVersion(minecraftDir, version), authenticator, minecraftDir, new JavaOption());
+		this(requireVersion(minecraftDir, version), authenticator, minecraftDir, new JavaOption());
+	}
+
+	private static Version requireVersion(MinecraftDirectory mcdir, String version) throws IOException {
+		Version result = Versions.resolveVersion(mcdir, version);
+		if (result == null) {
+			throw new IllegalArgumentException("Version not found: " + version);
+		}
+		return result;
 	}
 
 	/**
