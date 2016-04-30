@@ -16,14 +16,14 @@ import org.to2mbn.jmccc.version.Version;
 /**
  * To generate launching command line.
  */
-class LaunchArgument {
+public class LaunchArgument {
 
 	private LaunchOption launchOption;
 	private File nativesPath;
 	private Set<File> libraries;
 	private Map<String, String> defaultVariables;
 
-	public LaunchArgument(LaunchOption launchOption, Map<String, String> defaultVariables, Set<File> libraries, File nativesPath) {
+	LaunchArgument(LaunchOption launchOption, Map<String, String> defaultVariables, Set<File> libraries, File nativesPath) {
 		this.launchOption = launchOption;
 		this.libraries = libraries;
 		this.nativesPath = nativesPath;

@@ -16,10 +16,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import org.json.JSONObject;
 import org.to2mbn.jmccc.auth.AuthInfo;
-import org.to2mbn.jmccc.exec.DaemonStreamPumpMonitor;
 import org.to2mbn.jmccc.exec.GameProcessListener;
-import org.to2mbn.jmccc.exec.LoggingMonitor;
-import org.to2mbn.jmccc.exec.ProcessMonitor;
 import org.to2mbn.jmccc.option.LaunchOption;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.util.FileUtils;
@@ -29,12 +26,11 @@ import org.to2mbn.jmccc.version.Native;
 import org.to2mbn.jmccc.version.Version;
 import org.to2mbn.jmccc.version.Versions;
 
-public class Jmccc implements Launcher {
+abstract public class AbstractLauncher implements Launcher {
 
 	private boolean nativeFastCheck = false;
-	private boolean debugPrintCommandline = false;
 
-	protected Jmccc() {
+	protected AbstractLauncher() {
 	}
 
 	@Override
@@ -44,7 +40,7 @@ public class Jmccc implements Launcher {
 
 	@Override
 	public LaunchResult launch(LaunchOption option, GameProcessListener listener) throws LaunchException {
-		return launch(generateLaunchArgs(option), listener);
+		return doLaunch(generateLaunchArgs(option), listener);
 	}
 
 	/**
@@ -69,50 +65,8 @@ public class Jmccc implements Launcher {
 		this.nativeFastCheck = nativeFastCheck;
 	}
 
-	/**
-	 * Gets whether to print the launch commandline for debugging.
-	 * 
-	 * @return whether to print the launch commandline for debugging
-	 */
-	public boolean isDebugPrintCommandline() {
-		return debugPrintCommandline;
-	}
 
-	/**
-	 * Sets whether to print the launch commandline for debugging.
-	 * 
-	 * @param debugPrintCommandline whether to print the launch commandline for debugging.
-	 */
-	public void setDebugPrintCommandline(boolean debugPrintCommandline) {
-		this.debugPrintCommandline = debugPrintCommandline;
-	}
-
-	private LaunchResult launch(LaunchArgument arg, GameProcessListener listener) throws LaunchException {
-		String[] commandline = arg.generateCommandline();
-		if (debugPrintCommandline) {
-			printDebugCommandline(commandline);
-		}
-
-		ProcessBuilder processBuilder = new ProcessBuilder(commandline);
-		processBuilder.directory(arg.getLaunchOption().getRuntimeDirectory().getRoot());
-
-		Process process;
-		try {
-			process = processBuilder.start();
-		} catch (SecurityException | IOException e) {
-			throw new LaunchException("Failed to start process", e);
-		}
-
-		ProcessMonitor monitor;
-		if (listener == null) {
-			monitor = new DaemonStreamPumpMonitor(process);
-		} else {
-			monitor = new LoggingMonitor(process, listener);
-		}
-		monitor.start();
-
-		return new LaunchResult(monitor, process);
-	}
+	abstract protected LaunchResult doLaunch(LaunchArgument arg, GameProcessListener listener) throws LaunchException;
 
 	private LaunchArgument generateLaunchArgs(LaunchOption option) throws LaunchException {
 		Objects.requireNonNull(option);
@@ -248,15 +202,6 @@ public class Jmccc implements Launcher {
 			}
 		}
 
-	}
-
-	private void printDebugCommandline(String[] commandline) {
-		StringBuilder sb = new StringBuilder();
-		sb.append("jmccc:\n");
-		for (String arg : commandline) {
-			sb.append(arg).append('\n');
-		}
-		System.err.println(sb.toString());
 	}
 
 }

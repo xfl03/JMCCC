@@ -81,7 +81,7 @@ public class LauncherBuilder {
 	 * @return a <code>Launcher</code> instance
 	 */
 	public Launcher build() {
-		Jmccc launcher = new Jmccc();
+		ProcessLauncher launcher = new ProcessLauncher();
 		launcher.setNativeFastCheck(nativeFastCheck);
 		launcher.setDebugPrintCommandline(debugPrintCommandline);
 		return launcher;
