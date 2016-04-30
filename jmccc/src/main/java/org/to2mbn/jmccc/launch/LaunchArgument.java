@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import org.to2mbn.jmccc.option.LaunchOption;
-import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.util.Platform;
 import org.to2mbn.jmccc.version.Version;
 
@@ -34,7 +33,6 @@ class LaunchArgument {
 	public String[] generateCommandline() {
 		List<String> args = new ArrayList<>();
 		Version version = launchOption.getVersion();
-		MinecraftDirectory mcdir = launchOption.getMinecraftDirectory();
 
 		// java path
 		args.add(launchOption.getJavaEnvironment().getJavaPath().getAbsolutePath());
@@ -62,11 +60,8 @@ class LaunchArgument {
 
 		// libraries
 		for (File lib : libraries) {
-			cpBuilder.append(lib).append(Platform.getPathSpearator());
+			cpBuilder.append(lib.getAbsolutePath()).append(Platform.getPathSpearator());
 		}
-
-		// game jar file
-		cpBuilder.append(mcdir.getVersionJar(version)).append(Platform.getPathSpearator());
 
 		args.add(cpBuilder.toString());
 		// ==========END==========

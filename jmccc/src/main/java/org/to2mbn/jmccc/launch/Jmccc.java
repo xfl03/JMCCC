@@ -139,6 +139,8 @@ public class Jmccc implements Launcher {
 				javaLibraries.add(libraryFile);
 			}
 		}
+		javaLibraries.add(mcdir.getVersionJar(version));
+		javaLibraries.addAll(option.getExtraClasspath());
 
 		if (version.isLegacy()) {
 			try {

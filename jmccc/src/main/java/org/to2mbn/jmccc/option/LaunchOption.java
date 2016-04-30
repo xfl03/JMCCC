@@ -1,13 +1,16 @@
 package org.to2mbn.jmccc.option;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import org.to2mbn.jmccc.auth.Authenticator;
 import org.to2mbn.jmccc.version.Version;
 import org.to2mbn.jmccc.version.Versions;
@@ -82,6 +85,11 @@ public class LaunchOption implements Serializable {
 	 * Customized minecraft commandline variables
 	 */
 	private Map<String, String> commandlineVariables = new HashMap<>();
+
+	/**
+	 * Customized classpath
+	 */
+	private Set<File> extraClasspath = new HashSet<>();
 
 	/**
 	 * Resolves the given version and creates a LaunchOption.
@@ -420,9 +428,34 @@ public class LaunchOption implements Serializable {
 		this.commandlineVariables.put(key, value);
 	}
 
+	/**
+	 * Gets the extra classpath.
+	 * <p>
+	 * These files will be added to the '-cp' option.
+	 * 
+	 * @return the extra classpath
+	 */
+	public Set<File> getExtraClasspath() {
+		return extraClasspath;
+	}
+
+	public void addExtraClasspath(File classpath) {
+		extraClasspath.add(classpath);
+	}
+
+	/**
+	 * Sets the extra classpath.
+	 * 
+	 * @param extraClasspath the extra classpath
+	 * @see #getExtraClasspath()
+	 */
+	public void setExtraClasspath(Set<File> extraClasspath) {
+		this.extraClasspath = new HashSet<>(extraClasspath);
+	}
+
 	@Override
 	public String toString() {
-		return String.format("LaunchOption [maxMemory=%s, minMemory=%s, version=%s, authenticator=%s, serverInfo=%s, windowSize=%s, javaEnvironment=%s, minecraftDirectory=%s, runtimeDirectory=%s, extraJvmArguments=%s, extraMinecraftArguments=%s, commandlineVariables=%s]", maxMemory, minMemory, version, authenticator, serverInfo, windowSize, javaEnvironment, minecraftDirectory, runtimeDirectory, extraJvmArguments, extraMinecraftArguments, commandlineVariables);
+		return String.format("LaunchOption [maxMemory=%s, minMemory=%s, version=%s, authenticator=%s, serverInfo=%s, windowSize=%s, javaEnvironment=%s, minecraftDirectory=%s, runtimeDirectory=%s, extraJvmArguments=%s, extraMinecraftArguments=%s, commandlineVariables=%s, extraClasspath=%s]", maxMemory, minMemory, version, authenticator, serverInfo, windowSize, javaEnvironment, minecraftDirectory, runtimeDirectory, extraJvmArguments, extraMinecraftArguments, commandlineVariables, extraClasspath);
 	}
 
 	@Override
@@ -443,14 +476,15 @@ public class LaunchOption implements Serializable {
 					Objects.equals(windowSize, another.windowSize) &&
 					Objects.equals(extraJvmArguments, another.extraJvmArguments) &&
 					Objects.equals(extraMinecraftArguments, another.extraMinecraftArguments) &&
-					Objects.equals(commandlineVariables, another.commandlineVariables);
+					Objects.equals(commandlineVariables, another.commandlineVariables) &&
+					Objects.equals(extraClasspath, another.extraClasspath);
 		}
 		return false;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(maxMemory, minMemory, version, authenticator, minecraftDirectory, runtimeDirectory, javaEnvironment, serverInfo, windowSize, extraJvmArguments, extraMinecraftArguments, commandlineVariables);
+		return Objects.hash(maxMemory, minMemory, version, authenticator, minecraftDirectory, runtimeDirectory, javaEnvironment, serverInfo, windowSize, extraJvmArguments, extraMinecraftArguments, commandlineVariables, extraClasspath);
 	}
 
 }
