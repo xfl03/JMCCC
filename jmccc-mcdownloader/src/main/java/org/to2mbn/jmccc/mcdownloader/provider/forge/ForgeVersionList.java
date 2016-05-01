@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -16,7 +15,6 @@ public class ForgeVersionList implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private static final Logger LOGGER = Logger.getLogger(ForgeVersionList.class.getCanonicalName());
 
-	@SuppressWarnings("unchecked")
 	public static ForgeVersionList fromJson(JSONObject json) {
 		Map<Integer, ForgeVersion> versions = new TreeMap<>();
 		Map<String, ForgeVersion> latests = new TreeMap<>();
@@ -26,7 +24,7 @@ public class ForgeVersionList implements Serializable {
 		ForgeVersion recommended = null;
 
 		JSONObject versionsJson = json.getJSONObject("number");
-		for (String strbuildnum : (Set<String>) versionsJson.keySet()) {
+		for (String strbuildnum : versionsJson.keySet()) {
 			JSONObject versionJson = versionsJson.getJSONObject(strbuildnum);
 			try {
 				String mcversion = versionJson.getString("mcversion");
@@ -42,7 +40,7 @@ public class ForgeVersionList implements Serializable {
 			}
 		}
 		JSONObject promos = json.getJSONObject("promos");
-		for (String key : (Set<String>) promos.keySet()) {
+		for (String key : promos.keySet()) {
 			ForgeVersion version = versions.get(promos.getInt(key));
 			if ("latest".equals(key)) {
 				latest = version;

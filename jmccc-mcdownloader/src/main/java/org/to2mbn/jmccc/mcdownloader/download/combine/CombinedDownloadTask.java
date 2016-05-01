@@ -58,7 +58,7 @@ abstract public class CombinedDownloadTask<T> {
 		Objects.requireNonNull(tasks);
 		Objects.requireNonNull(expectedExceptions);
 		if (tasks.length == 0) {
-			throw new IllegalArgumentException("The length of tasks cannot be zero");
+			throw new IllegalArgumentException("Tasks cannot be empty");
 		}
 		return new AnyCombinedDownloadTask<>(tasks, expectedExceptions);
 	}

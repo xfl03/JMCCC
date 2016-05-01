@@ -44,7 +44,7 @@ public class YggdrasilAuthenticationService extends AbstractYggdrasilService imp
 		try {
 			response = (JSONObject) getRequester().jsonPost(getApi().authenticate(), null, new JSONObject(request));
 		} catch (JSONException | IOException e) {
-			throw new RequestException(e);
+			throw new AuthenticationException(e);
 		}
 		return handleAuthResponse(response, clientToken);
 	}
@@ -74,7 +74,7 @@ public class YggdrasilAuthenticationService extends AbstractYggdrasilService imp
 		try {
 			response = (JSONObject) getRequester().jsonPost(getApi().refresh(), null, new JSONObject(request));
 		} catch (JSONException | IOException e) {
-			throw new RequestException(e);
+			throw new AuthenticationException(e);
 		}
 		return handleAuthResponse(response, clientToken);
 	}
@@ -97,7 +97,7 @@ public class YggdrasilAuthenticationService extends AbstractYggdrasilService imp
 		try {
 			response = (JSONObject) getRequester().jsonPost(getApi().validate(), null, new JSONObject(request));
 		} catch (JSONException | IOException e) {
-			throw new RequestException(e);
+			throw new AuthenticationException(e);
 		}
 
 		try {
@@ -122,7 +122,7 @@ public class YggdrasilAuthenticationService extends AbstractYggdrasilService imp
 		try {
 			response = (JSONObject) getRequester().jsonPost(getApi().invalidate(), null, new JSONObject(request));
 		} catch (JSONException | IOException e) {
-			throw new RequestException(e);
+			throw new AuthenticationException(e);
 		}
 		requireEmptyResponse(response);
 	}
@@ -139,7 +139,7 @@ public class YggdrasilAuthenticationService extends AbstractYggdrasilService imp
 		try {
 			response = (JSONObject) getRequester().jsonPost(getApi().signout(), null, new JSONObject(request));
 		} catch (JSONException | IOException e) {
-			throw new RequestException(e);
+			throw new AuthenticationException(e);
 		}
 		requireEmptyResponse(response);
 	}
@@ -164,7 +164,7 @@ public class YggdrasilAuthenticationService extends AbstractYggdrasilService imp
 			try {
 				userProperties = getPropertiesDeserializer().toProperties(userjson.optJSONArray("properties"), false);
 			} catch (GeneralSecurityException e) {
-				throw new ResponseSignatureException(e);
+				throw new AuthenticationException("Invalid signature", e);
 			}
 
 			GameProfile selectedProfile = toGameProfile(response.optJSONObject("selectedProfile"));
@@ -181,7 +181,7 @@ public class YggdrasilAuthenticationService extends AbstractYggdrasilService imp
 			}
 			return new Session(clientToken, accessToken, selectedProfile, availableProfiles, userId, userProperties, UserType.MOJANG);
 		} catch (JSONException e) {
-			throw new ResponseFormatException(e);
+			throw new AuthenticationException("Couldn't parse response: " + response, e);
 		}
 	}
 

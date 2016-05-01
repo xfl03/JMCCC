@@ -113,7 +113,7 @@ public class Jmccc implements Launcher {
 		try {
 			process = processBuilder.start();
 		} catch (SecurityException | IOException e) {
-			throw new LaunchException("Failed to start process", e);
+			throw new LaunchException("Couldn't start process", e);
 		}
 
 		ProcessMonitor monitor;
@@ -146,7 +146,7 @@ public class Jmccc implements Launcher {
 				try {
 					decompressZipWithExcludes(libraryFile, nativesDir, ((Native) library).getExtractExcludes());
 				} catch (IOException e) {
-					throw new LaunchException("Failed to uncompress " + libraryFile, e);
+					throw new LaunchException("Couldn't uncompress " + libraryFile, e);
 				}
 			} else {
 				javaLibraries.add(libraryFile);
@@ -161,7 +161,7 @@ public class Jmccc implements Launcher {
 			try {
 				buildLegacyAssets(mcdir, version);
 			} catch (IOException e) {
-				throw new LaunchException("Failed to build virtual assets", e);
+				throw new LaunchException("Couldn't build virtual assets", e);
 			}
 		}
 

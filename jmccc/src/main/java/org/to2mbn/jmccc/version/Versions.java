@@ -35,7 +35,7 @@ public final class Versions {
 			try {
 				return PARSER.parseVersion(minecraftDir, version);
 			} catch (JSONException e) {
-				throw new IOException("unable to resolve json", e);
+				throw new IOException("Couldn't parse version json: " + version, e);
 			}
 		} else {
 			return null;
@@ -103,7 +103,7 @@ public final class Versions {
 		try {
 			return PARSER.parseAssets(minecraftDir, assets);
 		} catch (JSONException e) {
-			throw new IOException("unable to resolve json", e);
+			throw new IOException("Couldn't parse asset index: " + assets, e);
 		}
 	}
 

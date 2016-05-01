@@ -113,7 +113,7 @@ public class YggdrasilServiceBuilder {
 		try (InputStream in = PropertiesDeserializer.class.getResourceAsStream("/yggdrasil_session_pubkey.der")) {
 			return loadX509PublicKey(in);
 		} catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e) {
-			throw new IllegalStateException("Cannot load default yggdrasil session public key.", e);
+			throw new IllegalStateException("Couldn't load default yggdrasil session public key.", e);
 		}
 	}
 

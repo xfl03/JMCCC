@@ -26,7 +26,7 @@ public class OfflineAuthenticator implements Authenticator, Serializable {
 		this.playerName = playerName;
 
 		if (this.playerName.length() == 0) {
-			throw new IllegalArgumentException("Zero length player name");
+			throw new IllegalArgumentException("Player name cannot be empty");
 		}
 	}
 

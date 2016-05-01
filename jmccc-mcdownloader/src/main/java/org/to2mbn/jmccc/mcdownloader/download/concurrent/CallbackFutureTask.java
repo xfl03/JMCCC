@@ -33,7 +33,9 @@ public class CallbackFutureTask<V> extends FutureTask<V> implements Cancelable {
 			try {
 				result = get();
 			} catch (InterruptedException e) {
-				throw new AssertionError(e);
+				// We shouldn't get an InterruptedException here
+				// because the task has done
+				throw new IllegalStateException("Unexpected InterruptedException", e);
 			} catch (ExecutionException e) {
 				Throwable exception = e.getCause();
 				if (exception == null)

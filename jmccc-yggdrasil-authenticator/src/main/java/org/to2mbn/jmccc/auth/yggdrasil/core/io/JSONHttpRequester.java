@@ -37,16 +37,21 @@ public class JSONHttpRequester extends HttpRequester {
 		if (json == null || json.trim().isEmpty()) {
 			return null;
 		}
-		JSONTokener tokener = new JSONTokener(json);
-		char next = tokener.nextClean();
-		tokener.back();
-		if (next == '{') {
-			return new JSONObject(tokener);
-		} else if (next == '[') {
-			return new JSONArray(tokener);
-		} else {
-			throw new JSONException("Not in json format: " + json);
+
+		try {
+			JSONTokener tokener = new JSONTokener(json);
+			char next = tokener.nextClean();
+			tokener.back();
+			if (next == '{') {
+				return new JSONObject(tokener);
+			} else if (next == '[') {
+				return new JSONArray(tokener);
+			}
+		} catch (JSONException e) {
+			throw new JSONException("Couldn't resolve json: " + json, e);
 		}
+
+		throw new JSONException("Couldn't resolve json: " + json);
 	}
 
 }
