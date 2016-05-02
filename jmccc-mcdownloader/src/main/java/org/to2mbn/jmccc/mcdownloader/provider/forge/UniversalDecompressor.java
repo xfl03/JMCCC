@@ -9,7 +9,7 @@ import java.util.zip.ZipInputStream;
 import org.to2mbn.jmccc.mcdownloader.download.ResultProcessor;
 import org.to2mbn.jmccc.util.FileUtils;
 
-public class UniversalDecompressor implements ResultProcessor<byte[], Void> {
+class UniversalDecompressor implements ResultProcessor<byte[], Void> {
 
 	private static final String NAME_TEMPLATE = "forge-%s-universal.jar";
 	private static final String OLD_NAME_TEMPLATE = "minecraftforge-universal-%s.jar";

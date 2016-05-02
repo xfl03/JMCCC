@@ -5,7 +5,7 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ResolvedForgeVersion implements Serializable {
+class ResolvedForgeVersion implements Serializable {
 
 	private static final Pattern FORGE_VERSION_PATTERN = Pattern.compile("^([\\w\\.\\-]+)-[Ff]orge\\1-([\\w\\.\\-]+)$");
 	private static final Pattern OLD_FORGE_VERSION_PATTERN = Pattern.compile("^([\\w\\.\\-]+)-[Ff]orge([\\w\\.\\-]+)$");
