@@ -35,19 +35,32 @@ public class LiteloaderVersionList implements Serializable {
 					JSONObject artefactJson = liteloaderArtefactsJson.getJSONObject(artefactId);
 					String liteloaderVersion = artefactJson.getString("version");
 					String tweakClass = artefactJson.optString("tweakClass", null);
-					JSONArray librariesJson = artefactJson.optJSONArray("libraries");
-					Set<JSONObject> libraries = null;
-					if (librariesJson != null) {
-						libraries = new HashSet<>();
-						for (int i = 0; i < librariesJson.length(); i++)
-							libraries.add(librariesJson.getJSONObject(i));
-					}
+					Set<JSONObject> libraries = parseLibraries(artefactJson.optJSONArray("libraries"));
 					artefacts.put(artefactId, new LiteloaderVersion(mcversion, liteloaderVersion, tweakClass, repoUrl, Collections.unmodifiableSet(libraries)));
 				}
+			}
+
+			JSONObject snapshotsJson = versionRootJson.optJSONObject("snapshots");
+			if (snapshotsJson != null) {
+				Set<JSONObject> libraries = parseLibraries(snapshotsJson.optJSONArray("libraries"));
+				artefacts.put("snapshot", new LiteloaderVersion(mcversion, mcversion + "-SNAPSHOT", null, repoUrl, Collections.unmodifiableSet(libraries)));
+			}
+
+			if (!artefacts.isEmpty()) {
 				versions.put(mcversion, artefacts);
 			}
 		}
 		return new LiteloaderVersionList(versions);
+	}
+
+	private static Set<JSONObject> parseLibraries(JSONArray librariesJson) {
+		Set<JSONObject> libraries = null;
+		if (librariesJson != null) {
+			libraries = new HashSet<>();
+			for (int i = 0; i < librariesJson.length(); i++)
+				libraries.add(librariesJson.getJSONObject(i));
+		}
+		return libraries;
 	}
 
 	/**
@@ -56,19 +69,25 @@ public class LiteloaderVersionList implements Serializable {
 	 */
 	private Map<String, Map<String, LiteloaderVersion>> versions;
 	private Map<String, LiteloaderVersion> latests;
+	private Map<String, LiteloaderVersion> snapshots;
 
 	public LiteloaderVersionList(Map<String, Map<String, LiteloaderVersion>> versions) {
 		Objects.requireNonNull(versions);
 		this.versions = versions;
 
-		Map<String, LiteloaderVersion> latests = new TreeMap<>();
+		this.latests = Collections.unmodifiableMap(filterByArtefactId(versions, "latest"));
+		this.snapshots = Collections.unmodifiableMap(filterByArtefactId(versions, "snapshot"));
+	}
+
+	private static Map<String, LiteloaderVersion> filterByArtefactId(Map<String, Map<String, LiteloaderVersion>> versions, String id) {
+		Map<String, LiteloaderVersion> result = new TreeMap<>();
 		for (Entry<String, Map<String, LiteloaderVersion>> entry : versions.entrySet()) {
-			LiteloaderVersion latest = entry.getValue().get("latest");
+			LiteloaderVersion latest = entry.getValue().get(id);
 			if (latest != null) {
-				latests.put(entry.getKey(), latest);
+				result.put(entry.getKey(), latest);
 			}
 		}
-		this.latests = Collections.unmodifiableMap(latests);
+		return result;
 	}
 
 	public Map<String, Map<String, LiteloaderVersion>> getAllArtefacts() {
@@ -99,6 +118,17 @@ public class LiteloaderVersionList implements Serializable {
 	}
 
 	/**
+	 * Gets the snapshot liteloader of the given minecraft version.
+	 * 
+	 * @param minecraftVersion the minecraft version
+	 * @return the liteloader version, null if there's no such a liteloader
+	 *         version
+	 */
+	public LiteloaderVersion getSnapshot(String minecraftVersion) {
+		return getArtefact(minecraftVersion, "snapshot");
+	}
+
+	/**
 	 * Gets all the latest liteloaders.
 	 * <p>
 	 * The key is the minecraft version, the value is the liteloader version.
@@ -107,6 +137,17 @@ public class LiteloaderVersionList implements Serializable {
 	 */
 	public Map<String, LiteloaderVersion> getLatests() {
 		return latests;
+	}
+
+	/**
+	 * Gets all the snapshot liteloaders.
+	 * <p>
+	 * The key is the minecraft version, the value is the liteloader version.
+	 * 
+	 * @return all the snapshot liteloaders
+	 */
+	public Map<String, LiteloaderVersion> getSnapshots() {
+		return snapshots;
 	}
 
 	@Override
