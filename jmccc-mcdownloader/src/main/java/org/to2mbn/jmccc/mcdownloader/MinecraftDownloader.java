@@ -6,6 +6,7 @@ import org.to2mbn.jmccc.mcdownloader.download.DownloaderService;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadCallback;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloader;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Shutdownable;
+import org.to2mbn.jmccc.mcdownloader.provider.MinecraftDownloadProvider;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.version.Version;
 
@@ -33,5 +34,12 @@ public interface MinecraftDownloader extends Shutdownable, DownloaderService, Co
 	 * @throws RejectedExecutionException if the downloader has been shutdown
 	 */
 	Future<RemoteVersionList> fetchRemoteVersionList(CombinedDownloadCallback<RemoteVersionList> callback);
+
+	/**
+	 * Gets the provider of the {@code MinecraftDownloader}.
+	 * 
+	 * @return the provider of the {@code MinecraftDownloader}
+	 */
+	MinecraftDownloadProvider getProvider();
 
 }

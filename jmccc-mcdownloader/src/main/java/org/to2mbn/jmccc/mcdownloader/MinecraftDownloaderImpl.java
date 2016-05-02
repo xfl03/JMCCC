@@ -109,6 +109,11 @@ public class MinecraftDownloaderImpl implements MinecraftDownloader {
 		return download(downloadProvider.versionList(), callback, tries);
 	}
 
+	@Override
+	public MinecraftDownloadProvider getProvider() {
+		return downloadProvider;
+	}
+
 	private void checkShutdown() {
 		if (shutdown) {
 			throw new RejectedExecutionException("already shutdown");
