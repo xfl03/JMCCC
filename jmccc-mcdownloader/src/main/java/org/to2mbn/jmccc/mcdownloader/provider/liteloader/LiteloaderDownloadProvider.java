@@ -1,28 +1,25 @@
 package org.to2mbn.jmccc.mcdownloader.provider.liteloader;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.Reader;
-import java.io.Writer;
 import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.to2mbn.jmccc.mcdownloader.download.MemoryDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.ResultProcessor;
+import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadContext;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.provider.AbstractMinecraftDownloadProvider;
 import org.to2mbn.jmccc.mcdownloader.provider.ExtendedDownloadProvider;
 import org.to2mbn.jmccc.mcdownloader.provider.MinecraftDownloadProvider;
+import org.to2mbn.jmccc.mcdownloader.provider.VersionJsonWriteProcessor;
 import org.to2mbn.jmccc.mcdownloader.util.VersionComparator;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
-import org.to2mbn.jmccc.util.FileUtils;
+import org.to2mbn.jmccc.version.Library;
 
 public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvider implements ExtendedDownloadProvider {
 
@@ -57,6 +54,9 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 					public LiteloaderVersion process(LiteloaderVersionList versionList) throws Exception {
 						String mcversion = liteloaderInfo.getMinecraftVersion();
 						LiteloaderVersion genericLiteloader = versionList.getLatest(mcversion);
+						if (genericLiteloader == null) {
+							genericLiteloader = versionList.getSnapshot(mcversion);
+						}
 
 						if (genericLiteloader == null) {
 							throw new IllegalArgumentException("Liteloader version not found: " + liteloaderInfo);
@@ -65,21 +65,60 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 					}
 				});
 			}
-		}).andThen(new ResultProcessor<LiteloaderVersion, String>() {
+		}).andThenDownload(new ResultProcessor<LiteloaderVersion, CombinedDownloadTask<String>>() {
 
 			@Override
-			public String process(final LiteloaderVersion liteloader) throws Exception {
-				return createLiteloaderVersion(mcdir, liteloader);
+			public CombinedDownloadTask<String> process(final LiteloaderVersion liteloader) throws Exception {
+				//				if (liteloader.getLiteloaderVersion().endsWith("-SNAPSHOT")){
+				//					return CombinedDownloadTask.any(fetchVersionJsonFromGithub(liteloader.getMinecraftVersion()).andThen(new VersionJsonWriteProcessor(mcdir)),
+				//							createLiteloaderVersionTask(mcdir, liteloader));
+				//				} else {
+					return createLiteloaderVersionTask(mcdir, liteloader);
+				//				}
 			}
 		});
+	}
+
+	@Deprecated
+	@Override
+	public CombinedDownloadTask<Void> library(final MinecraftDirectory mcdir, final Library library) {
+		if ("com.mumfrey".equals(library.getDomain()) && "liteloader".equals(library.getName())) {
+			final String libversion = library.getVersion();
+			if (libversion.endsWith("-SNAPSHOT")) {
+				return liteloaderVersionList().andThenDownload(new ResultProcessor<LiteloaderVersionList, CombinedDownloadTask<Void>>() {
+
+					@Override
+					public CombinedDownloadTask<Void> process(LiteloaderVersionList versionList) throws Exception {
+						LiteloaderVersion liteloader = versionList.getSnapshot(libversion.substring(0, libversion.length() - "-SNAPSHOT".length()));
+						if (liteloader == null || liteloader.getRepoUrl() == null) {
+							// Not found
+							return upstreamProvider.library(mcdir, library);
+						} else {
+							return upstreamProvider.library(mcdir, new Library(library.getDomain(), library.getName(), library.getVersion(), library.getDownloadInfo(), liteloader.getRepoUrl(), library.getChecksums()));
+						}
+					}
+				});
+			}
+		}
+		return null;
 	}
 
 	@Override
 	public void setUpstreamProvider(MinecraftDownloadProvider upstreamProvider) {
 		this.upstreamProvider = upstreamProvider;
 	}
+	
+	private CombinedDownloadTask<String> createLiteloaderVersionTask(final MinecraftDirectory mcdir, final LiteloaderVersion liteloader) {
+		return new CombinedDownloadTask<String>() {
 
-	protected String createLiteloaderVersion(MinecraftDirectory mcdir, LiteloaderVersion liteloader) throws IOException {
+			@Override
+			public void execute(CombinedDownloadContext<String> context) throws Exception {
+				context.done(new VersionJsonWriteProcessor(mcdir).process(createLiteloaderVersion(mcdir, liteloader)));
+			}
+		};
+	}
+
+	protected JSONObject createLiteloaderVersion(MinecraftDirectory mcdir, LiteloaderVersion liteloader) throws IOException {
 		String superVersion = liteloader.getSuperVersion();
 		String minecraftVersion = liteloader.getMinecraftVersion();
 		String repoUrl = liteloader.getRepoUrl();
@@ -125,18 +164,15 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 		versionjson.remove("downloads");
 		versionjson.remove("assets");
 		versionjson.remove("assetIndex");
-
-		File target = mcdir.getVersionJson(version);
-		FileUtils.prepareWrite(target);
-		try (Writer writer = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(target)), "UTF-8")) {
-			writer.write(versionjson.toString(4));
-		}
-
-		return version;
+		return versionjson;
 	}
 
 	protected String liteloaderVersionListUrl() {
 		return "http://dl.liteloader.com/versions/versions.json";
+	}
+
+	protected String githubVersionJsonUrl(String version) {
+		return "https://raw.githubusercontent.com/Mumfrey/LiteLoaderInstaller/" + version + "/src/main/resources/install_profile.json";
 	}
 
 	protected String leastLaunchwrapperVersion() {
@@ -145,6 +181,17 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 
 	protected String launchwrapperName() {
 		return "net.minecraft:launchwrapper";
+	}
+
+	private CombinedDownloadTask<JSONObject> fetchVersionJsonFromGithub(String version) {
+		return CombinedDownloadTask.single(new MemoryDownloadTask(githubVersionJsonUrl(version)))
+				.andThen(new ResultProcessor<byte[], JSONObject>() {
+
+					@Override
+					public JSONObject process(byte[] arg) throws Exception {
+						return new JSONObject(new String(arg, "UTF-8")).getJSONObject("versionInfo");
+					}
+				});
 	}
 
 }

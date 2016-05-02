@@ -132,6 +132,10 @@ abstract public class URIDownloadProvider implements MinecraftDownloadProvider {
 		if (uri == null) {
 			return null;
 		}
+		return library(mcdir, library, uri);
+	}
+
+	public CombinedDownloadTask<Void> library(MinecraftDirectory mcdir, Library library, URI uri) {
 		String path = uri.getPath();
 		LibraryDownloadHandler handler = null;
 		for (Entry<String, LibraryDownloadHandler> entry : libraryHandlers.entrySet()) {
