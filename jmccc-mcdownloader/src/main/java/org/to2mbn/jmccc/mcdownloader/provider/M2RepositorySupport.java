@@ -20,7 +20,7 @@ public final class M2RepositorySupport {
 			throw new IllegalArgumentException("Not a snapshot version: " + version);
 		}
 		final String url = repo + groupId.replace('.', '/') + '/' + artifactId + '/' + version + "/maven-metadata.xml";
-		return CombinedDownloadTask.single(new MemoryDownloadTask(url)).andThen(new ResultProcessor<byte[], String>() {
+		return CombinedDownloadTask.single(new MemoryDownloadTask(url).cacheable()).andThen(new ResultProcessor<byte[], String>() {
 
 			@Override
 			public String process(byte[] arg) throws Exception {

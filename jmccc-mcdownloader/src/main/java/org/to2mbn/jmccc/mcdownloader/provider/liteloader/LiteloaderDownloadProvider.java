@@ -88,7 +88,7 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 		final String v = library.getVersion();
 
 		if ("com.mumfrey".equals(g) && "liteloader".equals(a)) {
-			if (v.endsWith("-SNAPSHOT")) {
+			if (M2RepositorySupport.isSnapshotVersion(v)) {
 				return liteloaderVersionList().andThenDownload(new ResultProcessor<LiteloaderVersionList, CombinedDownloadTask<Void>>() {
 
 					@Override
@@ -97,13 +97,13 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 						LiteloaderVersion liteloader = versionList.getSnapshot(mcVersion);
 						if (liteloader != null) {
 							final String repo = liteloader.getRepoUrl();
-							if (repo != null && liteloader.getLiteloaderVersion().endsWith("-SNAPSHOT")) {
+							if (repo != null) {
 								return M2RepositorySupport.snapshotPostfix(g, a, v, repo)
 										.andThenDownload(new ResultProcessor<String, CombinedDownloadTask<Void>>() {
 
 											@Override
 											public CombinedDownloadTask<Void> process(String postfix) throws Exception {
-												return CombinedDownloadTask.single(new FileDownloadTask(repo + M2RepositorySupport.toPath(g, a, v, postfix, "-release.jar"), mcdir.getLibrary(library)));
+												return CombinedDownloadTask.single(new FileDownloadTask(repo + M2RepositorySupport.toPath(g, a, v, postfix, "-release.jar"), mcdir.getLibrary(library)).cacheable());
 											}
 										});
 							}
@@ -197,7 +197,7 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 	}
 
 	private CombinedDownloadTask<JSONObject> fetchVersionJsonFromGithub(String version) {
-		return CombinedDownloadTask.single(new MemoryDownloadTask(githubVersionJsonUrl(version)))
+		return CombinedDownloadTask.single(new MemoryDownloadTask(githubVersionJsonUrl(version)).cacheable())
 				.andThen(new ResultProcessor<byte[], JSONObject>() {
 
 					@Override
