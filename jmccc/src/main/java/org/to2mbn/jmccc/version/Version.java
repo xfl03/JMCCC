@@ -40,19 +40,13 @@ public class Version implements Serializable {
 	 *             assetIndexDownloadInfo, downloads) is null
 	 */
 	public Version(String version, String type, String mainClass, String assets, String launchArgs, String root, Set<Library> libraries, boolean legacy, AssetIndexInfo assetIndexDownloadInfo, Map<String, DownloadInfo> downloads) {
-		Objects.requireNonNull(version);
-		Objects.requireNonNull(mainClass);
-		Objects.requireNonNull(assets);
-		Objects.requireNonNull(launchArgs);
-		Objects.requireNonNull(root);
-		Objects.requireNonNull(libraries);
-		this.version = version;
+		this.version = Objects.requireNonNull(version);
 		this.type = type;
-		this.mainClass = mainClass;
-		this.assets = assets;
-		this.launchArgs = launchArgs;
-		this.root = root;
-		this.libraries = libraries;
+		this.mainClass = Objects.requireNonNull(mainClass);
+		this.assets = Objects.requireNonNull(assets);
+		this.launchArgs = Objects.requireNonNull(launchArgs);
+		this.root = Objects.requireNonNull(root);
+		this.libraries = Objects.requireNonNull(libraries);
 		this.legacy = legacy;
 		this.assetIndexDownloadInfo = assetIndexDownloadInfo;
 		this.downloads = downloads;
@@ -68,7 +62,8 @@ public class Version implements Serializable {
 	}
 
 	/**
-	 * Gets the type of the version, e.g. "snapshot", "release", null if the type is unknown.
+	 * Gets the type of the version, e.g. "snapshot", "release", null if the
+	 * type is unknown.
 	 * 
 	 * @return the type of the version, null if the type is unknown
 	 */
@@ -129,31 +124,6 @@ public class Version implements Serializable {
 	}
 
 	/**
-	 * Returns the missing libraries in the given minecraft directory.
-	 * 
-	 * @param minecraftDir the minecraft directory to check
-	 * @return true the missing libraries in the given minecraft directory, an empty set if no library is missing
-	 */
-	public Set<Library> getMissingLibraries(MinecraftDirectory minecraftDir) {
-		Set<Library> missing = new HashSet<>();
-		for (Library library : libraries) {
-			if (library.isMissing(minecraftDir)) {
-				missing.add(library);
-			}
-		}
-		return missing;
-	}
-
-	/**
-	 * Returns true if the version is lower than 1.8
-	 *
-	 * @return true if the version is lower than 1.8, as well as using the legacy assets index
-	 */
-	public boolean isLegacy() {
-		return legacy;
-	}
-
-	/**
 	 * Gets the asset download info.
 	 * 
 	 * @return the asset download info, can be null
@@ -176,6 +146,31 @@ public class Version implements Serializable {
 		return downloads;
 	}
 
+	/**
+	 * Returns true if the version is lower than 1.8
+	 *
+	 * @return true if the version is lower than 1.8, as well as using the
+	 *         legacy assets index
+	 */
+	public boolean isLegacy() {
+		return legacy;
+	}
+
+	/**
+	 * Returns the missing libraries in the given minecraft directory.
+	 * 
+	 * @param minecraftDir the minecraft directory to check
+	 * @return true the missing libraries in the given minecraft directory, an
+	 *         empty set if no library is missing
+	 */
+	public Set<Library> getMissingLibraries(MinecraftDirectory minecraftDir) {
+		Set<Library> missing = new HashSet<>();
+		for (Library library : libraries)
+			if (library.isMissing(minecraftDir)) 
+				missing.add(library);
+		return missing;
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == this) {
@@ -183,14 +178,23 @@ public class Version implements Serializable {
 		}
 		if (obj instanceof Version) {
 			Version another = (Version) obj;
-			return version.equals(another.version) && Objects.equals(type, another.type) && mainClass.equals(another.mainClass) && assets.equals(another.assets) && launchArgs.equals(another.launchArgs) && root.equals(another.root) && libraries.equals(another.libraries) && legacy == another.legacy;
+			return Objects.equals(version, another.version)
+					&& Objects.equals(type, another.type)
+					&& Objects.equals(mainClass, another.mainClass)
+					&& Objects.equals(assets, another.assets)
+					&& Objects.equals(launchArgs, another.launchArgs)
+					&& Objects.equals(root, another.root)
+					&& Objects.equals(libraries, another.libraries)
+					&& legacy == another.legacy
+					&& Objects.equals(assetIndexDownloadInfo, another.assetIndexDownloadInfo)
+					&& Objects.equals(downloads, another.downloads);
 		}
 		return false;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(version, type, mainClass, assets, launchArgs, root, libraries, legacy);
+		return Objects.hash(version, type, mainClass, assets, launchArgs, root, libraries, legacy, assetIndexDownloadInfo, downloads);
 	}
 
 	@Override

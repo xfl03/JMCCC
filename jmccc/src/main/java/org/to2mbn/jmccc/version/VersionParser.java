@@ -51,7 +51,7 @@ class VersionParser {
 				type = json.getString("type");
 			if (json.has("libraries"))
 				for (Library library : parseLibraries(json.getJSONArray("libraries")))
-					librariesMap.put(library.getDomain() + ":" + library.getName(), library);
+					librariesMap.put(library.getGroupId() + ":" + library.getArtifactId(), library);
 			if (json.has("downloads"))
 				downloads.putAll(resolveDownloads(json.getJSONObject("downloads")));
 			if (json.has("assetIndex"))
@@ -190,20 +190,20 @@ class VersionParser {
 		return Collections.unmodifiableSet(excludes);
 	}
 
-	private LibraryInfo resolveLibraryDownload(JSONObject json, String natives) throws JSONException {
+	private LibraryInfo resolveLibraryDownload(JSONObject json, String classifier) throws JSONException {
 		JSONObject downloads = json.optJSONObject("downloads");
 		if (downloads == null) {
 			return null;
 		}
 		JSONObject artifact;
-		if (natives == null) {
+		if (classifier == null) {
 			artifact = downloads.optJSONObject("artifact");
 		} else {
 			JSONObject classifiers = downloads.getJSONObject("classifiers");
 			if (classifiers == null) {
 				return null;
 			}
-			artifact = classifiers.optJSONObject(natives);
+			artifact = classifiers.optJSONObject(classifier);
 		}
 		if (artifact == null) {
 			return null;
@@ -211,7 +211,6 @@ class VersionParser {
 		return resolveLibraryInfo(artifact);
 	}
 
-	@SuppressWarnings("deprecation")
 	private Library resolveLibrary(JSONObject json) throws JSONException {
 		if (json.has("rules") && !isAllowed(json.getJSONArray("rules"))) {
 			return null;
@@ -223,8 +222,8 @@ class VersionParser {
 		}
 
 		String[] splited = json.getString("name").split(":", 3);
-		String domain = splited[0];
-		String name = splited[1];
+		String groupId = splited[0];
+		String artifactId = splited[1];
 		String version = splited[2];
 
 		String url = json.has("url") ? json.getString("url") : null;
@@ -232,11 +231,11 @@ class VersionParser {
 
 		boolean isNative = json.has("natives");
 		if (isNative) {
-			String natives = resolveNative(json.getJSONObject("natives"));
+			String classifier = resolveNative(json.getJSONObject("natives"));
 			Set<String> excludes = json.has("extract") ? resolveExtractExclude(json.getJSONObject("extract")) : null;
-			return new Native(domain, name, version, resolveLibraryDownload(json, natives), natives, excludes, url, checksums);
+			return new Native(groupId, artifactId, version, classifier, "jar", resolveLibraryDownload(json, classifier), url, checksums, excludes);
 		} else {
-			return new Library(domain, name, version, resolveLibraryDownload(json, null), url, checksums);
+			return new Library(groupId, artifactId, version, null, "jar", resolveLibraryDownload(json, null), url, checksums);
 		}
 	}
 

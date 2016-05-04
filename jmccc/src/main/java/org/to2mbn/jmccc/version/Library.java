@@ -9,122 +9,59 @@ public class Library implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private String domain;
-	private String name;
-	private String version;
-	private LibraryInfo downloadInfo;
-
-	@Deprecated
-	private String customUrl;
-	@Deprecated
-	private String[] checksums;
-
-	/**
-	 * Creates a library.
-	 * 
-	 * @param domain the domain of the library
-	 * @param name the name of the library
-	 * @param version the version of the library
-	 * @param downloadInfo the library download info, can be null
-	 * @throws NullPointerException if <code>domain==null||name==null||version==null</code>
-	 */
-	public Library(String domain, String name, String version, LibraryInfo downloadInfo) {
-		this(domain, name, version, downloadInfo, null, null);
+	public static String getArtifactBasePath(String groupId, String artifactId, String version) {
+		return groupId.replace('.', '/') + "/" + artifactId + "/" + version + "/";
 	}
 
-	/**
-	 * Creates a library with the custom download url and checksums.
-	 * 
-	 * @param domain the domain of the library
-	 * @param name the name of the library
-	 * @param version the version of the library
-	 * @param downloadInfo the library download info, can be null
-	 * @param customUrl the custom maven repository url
-	 * @param checksums the checksums
-	 * @throws NullPointerException if <code>domain==null||name==null||version==null</code>
-	 * @deprecated <code>customUrl</code> and <code>checksums</code> may be removed in future versions
-	 */
-	@Deprecated
-	public Library(String domain, String name, String version, LibraryInfo downloadInfo, String customUrl, String[] checksums) {
-		Objects.requireNonNull(domain);
-		Objects.requireNonNull(name);
-		Objects.requireNonNull(version);
-		this.domain = domain;
-		this.name = name;
-		this.version = version;
+	// Maven standard fields
+	private String groupId;
+	private String artifactId;
+	private String version;
+	private String classifier;
+	private String type = "jar";
+
+	// Minecraft customized fields
+	private LibraryInfo downloadInfo;
+	private String customizedUrl;
+	private String[] checksums;
+
+	public Library(String groupId, String artifactId, String version) {
+		this(groupId, artifactId, version, null, "jar", null);
+	}
+
+	public Library(String groupId, String artifactId, String version, String classifier, String type) {
+		this(groupId, artifactId, version, classifier, type, null);
+	}
+
+	public Library(String groupId, String artifactId, String version, String classifier, String type, LibraryInfo downloadInfo) {
+		this(groupId, artifactId, version, classifier, type, downloadInfo, null, null);
+	}
+
+	public Library(String groupId, String artifactId, String version, String classifier, String type, LibraryInfo downloadInfo, String customizedUrl, String[] checksums) {
+		this.groupId = Objects.requireNonNull(groupId);
+		this.artifactId = Objects.requireNonNull(artifactId);
+		this.version = Objects.requireNonNull(version);
+		this.classifier = classifier;
+		this.type = Objects.requireNonNull(type);
 		this.downloadInfo = downloadInfo;
-		this.customUrl = customUrl;
+		this.customizedUrl = customizedUrl;
 		this.checksums = checksums;
 	}
 
-	/**
-	 * Gets the relative path of the library.
-	 * <p>
-	 * Use '/' as the separator char, and 'libraries' as the base dir.
-	 * 
-	 * @return the relative path of the library
-	 */
-	public String getPath() {
-		return domain.replace('.', '/') + "/" + name + "/" + version + "/" + name + "-" + version + ".jar";
-	}
+	// Getters
+	// @formatter:off
+	public String getGroupId() { return groupId; }
+	public String getArtifactId() { return artifactId; }
+	public String getVersion() { return version; }
+	public String getClassifier() { return classifier; }
+	public String getType() { return type; }
+	public LibraryInfo getDownloadInfo() { return downloadInfo; }
+	public String getCustomizedUrl() { return customizedUrl; }
+	public String[] getChecksums() { return checksums; }
+	// @formatter:on
 
-	/**
-	 * Gets the name of the library.
-	 * 
-	 * @return the name of the library
-	 */
-	public String getName() {
-		return name;
-	}
-
-	/**
-	 * Gets the domain of this library.
-	 * 
-	 * @return the domain of this library
-	 */
-	public String getDomain() {
-		return domain;
-	}
-
-	/**
-	 * Gets the version of this library.
-	 * 
-	 * @return the version of this library
-	 */
-	public String getVersion() {
-		return version;
-	}
-
-	/**
-	 * Gets the custom maven repository url, null for default repository.
-	 * 
-	 * @return the custom maven repository url, null for default repository
-	 * @deprecated <code>customUrl</code> may be removed in future versions
-	 */
-	@Deprecated
-	public String getCustomUrl() {
-		return customUrl;
-	}
-
-	/**
-	 * Returns the sha1 checksums, null if no need for checking.<br>
-	 * If the sha1 hash of the library matches one of the hashes, this library is valid.
-	 * 
-	 * @return a map of checksums
-	 * @deprecated <code>checksums</code> may be removed in future versions
-	 */
-	@Deprecated
-	public String[] getChecksums() {
-		return checksums;
-	}
-
-	/**
-	 * Gets the library download info, can be null.
-	 * 
-	 * @return the library download info, can be null
-	 */
-	public LibraryInfo getDownloadInfo() {
-		return downloadInfo;
+	public boolean isSnapshotArtifact() {
+		return version.endsWith("-SNAPSHOT");
 	}
 
 	/**
@@ -137,9 +74,15 @@ public class Library implements Serializable {
 		return !minecraftDir.getLibrary(this).isFile();
 	}
 
-	@Override
-	public String toString() {
-		return domain + ":" + name + ":" + version;
+	public String getPath() {
+		return getPath0(version);
+	}
+
+	public String getPath(String snapshotPostfix) {
+		if (!isSnapshotArtifact()) {
+			throw new IllegalArgumentException("The artifact is not a snapshot.");
+		}
+		return getPath0(version.substring(0, version.length() - "SNAPSHOT".length()) + snapshotPostfix);
 	}
 
 	@Override
@@ -149,14 +92,30 @@ public class Library implements Serializable {
 		}
 		if (obj instanceof Library) {
 			Library another = (Library) obj;
-			return domain.equals(another.domain) && name.equals(another.name) && version.equals(another.version) && Objects.equals(customUrl, another.customUrl) && Arrays.equals(checksums, another.checksums) && Objects.equals(downloadInfo, another.downloadInfo);
+			return Objects.equals(groupId, another.groupId)
+					&& Objects.equals(artifactId, another.artifactId)
+					&& Objects.equals(version, another.version)
+					&& Objects.equals(classifier, another.classifier)
+					&& Objects.equals(type, another.type)
+					&& Objects.equals(downloadInfo, another.downloadInfo)
+					&& Objects.equals(customizedUrl, another.customizedUrl)
+					&& Objects.deepEquals(checksums, another.checksums);
 		}
 		return false;
 	}
 
 	@Override
 	public int hashCode() {
-		return Arrays.deepHashCode(new Object[] { domain, name, version, downloadInfo, customUrl, checksums });
+		return Objects.hash(groupId, artifactId, version, classifier, type, downloadInfo, customizedUrl, Arrays.hashCode(checksums));
+	}
+
+	@Override
+	public String toString() {
+		return groupId + ":" + artifactId + ":" + version + (classifier == null ? "" : ":" + classifier);
+	}
+
+	private String getPath0(String version0) {
+		return getArtifactBasePath(groupId, artifactId, version) + artifactId + "-" + version0 + (classifier == null ? "" : "-" + classifier) + "." + type;
 	}
 
 }
