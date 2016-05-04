@@ -1,14 +1,9 @@
 package org.to2mbn.jmccc.mcdownloader.provider.liteloader;
 
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 import org.to2mbn.jmccc.mcdownloader.download.FileDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.MemoryDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.ResultProcessor;
@@ -18,9 +13,11 @@ import org.to2mbn.jmccc.mcdownloader.provider.AbstractMinecraftDownloadProvider;
 import org.to2mbn.jmccc.mcdownloader.provider.ExtendedDownloadProvider;
 import org.to2mbn.jmccc.mcdownloader.provider.M2RepositorySupport;
 import org.to2mbn.jmccc.mcdownloader.provider.MinecraftDownloadProvider;
+import org.to2mbn.jmccc.mcdownloader.provider.ToJsonResultProcessor;
 import org.to2mbn.jmccc.mcdownloader.provider.VersionJsonWriteProcessor;
 import org.to2mbn.jmccc.mcdownloader.util.VersionComparator;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
+import org.to2mbn.jmccc.util.IOUtils;
 import org.to2mbn.jmccc.version.Library;
 
 public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvider implements ExtendedDownloadProvider {
@@ -30,11 +27,11 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 	private MinecraftDownloadProvider upstreamProvider;
 
 	public CombinedDownloadTask<LiteloaderVersionList> liteloaderVersionList() {
-		return CombinedDownloadTask.single(new MemoryDownloadTask(liteloaderVersionListUrl()).andThen(new ResultProcessor<byte[], LiteloaderVersionList>() {
+		return CombinedDownloadTask.single(new MemoryDownloadTask(liteloaderVersionListUrl()).andThen(new ToJsonResultProcessor()).andThen(new ResultProcessor<JSONObject, LiteloaderVersionList>() {
 
 			@Override
-			public LiteloaderVersionList process(byte[] arg) throws Exception {
-				return LiteloaderVersionList.fromJson(new JSONObject(new String(arg, "UTF-8")));
+			public LiteloaderVersionList process(JSONObject json) throws Exception {
+				return LiteloaderVersionList.fromJson(json);
 			}
 		}).cacheable());
 	}
@@ -80,30 +77,28 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 		});
 	}
 
-	@Deprecated
 	@Override
 	public CombinedDownloadTask<Void> library(final MinecraftDirectory mcdir, final Library library) {
-		final String g = library.getDomain();
-		final String a = library.getName();
-		final String v = library.getVersion();
+		final String groupId = library.getGroupId();
+		final String artifactId = library.getArtifactId();
+		final String version = library.getVersion();
 
-		if ("com.mumfrey".equals(g) && "liteloader".equals(a)) {
-			if (M2RepositorySupport.isSnapshotVersion(v)) {
+		if ("com.mumfrey".equals(groupId) && "liteloader".equals(artifactId)) {
+			if (library.isSnapshotArtifact()) {
 				return liteloaderVersionList().andThenDownload(new ResultProcessor<LiteloaderVersionList, CombinedDownloadTask<Void>>() {
 
 					@Override
 					public CombinedDownloadTask<Void> process(LiteloaderVersionList versionList) throws Exception {
-						String mcVersion = v.substring(0, v.length() - "-SNAPSHOT".length());
-						LiteloaderVersion liteloader = versionList.getSnapshot(mcVersion);
+						LiteloaderVersion liteloader = versionList.getSnapshot(version.substring(0, version.length() - "-SNAPSHOT".length()));
 						if (liteloader != null) {
 							final String repo = liteloader.getRepoUrl();
 							if (repo != null) {
-								return M2RepositorySupport.snapshotPostfix(g, a, v, repo)
+								return M2RepositorySupport.snapshotPostfix(groupId, artifactId, version, repo)
 										.andThenDownload(new ResultProcessor<String, CombinedDownloadTask<Void>>() {
 
 											@Override
 											public CombinedDownloadTask<Void> process(String postfix) throws Exception {
-												return CombinedDownloadTask.single(new FileDownloadTask(repo + M2RepositorySupport.toPath(g, a, v, postfix, "-release.jar"), mcdir.getLibrary(library)).cacheable());
+												return CombinedDownloadTask.single(new FileDownloadTask(repo + new Library(groupId, artifactId, version, "release", library.getType()).getPath(postfix), mcdir.getLibrary(library)).cacheable());
 											}
 										});
 							}
@@ -138,10 +133,7 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 		String tweakClass = liteloader.getTweakClass();
 		Set<JSONObject> liteloaderLibraries = liteloader.getLibraries();
 
-		JSONObject versionjson;
-		try (Reader reader = new InputStreamReader(new BufferedInputStream(new FileInputStream(mcdir.getVersionJson(superVersion))), "UTF-8")) {
-			versionjson = new JSONObject(new JSONTokener(reader));
-		}
+		JSONObject versionjson = IOUtils.toJson(mcdir.getVersionJson(superVersion));
 
 		String version = String.format("%s-LiteLoader%s", superVersion, minecraftVersion);
 		String minecraftArguments = String.format("%s --tweakClass %s", versionjson.getString("minecraftArguments"),
@@ -198,13 +190,7 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 
 	private CombinedDownloadTask<JSONObject> fetchVersionJsonFromGithub(String version) {
 		return CombinedDownloadTask.single(new MemoryDownloadTask(githubVersionJsonUrl(version)).cacheable())
-				.andThen(new ResultProcessor<byte[], JSONObject>() {
-
-					@Override
-					public JSONObject process(byte[] arg) throws Exception {
-						return new JSONObject(new String(arg, "UTF-8")).getJSONObject("versionInfo");
-					}
-				});
+				.andThen(new ToJsonResultProcessor());
 	}
 
 }

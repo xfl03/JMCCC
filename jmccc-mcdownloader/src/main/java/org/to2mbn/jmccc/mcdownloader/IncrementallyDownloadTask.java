@@ -1,11 +1,7 @@
 package org.to2mbn.jmccc.mcdownloader;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -15,16 +11,14 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
-import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadContext;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackAdapter;
-import org.to2mbn.jmccc.mcdownloader.provider.M2RepositorySupport;
 import org.to2mbn.jmccc.mcdownloader.provider.MinecraftDownloadProvider;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.util.ChecksumUtils;
+import org.to2mbn.jmccc.util.IOUtils;
 import org.to2mbn.jmccc.version.Asset;
 import org.to2mbn.jmccc.version.DownloadInfo;
 import org.to2mbn.jmccc.version.Library;
@@ -35,7 +29,7 @@ public class IncrementallyDownloadTask extends CombinedDownloadTask<Version> {
 
 	private MinecraftDirectory mcdir;
 	private String version;
-	private MinecraftDownloadProvider downloadProvider;
+	private MinecraftDownloadProvider provider;
 	private boolean checkLibrariesHash;
 	private boolean checkAssetsHash;
 	private boolean updateSnapshots;
@@ -49,7 +43,7 @@ public class IncrementallyDownloadTask extends CombinedDownloadTask<Version> {
 		Objects.requireNonNull(downloadProvider);
 		this.mcdir = mcdir;
 		this.version = version;
-		this.downloadProvider = downloadProvider;
+		this.provider = downloadProvider;
 		this.checkLibrariesHash = checkLibrariesHash;
 		this.checkAssetsHash = checkAssetsHash;
 		this.updateSnapshots = updateSnapshots;
@@ -74,7 +68,7 @@ public class IncrementallyDownloadTask extends CombinedDownloadTask<Version> {
 					downloadAssets(context, Versions.resolveAssets(mcdir, versionModel));
 
 				} else {
-					context.submit(downloadProvider.assetsIndex(mcdir, versionModel), new CallbackAdapter<Set<Asset>>() {
+					context.submit(provider.assetsIndex(mcdir, versionModel), new CallbackAdapter<Set<Asset>>() {
 
 						@Override
 						public void done(final Set<Asset> result) {
@@ -96,7 +90,7 @@ public class IncrementallyDownloadTask extends CombinedDownloadTask<Version> {
 				}
 
 				if (!mcdir.getVersionJar(versionModel).exists()) {
-					context.submit(downloadProvider.gameJar(mcdir, versionModel), null, true);
+					context.submit(provider.gameJar(mcdir, versionModel), null, true);
 				}
 
 				downloadLibraries(context, versionModel);
@@ -116,7 +110,7 @@ public class IncrementallyDownloadTask extends CombinedDownloadTask<Version> {
 
 	private void handleVersionJson(final String currentVersion, final CombinedDownloadContext<Version> context, final Callable<Void> callback) throws Exception {
 		if (mcdir.getVersionJson(currentVersion).exists()) {
-			JSONObject versionjson = readJson(mcdir.getVersionJson(currentVersion));
+			JSONObject versionjson = IOUtils.toJson(mcdir.getVersionJson(currentVersion));
 			String inheritsFrom = versionjson.optString("inheritsFrom", null);
 			handledVersions.add(currentVersion);
 			if (inheritsFrom == null) {
@@ -130,7 +124,7 @@ public class IncrementallyDownloadTask extends CombinedDownloadTask<Version> {
 				handleVersionJson(inheritsFrom, context, callback);
 			}
 		} else {
-			context.submit(downloadProvider.gameVersionJson(mcdir, currentVersion), new CallbackAdapter<String>() {
+			context.submit(provider.gameVersionJson(mcdir, currentVersion), new CallbackAdapter<String>() {
 
 				@Override
 				public void done(final String currentResolvedVersion) {
@@ -174,7 +168,7 @@ public class IncrementallyDownloadTask extends CombinedDownloadTask<Version> {
 					@Override
 					public Void call() throws Exception {
 						if (!asset.isValid(mcdir))
-							context.submit(downloadProvider.asset(mcdir, asset), null, false);
+							context.submit(provider.asset(mcdir, asset), null, false);
 
 						return null;
 					}
@@ -183,7 +177,7 @@ public class IncrementallyDownloadTask extends CombinedDownloadTask<Version> {
 		else
 			for (Asset asset : hashMapping.values())
 				if (!mcdir.getAsset(asset).isFile())
-					context.submit(downloadProvider.asset(mcdir, asset), null, false);
+					context.submit(provider.asset(mcdir, asset), null, false);
 	}
 
 	private void downloadLibraries(final CombinedDownloadContext<?> context, Version version) throws InterruptedException {
@@ -195,8 +189,8 @@ public class IncrementallyDownloadTask extends CombinedDownloadTask<Version> {
 					public Void call() throws Exception {
 						if (needDownload(mcdir.getLibrary(library), library.getDownloadInfo()))
 							downloadLibrary(context, library, true);
-						else if (needUpdate(library))
-							downloadLibrary(context, library, false);
+						else
+							checkAndUpdate(context, library);
 
 						return null;
 					}
@@ -210,13 +204,12 @@ public class IncrementallyDownloadTask extends CombinedDownloadTask<Version> {
 			Set<Library> existing = new HashSet<>(version.getLibraries());
 			existing.removeAll(missing);
 			for (Library library : existing)
-				if (needUpdate(library))
-					downloadLibrary(context, library, false);
+				checkAndUpdate(context, library);
 		}
 	}
 
 	private void downloadLibrary(CombinedDownloadContext<?> context, Library library, boolean fatal) throws InterruptedException {
-		context.submit(downloadProvider.library(mcdir, library), null, fatal);
+		context.submit(provider.library(mcdir, library), null, fatal);
 	}
 
 	private boolean needDownload(File target, DownloadInfo info) throws NoSuchAlgorithmException, IOException {
@@ -226,13 +219,28 @@ public class IncrementallyDownloadTask extends CombinedDownloadTask<Version> {
 			return !ChecksumUtils.verify(target, info.getChecksum(), "SHA-1", info.getSize());
 	}
 
-	private boolean needUpdate(Library library) {
-		return updateSnapshots && M2RepositorySupport.isSnapshotVersion(library.getVersion());
-	}
+	private void checkAndUpdate(final CombinedDownloadContext<?> context, final Library lib) throws InterruptedException {
+		if (updateSnapshots && lib.isSnapshotArtifact()) {
+			final Library sha1lib = new Library(lib.getGroupId(), lib.getArtifactId(), lib.getVersion(), lib.getClassifier(), "jar.sha1");
+			context.submit(provider.library(mcdir, sha1lib), new CallbackAdapter<Void>() {
 
-	private JSONObject readJson(File file) throws IOException, JSONException {
-		try (Reader reader = new InputStreamReader(new BufferedInputStream(new FileInputStream(file)), "UTF-8")) {
-			return new JSONObject(new JSONTokener(reader));
+				@Override
+				public void done(Void result) {
+					try {
+						context.submit(new Callable<Void>() {
+
+							@Override
+							public Void call() throws Exception {
+								String sha1 = IOUtils.toString(mcdir.getLibrary(sha1lib)).trim();
+								if (!ChecksumUtils.verify(mcdir.getLibrary(lib), sha1, "SHA-1")) {
+									downloadLibrary(context, lib, false);
+								}
+								return null;
+							}
+						}, null, false);
+					} catch (InterruptedException e) {}
+				}
+			}, false);
 		}
 	}
 

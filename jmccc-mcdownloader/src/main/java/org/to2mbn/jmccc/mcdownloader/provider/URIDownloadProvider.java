@@ -34,33 +34,14 @@ abstract public class URIDownloadProvider implements MinecraftDownloadProvider {
 		}
 	});
 
-	@Deprecated
-	protected URI getLibrary(Library library) {
-		return null;
-	}
-
-	@Deprecated
-	protected URI getGameJar(Version version) {
-		return null;
-	}
-
-	@Deprecated
-	protected URI getGameVersionJson(String version) {
-		return null;
-	}
-
-	@Deprecated
-	protected URI getAssetIndex(Version version) {
-		return null;
-	}
-
-	protected URI getVersionList() {
-		return null;
-	}
-
-	protected URI getAsset(Asset asset) {
-		return null;
-	}
+	// @formatter:off
+	protected URI getLibrary(Library library) { return null; }
+	protected URI getGameJar(Version version) { return null; }
+	protected URI getGameVersionJson(String version) { return null; }
+	protected URI getAssetIndex(Version version) { return null; }
+	protected URI getVersionList() { return null; }
+	protected URI getAsset(Asset asset) { return null; }
+	// @formatter:on
 
 	public URIDownloadProvider() {
 		registerLibraryDownloadHandler(".jar", new JarLibraryDownloadHandler());
@@ -74,16 +55,15 @@ abstract public class URIDownloadProvider implements MinecraftDownloadProvider {
 		if (uri == null) {
 			return null;
 		}
-		return CombinedDownloadTask.single(new MemoryDownloadTask(uri).andThen(new ResultProcessor<byte[], RemoteVersionList>() {
+		return CombinedDownloadTask.single(new MemoryDownloadTask(uri).andThen(new ToJsonResultProcessor()).andThen(new ResultProcessor<JSONObject, RemoteVersionList>() {
 
 			@Override
-			public RemoteVersionList process(byte[] arg) throws Exception {
-				return RemoteVersionList.fromJson(new JSONObject(new String(arg, "UTF-8")));
+			public RemoteVersionList process(JSONObject json) throws Exception {
+				return RemoteVersionList.fromJson(json);
 			}
 		}).cacheable());
 	}
 
-	@Deprecated
 	@Override
 	public CombinedDownloadTask<Set<Asset>> assetsIndex(final MinecraftDirectory mcdir, final Version version) {
 		URI uri = getAssetIndex(version);
@@ -99,7 +79,6 @@ abstract public class URIDownloadProvider implements MinecraftDownloadProvider {
 		}));
 	}
 
-	@Deprecated
 	@Override
 	public CombinedDownloadTask<Void> gameJar(MinecraftDirectory mcdir, Version version) {
 		URI uri = getGameJar(version);
@@ -109,7 +88,6 @@ abstract public class URIDownloadProvider implements MinecraftDownloadProvider {
 		return CombinedDownloadTask.single(new FileDownloadTask(uri, mcdir.getVersionJar(version)));
 	}
 
-	@Deprecated
 	@Override
 	public CombinedDownloadTask<String> gameVersionJson(MinecraftDirectory mcdir, final String version) {
 		URI uri = getGameVersionJson(version);
@@ -125,7 +103,6 @@ abstract public class URIDownloadProvider implements MinecraftDownloadProvider {
 		});
 	}
 
-	@Deprecated
 	@Override
 	public CombinedDownloadTask<Void> library(MinecraftDirectory mcdir, Library library) {
 		URI uri = getLibrary(library);

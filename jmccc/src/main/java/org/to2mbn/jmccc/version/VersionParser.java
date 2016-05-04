@@ -1,11 +1,6 @@
 package org.to2mbn.jmccc.version;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,8 +10,8 @@ import java.util.Stack;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
+import org.to2mbn.jmccc.util.IOUtils;
 import org.to2mbn.jmccc.util.Platform;
 
 class VersionParser {
@@ -74,7 +69,7 @@ class VersionParser {
 	}
 
 	public Set<Asset> parseAssets(MinecraftDirectory minecraftDir, String name) throws IOException, JSONException {
-		JSONObject json = readJson(minecraftDir.getAssetIndex(name));
+		JSONObject json = IOUtils.toJson(minecraftDir.getAssetIndex(name));
 		JSONObject objects = json.getJSONObject("objects");
 		Set<Asset> assets = new HashSet<>();
 		for (Object rawVirtualPath : objects.keySet()) {
@@ -102,7 +97,7 @@ class VersionParser {
 		Stack<JSONObject> hierarchy = new Stack<>();
 		String currentId = id;
 		do {
-			JSONObject json = readJson(mcdir.getVersionJson(currentId));
+			JSONObject json = IOUtils.toJson(mcdir.getVersionJson(currentId));
 			hierarchy.push(json);
 			currentId = json.optString("inheritsFrom", null);
 		} while (currentId != null);
@@ -266,12 +261,6 @@ class VersionParser {
 			downloads.put(key, resolveDownloadInfo(json.getJSONObject(key)));
 		}
 		return Collections.unmodifiableMap(downloads);
-	}
-
-	private JSONObject readJson(File file) throws IOException, JSONException {
-		try (Reader reader = new InputStreamReader(new BufferedInputStream(new FileInputStream(file)), "UTF-8")) {
-			return new JSONObject(new JSONTokener(reader));
-		}
 	}
 
 }

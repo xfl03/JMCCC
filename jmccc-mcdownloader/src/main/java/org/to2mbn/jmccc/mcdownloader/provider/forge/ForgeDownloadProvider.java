@@ -1,12 +1,9 @@
 package org.to2mbn.jmccc.mcdownloader.provider.forge;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.zip.ZipEntry;
@@ -14,7 +11,6 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 import org.to2mbn.jmccc.mcdownloader.download.FileDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.MemoryDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.ResultProcessor;
@@ -23,9 +19,11 @@ import org.to2mbn.jmccc.mcdownloader.provider.AbstractMinecraftDownloadProvider;
 import org.to2mbn.jmccc.mcdownloader.provider.ExtendedDownloadProvider;
 import org.to2mbn.jmccc.mcdownloader.provider.InstallProfileProcessor;
 import org.to2mbn.jmccc.mcdownloader.provider.MinecraftDownloadProvider;
+import org.to2mbn.jmccc.mcdownloader.provider.ToJsonResultProcessor;
 import org.to2mbn.jmccc.mcdownloader.provider.VersionJsonWriteProcessor;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.util.FileUtils;
+import org.to2mbn.jmccc.util.IOUtils;
 import org.to2mbn.jmccc.version.Library;
 import org.to2mbn.jmccc.version.Version;
 import org.to2mbn.jmccc.version.Versions;
@@ -35,11 +33,11 @@ public class ForgeDownloadProvider extends AbstractMinecraftDownloadProvider imp
 	private MinecraftDownloadProvider upstreamProvider;
 
 	public CombinedDownloadTask<ForgeVersionList> forgeVersionList() {
-		return CombinedDownloadTask.single(new MemoryDownloadTask(forgeVersionListUrl()).andThen(new ResultProcessor<byte[], ForgeVersionList>() {
+		return CombinedDownloadTask.single(new MemoryDownloadTask(forgeVersionListUrl()).andThen(new ToJsonResultProcessor()).andThen(new ResultProcessor<JSONObject, ForgeVersionList>() {
 
 			@Override
-			public ForgeVersionList process(byte[] arg) throws IOException {
-				return ForgeVersionList.fromJson(new JSONObject(new String(arg, "UTF-8")));
+			public ForgeVersionList process(JSONObject json) throws IOException {
+				return ForgeVersionList.fromJson(json);
 			}
 		}).cacheable());
 	}
@@ -71,10 +69,10 @@ public class ForgeDownloadProvider extends AbstractMinecraftDownloadProvider imp
 
 	@Override
 	public CombinedDownloadTask<Void> library(final MinecraftDirectory mcdir, final Library library) {
-		if ("net.minecraftforge".equals(library.getDomain())) {
-			if ("forge".equals(library.getName())) {
+		if ("net.minecraftforge".equals(library.getGroupId())) {
+			if ("forge".equals(library.getArtifactId())) {
 				return universalTask(library.getVersion(), mcdir.getLibrary(library));
-			} else if ("minecraftforge".equals(library.getName())) {
+			} else if ("minecraftforge".equals(library.getArtifactId())) {
 				return forgeVersion(library.getVersion()).andThenDownload(new ResultProcessor<ForgeVersion, CombinedDownloadTask<Void>>() {
 
 					@Override
@@ -98,7 +96,7 @@ public class ForgeDownloadProvider extends AbstractMinecraftDownloadProvider imp
 		// the forge versions that uses merging jar to install(before 1.5.2)
 		boolean isVeryOldForge = true;
 		for (Library library : version.getLibraries()) {
-			if (library.getDomain().equals("net.minecraftforge")) {
+			if (library.getGroupId().equals("net.minecraftforge")) {
 				isVeryOldForge = false;
 				break;
 			}
@@ -114,7 +112,7 @@ public class ForgeDownloadProvider extends AbstractMinecraftDownloadProvider imp
 		});
 
 		if (isVeryOldForge) {
-			final File universalFile = mcdir.getLibrary(new Library("net.minecraftforge", "minecraftforge", forgeInfo.getForgeVersion(), null));
+			final File universalFile = mcdir.getLibrary(new Library("net.minecraftforge", "minecraftforge", forgeInfo.getForgeVersion()));
 			return baseTask.andThenDownload(new ResultProcessor<Version, CombinedDownloadTask<Version>>() {
 
 				@Override
@@ -252,11 +250,7 @@ public class ForgeDownloadProvider extends AbstractMinecraftDownloadProvider imp
 
 	private JSONObject createForgeVersionJson(MinecraftDirectory mcdir, ForgeVersion forgeVersion) throws IOException, JSONException {
 		String versionId = forgeVersion.getVersionName();
-
-		JSONObject versionjson;
-		try (Reader reader = new InputStreamReader(new BufferedInputStream(new FileInputStream(mcdir.getVersionJson(forgeVersion.getMinecraftVersion()))), "UTF-8")) {
-			versionjson = new JSONObject(new JSONTokener(reader));
-		}
+		JSONObject versionjson = IOUtils.toJson(mcdir.getVersionJson(forgeVersion.getMinecraftVersion()));
 
 		versionjson.remove("downloads");
 		versionjson.remove("assets");

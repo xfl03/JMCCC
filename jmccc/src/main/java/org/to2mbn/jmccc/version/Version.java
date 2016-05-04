@@ -35,7 +35,7 @@ public class Version implements Serializable {
 	 * @param legacy true if this version is lower than 1.7.10, as well as using
 	 *            the legacy assets index
 	 * @param assetIndexDownloadInfo the asset download info, can be null
-	 * @param downloads the download infos, can be null
+	 * @param downloads the download infos
 	 * @throws NullPointerException if any of the arguments (except type,
 	 *             assetIndexDownloadInfo, downloads) is null
 	 */
@@ -49,7 +49,7 @@ public class Version implements Serializable {
 		this.libraries = Objects.requireNonNull(libraries);
 		this.legacy = legacy;
 		this.assetIndexDownloadInfo = assetIndexDownloadInfo;
-		this.downloads = downloads;
+		this.downloads = Objects.requireNonNull(downloads);
 	}
 
 	/**
@@ -140,7 +140,7 @@ public class Version implements Serializable {
 	 * <code>client</code> -&gt; the client jar(minecraft client)<br>
 	 * <code>server</code> -&gt; the server jar(minecraft server)<br>
 	 * 
-	 * @return the downloads of the version, can be null
+	 * @return the downloads of the version
 	 */
 	public Map<String, DownloadInfo> getDownloads() {
 		return downloads;

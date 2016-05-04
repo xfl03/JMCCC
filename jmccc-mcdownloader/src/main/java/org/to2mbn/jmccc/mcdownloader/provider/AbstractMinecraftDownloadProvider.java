@@ -10,34 +10,13 @@ import org.to2mbn.jmccc.version.Version;
 
 abstract public class AbstractMinecraftDownloadProvider implements MinecraftDownloadProvider {
 
-	@Override
-	public CombinedDownloadTask<RemoteVersionList> versionList() {
-		return null;
-	}
-
-	@Override
-	public CombinedDownloadTask<Set<Asset>> assetsIndex(MinecraftDirectory mcdir, Version version) {
-		return null;
-	}
-
-	@Override
-	public CombinedDownloadTask<Void> gameJar(MinecraftDirectory mcdir, Version version) {
-		return null;
-	}
-
-	@Override
-	public CombinedDownloadTask<String> gameVersionJson(MinecraftDirectory mcdir, String version) {
-		return null;
-	}
-
-	@Override
-	public CombinedDownloadTask<Void> library(MinecraftDirectory mcdir, Library library) {
-		return null;
-	}
-
-	@Override
-	public CombinedDownloadTask<Void> asset(MinecraftDirectory mcdir, Asset asset) {
-		return null;
-	}
+	// @formatter:off
+	@Override public CombinedDownloadTask<RemoteVersionList> versionList() { return null; }
+	@Override public CombinedDownloadTask<Set<Asset>> assetsIndex(MinecraftDirectory mcdir, Version version) { return null; }
+	@Override public CombinedDownloadTask<Void> gameJar(MinecraftDirectory mcdir, Version version) { return null; }
+	@Override public CombinedDownloadTask<String> gameVersionJson(MinecraftDirectory mcdir, String version) { return null; }
+	@Override public CombinedDownloadTask<Void> library(MinecraftDirectory mcdir, Library library) { return null; }
+	@Override public CombinedDownloadTask<Void> asset(MinecraftDirectory mcdir, Asset asset) { return null; }
+	// @formatter:on
 
 }

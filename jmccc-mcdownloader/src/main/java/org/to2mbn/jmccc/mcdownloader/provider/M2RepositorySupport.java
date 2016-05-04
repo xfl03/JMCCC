@@ -16,7 +16,7 @@ import org.xml.sax.SAXException;
 public final class M2RepositorySupport {
 
 	public static CombinedDownloadTask<String> snapshotPostfix(String groupId, String artifactId, String version, String repo) {
-		if (!isSnapshotVersion(version)) {
+		if (!version.endsWith("-SNAPSHOT")) {
 			throw new IllegalArgumentException("Not a snapshot version: " + version);
 		}
 		final String url = repo + groupId.replace('.', '/') + '/' + artifactId + '/' + version + "/maven-metadata.xml";
@@ -39,25 +39,6 @@ public final class M2RepositorySupport {
 				}
 			}
 		});
-	}
-
-	public static boolean isSnapshotVersion(String version) {
-		return version.endsWith("-SNAPSHOT");
-	}
-
-	public static String fillInSnapshotPostfix(String snapshotVersion, String postfix) {
-		if (!isSnapshotVersion(snapshotVersion)) {
-			throw new IllegalArgumentException("Not a snapshot version: " + snapshotVersion);
-		}
-		return snapshotVersion.substring(0, snapshotVersion.length() - "SNAPSHOT".length()) + postfix;
-	}
-
-	public static String toPath(String g, String a, String v, String type) {
-		return g.replace('.', '/') + '/' + a + '/' + v + '/' + a + '-' + v + type;
-	}
-
-	public static String toPath(String g, String a, String v, String snapshotPostfix, String type) {
-		return g.replace('.', '/') + '/' + a + '/' + v + '/' + a + '-' + fillInSnapshotPostfix(v, snapshotPostfix) + type;
 	}
 
 	private M2RepositorySupport() {
