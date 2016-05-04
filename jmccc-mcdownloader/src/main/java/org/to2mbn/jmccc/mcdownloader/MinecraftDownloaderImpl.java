@@ -26,17 +26,19 @@ public class MinecraftDownloaderImpl implements MinecraftDownloader {
 	private int tries;
 	private boolean checkLibrariesHash;
 	private boolean checkAssetsHash;
+	private boolean updateSnapshots;
 
 	private volatile boolean shutdown = false;
 	private ReadWriteLock shutdownLock = new ReentrantReadWriteLock();
 
-	public MinecraftDownloaderImpl(DownloaderService downloader, ExecutorService executor, MinecraftDownloadProvider downloadProvider, int tries, boolean checkLibrariesHash, boolean checkAssetsHash) {
+	public MinecraftDownloaderImpl(DownloaderService downloader, ExecutorService executor, MinecraftDownloadProvider downloadProvider, int tries, boolean checkLibrariesHash, boolean checkAssetsHash, boolean updateSnapshots) {
 		this.downloader = downloader;
 		this.executor = executor;
 		this.downloadProvider = downloadProvider;
 		this.tries = tries;
 		this.checkLibrariesHash = checkLibrariesHash;
 		this.checkAssetsHash = checkAssetsHash;
+		this.updateSnapshots = updateSnapshots;
 		combinedDownloader = new CombinedDownloaderImpl(executor, downloader, tries);
 	}
 
@@ -101,7 +103,7 @@ public class MinecraftDownloaderImpl implements MinecraftDownloader {
 
 	@Override
 	public Future<Version> downloadIncrementally(MinecraftDirectory dir, String version, CombinedDownloadCallback<Version> callback) {
-		return download(new IncrementallyDownloadTask(downloadProvider, dir, version, checkLibrariesHash, checkAssetsHash), callback, tries);
+		return download(new IncrementallyDownloadTask(downloadProvider, dir, version, checkLibrariesHash, checkAssetsHash, updateSnapshots), callback, tries);
 	}
 
 	@Override

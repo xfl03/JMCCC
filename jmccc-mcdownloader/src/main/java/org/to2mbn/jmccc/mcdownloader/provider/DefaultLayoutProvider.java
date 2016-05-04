@@ -1,7 +1,10 @@
 package org.to2mbn.jmccc.mcdownloader.provider;
 
 import java.net.URI;
+import org.to2mbn.jmccc.mcdownloader.download.ResultProcessor;
+import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.util.URIUtils;
+import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.version.Asset;
 import org.to2mbn.jmccc.version.Library;
 import org.to2mbn.jmccc.version.Version;
@@ -10,16 +13,42 @@ abstract public class DefaultLayoutProvider extends URIDownloadProvider {
 
 	@Deprecated
 	@Override
-	public URI getLibrary(Library library) {
-		String baseurl = library.getCustomUrl();
-		if (baseurl == null) {
-			baseurl = getLibraryBaseURL();
+	public CombinedDownloadTask<Void> library(final MinecraftDirectory mcdir, final Library library) {
+		if (M2RepositorySupport.isSnapshotVersion(library.getVersion())) {
+			return M2RepositorySupport.snapshotPostfix(library.getDomain(), library.getName(), library.getVersion(), getLibraryRepo(library))
+					.andThenDownload(new ResultProcessor<String, CombinedDownloadTask<Void>>() {
+
+						@Override
+						public CombinedDownloadTask<Void> process(String postfix) throws Exception {
+							String url = getLibraryRepo(library)
+									+ M2RepositorySupport.toPath(library.getDomain(), library.getName(), library.getVersion(), postfix, ".jar");
+							if (library.getChecksums() != null) {
+								url += ".pack.xz";
+							}
+							return DefaultLayoutProvider.this.library(mcdir, library, URIUtils.toURI(url));
+						}
+					});
 		}
-		String url = baseurl + library.getPath();
+		return super.library(mcdir, library);
+	}
+
+	@Deprecated
+	@Override
+	public URI getLibrary(Library library) {
+		String url = getLibraryRepo(library) + library.getPath();
 		if (library.getChecksums() != null) {
 			url += ".pack.xz";
 		}
 		return URIUtils.toURI(url);
+	}
+
+	@Deprecated
+	private String getLibraryRepo(Library library) {
+		String repo = library.getCustomUrl();
+		if (repo == null) {
+			repo = getLibraryBaseURL();
+		}
+		return repo;
 	}
 
 	@Deprecated

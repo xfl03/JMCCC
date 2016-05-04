@@ -3,11 +3,13 @@ package org.to2mbn.jmccc.mcdownloader;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.SocketAddress;
+import java.util.Arrays;
 import java.util.concurrent.Executor;
 import org.apache.http.HttpHost;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.apache.http.impl.nio.reactor.IOReactorConfig;
+import org.apache.http.message.BasicHeader;
 import org.to2mbn.jmccc.mcdownloader.download.DownloaderService;
 import org.to2mbn.jmccc.mcdownloader.download.HttpAsyncDownloader;
 
@@ -27,7 +29,8 @@ final class ApacheHttpAsyncClientFeature {
 						.setConnectTimeout(builder.connectTimeout)
 						.setSocketTimeout(builder.soTimeout)
 						.setProxy(proxyHost)
-						.build());
+						.build())
+				.setDefaultHeaders(Arrays.asList(new BasicHeader("Accept-Encoding", "gzip")));
 		return new HttpAsyncDownloader(httpClientBuilder, executor);
 	}
 

@@ -44,6 +44,7 @@ public class MinecraftDownloaderBuilder {
 	boolean checkAssetsHash = true;
 	boolean disableBioConnectionsLimit = false;
 	boolean disableEhcache = false;
+	boolean updateSnapshots = true;
 	long cacheLiveTime = 1000 * 60 * 60 * 2; // ms
 	long heapCacheSize = 32;// mb
 	long offheapCacheSize = 0;// mb
@@ -161,6 +162,11 @@ public class MinecraftDownloaderBuilder {
 		return this;
 	}
 
+	public MinecraftDownloaderBuilder updateSnapshots(boolean updateSnapshots) {
+		this.updateSnapshots = updateSnapshots;
+		return this;
+	}
+
 	public MinecraftDownloader build() {
 		ExecutorService executor = null;
 		DownloaderService downloader = null;
@@ -190,7 +196,7 @@ public class MinecraftDownloaderBuilder {
 				downloader = EhcacheFeature.createCachedDownloader(downloader, this);
 			}
 
-			mcdownloader = new MinecraftDownloaderImpl(downloader, executor, provider, defaultTries, checkLibrariesHash, checkAssetsHash);
+			mcdownloader = new MinecraftDownloaderImpl(downloader, executor, provider, defaultTries, checkLibrariesHash, checkAssetsHash, updateSnapshots);
 		} catch (Throwable e) {
 			if (executor != null) {
 				try {
