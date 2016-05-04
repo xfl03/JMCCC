@@ -73,6 +73,7 @@ public class JdkHttpDownloader implements DownloaderService {
 			connection.setConnectTimeout(connectTimeout);
 			connection.setRequestProperty("Accept", "*/*");
 			connection.setRequestProperty("Connection", "keep-alive");
+			connection.setRequestProperty("Accept-Encoding", "gzip");
 			if (connection instanceof HttpURLConnection) {
 				((HttpURLConnection) connection).setRequestMethod("GET");
 			}
@@ -106,6 +107,10 @@ public class JdkHttpDownloader implements DownloaderService {
 				DownloadSession<T> session = (contentLength == -1)
 						? task.createSession()
 						: task.createSession(contentLength);
+
+				if (connection instanceof HttpURLConnection && "gzip".equals(connection.getHeaderField("Content-Encoding"))) {
+					session = new GzipDownloadSession<>(session);
+				}
 
 				long downloaded = 0;
 

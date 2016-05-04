@@ -14,6 +14,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
@@ -66,17 +67,27 @@ public class HttpAsyncDownloader implements DownloaderService {
 				}
 
 				if (session == null) {
+					boolean gzipOn = false;
 					HttpEntity httpEntity = response.getEntity();
 					if (httpEntity != null) {
 						long contextLength = httpEntity.getContentLength();
-						if (contextLength >= 0)
+						if (contextLength >= 0) {
 							this.contextLength = contextLength;
+						}
 
+						Header contentEncodingHeader = httpEntity.getContentEncoding();
+						if (contentEncodingHeader != null && "gzip".equals(contentEncodingHeader.getValue())) {
+							gzipOn = true;
+						}
 					}
 
 					session = contextLength > 0
 							? task.createSession(contextLength)
 							: task.createSession();
+
+					if (gzipOn) {
+						session = new GzipDownloadSession<>(session);
+					}
 				}
 			}
 

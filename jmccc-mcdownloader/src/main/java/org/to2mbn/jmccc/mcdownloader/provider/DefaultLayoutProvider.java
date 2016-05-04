@@ -19,12 +19,9 @@ abstract public class DefaultLayoutProvider extends URIDownloadProvider {
 					.andThenDownload(new ResultProcessor<String, CombinedDownloadTask<Void>>() {
 
 						@Override
-						public CombinedDownloadTask<Void> process(String timestamp) throws Exception {
+						public CombinedDownloadTask<Void> process(String postfix) throws Exception {
 							String url = getLibraryRepo(library)
-									+ library.getDomain().replace('.', '/') + '/'
-									+ library.getName() + '/'
-									+ library.getVersion() + '/'
-									+ library.getName() + '-' + M2RepositorySupport.fillInTimestamp(library.getVersion(), timestamp) + ".jar";
+									+ M2RepositorySupport.toPath(library.getDomain(), library.getName(), library.getVersion(), postfix, ".jar");
 							if (library.getChecksums() != null) {
 								url += ".pack.xz";
 							}

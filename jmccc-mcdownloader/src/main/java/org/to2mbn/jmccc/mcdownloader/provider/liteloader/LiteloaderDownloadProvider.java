@@ -9,12 +9,14 @@ import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+import org.to2mbn.jmccc.mcdownloader.download.FileDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.MemoryDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.ResultProcessor;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadContext;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.provider.AbstractMinecraftDownloadProvider;
 import org.to2mbn.jmccc.mcdownloader.provider.ExtendedDownloadProvider;
+import org.to2mbn.jmccc.mcdownloader.provider.M2RepositorySupport;
 import org.to2mbn.jmccc.mcdownloader.provider.MinecraftDownloadProvider;
 import org.to2mbn.jmccc.mcdownloader.provider.VersionJsonWriteProcessor;
 import org.to2mbn.jmccc.mcdownloader.util.VersionComparator;
@@ -69,12 +71,11 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 
 			@Override
 			public CombinedDownloadTask<String> process(final LiteloaderVersion liteloader) throws Exception {
-				//				if (liteloader.getLiteloaderVersion().endsWith("-SNAPSHOT")){
-				//					return CombinedDownloadTask.any(fetchVersionJsonFromGithub(liteloader.getMinecraftVersion()).andThen(new VersionJsonWriteProcessor(mcdir)),
-				//							createLiteloaderVersionTask(mcdir, liteloader));
-				//				} else {
+				if (liteloader.getLiteloaderVersion().endsWith("-SNAPSHOT")) {
+					return CombinedDownloadTask.any(fetchVersionJsonFromGithub(liteloader.getMinecraftVersion()).andThen(new VersionJsonWriteProcessor(mcdir)));
+				} else {
 					return createLiteloaderVersionTask(mcdir, liteloader);
-				//				}
+				}
 			}
 		});
 	}
@@ -82,20 +83,32 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 	@Deprecated
 	@Override
 	public CombinedDownloadTask<Void> library(final MinecraftDirectory mcdir, final Library library) {
-		if ("com.mumfrey".equals(library.getDomain()) && "liteloader".equals(library.getName())) {
-			final String libversion = library.getVersion();
-			if (libversion.endsWith("-SNAPSHOT")) {
+		final String g = library.getDomain();
+		final String a = library.getName();
+		final String v = library.getVersion();
+
+		if ("com.mumfrey".equals(g) && "liteloader".equals(a)) {
+			if (v.endsWith("-SNAPSHOT")) {
 				return liteloaderVersionList().andThenDownload(new ResultProcessor<LiteloaderVersionList, CombinedDownloadTask<Void>>() {
 
 					@Override
 					public CombinedDownloadTask<Void> process(LiteloaderVersionList versionList) throws Exception {
-						LiteloaderVersion liteloader = versionList.getSnapshot(libversion.substring(0, libversion.length() - "-SNAPSHOT".length()));
-						if (liteloader == null || liteloader.getRepoUrl() == null) {
-							// Not found
-							return upstreamProvider.library(mcdir, library);
-						} else {
-							return upstreamProvider.library(mcdir, new Library(library.getDomain(), library.getName(), library.getVersion(), library.getDownloadInfo(), liteloader.getRepoUrl(), library.getChecksums()));
+						String mcVersion = v.substring(0, v.length() - "-SNAPSHOT".length());
+						LiteloaderVersion liteloader = versionList.getSnapshot(mcVersion);
+						if (liteloader != null) {
+							final String repo = liteloader.getRepoUrl();
+							if (repo != null && liteloader.getLiteloaderVersion().endsWith("-SNAPSHOT")) {
+								return M2RepositorySupport.snapshotPostfix(g, a, v, repo)
+										.andThenDownload(new ResultProcessor<String, CombinedDownloadTask<Void>>() {
+
+											@Override
+											public CombinedDownloadTask<Void> process(String postfix) throws Exception {
+												return CombinedDownloadTask.single(new FileDownloadTask(repo + M2RepositorySupport.toPath(g, a, v, postfix, "-release.jar"), mcdir.getLibrary(library)));
+											}
+										});
+							}
 						}
+						return upstreamProvider.library(mcdir, library);
 					}
 				});
 			}
@@ -107,7 +120,7 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 	public void setUpstreamProvider(MinecraftDownloadProvider upstreamProvider) {
 		this.upstreamProvider = upstreamProvider;
 	}
-	
+
 	private CombinedDownloadTask<String> createLiteloaderVersionTask(final MinecraftDirectory mcdir, final LiteloaderVersion liteloader) {
 		return new CombinedDownloadTask<String>() {
 
