@@ -2,10 +2,11 @@ package org.to2mbn.jmccc.version;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 import java.util.Stack;
+import java.util.TreeSet;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
@@ -59,7 +60,7 @@ public final class Versions {
 	 */
 	public static Set<String> getVersions(MinecraftDirectory minecraftDir) {
 		Objects.requireNonNull(minecraftDir);
-		Set<String> versions = new HashSet<>();
+		Set<String> versions = new TreeSet<>();
 
 		// null if the 'versions' dir not exists
 		File[] subdirs = minecraftDir.getVersions().listFiles();
@@ -70,7 +71,7 @@ public final class Versions {
 				}
 			}
 		}
-		return versions;
+		return Collections.unmodifiableSet(versions);
 	}
 
 	/**

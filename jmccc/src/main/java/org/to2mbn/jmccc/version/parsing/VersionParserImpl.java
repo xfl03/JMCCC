@@ -1,11 +1,15 @@
 package org.to2mbn.jmccc.version.parsing;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -85,7 +89,13 @@ public class VersionParserImpl implements VersionParser {
 		if (json == null) return null;
 
 		JSONObject objects = json.getJSONObject("objects");
-		Set<Asset> assets = new HashSet<>();
+		Set<Asset> assets = new TreeSet<>(new Comparator<Asset>() {
+
+			@Override
+			public int compare(Asset o1, Asset o2) {
+				return o1.getVirtualPath().compareTo(o2.getVirtualPath());
+			}
+		});
 		for (Object rawVirtualPath : objects.keySet()) {
 			String virtualPath = (String) rawVirtualPath;
 			JSONObject object = objects.getJSONObject(virtualPath);
@@ -105,8 +115,8 @@ public class VersionParserImpl implements VersionParser {
 		String mainClass = null;
 		String launchArgs = null;
 		String type = null;
-		Map<String, Library> librariesMap = new HashMap<>();
-		Map<String, DownloadInfo> downloads = new HashMap<>();
+		Map<String, Library> librariesMap = new TreeMap<>();
+		Map<String, DownloadInfo> downloads = new TreeMap<>();
 		AssetIndexInfo assetIndexInfo = null;
 
 		JSONObject json;
@@ -140,7 +150,7 @@ public class VersionParserImpl implements VersionParser {
 		if (launchArgs == null)
 			throw new JSONException("Missing minecraftArguments");
 
-		Set<Library> libraries = new HashSet<>(librariesMap.values());
+		Set<Library> libraries = new LinkedHashSet<>(librariesMap.values());
 
 		return new Version(version,
 				type,
@@ -218,7 +228,7 @@ public class VersionParserImpl implements VersionParser {
 		JSONArray elements = json.optJSONArray("exclude");
 		if (elements == null) return null;
 
-		Set<String> excludes = new HashSet<>();
+		Set<String> excludes = new LinkedHashSet<>();
 		for (Object element : elements) {
 			excludes.add((String) element);
 		}
@@ -249,7 +259,7 @@ public class VersionParserImpl implements VersionParser {
 				libraries.add(library);
 			}
 		}
-		return Collections.unmodifiableSet(libraries);
+		return libraries;
 	}
 
 	private Map<String, DownloadInfo> parseDownloads(JSONObject json) throws JSONException {
@@ -258,7 +268,7 @@ public class VersionParserImpl implements VersionParser {
 		for (String key : json.keySet()) {
 			downloads.put(key, parseDownloadInfo(json.getJSONObject(key)));
 		}
-		return Collections.unmodifiableMap(downloads);
+		return downloads;
 	}
 
 }

@@ -1,5 +1,8 @@
 package org.to2mbn.jmccc.launch;
 
+import java.util.Set;
+import org.to2mbn.jmccc.version.Library;
+
 /**
  * Throws when dependent natives or libraries are missing.
  * 
@@ -9,19 +12,25 @@ public class MissingDependenciesException extends LaunchException {
 
 	private static final long serialVersionUID = 1L;
 
-	public MissingDependenciesException() {
-	}
+	private Set<Library> missingLibraries;
 
-	public MissingDependenciesException(String message, Throwable cause) {
-		super(message, cause);
-	}
+	public MissingDependenciesException() {}
 
 	public MissingDependenciesException(String message) {
 		super(message);
 	}
 
-	public MissingDependenciesException(Throwable cause) {
-		super(cause);
+	public MissingDependenciesException(Set<Library> missingLibraries) {
+		this(missingLibraries.toString(), missingLibraries);
+	}
+
+	public MissingDependenciesException(String message, Set<Library> missingLibraries) {
+		super(message);
+		this.missingLibraries = missingLibraries;
+	}
+
+	public Set<Library> getMissingLibraries() {
+		return missingLibraries;
 	}
 
 }

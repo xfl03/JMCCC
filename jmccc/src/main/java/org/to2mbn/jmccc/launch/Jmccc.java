@@ -135,7 +135,7 @@ public class Jmccc implements Launcher {
 		// check libraries
 		Set<Library> missing = version.getMissingLibraries(mcdir);
 		if (!missing.isEmpty()) {
-			throw new MissingDependenciesException(missing.toString());
+			throw new MissingDependenciesException(missing);
 		}
 
 		Set<File> javaLibraries = new HashSet<>();
@@ -167,9 +167,9 @@ public class Jmccc implements Launcher {
 
 		AuthInfo auth = option.getAuthenticator().auth();
 
-		Map<String, String> tokens = new HashMap<String, String>();
+		Map<String, String> tokens = new HashMap<>();
 		String token = auth.getToken();
-		String assetsDir = version.isLegacy() ? mcdir.getVirtualLegacyAssets().toString() : mcdir.getAssets().toString();
+		String assetsDir = (version.isLegacy() ? mcdir.getVirtualLegacyAssets() : mcdir.getAssets()).getAbsolutePath();
 		tokens.put("assets_root", assetsDir);
 		tokens.put("game_assets", assetsDir);
 		tokens.put("auth_access_token", token);
@@ -180,7 +180,7 @@ public class Jmccc implements Launcher {
 		tokens.put("user_properties", new JSONObject(auth.getProperties()).toString());
 		tokens.put("version_name", version.getVersion());
 		tokens.put("assets_index_name", version.getAssets());
-		tokens.put("game_directory", option.getRuntimeDirectory().toString());
+		tokens.put("game_directory", option.getRuntimeDirectory().getAbsolutePath());
 
 		String type = version.getType();
 		if (type != null) {

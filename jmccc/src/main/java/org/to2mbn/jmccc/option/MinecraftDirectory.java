@@ -241,6 +241,10 @@ public class MinecraftDirectory implements Serializable {
 		return new File(getVirtualLegacyAssets(), asset.getVirtualPath());
 	}
 
+	public String getAbsolutePath() {
+		return rootDir.getAbsolutePath();
+	}
+
 	@Override
 	public String toString() {
 		return rootDir.toString();

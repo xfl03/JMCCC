@@ -1,7 +1,8 @@
 package org.to2mbn.jmccc.version;
 
 import java.io.Serializable;
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -164,11 +165,11 @@ public class Version implements Serializable {
 	 *         empty set if no library is missing
 	 */
 	public Set<Library> getMissingLibraries(MinecraftDirectory minecraftDir) {
-		Set<Library> missing = new HashSet<>();
+		Set<Library> missing = new LinkedHashSet<>();
 		for (Library library : libraries)
 			if (library.isMissing(minecraftDir)) 
 				missing.add(library);
-		return missing;
+		return Collections.unmodifiableSet(missing);
 	}
 
 	@Override
