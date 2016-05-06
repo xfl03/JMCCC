@@ -17,12 +17,12 @@ class UniversalDecompressor implements ResultProcessor<byte[], Void> {
 	private File target;
 	private String[] names;
 
-	public UniversalDecompressor(File target, String fullVersion) {
+	public UniversalDecompressor(File target, String m2Version) {
 		this.target = target;
 
 		names = new String[] {
-				String.format(NAME_TEMPLATE, fullVersion),
-				String.format(OLD_NAME_TEMPLATE, fullVersion)
+				String.format(NAME_TEMPLATE, m2Version),
+				String.format(OLD_NAME_TEMPLATE, m2Version)
 		};
 	}
 
