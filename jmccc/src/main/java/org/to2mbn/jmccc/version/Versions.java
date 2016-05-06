@@ -21,7 +21,7 @@ import org.to2mbn.jmccc.version.parsing.VersionParserImpl;
  */
 public final class Versions {
 
-	private static final VersionParser PARSER = new VersionParserImpl();
+	private final static VersionParser PARSER = new VersionParserImpl();
 
 	/**
 	 * Resolves the version.
@@ -39,7 +39,7 @@ public final class Versions {
 
 		if (doesVersionExist(minecraftDir, version)) {
 			try {
-				return PARSER.parseVersion(resolveVersionHierarchy(version, minecraftDir), PlatformDescription.current());
+				return getVersionParser().parseVersion(resolveVersionHierarchy(version, minecraftDir), PlatformDescription.current());
 			} catch (JSONException e) {
 				throw new IOException("Couldn't parse version json: " + version, e);
 			}
@@ -107,10 +107,14 @@ public final class Versions {
 		}
 
 		try {
-			return PARSER.parseAssetIndex(IOUtils.toJson(minecraftDir.getAssetIndex(assets)));
+			return getVersionParser().parseAssetIndex(IOUtils.toJson(minecraftDir.getAssetIndex(assets)));
 		} catch (JSONException e) {
 			throw new IOException("Couldn't parse asset index: " + assets, e);
 		}
+	}
+
+	public static VersionParser getVersionParser() {
+		return PARSER;
 	}
 
 	private static boolean doesVersionExist(MinecraftDirectory minecraftDir, String version) {
@@ -127,7 +131,6 @@ public final class Versions {
 		return result;
 	}
 
-	private Versions() {
-	}
+	private Versions() {}
 
 }
