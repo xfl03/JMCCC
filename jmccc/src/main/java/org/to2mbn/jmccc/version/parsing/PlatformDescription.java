@@ -5,6 +5,10 @@ import org.to2mbn.jmccc.util.Platform;
 
 public class PlatformDescription {
 
+	public static PlatformDescription current() {
+		return new PlatformDescription(Platform.CURRENT, System.getProperty("os.version"), Platform.isX64() ? "64" : "32");
+	}
+
 	private Platform platform;
 	private String version;
 	private String arch;

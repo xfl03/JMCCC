@@ -5,8 +5,14 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.Stack;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
+import org.to2mbn.jmccc.util.IOUtils;
+import org.to2mbn.jmccc.version.parsing.PlatformDescription;
+import org.to2mbn.jmccc.version.parsing.VersionParser;
+import org.to2mbn.jmccc.version.parsing.VersionParserImpl;
 
 /**
  * A tool class for resolving versions.
@@ -15,7 +21,7 @@ import org.to2mbn.jmccc.option.MinecraftDirectory;
  */
 public final class Versions {
 
-	private static final VersionParser PARSER = new VersionParser();
+	private static final VersionParser PARSER = new VersionParserImpl();
 
 	/**
 	 * Resolves the version.
@@ -33,7 +39,7 @@ public final class Versions {
 
 		if (doesVersionExist(minecraftDir, version)) {
 			try {
-				return PARSER.parseVersion(minecraftDir, version);
+				return PARSER.parseVersion(resolveVersionHierarchy(version, minecraftDir), PlatformDescription.current());
 			} catch (JSONException e) {
 				throw new IOException("Couldn't parse version json: " + version, e);
 			}
@@ -101,7 +107,7 @@ public final class Versions {
 		}
 
 		try {
-			return PARSER.parseAssets(minecraftDir, assets);
+			return PARSER.parseAssetIndex(IOUtils.toJson(minecraftDir.getAssetIndex(assets)));
 		} catch (JSONException e) {
 			throw new IOException("Couldn't parse asset index: " + assets, e);
 		}
@@ -109,6 +115,16 @@ public final class Versions {
 
 	private static boolean doesVersionExist(MinecraftDirectory minecraftDir, String version) {
 		return minecraftDir.getVersionJson(version).isFile();
+	}
+
+	private static Stack<JSONObject> resolveVersionHierarchy(String version, MinecraftDirectory mcdir) throws IOException, JSONException {
+		Stack<JSONObject> result = new Stack<>();
+		do {
+			JSONObject json = IOUtils.toJson(mcdir.getVersionJson(version));
+			result.push(json);
+			version = json.optString("inheritsFrom", null);
+		} while (version != null);
+		return result;
 	}
 
 	private Versions() {
