@@ -31,12 +31,13 @@ import org.to2mbn.jmccc.version.Versions;
 
 public class ForgeDownloadProvider extends AbstractMinecraftDownloadProvider implements ExtendedDownloadProvider {
 
-	public static final String FORGE_GROUP_ID = "net.minecraftforge";
-	public static final String FORGE_ARTIFACT_ID = "forge";
-	public static final String FORGE_OLD_ARTIFACT_ID = "minecraftforge";
-	public static final String M2_TYPE_INSTALLER = "installer";
-	public static final String M2_TYPE_UNIVERSAL = "universal";
-	public static final String MINECRAFT_MAINCLASS = "net.minecraft.client.Minecraft";
+	private static final String FORGE_GROUP_ID = "net.minecraftforge";
+	private static final String FORGE_ARTIFACT_ID = "forge";
+	private static final String FORGE_OLD_ARTIFACT_ID = "minecraftforge";
+	private static final String CLASSIFIER_INSTALLER = "installer";
+	private static final String CLASSIFIER_UNIVERSAL = "universal";
+	private static final String MINECRAFT_MAINCLASS = "net.minecraft.client.Minecraft";
+	private static final String[] UNIVERSAL_TYPES = new String[] { "jar", "zip" };
 
 	private ForgeDownloadSource source;
 
@@ -51,7 +52,7 @@ public class ForgeDownloadProvider extends AbstractMinecraftDownloadProvider imp
 	}
 
 	public CombinedDownloadTask<ForgeVersionList> forgeVersionList() {
-		return CombinedDownloadTask.single(new MemoryDownloadTask(source.forgeVersionList())
+		return CombinedDownloadTask.single(new MemoryDownloadTask(source.getForgeVersionListUrl())
 				.andThen(new ToJsonResultProcessor()).andThen(new ResultProcessor<JSONObject, ForgeVersionList>() {
 
 					@Override
@@ -178,20 +179,20 @@ public class ForgeDownloadProvider extends AbstractMinecraftDownloadProvider imp
 	}
 
 	protected CombinedDownloadTask<byte[]> installerTask(String m2Version) {
-		Library lib = new Library(FORGE_GROUP_ID, FORGE_ARTIFACT_ID, m2Version, M2_TYPE_INSTALLER, "jar");
-		return CombinedDownloadTask.single(new MemoryDownloadTask(source.forgeMavenRepo() + lib.getPath()));
+		Library lib = new Library(FORGE_GROUP_ID, FORGE_ARTIFACT_ID, m2Version, CLASSIFIER_INSTALLER, "jar");
+		return CombinedDownloadTask.single(new MemoryDownloadTask(source.getForgeMavenRepositoryUrl() + lib.getPath()));
 	}
 
 	protected CombinedDownloadTask<Void> universalTask(String m2Version, File target) {
-		String[] types = new String[] { "jar", "zip" };
+		String[] types = UNIVERSAL_TYPES;
 
 		@SuppressWarnings("unchecked")
 		CombinedDownloadTask<Void>[] tasks = new CombinedDownloadTask[types.length + 1];
 		tasks[0] = installerTask(m2Version).andThen(new UniversalDecompressor(target, m2Version));
 
 		for (int i = 0; i < types.length; i++) {
-			Library lib = new Library(FORGE_GROUP_ID, FORGE_ARTIFACT_ID, m2Version, "universal", types[i]);
-			tasks[i + 1] = CombinedDownloadTask.single(new FileDownloadTask(source.forgeMavenRepo() + lib.getPath(), target));
+			Library lib = new Library(FORGE_GROUP_ID, FORGE_ARTIFACT_ID, m2Version, CLASSIFIER_UNIVERSAL, types[i]);
+			tasks[i + 1] = CombinedDownloadTask.single(new FileDownloadTask(source.getForgeMavenRepositoryUrl() + lib.getPath(), target));
 		}
 
 		return CombinedDownloadTask.any(tasks);
