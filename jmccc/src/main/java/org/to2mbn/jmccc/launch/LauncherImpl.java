@@ -29,25 +29,12 @@ import org.to2mbn.jmccc.version.Native;
 import org.to2mbn.jmccc.version.Version;
 import org.to2mbn.jmccc.version.Versions;
 
-public class Jmccc implements Launcher {
+public class LauncherImpl implements Launcher {
 
 	private boolean nativeFastCheck = false;
-	private boolean debugPrintCommandline = false;
+	private boolean printDebugCommandline = false;
 
-	/**
-	 * Gets a new launcher instance.
-	 * 
-	 * @return the launcher
-	 * @see LauncherBuilder
-	 * @deprecated Please use {@link LauncherBuilder} to create launchers. This
-	 *             method may be removed in the future.
-	 */
-	@Deprecated
-	public static Launcher getLauncher() {
-		return new Jmccc();
-	}
-
-	protected Jmccc() {
+	public LauncherImpl() {
 	}
 
 	@Override
@@ -65,7 +52,7 @@ public class Jmccc implements Launcher {
 	 * 
 	 * @return true if jmccc was set to do a fast check on natives
 	 * @see #setNativeFastCheck(boolean)
-	 * @see LauncherBuilder#setNativeFastCheck(boolean)
+	 * @see LauncherBuilder#nativeFastCheck(boolean)
 	 */
 	public boolean isNativeFastCheck() {
 		return nativeFastCheck;
@@ -76,7 +63,7 @@ public class Jmccc implements Launcher {
 	 * 
 	 * @param nativeFastCheck true if the jmccc shall do a fast check on natives
 	 * @see #isNativeFastCheck()
-	 * @see LauncherBuilder#setNativeFastCheck(boolean)
+	 * @see LauncherBuilder#nativeFastCheck(boolean)
 	 */
 	public void setNativeFastCheck(boolean nativeFastCheck) {
 		this.nativeFastCheck = nativeFastCheck;
@@ -88,21 +75,22 @@ public class Jmccc implements Launcher {
 	 * @return whether to print the launch commandline for debugging
 	 */
 	public boolean isDebugPrintCommandline() {
-		return debugPrintCommandline;
+		return printDebugCommandline;
 	}
 
 	/**
 	 * Sets whether to print the launch commandline for debugging.
 	 * 
-	 * @param debugPrintCommandline whether to print the launch commandline for debugging.
+	 * @param printDebugCommandline whether to print the launch commandline for
+	 *            debugging.
 	 */
-	public void setDebugPrintCommandline(boolean debugPrintCommandline) {
-		this.debugPrintCommandline = debugPrintCommandline;
+	public void setPrintDebugCommandline(boolean printDebugCommandline) {
+		this.printDebugCommandline = printDebugCommandline;
 	}
 
 	private LaunchResult launch(LaunchArgument arg, GameProcessListener listener) throws LaunchException {
 		String[] commandline = arg.generateCommandline();
-		if (debugPrintCommandline) {
+		if (printDebugCommandline) {
 			printDebugCommandline(commandline);
 		}
 
