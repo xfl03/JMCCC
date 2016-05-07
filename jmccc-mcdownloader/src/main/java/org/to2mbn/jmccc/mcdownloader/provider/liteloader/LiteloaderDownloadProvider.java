@@ -14,7 +14,7 @@ import org.to2mbn.jmccc.mcdownloader.provider.AbstractMinecraftDownloadProvider;
 import org.to2mbn.jmccc.mcdownloader.provider.ExtendedDownloadProvider;
 import org.to2mbn.jmccc.mcdownloader.provider.M2RepositorySupport;
 import org.to2mbn.jmccc.mcdownloader.provider.MinecraftDownloadProvider;
-import org.to2mbn.jmccc.mcdownloader.provider.ToJsonResultProcessor;
+import org.to2mbn.jmccc.mcdownloader.provider.JsonResultProcessor;
 import org.to2mbn.jmccc.mcdownloader.provider.VersionJsonWriteProcessor;
 import org.to2mbn.jmccc.mcdownloader.util.VersionComparator;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
@@ -50,7 +50,7 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 
 	public CombinedDownloadTask<LiteloaderVersionList> liteloaderVersionList() {
 		return CombinedDownloadTask.single(new MemoryDownloadTask(source.getLiteloaderManifestUrl())
-				.andThen(new ToJsonResultProcessor())
+				.andThen(new JsonResultProcessor())
 				.andThen(new ResultProcessor<JSONObject, LiteloaderVersionList>() {
 
 					@Override

@@ -55,7 +55,7 @@ abstract public class URIDownloadProvider implements MinecraftDownloadProvider {
 		if (uri == null) {
 			return null;
 		}
-		return CombinedDownloadTask.single(new MemoryDownloadTask(uri).andThen(new ToJsonResultProcessor()).andThen(new ResultProcessor<JSONObject, RemoteVersionList>() {
+		return CombinedDownloadTask.single(new MemoryDownloadTask(uri).andThen(new JsonResultProcessor()).andThen(new ResultProcessor<JSONObject, RemoteVersionList>() {
 
 			@Override
 			public RemoteVersionList process(JSONObject json) throws Exception {

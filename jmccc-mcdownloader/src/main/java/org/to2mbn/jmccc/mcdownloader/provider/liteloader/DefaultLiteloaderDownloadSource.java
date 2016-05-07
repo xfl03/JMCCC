@@ -4,7 +4,7 @@ import org.json.JSONObject;
 import org.to2mbn.jmccc.mcdownloader.download.MemoryDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.ResultProcessor;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
-import org.to2mbn.jmccc.mcdownloader.provider.ToJsonResultProcessor;
+import org.to2mbn.jmccc.mcdownloader.provider.JsonResultProcessor;
 
 public class DefaultLiteloaderDownloadSource implements LiteloaderDownloadSource {
 
@@ -17,7 +17,7 @@ public class DefaultLiteloaderDownloadSource implements LiteloaderDownloadSource
 	public CombinedDownloadTask<JSONObject> liteloaderSnapshotVersionJson(LiteloaderVersion liteloader) {
 		return CombinedDownloadTask.single(
 				new MemoryDownloadTask("https://raw.githubusercontent.com/Mumfrey/LiteLoaderInstaller/" + liteloader.getMinecraftVersion() + "/src/main/resources/install_profile.json")
-						.andThen(new ToJsonResultProcessor())
+						.andThen(new JsonResultProcessor())
 						.andThen(new ResultProcessor<JSONObject, JSONObject>() {
 
 							@Override

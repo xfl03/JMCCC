@@ -4,7 +4,7 @@ import org.json.JSONObject;
 import org.to2mbn.jmccc.mcdownloader.download.ResultProcessor;
 import org.to2mbn.jmccc.util.IOUtils;
 
-public class ToJsonResultProcessor implements ResultProcessor<byte[], JSONObject> {
+public class JsonResultProcessor implements ResultProcessor<byte[], JSONObject> {
 
 	@Override
 	public JSONObject process(byte[] data) throws Exception {
