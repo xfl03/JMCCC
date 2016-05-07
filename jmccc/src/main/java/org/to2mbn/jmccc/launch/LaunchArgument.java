@@ -33,12 +33,7 @@ class LaunchArgument {
 		Version version = launchOption.getVersion();
 
 		// java path
-		args.add(launchOption.getJavaOption().getJavaPath().getAbsolutePath());
-
-		// cgc
-		if (launchOption.getJavaOption().isInCGC()) {
-			args.add("-Xincgc");
-		}
+		args.add(launchOption.getJavaEnvironment().getJavaPath().getAbsolutePath());
 
 		// min memory
 		if (launchOption.getMinMemory() != 0) {

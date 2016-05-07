@@ -54,9 +54,9 @@ public class LaunchOption implements Serializable {
 	private WindowSize windowSize;
 
 	/**
-	 * The java environment option
+	 * The java environment
 	 */
-	private JavaOption javaOption;
+	private JavaEnvironment javaEnvironment;
 
 	/**
 	 * The minecraft directory
@@ -101,7 +101,7 @@ public class LaunchOption implements Serializable {
 	 * @throws NullPointerException if any of the arguments is null
 	 */
 	public LaunchOption(String version, Authenticator authenticator, MinecraftDirectory minecraftDir) throws IOException {
-		this(requireVersion(minecraftDir, version), authenticator, minecraftDir, new JavaOption());
+		this(requireVersion(minecraftDir, version), authenticator, minecraftDir);
 	}
 
 	private static Version requireVersion(MinecraftDirectory mcdir, String version) throws IOException {
@@ -121,28 +121,13 @@ public class LaunchOption implements Serializable {
 	 * @throws NullPointerException if any of the arguments is null
 	 */
 	public LaunchOption(Version version, Authenticator authenticator, MinecraftDirectory minecraftDir) {
-		this(version, authenticator, minecraftDir, new JavaOption());
-	}
-
-	/**
-	 * Creates a LaunchOption.
-	 * 
-	 * @param version the version to launch
-	 * @param authenticator the authenticator
-	 * @param minecraftDir the minecraft directory
-	 * @param javaOption the java environment
-	 * @throws NullPointerException if any of the arguments is null
-	 */
-	public LaunchOption(Version version, Authenticator authenticator, MinecraftDirectory minecraftDir, JavaOption javaOption) {
 		Objects.requireNonNull(version);
 		Objects.requireNonNull(authenticator);
-		Objects.requireNonNull(javaOption);
 		Objects.requireNonNull(minecraftDir);
 
 		this.version = version;
 		this.authenticator = authenticator;
 		this.minecraftDirectory = minecraftDir;
-		this.javaOption = javaOption;
 		this.runtimeDirectory = minecraftDir;
 	}
 
@@ -174,12 +159,12 @@ public class LaunchOption implements Serializable {
 	}
 
 	/**
-	 * Gets the JavaOption.
+	 * Gets the JavaEnvironment.
 	 * 
-	 * @return the JavaOption
+	 * @return the JavaEnvironment
 	 */
-	public JavaOption getJavaOption() {
-		return javaOption;
+	public JavaEnvironment getJavaEnvironment() {
+		return javaEnvironment;
 	}
 
 	/**
@@ -404,7 +389,7 @@ public class LaunchOption implements Serializable {
 
 	@Override
 	public String toString() {
-		return String.format("LaunchOption [maxMemory=%s, minMemory=%s, version=%s, authenticator=%s, serverInfo=%s, windowSize=%s, javaOption=%s, minecraftDirectory=%s, runtimeDirectory=%s, extraJvmArguments=%s, extraMinecraftArguments=%s, commandlineVariables=%s, extraClasspath=%s]", maxMemory, minMemory, version, authenticator, serverInfo, windowSize, javaOption, minecraftDirectory, runtimeDirectory, extraJvmArguments, extraMinecraftArguments, commandlineVariables, extraClasspath);
+		return "LaunchOption [maxMemory=" + maxMemory + ", minMemory=" + minMemory + ", version=" + version + ", authenticator=" + authenticator + ", serverInfo=" + serverInfo + ", windowSize=" + windowSize + ", javaEnvironment=" + javaEnvironment + ", minecraftDirectory=" + minecraftDirectory + ", runtimeDirectory=" + runtimeDirectory + ", extraJvmArguments=" + extraJvmArguments + ", extraMinecraftArguments=" + extraMinecraftArguments + ", commandlineVariables=" + commandlineVariables + ", extraClasspath=" + extraClasspath + "]";
 	}
 
 	@Override
@@ -416,11 +401,11 @@ public class LaunchOption implements Serializable {
 			LaunchOption another = (LaunchOption) obj;
 			return maxMemory == another.maxMemory &&
 					minMemory == another.minMemory &&
-					version.equals(another.version) &&
-					authenticator.equals(another.authenticator) &&
-					minecraftDirectory.equals(another.minecraftDirectory) &&
-					runtimeDirectory.equals(another.runtimeDirectory) &&
-					javaOption.equals(another.javaOption) &&
+					Objects.equals(version, another.version) &&
+					Objects.equals(authenticator, another.authenticator) &&
+					Objects.equals(minecraftDirectory, another.minecraftDirectory) &&
+					Objects.equals(runtimeDirectory, another.runtimeDirectory) &&
+					Objects.equals(javaEnvironment, another.javaEnvironment) &&
 					Objects.equals(serverInfo, another.serverInfo) &&
 					Objects.equals(windowSize, another.windowSize) &&
 					Objects.equals(extraJvmArguments, another.extraJvmArguments) &&
@@ -433,7 +418,7 @@ public class LaunchOption implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(maxMemory, minMemory, version, authenticator, minecraftDirectory, runtimeDirectory, javaOption, serverInfo, windowSize, extraJvmArguments, extraMinecraftArguments, commandlineVariables, extraClasspath);
+		return Objects.hash(maxMemory, minMemory, version, authenticator, minecraftDirectory, runtimeDirectory, javaEnvironment, serverInfo, windowSize, extraJvmArguments, extraMinecraftArguments, commandlineVariables, extraClasspath);
 	}
 
 }
