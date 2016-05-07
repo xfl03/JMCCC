@@ -1,11 +1,13 @@
 package org.to2mbn.jmccc.launch;
 
+import org.to2mbn.jmccc.util.Builder;
+
 /**
  * Builder for {@link Launcher}.
  * 
  * @author yushijinhun
  */
-public class LauncherBuilder {
+public class LauncherBuilder implements Builder<Launcher> {
 
 	/**
 	 * Creates a new <code>LauncherBuilder</code> instance.
@@ -80,6 +82,7 @@ public class LauncherBuilder {
 	 * 
 	 * @return a <code>Launcher</code> instance
 	 */
+	@Override
 	public Launcher build() {
 		Jmccc launcher = new Jmccc();
 		launcher.setNativeFastCheck(nativeFastCheck);

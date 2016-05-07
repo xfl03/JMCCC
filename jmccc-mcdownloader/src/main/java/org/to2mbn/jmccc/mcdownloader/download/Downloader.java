@@ -2,8 +2,9 @@ package org.to2mbn.jmccc.mcdownloader.download;
 
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.Shutdownable;
 
-public interface Downloader {
+public interface Downloader extends Shutdownable {
 
 	/**
 	 * Submits a download task asynchronously.
@@ -20,10 +21,12 @@ public interface Downloader {
 	/**
 	 * Submits a download task asynchronously.
 	 * <p>
-	 * The task will be retried only when an <code>IOException</code> occurs.<br>
-	 * <code>tries</code> is the max number of tries. For example: If <code>tries==1</code>, the download won't be
-	 * retried
-	 * (try 1 time, retry 0 time); If <code>tries==5</code>, the download will be retried at most 4 times.
+	 * The task will be retried only when an <code>IOException</code> occurs.
+	 * <br>
+	 * <code>tries</code> is the max number of tries. For example: If
+	 * <code>tries==1</code>, the download won't be retried (try 1 time, retry 0
+	 * time); If <code>tries==5</code>, the download will be retried at most 4
+	 * times.
 	 * 
 	 * @param task the download task
 	 * @param callback download callback

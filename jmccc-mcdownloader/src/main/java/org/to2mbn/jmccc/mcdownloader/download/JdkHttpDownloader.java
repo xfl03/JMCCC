@@ -26,7 +26,7 @@ import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackFutureTask;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callbacks;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.EmptyCallback;
 
-public class JdkHttpDownloader implements DownloaderService {
+public class JdkHttpDownloader implements Downloader {
 
 	private static final int BUFFER_SIZE = 8192;
 
@@ -169,13 +169,13 @@ public class JdkHttpDownloader implements DownloaderService {
 	private final ReadWriteLock rwlock = new ReentrantReadWriteLock();
 	private final Set<Future<?>> tasks = Collections.newSetFromMap(new ConcurrentHashMap<Future<?>, Boolean>());
 
-	public JdkHttpDownloader(int maxConns, int connectTimeout, int readTimeout, long poolThreadLivingTime, Proxy proxy) {
+	public JdkHttpDownloader(int maxConns, int connectTimeout, int readTimeout, long poolThreadLivingTime, TimeUnit poolThreadLivingTimeUnit, Proxy proxy) {
 		Objects.requireNonNull(proxy);
 
 		this.connectTimeout = connectTimeout;
 		this.readTimeout = readTimeout;
 		this.proxy = proxy;
-		executor = new ThreadPoolExecutor(maxConns, maxConns, poolThreadLivingTime, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
+		executor = new ThreadPoolExecutor(0, maxConns, poolThreadLivingTime, poolThreadLivingTimeUnit, new LinkedBlockingQueue<Runnable>());
 	}
 
 	@Override

@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.locks.Lock;
@@ -20,7 +20,6 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
-import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.nio.client.methods.AsyncByteConsumer;
 import org.apache.http.nio.client.methods.HttpAsyncMethods;
@@ -31,7 +30,7 @@ import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackAsyncFutureTask
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callbacks;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.EmptyCallback;
 
-public class HttpAsyncDownloader implements DownloaderService {
+public class HttpAsyncDownloader implements Downloader {
 
 	private static final Log LOGGER = LogFactory.getLog(HttpAsyncDownloader.class);
 
@@ -311,16 +310,16 @@ public class HttpAsyncDownloader implements DownloaderService {
 	}
 
 	private CloseableHttpAsyncClient httpClient;
-	private Executor bootstrapPool;
+	private ExecutorService bootstrapPool;
 
 	private volatile int status = RUNNING;
 	private final ReadWriteLock rwlock = new ReentrantReadWriteLock();
 	private final Set<Future<?>> tasks = Collections.newSetFromMap(new ConcurrentHashMap<Future<?>, Boolean>());
 
-	public HttpAsyncDownloader(HttpAsyncClientBuilder builder, Executor bootstrapPool) {
-		Objects.requireNonNull(builder);
+	public HttpAsyncDownloader(CloseableHttpAsyncClient client, ExecutorService bootstrapPool) {
+		Objects.requireNonNull(client);
 		Objects.requireNonNull(bootstrapPool);
-		this.httpClient = builder.build();
+		this.httpClient = client;
 		this.bootstrapPool = bootstrapPool;
 
 		httpClient.start();
@@ -406,6 +405,8 @@ public class HttpAsyncDownloader implements DownloaderService {
 		} finally {
 			lock.unlock();
 		}
+
+		bootstrapPool.shutdownNow();
 
 		if (isTasksEmpty) {
 			completeShutdown();

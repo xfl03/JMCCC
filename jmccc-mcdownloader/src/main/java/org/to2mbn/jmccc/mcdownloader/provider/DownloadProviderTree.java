@@ -1,19 +1,19 @@
-package org.to2mbn.jmccc.mcdownloader;
+package org.to2mbn.jmccc.mcdownloader.provider;
 
 import java.util.Set;
+import org.to2mbn.jmccc.mcdownloader.RemoteVersionList;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
-import org.to2mbn.jmccc.mcdownloader.provider.MinecraftDownloadProvider;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.version.Asset;
 import org.to2mbn.jmccc.version.Library;
 import org.to2mbn.jmccc.version.Version;
 
-class AppendedDownloadProvider implements MinecraftDownloadProvider {
+public class DownloadProviderTree implements MinecraftDownloadProvider {
 
 	private MinecraftDownloadProvider left;
 	private MinecraftDownloadProvider right;
 
-	public AppendedDownloadProvider(MinecraftDownloadProvider left, MinecraftDownloadProvider right) {
+	public DownloadProviderTree(MinecraftDownloadProvider left, MinecraftDownloadProvider right) {
 		this.left = left;
 		this.right = right;
 	}

@@ -9,10 +9,9 @@ import java.util.Objects;
 import java.util.concurrent.Future;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
-import org.ehcache.config.builders.CacheManagerBuilder;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.CompletedFuture;
 
-public class CachedDownloader implements DownloaderService {
+public class CachedDownloader implements Downloader {
 
 	public static final String DEFAULT_CACHE_NAME = CachedDownloader.class.getCanonicalName();
 
@@ -116,21 +115,21 @@ public class CachedDownloader implements DownloaderService {
 
 	}
 
-	private final DownloaderService upstream;
+	private final Downloader upstream;
 	private final Cache<URI, byte[]> cache;
 	private final CacheManager cacheManager;
 
-	public CachedDownloader(DownloaderService upstream, CacheManagerBuilder<CacheManager> cacheBuilder) {
-		this(upstream, cacheBuilder, DEFAULT_CACHE_NAME);
+	public CachedDownloader(Downloader upstream, CacheManager cacheManager) {
+		this(upstream, cacheManager, DEFAULT_CACHE_NAME);
 	}
 
-	public CachedDownloader(DownloaderService upstream, CacheManagerBuilder<CacheManager> cacheBuilder, String cacheName) {
+	public CachedDownloader(Downloader upstream, CacheManager cacheManager, String cacheName) {
 		Objects.requireNonNull(upstream);
-		Objects.requireNonNull(cacheBuilder);
+		Objects.requireNonNull(cacheManager);
 		Objects.requireNonNull(cacheName);
 		this.upstream = upstream;
 
-		cacheManager = cacheBuilder.build(true);
+		this.cacheManager = cacheManager;
 		cache = cacheManager.getCache(cacheName, URI.class, byte[].class);
 		if (cache == null) {
 			throw new IllegalArgumentException(String.format("No such cache [%s]", cacheName));

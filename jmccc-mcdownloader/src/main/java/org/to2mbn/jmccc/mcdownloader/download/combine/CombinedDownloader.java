@@ -2,9 +2,9 @@ package org.to2mbn.jmccc.mcdownloader.download.combine;
 
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
-import org.to2mbn.jmccc.mcdownloader.download.concurrent.Shutdownable;
+import org.to2mbn.jmccc.mcdownloader.download.Downloader;
 
-public interface CombinedDownloader extends Shutdownable {
+public interface CombinedDownloader extends Downloader {
 
 	/**
 	 * Submits a combined download task asynchronously.
