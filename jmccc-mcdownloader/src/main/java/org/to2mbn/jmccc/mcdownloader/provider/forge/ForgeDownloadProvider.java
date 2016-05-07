@@ -36,6 +36,7 @@ public class ForgeDownloadProvider extends AbstractMinecraftDownloadProvider imp
 	public static final String FORGE_OLD_ARTIFACT_ID = "minecraftforge";
 	public static final String M2_TYPE_INSTALLER = "installer";
 	public static final String M2_TYPE_UNIVERSAL = "universal";
+	public static final String MINECRAFT_MAINCLASS = "net.minecraft.client.Minecraft";
 
 	private ForgeDownloadSource source;
 
@@ -129,6 +130,8 @@ public class ForgeDownloadProvider extends AbstractMinecraftDownloadProvider imp
 					}
 				});
 
+		final File targetJar = mcdir.getVersionJar(version);
+
 		if (mergeJar) {
 			// downloads the universal
 			// copy its superversion's jar
@@ -151,38 +154,7 @@ public class ForgeDownloadProvider extends AbstractMinecraftDownloadProvider imp
 
 				@Override
 				public Void process(final Version superVersion) throws Exception {
-					File target = mcdir.getVersionJar(version);
-					FileUtils.prepareWrite(target);
-					try (ZipInputStream in = new ZipInputStream(new FileInputStream(mcdir.getVersionJar(superVersion)));
-							ZipInputStream universalIn = new ZipInputStream(new FileInputStream(universalFile));
-							ZipOutputStream out = new ZipOutputStream(new FileOutputStream(target));) {
-						ZipEntry entry;
-						byte[] buf = new byte[8192];
-						int read;
-
-						Set<String> universalEntries = new HashSet<>();
-
-						while ((entry = universalIn.getNextEntry()) != null) {
-							universalEntries.add(entry.getName());
-							out.putNextEntry(entry);
-							while ((read = universalIn.read(buf)) != -1) {
-								out.write(buf, 0, read);
-							}
-							out.closeEntry();
-							universalIn.closeEntry();
-						}
-
-						while ((entry = in.getNextEntry()) != null) {
-							if (!entry.getName().startsWith("META-INF/") && !universalEntries.contains(entry.getName())) {
-								out.putNextEntry(entry);
-								while ((read = in.read(buf)) != -1) {
-									out.write(buf, 0, read);
-								}
-								out.closeEntry();
-							}
-							in.closeEntry();
-						}
-					}
+					mergeJar(mcdir.getVersionJar(superVersion), universalFile, targetJar);
 					return null;
 				}
 			});
@@ -193,24 +165,7 @@ public class ForgeDownloadProvider extends AbstractMinecraftDownloadProvider imp
 
 				@Override
 				public Void process(final Version superVersion) throws Exception {
-					File target = mcdir.getVersionJar(version);
-					FileUtils.prepareWrite(target);
-					try (ZipInputStream in = new ZipInputStream(new FileInputStream(mcdir.getVersionJar(superVersion)));
-							ZipOutputStream out = new ZipOutputStream(new FileOutputStream(target));) {
-						ZipEntry entry;
-						byte[] buf = new byte[8192];
-						int read;
-						while ((entry = in.getNextEntry()) != null) {
-							if (!entry.getName().startsWith("META-INF/")) {
-								out.putNextEntry(entry);
-								while ((read = in.read(buf)) != -1) {
-									out.write(buf, 0, read);
-								}
-								out.closeEntry();
-							}
-							in.closeEntry();
-						}
-					}
+					purgeMetaInf(mcdir.getVersionJar(superVersion), targetJar);
 					return null;
 				}
 			});
@@ -220,6 +175,91 @@ public class ForgeDownloadProvider extends AbstractMinecraftDownloadProvider imp
 	@Override
 	public void setUpstreamProvider(MinecraftDownloadProvider upstreamProvider) {
 		this.upstreamProvider = upstreamProvider;
+	}
+
+	protected CombinedDownloadTask<byte[]> installerTask(String m2Version) {
+		Library lib = new Library(FORGE_GROUP_ID, FORGE_ARTIFACT_ID, m2Version, M2_TYPE_INSTALLER, "jar");
+		return CombinedDownloadTask.single(new MemoryDownloadTask(source.forgeMavenRepo() + lib.getPath()));
+	}
+
+	protected CombinedDownloadTask<Void> universalTask(String m2Version, File target) {
+		String[] types = new String[] { "jar", "zip" };
+
+		@SuppressWarnings("unchecked")
+		CombinedDownloadTask<Void>[] tasks = new CombinedDownloadTask[types.length + 1];
+		tasks[0] = installerTask(m2Version).andThen(new UniversalDecompressor(target, m2Version));
+
+		for (int i = 0; i < types.length; i++) {
+			Library lib = new Library(FORGE_GROUP_ID, FORGE_ARTIFACT_ID, m2Version, "universal", types[i]);
+			tasks[i + 1] = CombinedDownloadTask.single(new FileDownloadTask(source.forgeMavenRepo() + lib.getPath(), target));
+		}
+
+		return CombinedDownloadTask.any(tasks);
+	}
+
+	protected JSONObject createForgeVersionJson(MinecraftDirectory mcdir, ForgeVersion forgeVersion) throws IOException, JSONException {
+		JSONObject versionjson = IOUtils.toJson(mcdir.getVersionJson(forgeVersion.getMinecraftVersion()));
+
+		versionjson.remove("downloads");
+		versionjson.remove("assets");
+		versionjson.remove("assetIndex");
+		versionjson.put("id", forgeVersion.getVersionName());
+		versionjson.put("mainClass", MINECRAFT_MAINCLASS);
+		return versionjson;
+	}
+
+	protected void mergeJar(File parent, File universal, File target) throws IOException {
+		FileUtils.prepareWrite(target);
+		try (ZipInputStream in = new ZipInputStream(new FileInputStream(parent));
+				ZipInputStream universalIn = new ZipInputStream(new FileInputStream(universal));
+				ZipOutputStream out = new ZipOutputStream(new FileOutputStream(target));) {
+			ZipEntry entry;
+			byte[] buf = new byte[8192];
+			int read;
+
+			Set<String> universalEntries = new HashSet<>();
+
+			while ((entry = universalIn.getNextEntry()) != null) {
+				universalEntries.add(entry.getName());
+				out.putNextEntry(entry);
+				while ((read = universalIn.read(buf)) != -1) {
+					out.write(buf, 0, read);
+				}
+				out.closeEntry();
+				universalIn.closeEntry();
+			}
+
+			while ((entry = in.getNextEntry()) != null) {
+				if (!isMetaInfEntry(entry) && !universalEntries.contains(entry.getName())) {
+					out.putNextEntry(entry);
+					while ((read = in.read(buf)) != -1) {
+						out.write(buf, 0, read);
+					}
+					out.closeEntry();
+				}
+				in.closeEntry();
+			}
+		}
+	}
+
+	protected void purgeMetaInf(File src, File target) throws IOException {
+		FileUtils.prepareWrite(target);
+		try (ZipInputStream in = new ZipInputStream(new FileInputStream(src));
+				ZipOutputStream out = new ZipOutputStream(new FileOutputStream(target));) {
+			ZipEntry entry;
+			byte[] buf = new byte[8192];
+			int read;
+			while ((entry = in.getNextEntry()) != null) {
+				if (!isMetaInfEntry(entry)) {
+					out.putNextEntry(entry);
+					while ((read = in.read(buf)) != -1) {
+						out.write(buf, 0, read);
+					}
+					out.closeEntry();
+				}
+				in.closeEntry();
+			}
+		}
 	}
 
 	private CombinedDownloadTask<ForgeVersion> forgeVersion(final String forgeVersion) {
@@ -236,36 +276,8 @@ public class ForgeDownloadProvider extends AbstractMinecraftDownloadProvider imp
 		});
 	}
 
-	private CombinedDownloadTask<byte[]> installerTask(String m2Version) {
-		Library lib = new Library(FORGE_GROUP_ID, FORGE_ARTIFACT_ID, m2Version, M2_TYPE_INSTALLER, "jar");
-		return CombinedDownloadTask.single(new MemoryDownloadTask(source.forgeMavenRepo() + lib.getPath()));
-	}
-
-	private CombinedDownloadTask<Void> universalTask(String m2Version, File target) {
-		String[] types = new String[] { "jar", "zip" };
-
-		@SuppressWarnings("unchecked")
-		CombinedDownloadTask<Void>[] tasks = new CombinedDownloadTask[types.length + 1];
-		tasks[0] = installerTask(m2Version).andThen(new UniversalDecompressor(target, m2Version));
-
-		for (int i = 0; i < types.length; i++) {
-			Library lib = new Library(FORGE_GROUP_ID, FORGE_ARTIFACT_ID, m2Version, "universal", types[i]);
-			tasks[i + 1] = CombinedDownloadTask.single(new FileDownloadTask(source.forgeMavenRepo() + lib.getPath(), target));
-		}
-
-		return CombinedDownloadTask.any(tasks);
-	}
-
-	private JSONObject createForgeVersionJson(MinecraftDirectory mcdir, ForgeVersion forgeVersion) throws IOException, JSONException {
-		String versionId = forgeVersion.getVersionName();
-		JSONObject versionjson = IOUtils.toJson(mcdir.getVersionJson(forgeVersion.getMinecraftVersion()));
-
-		versionjson.remove("downloads");
-		versionjson.remove("assets");
-		versionjson.remove("assetIndex");
-		versionjson.put("id", versionId);
-		versionjson.put("mainClass", "net.minecraft.client.Minecraft");
-		return versionjson;
+	private boolean isMetaInfEntry(ZipEntry entry) {
+		return entry.getName().startsWith("META-INF/");
 	}
 
 }
