@@ -2,7 +2,7 @@ package org.to2mbn.jmccc.mcdownloader.provider.liteloader;
 
 import java.io.Serializable;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -10,6 +10,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import static org.to2mbn.jmccc.mcdownloader.provider.liteloader.LiteloaderDownloadProvider.LAUNCH_WRAPPER_GROUP_ID;
+import static org.to2mbn.jmccc.mcdownloader.provider.liteloader.LiteloaderDownloadProvider.LAUNCH_WRAPPER_ARTIFACT_ID;
 
 public class LiteloaderVersionList implements Serializable {
 
@@ -30,7 +32,7 @@ public class LiteloaderVersionList implements Serializable {
 
 			JSONObject artefactsJson = versionRootJson.optJSONObject("artefacts");
 			if (artefactsJson != null) {
-				JSONObject liteloaderArtefactsJson = artefactsJson.getJSONObject("com.mumfrey:liteloader");
+				JSONObject liteloaderArtefactsJson = artefactsJson.getJSONObject(LAUNCH_WRAPPER_GROUP_ID + ":" + LAUNCH_WRAPPER_ARTIFACT_ID);
 				for (String artefactId : liteloaderArtefactsJson.keySet()) {
 					JSONObject artefactJson = liteloaderArtefactsJson.getJSONObject(artefactId);
 					String liteloaderVersion = artefactJson.getString("version");
@@ -56,7 +58,7 @@ public class LiteloaderVersionList implements Serializable {
 	private static Set<JSONObject> parseLibraries(JSONArray librariesJson) {
 		Set<JSONObject> libraries = null;
 		if (librariesJson != null) {
-			libraries = new HashSet<>();
+			libraries = new LinkedHashSet<>();
 			for (int i = 0; i < librariesJson.length(); i++)
 				libraries.add(librariesJson.getJSONObject(i));
 		}

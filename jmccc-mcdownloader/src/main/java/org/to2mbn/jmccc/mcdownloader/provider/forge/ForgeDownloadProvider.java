@@ -31,12 +31,13 @@ import org.to2mbn.jmccc.version.Versions;
 
 public class ForgeDownloadProvider extends AbstractMinecraftDownloadProvider implements ExtendedDownloadProvider {
 
-	private static final String FORGE_GROUP_ID = "net.minecraftforge";
-	private static final String FORGE_ARTIFACT_ID = "forge";
-	private static final String FORGE_OLD_ARTIFACT_ID = "minecraftforge";
-	private static final String CLASSIFIER_INSTALLER = "installer";
-	private static final String CLASSIFIER_UNIVERSAL = "universal";
-	private static final String MINECRAFT_MAINCLASS = "net.minecraft.client.Minecraft";
+	public static final String FORGE_GROUP_ID = "net.minecraftforge";
+	public static final String FORGE_ARTIFACT_ID = "forge";
+	public static final String FORGE_OLD_ARTIFACT_ID = "minecraftforge";
+	public static final String CLASSIFIER_INSTALLER = "installer";
+	public static final String CLASSIFIER_UNIVERSAL = "universal";
+	public static final String MINECRAFT_MAINCLASS = "net.minecraft.client.Minecraft";
+
 	private static final String[] UNIVERSAL_TYPES = new String[] { "jar", "zip" };
 
 	private ForgeDownloadSource source;

@@ -23,15 +23,15 @@ import org.to2mbn.jmccc.version.Library;
 
 public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvider implements ExtendedDownloadProvider {
 
-	private static final String LITELOADER_GROUP_ID = "com.mumfrey";
-	private static final String LITELOADER_ARTIFACT_ID = "liteloader";
-	private static final String LITELOADER_TWEAK_CLASS = "com.mumfrey.liteloader.launch.LiteLoaderTweaker";
-	private static final String LITELOADER_REPO_URL = "http://dl.liteloader.com/versions/";
+	public static final String LITELOADER_GROUP_ID = "com.mumfrey";
+	public static final String LITELOADER_ARTIFACT_ID = "liteloader";
+	public static final String LITELOADER_TWEAK_CLASS = "com.mumfrey.liteloader.launch.LiteLoaderTweaker";
+	public static final String LITELOADER_REPO_URL = "http://dl.liteloader.com/versions/";
 
-	private static final String LAUNCH_WRAPPER_GROUP_ID = "net.minecraft";
-	private static final String LAUNCH_WRAPPER_ARTIFACT_ID = "launchwrapper";
-	private static final String LAUNCH_WRAPPER_LOWEST_VERSION = "1.7";
-	private static final String LAUNCH_WRAPPER_MAINCLASS = "net.minecraft.launchwrapper.Launch";
+	public static final String LAUNCH_WRAPPER_GROUP_ID = "net.minecraft";
+	public static final String LAUNCH_WRAPPER_ARTIFACT_ID = "launchwrapper";
+	public static final String LAUNCH_WRAPPER_LOWEST_VERSION = "1.7";
+	public static final String LAUNCH_WRAPPER_MAINCLASS = "net.minecraft.launchwrapper.Launch";
 
 	private LiteloaderDownloadSource source;
 	private boolean upgradeLaunchWrapper = true;
