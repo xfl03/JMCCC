@@ -1,4 +1,4 @@
-[中文版Readme](https://github.com/to2mbn/JMCCC/blob/master/README.zh_CN.md)
+[中文版Readme](README.zh_CN.md)
 
 # JMCCC
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Southern-InfinityStudio/JMCCC?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Build Status](https://travis-ci.org/to2mbn/JMCCC.svg?branch=master)](https://travis-ci.org/to2mbn/JMCCC)<br/>
