@@ -46,11 +46,9 @@ class LaunchArgument {
 		}
 
 		// extra jvm arguments
-		if (launchOption.getExtraJvmArguments() != null) {
-			for (String arg : launchOption.getExtraJvmArguments()) {
-				if (arg != null) {
-					args.add(arg);
-				}
+		for (String arg : launchOption.extraJvmArguments()) {
+			if (arg != null) {
+				args.add(arg);
 			}
 		}
 
@@ -64,7 +62,9 @@ class LaunchArgument {
 
 		// libraries
 		for (File lib : libraries) {
-			cpBuilder.append(lib.getAbsolutePath()).append(Platform.getPathSpearator());
+			if (lib != null) {
+				cpBuilder.append(lib.getAbsolutePath()).append(Platform.getPathSpearator());
+			}
 		}
 
 		args.add(cpBuilder.toString());
@@ -77,11 +77,9 @@ class LaunchArgument {
 		args.addAll(getFormattedMinecraftArguments());
 
 		// extra minecraft arguments
-		if (launchOption.getExtraMinecraftArguments() != null) {
-			for (String arg : launchOption.getExtraMinecraftArguments()) {
-				if (arg != null) {
-					args.add(arg);
-				}
+		for (String arg : launchOption.extraMinecraftArguments()) {
+			if (arg != null) {
+				args.add(arg);
 			}
 		}
 
@@ -118,15 +116,17 @@ class LaunchArgument {
 	private List<String> getFormattedMinecraftArguments() {
 		Map<String, String> variables = new HashMap<>();
 		variables.putAll(defaultVariables);
-		Map<String, String> customizedVariables = launchOption.getCommandlineVariables();
-		if (customizedVariables != null)
-			variables.putAll(customizedVariables);
+		variables.putAll(launchOption.commandlineVariables());
 
 		String templete = launchOption.getVersion().getLaunchArgs();
 		List<String> args = new ArrayList<>();
 		for (String arg : templete.split(" ")) {
 			for (Entry<String, String> var : variables.entrySet()) {
-				arg = arg.replace("${" + var.getKey() + "}", var.getValue());
+				String k = var.getKey();
+				String v = var.getValue();
+				if (k != null && v != null) {
+					arg = arg.replace("${" + k + "}", v);
+				}
 			}
 			args.add(arg);
 		}

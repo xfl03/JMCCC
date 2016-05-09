@@ -3,6 +3,9 @@ package org.to2mbn.jmccc.option;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -69,25 +72,24 @@ public class LaunchOption implements Serializable {
 	private MinecraftDirectory runtimeDirectory;
 
 	/**
-	 * The extra arguments to append to the jvm command line, default to null
+	 * The extra arguments to append to the jvm command line
 	 */
-	private List<String> extraJvmArguments;
+	private List<String> extraJvmArguments = new ArrayList<>();
 
 	/**
-	 * The extra arguments to append to the minecraft command line, default to
-	 * null
+	 * The extra arguments to append to the minecraft command line
 	 */
-	private List<String> extraMinecraftArguments;
+	private List<String> extraMinecraftArguments = new ArrayList<>();
 
 	/**
-	 * Customized minecraft commandline variables, default to null
+	 * Customized minecraft commandline variables
 	 */
-	private Map<String, String> commandlineVariables;
+	private Map<String, String> commandlineVariables = new LinkedHashMap<>();
 
 	/**
-	 * Customized classpath, default to null
+	 * Customized classpath
 	 */
-	private Set<File> extraClasspath;
+	private Set<File> extraClasspath = new LinkedHashSet<>();
 
 	/**
 	 * Resolves the given version and creates a LaunchOption using the default
@@ -261,51 +263,6 @@ public class LaunchOption implements Serializable {
 	}
 
 	/**
-	 * Gets the extra jvm arguments, default to null.
-	 * <p>
-	 * The arguments will be added to the JVM arguments. Null elements are
-	 * allowed, if an element is null, it won't be added to the JVM arguments.
-	 * 
-	 * @return the extra jvm arguments, default to null
-	 */
-	public List<String> getExtraJvmArguments() {
-		return extraJvmArguments;
-	}
-
-	/**
-	 * Sets the extra jvm arguments.
-	 * 
-	 * @param extraJvmArguments the extra jvm arguments to set
-	 * @see #getExtraJvmArguments()
-	 */
-	public void setExtraJvmArguments(List<String> extraJvmArguments) {
-		this.extraJvmArguments = extraJvmArguments;
-	}
-
-	/**
-	 * Gets the extra minecraft arguments, default to null.
-	 * <p>
-	 * The arguments will be added to the minecraft arguments. Null elements are
-	 * allowed, if an element is null, it won't be added to the minecraft
-	 * arguments.
-	 * 
-	 * @return the extra minecraft arguments, default to null.
-	 */
-	public List<String> getExtraMinecraftArguments() {
-		return extraMinecraftArguments;
-	}
-
-	/**
-	 * Sets the extra minecraft arguments.
-	 * 
-	 * @param extraMinecraftArguments the extra minecraft arguments to set
-	 * @see #getExtraMinecraftArguments()
-	 */
-	public void setExtraMinecraftArguments(List<String> extraMinecraftArguments) {
-		this.extraMinecraftArguments = extraMinecraftArguments;
-	}
-
-	/**
 	 * Gets the game working directory.
 	 * <p>
 	 * The <code>game_directory</code> and the subprocess working directory will
@@ -339,52 +296,54 @@ public class LaunchOption implements Serializable {
 	}
 
 	/**
-	 * Gets the customized minecraft commandline variables, default to null.
+	 * Gets the extra jvm arguments. The returned list is modifiable.
+	 * <p>
+	 * The arguments will be added to the JVM arguments.
+	 * 
+	 * @return the extra jvm arguments
+	 */
+	public List<String> extraJvmArguments() {
+		return extraJvmArguments;
+	}
+
+	/**
+	 * Gets the extra minecraft arguments. The returned list is modifiable.
+	 * <p>
+	 * The arguments will be added to the minecraft arguments.
+	 * 
+	 * @return the extra minecraft arguments
+	 */
+	public List<String> extraMinecraftArguments() {
+		return extraMinecraftArguments;
+	}
+
+	/**
+	 * Gets the customized minecraft commandline variables. The returned map is
+	 * modifiable.
 	 * <p>
 	 * When generating launch commandline, the variables in
 	 * {@link Version#getLaunchArgs()} will be replaced. For example,
 	 * <code>${version_name}</code> will be replaced by the version id. Some
 	 * variables are automatically replaced by the launcher. If you want to add
 	 * customized variables, you can set the values of the variables via
-	 * {@link #setCommandlineVariables(Map)}. The customized values can override
-	 * default values.
+	 * <code>option.commandlineVariables().put("key", "value")</code>. The
+	 * customized values can override default values.
 	 * 
-	 * @return the customized minecraft commandline variables, default to null
+	 * @return the customized minecraft commandline variables
 	 */
-	public Map<String, String> getCommandlineVariables() {
+	public Map<String, String> commandlineVariables() {
 		return commandlineVariables;
 	}
 
 	/**
-	 * Sets the customized minecraft commandline variables, can be null.
-	 * 
-	 * @param commandlineVariables the customized minecraft commandline
-	 *            variables to set, can be null
-	 * @see #getCommandlineVariables()
-	 */
-	public void setCommandlineVariables(Map<String, String> commandlineVariables) {
-		this.commandlineVariables = commandlineVariables;
-	}
-
-	/**
-	 * Gets the extra classpath, default to null.
+	 * Gets the extra classpath. The returned set is modifiable.
 	 * <p>
 	 * These files will be added to the '-cp' option.
 	 * 
-	 * @return the extra classpath, default to null
+	 * @return the extra classpath
 	 */
-	public Set<File> getExtraClasspath() {
+	public Set<File> extraClasspath() {
 		return extraClasspath;
-	}
-
-	/**
-	 * Sets the extra classpath, can be null.
-	 * 
-	 * @param extraClasspath the extra classpath, can be null
-	 * @see #getExtraClasspath()
-	 */
-	public void setExtraClasspath(Set<File> extraClasspath) {
-		this.extraClasspath = extraClasspath;
 	}
 
 	@Override

@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -126,7 +126,7 @@ public class LauncherImpl implements Launcher {
 			throw new MissingDependenciesException(missing);
 		}
 
-		Set<File> javaLibraries = new HashSet<>();
+		Set<File> javaLibraries = new LinkedHashSet<>();
 		File nativesDir = mcdir.getNatives(version);
 		for (Library library : version.getLibraries()) {
 			File libraryFile = mcdir.getLibrary(library);
@@ -141,9 +141,7 @@ public class LauncherImpl implements Launcher {
 			}
 		}
 		javaLibraries.add(mcdir.getVersionJar(version));
-		if (option.getExtraClasspath() != null) {
-			javaLibraries.addAll(option.getExtraClasspath());
-		}
+		javaLibraries.addAll(option.extraClasspath());
 
 		if (version.isLegacy()) {
 			try {
