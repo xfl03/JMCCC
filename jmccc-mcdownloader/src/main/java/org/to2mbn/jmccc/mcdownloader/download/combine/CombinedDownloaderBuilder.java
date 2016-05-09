@@ -2,12 +2,11 @@ package org.to2mbn.jmccc.mcdownloader.download.combine;
 
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import org.to2mbn.jmccc.mcdownloader.download.Downloader;
 import org.to2mbn.jmccc.mcdownloader.download.HttpAsyncDownloaderBuilder;
 import org.to2mbn.jmccc.mcdownloader.download.JdkDownloaderBuilder;
+import org.to2mbn.jmccc.mcdownloader.util.ThreadPoolUtils;
 import org.to2mbn.jmccc.util.Builder;
 
 public class CombinedDownloaderBuilder implements Builder<CombinedDownloader> {
@@ -24,7 +23,7 @@ public class CombinedDownloaderBuilder implements Builder<CombinedDownloader> {
 	protected int threadPoolSize = Runtime.getRuntime().availableProcessors();
 	protected long threadPoolKeepAliveTime = 10;
 	protected TimeUnit threadPoolKeepAliveTimeUnit = TimeUnit.SECONDS;
-	protected int defaultTries;
+	protected int defaultTries = 3;
 
 	protected CombinedDownloaderBuilder() {}
 
@@ -54,7 +53,7 @@ public class CombinedDownloaderBuilder implements Builder<CombinedDownloader> {
 		ExecutorService pool = null;
 		Downloader downloader = null;
 		try {
-			pool = new ThreadPoolExecutor(0, threadPoolSize, threadPoolKeepAliveTime, threadPoolKeepAliveTimeUnit, new LinkedBlockingQueue<Runnable>());
+			pool = ThreadPoolUtils.createPool(threadPoolSize, threadPoolKeepAliveTime, threadPoolKeepAliveTimeUnit);
 			downloader = this.downloader == null
 					? (HttpAsyncDownloaderBuilder.isAvailable() ? HttpAsyncDownloaderBuilder.buildDefault() : JdkDownloaderBuilder.buildDefault())
 					: Objects.requireNonNull(this.downloader.build(), "downloader builder returns null");

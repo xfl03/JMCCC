@@ -131,6 +131,7 @@ public class LaunchOption implements Serializable {
 		this.authenticator = authenticator;
 		this.minecraftDirectory = minecraftDir;
 		this.runtimeDirectory = minecraftDir;
+		this.javaEnvironment = JavaEnvironment.current();
 	}
 
 	/**
@@ -161,12 +162,21 @@ public class LaunchOption implements Serializable {
 	}
 
 	/**
-	 * Gets the JavaEnvironment.
+	 * Gets the java environment.
 	 * 
-	 * @return the JavaEnvironment
+	 * @return the java environment
 	 */
 	public JavaEnvironment getJavaEnvironment() {
 		return javaEnvironment;
+	}
+
+	/**
+	 * Sets the java environment.
+	 * 
+	 * @param javaEnvironment the java environment to set
+	 */
+	public void setJavaEnvironment(JavaEnvironment javaEnvironment) {
+		this.javaEnvironment = javaEnvironment;
 	}
 
 	/**

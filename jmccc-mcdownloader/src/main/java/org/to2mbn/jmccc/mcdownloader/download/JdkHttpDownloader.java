@@ -13,9 +13,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -25,6 +23,7 @@ import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackFutureTask;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callbacks;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.EmptyCallback;
+import org.to2mbn.jmccc.mcdownloader.util.ThreadPoolUtils;
 
 public class JdkHttpDownloader implements Downloader {
 
@@ -175,7 +174,7 @@ public class JdkHttpDownloader implements Downloader {
 		this.connectTimeout = connectTimeout;
 		this.readTimeout = readTimeout;
 		this.proxy = proxy;
-		executor = new ThreadPoolExecutor(0, maxConns, poolThreadLivingTime, poolThreadLivingTimeUnit, new LinkedBlockingQueue<Runnable>());
+		executor = ThreadPoolUtils.createPool(maxConns, poolThreadLivingTime, poolThreadLivingTimeUnit);
 	}
 
 	@Override

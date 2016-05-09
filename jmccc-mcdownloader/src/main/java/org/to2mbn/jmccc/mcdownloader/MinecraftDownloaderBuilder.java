@@ -76,9 +76,8 @@ public class MinecraftDownloaderBuilder implements Builder<MinecraftDownloader> 
 					e.addSuppressed(e1);
 				}
 			}
+			throw e;
 		}
-
-		return null;
 	}
 
 }

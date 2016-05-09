@@ -5,14 +5,13 @@ import java.net.Proxy;
 import java.net.SocketAddress;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
 import org.apache.http.HttpHost;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import org.apache.http.message.BasicHeader;
+import org.to2mbn.jmccc.mcdownloader.util.ThreadPoolUtils;
 import org.to2mbn.jmccc.util.Builder;
 
 public class HttpAsyncDownloaderBuilder extends AbstractDownloaderBuilder {
@@ -78,7 +77,7 @@ public class HttpAsyncDownloaderBuilder extends AbstractDownloaderBuilder {
 				client = httpClient.build();
 			}
 
-			pool = new ThreadPoolExecutor(0, bootstrapPoolSize, downloadPoolKeepAliveTime, downloadPoolKeepAliveTimeUnit, new LinkedBlockingQueue<Runnable>());
+			pool = ThreadPoolUtils.createPool(bootstrapPoolSize, downloadPoolKeepAliveTime, downloadPoolKeepAliveTimeUnit);
 			return new HttpAsyncDownloader(client, pool);
 		} catch (Throwable e) {
 			if (client != null) {

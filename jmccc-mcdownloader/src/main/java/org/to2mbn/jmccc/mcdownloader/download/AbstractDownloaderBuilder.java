@@ -6,9 +6,9 @@ import org.to2mbn.jmccc.util.Builder;
 
 abstract public class AbstractDownloaderBuilder implements Builder<Downloader> {
 
-	protected int maxConnections;
-	protected int connectTimeout;
-	protected int readTimeout;
+	protected int maxConnections = 20;
+	protected int connectTimeout = 10000;
+	protected int readTimeout = 20000;
 	protected Proxy proxy = Proxy.NO_PROXY;
 	protected long downloadPoolKeepAliveTime = 10;
 	protected TimeUnit downloadPoolKeepAliveTimeUnit = TimeUnit.SECONDS;

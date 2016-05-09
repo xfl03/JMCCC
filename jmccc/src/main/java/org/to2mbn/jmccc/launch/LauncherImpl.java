@@ -117,6 +117,11 @@ public class LauncherImpl implements Launcher {
 
 	private LaunchArgument generateLaunchArgs(LaunchOption option) throws LaunchException {
 		Objects.requireNonNull(option);
+
+		if (option.getJavaEnvironment() == null) {
+			throw new IllegalArgumentException("No JavaEnvironment is specified");
+		}
+
 		MinecraftDirectory mcdir = option.getMinecraftDirectory();
 		Version version = option.getVersion();
 
