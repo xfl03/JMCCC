@@ -50,7 +50,7 @@
 		<url>https://github.com/to2mbn/JMCCC</url>
 		<connection>scm:git:git://github.com/to2mbn/JMCCC.git</connection>
 		<developerConnection>scm:git:git@github.com:to2mbn/JMCCC.git</developerConnection>
-		<tag>pre-release-2.4</tag>
+		<tag>master</tag>
 	</scm>
 	<distributionManagement>
 		<snapshotRepository>
