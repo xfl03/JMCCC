@@ -7,7 +7,9 @@ import java.util.concurrent.TimeUnit;
 public final class ThreadPoolUtils {
 
 	public static ThreadPoolExecutor createPool(int threads, long keepAliveTime, TimeUnit unit) {
-		return new ThreadPoolExecutor(0, threads, keepAliveTime, unit, new LinkedBlockingQueue<Runnable>());
+		ThreadPoolExecutor pool = new ThreadPoolExecutor(threads, threads, keepAliveTime, unit, new LinkedBlockingQueue<Runnable>());
+		pool.allowCoreThreadTimeOut(true);
+		return pool;
 	}
 
 	private ThreadPoolUtils() {}
