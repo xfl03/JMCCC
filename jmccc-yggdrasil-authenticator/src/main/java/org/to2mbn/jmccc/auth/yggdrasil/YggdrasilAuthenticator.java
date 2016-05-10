@@ -12,7 +12,7 @@ import org.to2mbn.jmccc.auth.Authenticator;
 import org.to2mbn.jmccc.auth.yggdrasil.core.AuthenticationService;
 import org.to2mbn.jmccc.auth.yggdrasil.core.GameProfile;
 import org.to2mbn.jmccc.auth.yggdrasil.core.Session;
-import org.to2mbn.jmccc.auth.yggdrasil.core.yggdrasil.YggdrasilServiceBuilder;
+import org.to2mbn.jmccc.auth.yggdrasil.core.yggdrasil.YggdrasilAuthenticationServiceBuilder;
 import org.to2mbn.jmccc.util.UUIDUtils;
 
 /**
@@ -89,7 +89,7 @@ public class YggdrasilAuthenticator implements Authenticator, Serializable {
 	 *             authentication
 	 */
 	public static YggdrasilAuthenticator token(String clientToken, String accessToken) throws AuthenticationException {
-		return token(clientToken, accessToken, YggdrasilServiceBuilder.defaultAuthenticationService());
+		return token(clientToken, accessToken, YggdrasilAuthenticationServiceBuilder.buildDefault());
 	}
 
 	/**
@@ -154,7 +154,7 @@ public class YggdrasilAuthenticator implements Authenticator, Serializable {
 	 *             authentication
 	 */
 	public static YggdrasilAuthenticator password(String username, String password, CharacterSelector characterSelector, String clientToken) throws AuthenticationException {
-		return password(username, password, characterSelector, clientToken, YggdrasilServiceBuilder.defaultAuthenticationService());
+		return password(username, password, characterSelector, clientToken, YggdrasilAuthenticationServiceBuilder.buildDefault());
 	}
 
 	/**
@@ -205,7 +205,7 @@ public class YggdrasilAuthenticator implements Authenticator, Serializable {
 	 * Constructs a YggdrasilAuthenticator with a random client token.
 	 */
 	public YggdrasilAuthenticator() {
-		this(YggdrasilServiceBuilder.defaultAuthenticationService());
+		this(YggdrasilAuthenticationServiceBuilder.buildDefault());
 	}
 
 	/**
@@ -456,16 +456,16 @@ public class YggdrasilAuthenticator implements Authenticator, Serializable {
 	 * {@code AuthenticationService}, because {@code YggdrasilAuthenticator}
 	 * doesn't persist {@code AuthenticationService} during the serialization.
 	 * The default implementation uses
-	 * {@link YggdrasilServiceBuilder#defaultAuthenticationService()}.
+	 * {@link YggdrasilAuthenticationServiceBuilder#buildDefault()}.
 	 * <p>
 	 * {@code YggdrasilAuthenticator} 在序列化的时候不保存 {@code AuthenticationService} ，
 	 * 所以需要在反序列化的时候调用这个方法来重建一个 {@code AuthenticationService} 。 该方法的默认实现使用
-	 * {@link YggdrasilServiceBuilder#defaultAuthenticationService()} 。
+	 * {@link YggdrasilAuthenticationServiceBuilder#buildDefault()} 。
 	 * 
 	 * @return an {@code AuthenticationService}
 	 */
 	protected AuthenticationService createAuthenticationServiceForDeserialization() {
-		return YggdrasilServiceBuilder.defaultAuthenticationService();
+		return YggdrasilAuthenticationServiceBuilder.buildDefault();
 	}
 
 	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {

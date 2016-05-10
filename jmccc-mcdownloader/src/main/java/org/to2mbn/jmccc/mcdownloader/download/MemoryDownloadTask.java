@@ -8,7 +8,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 
 /**
- * A memories download task.
+ * A download task which stores data in memory.
  * 
  * @author yushijinhun
  */

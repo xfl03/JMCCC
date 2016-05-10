@@ -19,7 +19,7 @@ public class MinecraftDirectory implements Serializable {
 	/**
 	 * The '.minecraft' dir.
 	 */
-	private final File rootDir;
+	protected File rootDir;
 
 	/**
 	 * Creates a MinecraftDirectory with the '.minecraft' directory in the current directory.
@@ -241,6 +241,10 @@ public class MinecraftDirectory implements Serializable {
 		return new File(getVirtualLegacyAssets(), asset.getVirtualPath());
 	}
 
+	public String getAbsolutePath() {
+		return rootDir.getAbsolutePath();
+	}
+
 	@Override
 	public String toString() {
 		return rootDir.toString();
@@ -253,7 +257,7 @@ public class MinecraftDirectory implements Serializable {
 		}
 		if (obj instanceof MinecraftDirectory) {
 			MinecraftDirectory another = (MinecraftDirectory) obj;
-			return Objects.equals(rootDir, another.rootDir);
+			return rootDir.equals(another.rootDir);
 		}
 		return false;
 	}

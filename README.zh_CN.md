@@ -112,7 +112,7 @@ Logged in!
 下面的代码演示了如何下载Minecraft 1.9。
 ```java
 MinecraftDirectory dir = new MinecraftDirectory("/home/user/.minecraft");
-MinecraftDownloader downloader=MinecraftDownloaderBuilder.create().build();
+MinecraftDownloader downloader = MinecraftDownloaderBuilder.buildDefault();
 downloader.downloadIncrementally(dir, "1.9", new CallbackAdapter<Version>() {
 	
 	@Override
@@ -169,7 +169,7 @@ downloader.downloadIncrementally(dir, "1.9", new CallbackAdapter<Version>() {
 
 ##### 获取版本列表
 ```java
-downloader.fetchRemoteVersionList(new CombinedDownloadCallback<RemoteVersionList>() {...});
+downloader.fetchRemoteVersionList(new CallbackAdapter<RemoteVersionList>() {...});
 ```
 
 ##### 下载Forge/Liteloader
@@ -177,7 +177,11 @@ downloader.fetchRemoteVersionList(new CombinedDownloadCallback<RemoteVersionList
 MinecraftDirectory dir = new MinecraftDirectory("/home/user/.minecraft");
 ForgeDownloadProvider forgeProvider = new ForgeDownloadProvider();
 LiteloaderDownloadProvider liteloaderProvider = new LiteloaderDownloadProvider();
-MinecraftDownloader downloader = MinecraftDownloaderBuilder.create().appendProvider(forgeProvider).appendProvider(liteloaderProvider).build();
+MinecraftDownloader downloader = MinecraftDownloaderBuilder.create()
+	.providerChain(DownloadProviderChainBuilder.create()
+		.addProvider(forgeProvider)
+		.addProvider(liteloaderProvider))
+	.build();
 
 downloader.downloadIncrementally(dir, "1.8-forge1.8-11.14.3.1514", new CallbackAdapter<Version>() {...});
 downloader.downloadIncrementally(dir, "1.7.10-LiteLoader1.7.10", new CallbackAdapter<Version>() {...});
@@ -187,7 +191,10 @@ downloader.download(liteloaderProvider.liteloaderVersionList(), new CallbackAdap
 
 ##### 自定义下载源
 ```java
-MinecraftDownloader downloader = MinecraftDownloaderBuilder.create().setBaseProvider(new CustomizedDownloadProvider()).build();
+MinecraftDownloader downloader = MinecraftDownloaderBuilder.create()
+	.providerChain(DownloadProviderChainBuilder.create()
+		.baseProvider(new CustomizedDownloadProvider()))
+	.build();
 ```
 注：CustomizedDownloadProvider代表您自己的下载源。
 
@@ -201,7 +208,8 @@ jmccc不像其它一些启动器，jmccc不会自动添加类似于`-Dfml.ignore
 所以可能会无法启动一些Forge版本，您可能需要手动添加这些选项。
 这些参数都已经在`ExtraArgumentsTemplates`中被预先定义好了，您只需要引用一下即可。
 ```java
-option.setExtraJvmArguments(Arrays.asList(ExtraArgumentsTemplates.FML_IGNORE_INVALID_MINECRAFT_CERTIFICATES, ExtraArgumentsTemplates.FML_IGNORE_PATCH_DISCREPANCISE));
+option.extraJvmArguments().add(ExtraArgumentsTemplates.FML_IGNORE_INVALID_MINECRAFT_CERTIFICATES);
+option.extraJvmArguments().add(ExtraArgumentsTemplates.FML_IGNORE_PATCH_DISCREPANCISE);
 ```
 
 ### 更新日志

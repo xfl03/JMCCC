@@ -40,6 +40,13 @@ public class ForgeVersion implements Serializable {
 		return minecraftVersion + "-forge" + minecraftVersion + "-" + forgeVersion;
 	}
 
+	public String getMavenVersion() {
+		String ver = minecraftVersion + "-" + forgeVersion;
+		if (branch != null)
+			ver += "-" + branch;
+		return ver;
+	}
+
 	@Override
 	public String toString() {
 		return getVersionName();

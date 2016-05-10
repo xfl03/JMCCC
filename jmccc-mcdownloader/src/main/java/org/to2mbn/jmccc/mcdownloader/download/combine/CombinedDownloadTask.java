@@ -58,7 +58,7 @@ abstract public class CombinedDownloadTask<T> {
 		Objects.requireNonNull(tasks);
 		Objects.requireNonNull(expectedExceptions);
 		if (tasks.length == 0) {
-			throw new IllegalArgumentException("The length of tasks cannot be zero");
+			throw new IllegalArgumentException("Tasks cannot be empty");
 		}
 		return new AnyCombinedDownloadTask<>(tasks, expectedExceptions);
 	}
@@ -70,11 +70,17 @@ abstract public class CombinedDownloadTask<T> {
 	}
 
 	public <R> CombinedDownloadTask<R> andThenDownload(ResultProcessor<T, CombinedDownloadTask<R>> then) {
-		return new AppendedDownloadTaskCombinedDownloadTask<>(this, then);
+		return new ExtendedDownloadTaskCombinedDownloadTask<>(this, then);
 	}
 
-	public <R> CombinedDownloadTask<R> andThenReturn(R result) {
-		return new AppendedCombinedDownloadTask<>(this, arg -> result);
+	public <R> CombinedDownloadTask<R> andThenReturn(final R result) {
+		return andThen(new ResultProcessor<T, R>() {
+
+			@Override
+			public R process(T arg) throws Exception {
+				return result;
+			}
+		});
 	}
 
 }

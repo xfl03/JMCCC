@@ -36,7 +36,7 @@ public class YggdrasilProfileService extends AbstractYggdrasilService implements
 		try {
 			response = (JSONObject) getRequester().jsonGet(getApi().profile(profileUUID), arguments);
 		} catch (JSONException | IOException e) {
-			throw new RequestException(e);
+			throw new AuthenticationException(e);
 		}
 		requireNonEmptyResponse(response);
 
@@ -45,11 +45,11 @@ public class YggdrasilProfileService extends AbstractYggdrasilService implements
 			try {
 				properties = getPropertiesDeserializer().toProperties(response.optJSONArray("properties"), true);
 			} catch (GeneralSecurityException e) {
-				throw new ResponseSignatureException(e);
+				throw new AuthenticationException("Invalid signature", e);
 			}
 			return new PropertiesGameProfile(UUIDUtils.toUUID(response.getString("id")), response.getString("name"), properties);
 		} catch (JSONException e) {
-			throw new ResponseFormatException(e);
+			throw new AuthenticationException("Couldn't parse response: " + response, e);
 		}
 	}
 
@@ -73,12 +73,12 @@ public class YggdrasilProfileService extends AbstractYggdrasilService implements
 		try {
 			rawResponse = getRequester().jsonPost(getApi().profileLookup(), null, request);
 		} catch (JSONException | IOException e) {
-			throw new RequestException(e);
+			throw new AuthenticationException(e);
 		}
 		try {
 			if (rawResponse instanceof JSONObject) {
 				requireNonEmptyResponse((JSONObject) rawResponse);
-				throw new JSONException("response should be a json array");
+				throw new JSONException("Response should be a json array");
 			}
 			JSONArray response = (JSONArray) rawResponse;
 			switch (response.length()) {
@@ -90,10 +90,10 @@ public class YggdrasilProfileService extends AbstractYggdrasilService implements
 					return UUIDUtils.toUUID(response.getJSONObject(0).getString("id"));
 
 				default:
-					throw new AuthenticationException("we only queried one player's profile, but the server sent us more than one profile");
+					throw new AuthenticationException("We only queried one player's profile, but the server sent us more than one profile: " + response);
 			}
 		} catch (JSONException e) {
-			throw new ResponseFormatException(e);
+			throw new AuthenticationException("Couldn't parse response: " + rawResponse, e);
 		}
 	}
 
@@ -103,21 +103,21 @@ public class YggdrasilProfileService extends AbstractYggdrasilService implements
 			return null;
 		}
 
-		JSONObject response;
+		JSONObject payload;
 		try {
-			response = new JSONObject(new String(Base64.decode(encodedTextures.toCharArray()), "UTF-8"));
+			payload = new JSONObject(new String(Base64.decode(encodedTextures.toCharArray()), "UTF-8"));
 		} catch (JSONException | UnsupportedEncodingException e) {
-			throw new ResponseFormatException(e);
+			throw new AuthenticationException("Couldn't decode texture payload: " + encodedTextures, e);
 		}
 
 		try {
-			JSONObject textures = response.getJSONObject("textures");
+			JSONObject textures = payload.getJSONObject("textures");
 			return new PlayerTextures(
 					getTexture(textures.optJSONObject("SKIN")),
 					getTexture(textures.optJSONObject("CAPE")),
 					getTexture(textures.optJSONObject("ELYTRA")));
 		} catch (JSONException e) {
-			throw new ResponseFormatException(e);
+			throw new AuthenticationException("Couldn't parse texture payload: " + payload, e);
 		}
 	}
 

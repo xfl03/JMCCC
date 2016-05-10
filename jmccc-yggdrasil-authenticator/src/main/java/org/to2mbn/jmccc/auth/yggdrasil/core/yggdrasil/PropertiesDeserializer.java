@@ -36,17 +36,17 @@ public class PropertiesDeserializer implements Serializable {
 			if (prop.has("signature")) {
 				if (signaturePublicKey == null) {
 					if (forceSignature) {
-						throw new InvalidKeyException("no key is available");
+						throw new InvalidKeyException("No available key");
 					} else {
 						continue;
 					}
 				} else {
 					String signature = prop.getString("signature");
-					checkSignature(key, value, signature);
+					checkSignature(value, signature);
 				}
 			} else {
 				if (forceSignature) {
-					throw new SignatureException("no signature");
+					throw new SignatureException("No available signature");
 				}
 			}
 			properties.put(key, value);
@@ -54,12 +54,12 @@ public class PropertiesDeserializer implements Serializable {
 		return properties;
 	}
 
-	private void checkSignature(String key, String value, String signature) throws SignatureException, InvalidKeyException, NoSuchAlgorithmException {
+	private void checkSignature(String value, String signature) throws SignatureException, InvalidKeyException, NoSuchAlgorithmException {
 		Signature verifier = Signature.getInstance("SHA1withRSA");
 		verifier.initVerify(signaturePublicKey);
 		verifier.update(value.getBytes());
 		if (!verifier.verify(Base64.decode(signature.toCharArray()))) {
-			throw new SignatureException("invalid signature");
+			throw new SignatureException("Invalid signature. data=[" + value + "], expectedSignature=[" + signature + "]");
 		}
 	}
 

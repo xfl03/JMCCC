@@ -1,0 +1,101 @@
+package org.to2mbn.jmccc.auth.yggdrasil.core.yggdrasil;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.Proxy;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Objects;
+import org.to2mbn.jmccc.auth.yggdrasil.core.io.JSONHttpRequester;
+import org.to2mbn.jmccc.util.Builder;
+
+abstract public class AbstractYggdrasilServiceBuilder<T> implements Builder<T> {
+
+	protected YggdrasilAPIProvider apiProvider;
+	protected PublicKey sessionPublicKey;
+	protected boolean useDefaultSessionPublicKey = true;
+	protected Proxy proxy;
+
+	protected AbstractYggdrasilServiceBuilder() {}
+
+	public AbstractYggdrasilServiceBuilder<T> apiProvider(YggdrasilAPIProvider provider) {
+		this.apiProvider = provider;
+		return this;
+	}
+
+	public AbstractYggdrasilServiceBuilder<T> sessionPublicKey(PublicKey sessionPublicKey) {
+		this.sessionPublicKey = sessionPublicKey;
+		useDefaultSessionPublicKey = false;
+		return this;
+	}
+
+	public AbstractYggdrasilServiceBuilder<?> loadSessionPublicKey(byte[] encodedKey) throws NoSuchAlgorithmException, InvalidKeySpecException {
+		return sessionPublicKey(loadX509PublicKey(Objects.requireNonNull(encodedKey)));
+	}
+
+	public AbstractYggdrasilServiceBuilder<?> loadSessionPublicKey(InputStream in) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+		return sessionPublicKey(loadX509PublicKey(Objects.requireNonNull(in)));
+	}
+
+	public AbstractYggdrasilServiceBuilder<?> loadSessionPublicKey(File keyFile) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+		try (InputStream in = new FileInputStream(Objects.requireNonNull(keyFile))) {
+			return sessionPublicKey(loadX509PublicKey(in));
+		}
+	}
+
+	public AbstractYggdrasilServiceBuilder<?> loadSessionPublicKey(String keyFile) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+		return loadSessionPublicKey(new File(Objects.requireNonNull(keyFile)));
+	}
+
+	public AbstractYggdrasilServiceBuilder<T> proxy(Proxy proxy) {
+		this.proxy = proxy;
+		return this;
+	}
+
+	protected YggdrasilAPIProvider buildAPIProvider() {
+		return apiProvider == null ? new MojangYggdrasilAPIProvider() : apiProvider;
+	}
+
+	protected JSONHttpRequester buildJSONHttpRequester() {
+		return new JSONHttpRequester(proxy == null ? Proxy.NO_PROXY : proxy);
+	}
+
+	protected PropertiesDeserializer buildPropertiesDeserializer() {
+		return new PropertiesDeserializer(useDefaultSessionPublicKey
+				? loadDefaultSessionPublicKey()
+				: sessionPublicKey);
+	}
+
+	private static PublicKey loadX509PublicKey(InputStream in) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+		ByteArrayOutputStream byteout = new ByteArrayOutputStream();
+		byte[] buffer = new byte[8192];
+		int read;
+		while ((read = in.read(buffer)) != -1) {
+			byteout.write(buffer, 0, read);
+		}
+		return loadX509PublicKey(byteout.toByteArray());
+	}
+
+	private static PublicKey loadX509PublicKey(byte[] encodedKey) throws NoSuchAlgorithmException, InvalidKeySpecException {
+		X509EncodedKeySpec spec = new X509EncodedKeySpec(encodedKey);
+		KeyFactory keyFactory;
+
+		keyFactory = KeyFactory.getInstance("RSA");
+		return keyFactory.generatePublic(spec);
+	}
+
+	private static PublicKey loadDefaultSessionPublicKey() {
+		try (InputStream in = PropertiesDeserializer.class.getResourceAsStream("/yggdrasil_session_pubkey.der")) {
+			return loadX509PublicKey(in);
+		} catch (IOException | NoSuchAlgorithmException | InvalidKeySpecException e) {
+			throw new IllegalStateException("Couldn't load default yggdrasil session public key.", e);
+		}
+	}
+
+}

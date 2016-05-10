@@ -2,11 +2,18 @@ package org.to2mbn.jmccc.version;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
+import java.util.Stack;
+import java.util.TreeSet;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
+import org.to2mbn.jmccc.util.IOUtils;
+import org.to2mbn.jmccc.version.parsing.PlatformDescription;
+import org.to2mbn.jmccc.version.parsing.VersionParser;
+import org.to2mbn.jmccc.version.parsing.VersionParserImpl;
 
 /**
  * A tool class for resolving versions.
@@ -15,7 +22,7 @@ import org.to2mbn.jmccc.option.MinecraftDirectory;
  */
 public final class Versions {
 
-	private static final VersionParser PARSER = new VersionParser();
+	private final static VersionParser PARSER = new VersionParserImpl();
 
 	/**
 	 * Resolves the version.
@@ -33,9 +40,9 @@ public final class Versions {
 
 		if (doesVersionExist(minecraftDir, version)) {
 			try {
-				return PARSER.parseVersion(minecraftDir, version);
+				return getVersionParser().parseVersion(resolveVersionHierarchy(version, minecraftDir), PlatformDescription.current());
 			} catch (JSONException e) {
-				throw new IOException("unable to resolve json", e);
+				throw new IOException("Couldn't parse version json: " + version, e);
 			}
 		} else {
 			return null;
@@ -53,7 +60,7 @@ public final class Versions {
 	 */
 	public static Set<String> getVersions(MinecraftDirectory minecraftDir) {
 		Objects.requireNonNull(minecraftDir);
-		Set<String> versions = new HashSet<>();
+		Set<String> versions = new TreeSet<>();
 
 		// null if the 'versions' dir not exists
 		File[] subdirs = minecraftDir.getVersions().listFiles();
@@ -64,7 +71,7 @@ public final class Versions {
 				}
 			}
 		}
-		return versions;
+		return Collections.unmodifiableSet(versions);
 	}
 
 	/**
@@ -101,17 +108,30 @@ public final class Versions {
 		}
 
 		try {
-			return PARSER.parseAssets(minecraftDir, assets);
+			return getVersionParser().parseAssetIndex(IOUtils.toJson(minecraftDir.getAssetIndex(assets)));
 		} catch (JSONException e) {
-			throw new IOException("unable to resolve json", e);
+			throw new IOException("Couldn't parse asset index: " + assets, e);
 		}
+	}
+
+	public static VersionParser getVersionParser() {
+		return PARSER;
 	}
 
 	private static boolean doesVersionExist(MinecraftDirectory minecraftDir, String version) {
 		return minecraftDir.getVersionJson(version).isFile();
 	}
 
-	private Versions() {
+	private static Stack<JSONObject> resolveVersionHierarchy(String version, MinecraftDirectory mcdir) throws IOException, JSONException {
+		Stack<JSONObject> result = new Stack<>();
+		do {
+			JSONObject json = IOUtils.toJson(mcdir.getVersionJson(version));
+			result.push(json);
+			version = json.optString("inheritsFrom", null);
+		} while (version != null);
+		return result;
 	}
+
+	private Versions() {}
 
 }

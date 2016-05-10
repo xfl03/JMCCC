@@ -1,9 +1,7 @@
 package org.to2mbn.jmccc.launch;
 
-import static java.util.stream.Collectors.toList;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,14 +14,14 @@ import org.to2mbn.jmccc.version.Version;
 /**
  * To generate launching command line.
  */
-public class LaunchArgument {
+class LaunchArgument {
 
 	private LaunchOption launchOption;
 	private File nativesPath;
 	private Set<File> libraries;
 	private Map<String, String> defaultVariables;
 
-	LaunchArgument(LaunchOption launchOption, Map<String, String> defaultVariables, Set<File> libraries, File nativesPath) {
+	public LaunchArgument(LaunchOption launchOption, Map<String, String> defaultVariables, Set<File> libraries, File nativesPath) {
 		this.launchOption = launchOption;
 		this.libraries = libraries;
 		this.nativesPath = nativesPath;
@@ -48,7 +46,11 @@ public class LaunchArgument {
 		}
 
 		// extra jvm arguments
-		args.addAll(launchOption.getExtraJvmArguments());
+		for (String arg : launchOption.extraJvmArguments()) {
+			if (arg != null) {
+				args.add(arg);
+			}
+		}
 
 		// natives path
 		args.add("-Djava.library.path=" + nativesPath);
@@ -60,7 +62,9 @@ public class LaunchArgument {
 
 		// libraries
 		for (File lib : libraries) {
-			cpBuilder.append(lib.getAbsolutePath()).append(Platform.getPathSpearator());
+			if (lib != null) {
+				cpBuilder.append(lib.getAbsolutePath()).append(Platform.getPathSpearator());
+			}
 		}
 
 		args.add(cpBuilder.toString());
@@ -73,34 +77,38 @@ public class LaunchArgument {
 		args.addAll(getFormattedMinecraftArguments());
 
 		// extra minecraft arguments
-		args.addAll(launchOption.getExtraMinecraftArguments());
+		for (String arg : launchOption.extraMinecraftArguments()) {
+			if (arg != null) {
+				args.add(arg);
+			}
+		}
 
 		// server
-		launchOption.getServerInfo().ifPresent(server -> {
+		if (launchOption.getServerInfo() != null && launchOption.getServerInfo().getHost() != null && !launchOption.getServerInfo().getHost().equals("")) {
 			args.add("--server");
-			args.add(server.getHost());
+			args.add(launchOption.getServerInfo().getHost());
 
-			if (server.getPort() > 0) {
+			if (launchOption.getServerInfo().getPort() > 0) {
 				args.add("--port");
-				args.add(String.valueOf(server.getPort()));
+				args.add(String.valueOf(launchOption.getServerInfo().getPort()));
 			}
-		});
+		}
 
 		// window size settings
-		launchOption.getWindowSize().ifPresent(windowSize -> {
-			if (windowSize.isFullScreen()) {
+		if (launchOption.getWindowSize() != null) {
+			if (launchOption.getWindowSize().isFullScreen()) {
 				args.add("--fullscreen");
 			} else {
-				if (windowSize.getHeight() != 0) {
+				if (launchOption.getWindowSize().getHeight() != 0) {
 					args.add("--height");
-					args.add(String.valueOf(windowSize.getHeight()));
+					args.add(String.valueOf(launchOption.getWindowSize().getHeight()));
 				}
-				if (windowSize.getWidth() != 0) {
+				if (launchOption.getWindowSize().getWidth() != 0) {
 					args.add("--width");
-					args.add(String.valueOf(windowSize.getWidth()));
+					args.add(String.valueOf(launchOption.getWindowSize().getWidth()));
 				}
 			}
-		});
+		}
 
 		return args.toArray(new String[args.size()]);
 	}
@@ -108,15 +116,21 @@ public class LaunchArgument {
 	private List<String> getFormattedMinecraftArguments() {
 		Map<String, String> variables = new HashMap<>();
 		variables.putAll(defaultVariables);
-		variables.putAll(launchOption.getCommandlineVariables());
+		variables.putAll(launchOption.commandlineVariables());
 
-		return Arrays.stream(launchOption.getVersion().getLaunchArgs().split(" "))
-				.map(argument -> {
-					for (Entry<String, String> var : variables.entrySet()) {
-						argument = argument.replace("${" + var.getKey() + "}", var.getValue());
-					}
-					return argument;
-				}).collect(toList());
+		String templete = launchOption.getVersion().getLaunchArgs();
+		List<String> args = new ArrayList<>();
+		for (String arg : templete.split(" ")) {
+			for (Entry<String, String> var : variables.entrySet()) {
+				String k = var.getKey();
+				String v = var.getValue();
+				if (k != null && v != null) {
+					arg = arg.replace("${" + k + "}", v);
+				}
+			}
+			args.add(arg);
+		}
+		return args;
 	}
 
 	public LaunchOption getLaunchOption() {

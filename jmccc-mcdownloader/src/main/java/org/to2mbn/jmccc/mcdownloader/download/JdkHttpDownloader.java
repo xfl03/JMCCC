@@ -13,9 +13,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -25,8 +23,9 @@ import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackFutureTask;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callbacks;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.EmptyCallback;
+import org.to2mbn.jmccc.mcdownloader.util.ThreadPoolUtils;
 
-public class JdkHttpDownloader implements DownloaderService {
+public class JdkHttpDownloader implements Downloader {
 
 	private static final int BUFFER_SIZE = 8192;
 
@@ -73,6 +72,7 @@ public class JdkHttpDownloader implements DownloaderService {
 			connection.setConnectTimeout(connectTimeout);
 			connection.setRequestProperty("Accept", "*/*");
 			connection.setRequestProperty("Connection", "keep-alive");
+			connection.setRequestProperty("Accept-Encoding", "gzip");
 			if (connection instanceof HttpURLConnection) {
 				((HttpURLConnection) connection).setRequestMethod("GET");
 			}
@@ -106,6 +106,10 @@ public class JdkHttpDownloader implements DownloaderService {
 				DownloadSession<T> session = (contentLength == -1)
 						? task.createSession()
 						: task.createSession(contentLength);
+
+				if (connection instanceof HttpURLConnection && "gzip".equals(connection.getHeaderField("Content-Encoding"))) {
+					session = new GzipDownloadSession<>(session);
+				}
 
 				long downloaded = 0;
 
@@ -164,13 +168,13 @@ public class JdkHttpDownloader implements DownloaderService {
 	private final ReadWriteLock rwlock = new ReentrantReadWriteLock();
 	private final Set<Future<?>> tasks = Collections.newSetFromMap(new ConcurrentHashMap<Future<?>, Boolean>());
 
-	public JdkHttpDownloader(int maxConns, int connectTimeout, int readTimeout, long poolThreadLivingTime, Proxy proxy) {
+	public JdkHttpDownloader(int maxConns, int connectTimeout, int readTimeout, long poolThreadLivingTime, TimeUnit poolThreadLivingTimeUnit, Proxy proxy) {
 		Objects.requireNonNull(proxy);
 
 		this.connectTimeout = connectTimeout;
 		this.readTimeout = readTimeout;
 		this.proxy = proxy;
-		executor = new ThreadPoolExecutor(maxConns, maxConns, poolThreadLivingTime, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
+		executor = ThreadPoolUtils.createPool(maxConns, poolThreadLivingTime, poolThreadLivingTimeUnit);
 	}
 
 	@Override

@@ -1,6 +1,7 @@
 package org.to2mbn.jmccc.mcdownloader.download.combine;
 
 import java.util.Objects;
+import java.util.concurrent.Callable;
 import org.to2mbn.jmccc.mcdownloader.download.ResultProcessor;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackAdapter;
 
@@ -22,9 +23,16 @@ class AppendedCombinedDownloadTask<R, S> extends CombinedDownloadTask<S> {
 		context.submit(prev, new CallbackAdapter<R>() {
 
 			@Override
-			public void done(R result1) {
+			public void done(final R result1) {
 				try {
-					context.submit(() -> next.process(result1), new CallbackAdapter<S>() {
+					context.submit(new Callable<S>() {
+
+						@Override
+						public S call() throws Exception {
+							return next.process(result1);
+						}
+
+					}, new CallbackAdapter<S>() {
 
 						@Override
 						public void done(S result2) {

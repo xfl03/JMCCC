@@ -40,9 +40,10 @@ public class LibraryInfo extends DownloadInfo {
 		if (obj == this) {
 			return true;
 		}
-		if (obj instanceof LibraryInfo && super.equals(obj)) {
+		if (obj instanceof LibraryInfo) {
 			LibraryInfo another = (LibraryInfo) obj;
-			return Objects.equals(path, another.path);
+			return super.equals(obj)
+					&& Objects.equals(path, another.path);
 		}
 		return false;
 	}

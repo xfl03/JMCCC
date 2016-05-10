@@ -10,7 +10,7 @@ import java.util.Objects;
 import org.to2mbn.jmccc.util.FileUtils;
 
 /**
- * Describes a file download task.
+ * A download task which stores data into a file.
  * 
  * @author yushijinhun
  */

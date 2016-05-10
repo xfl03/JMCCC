@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.locks.Lock;
@@ -341,7 +341,7 @@ public class CombinedDownloaderImpl implements CombinedDownloader {
 
 	}
 
-	private Executor executor;
+	private ExecutorService executor;
 	private Downloader downloader;
 	private int defaultTries;
 
@@ -349,7 +349,7 @@ public class CombinedDownloaderImpl implements CombinedDownloader {
 	private final ReadWriteLock globalRwlock = new ReentrantReadWriteLock();
 	private final Set<Future<?>> tasks = Collections.newSetFromMap(new ConcurrentHashMap<Future<?>, Boolean>());
 
-	public CombinedDownloaderImpl(Executor executor, Downloader downloader, int defaultTries) {
+	public CombinedDownloaderImpl(ExecutorService executor, Downloader downloader, int defaultTries) {
 		Objects.requireNonNull(executor);
 		Objects.requireNonNull(downloader);
 		if (defaultTries < 1)
@@ -376,8 +376,7 @@ public class CombinedDownloaderImpl implements CombinedDownloader {
 		Lock lock = globalRwlock.readLock();
 		lock.lock();
 		try {
-			if (shutdown)
-				throw new RejectedExecutionException("The downloader has been shutdown.");
+			ensureRunning();
 
 			tasks.add(task);
 			executor.execute(task);
@@ -405,6 +404,8 @@ public class CombinedDownloaderImpl implements CombinedDownloader {
 		for (Future<?> task : tasks)
 			task.cancel(true);
 
+		executor.shutdownNow();
+		downloader.shutdown();
 		executor = null;
 		downloader = null;
 	}
@@ -417,6 +418,33 @@ public class CombinedDownloaderImpl implements CombinedDownloader {
 	@Override
 	public boolean isShutdown() {
 		return shutdown;
+	}
+
+	@Override
+	public <T> Future<T> download(DownloadTask<T> task, DownloadCallback<T> callback) {
+		return download(task, callback, defaultTries);
+	}
+
+	@Override
+	public <T> Future<T> download(DownloadTask<T> task, DownloadCallback<T> callback, int tries) {
+		Objects.requireNonNull(task);
+		if (tries < 1)
+			throw new IllegalArgumentException("tries < 1");
+
+		Lock lock = globalRwlock.readLock();
+		lock.lock();
+		try {
+			ensureRunning();
+
+			return downloader.download(task, callback, tries);
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	private void ensureRunning() {
+		if (shutdown)
+			throw new RejectedExecutionException("The downloader has been shutdown.");
 	}
 
 }

@@ -150,7 +150,7 @@ public class AsyncFuture<V> implements Future<V>, Callback<V>, Cancelable {
 				throw new CancellationException();
 
 			default:
-				throw new IllegalStateException("not in a completed state");
+				throw new IllegalStateException("Unexpected state: " + state);
 		}
 	}
 

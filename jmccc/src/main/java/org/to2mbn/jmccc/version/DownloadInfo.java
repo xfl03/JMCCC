@@ -14,13 +14,11 @@ public class DownloadInfo implements Serializable {
 	/**
 	 * Constructor of DownloadInfo.
 	 * 
-	 * @param url the download url, set it null if the url is unknown
-	 * @param checksum the SHA-1 checksum, set it null if the checksum is unknown
-	 * @param size the file size, set it -1 if the size is unknown
+	 * @param url the download url, null if the url is unknown
+	 * @param checksum the SHA-1 checksum, null if the checksum is unknown
+	 * @param size the file size, -1 if the size is unknown
 	 */
 	public DownloadInfo(String url, String checksum, long size) {
-		Objects.requireNonNull(url);
-		Objects.requireNonNull(checksum);
 		this.url = url;
 		this.checksum = checksum;
 		this.size = size;
@@ -65,7 +63,9 @@ public class DownloadInfo implements Serializable {
 		}
 		if (obj instanceof DownloadInfo) {
 			DownloadInfo another = (DownloadInfo) obj;
-			return Objects.equals(url, another.url) && Objects.equals(checksum, another.checksum) && size == another.size;
+			return Objects.equals(url, another.url)
+					&& Objects.equals(checksum, another.checksum)
+					&& size == another.size;
 		}
 		return false;
 	}

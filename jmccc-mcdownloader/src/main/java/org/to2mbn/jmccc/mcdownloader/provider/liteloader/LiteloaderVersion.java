@@ -5,7 +5,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
 import org.json.JSONObject;
@@ -111,7 +111,7 @@ public class LiteloaderVersion implements Serializable {
 		in.defaultReadObject();
 		if (!in.readBoolean()) {
 			int size = in.readInt();
-			Set<JSONObject> newLibraries = new HashSet<>();
+			Set<JSONObject> newLibraries = new LinkedHashSet<>();
 			for (int i = 0; i < size; i++)
 				newLibraries.add(new JSONObject(in.readUTF()));
 			libraries = Collections.unmodifiableSet(newLibraries);

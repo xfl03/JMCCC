@@ -41,8 +41,9 @@ public enum Platform {
 	/**
 	 * Returns the default encoding of current platform.
 	 * <p>
-	 * This method refers to <code>System.getProperty("sun.jnu.encoding")</code>. If this property does not exist, the
-	 * method will return <code>Charset.defaultCharset()</code>.
+	 * This method refers to <code>System.getProperty("sun.jnu.encoding")</code>
+	 * . If this property does not exist, the method will return
+	 * <code>Charset.defaultCharset()</code>.
 	 * 
 	 * @return the default encoding of current platform
 	 */
@@ -53,8 +54,8 @@ public enum Platform {
 	/**
 	 * Returns true if current platform supports x64.
 	 * <p>
-	 * This method checks <code>sun.arch.data.model</code> property first.
-	 * If the property does not exist, this method will check <code>os.arch</code>.
+	 * This method checks <code>sun.arch.data.model</code> property first. If
+	 * the property does not exist, this method will check <code>os.arch</code>.
 	 * 
 	 * @return true if current platform supports x64
 	 */
@@ -67,12 +68,14 @@ public enum Platform {
 	}
 
 	/**
-	 * The current platform, {@link Platform#UNKNOWN} if the current platform cannot be identified.
+	 * The current platform, {@link Platform#UNKNOWN} if the current platform
+	 * cannot be identified.
 	 */
-	public static final Platform CURRENT = getCurrent();
+	public static final Platform CURRENT = inferPlatform(System.getProperty("os.name"));
 
-	private static Platform getCurrent() {
-		String osName = System.getProperty("os.name").toLowerCase();
+	public static Platform inferPlatform(String osName) {
+		if (osName == null) return UNKNOWN;
+		osName = osName.toLowerCase();
 
 		if (osName.contains("linux") || osName.contains("unix")) {
 			return LINUX;

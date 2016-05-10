@@ -31,17 +31,17 @@ public class WindowSize implements Serializable {
 	/**
 	 * True if the window is fullscreen
 	 */
-	private final boolean fullscreen;
+	private boolean fullscreen;
 
 	/**
 	 * Width of the window, default to 0
 	 */
-	private final int width;
+	private int width;
 
 	/**
 	 * Height of the window, default to 0
 	 */
-	private final int height;
+	private int height;
 
 	/**
 	 * Creates a full-screen WindowSize.
@@ -51,8 +51,6 @@ public class WindowSize implements Serializable {
 	@Deprecated
 	public WindowSize() {
 		this.fullscreen = true;
-		this.width = 0;
-		this.height = 0;
 	}
 
 	/**

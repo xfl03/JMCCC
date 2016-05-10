@@ -21,18 +21,15 @@ public class Asset implements Serializable {
 	 * @param virtualPath the virtual path
 	 * @param hash the sha1 hash
 	 * @param size the size
-	 * @throws NullPointerException if <code>virtualPath==null||hash==null</code>
-	 * @throws IllegalArgumentException if <code>size&lt;0</code>
+	 * @throws NullPointerException if
+	 *             <code>virtualPath == null || hash == null</code>
+	 * @throws IllegalArgumentException if <code>size &lt; 0</code>
 	 */
 	public Asset(String virtualPath, String hash, int size) {
-		Objects.requireNonNull(virtualPath);
-		Objects.requireNonNull(hash);
-		if (size < 0) {
-			throw new IllegalArgumentException("size<0");
-		}
-
-		this.virtualPath = virtualPath;
-		this.hash = hash;
+		this.virtualPath = Objects.requireNonNull(virtualPath);
+		this.hash = Objects.requireNonNull(hash);
+		if (size < 0) 
+			throw new IllegalArgumentException("size < 0");
 		this.size = size;
 	}
 
@@ -117,7 +114,9 @@ public class Asset implements Serializable {
 		}
 		if (obj instanceof Asset) {
 			Asset another = (Asset) obj;
-			return virtualPath.equals(another.virtualPath) && hash.equals(another.hash) && size == another.size;
+			return virtualPath.equals(another.virtualPath)
+					&& hash.equals(another.hash)
+					&& size == another.size;
 		}
 		return false;
 	}

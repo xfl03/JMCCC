@@ -1,4 +1,4 @@
-[中文版Readme](https://github.com/to2mbn/JMCCC/blob/master/README.zh_CN.md)
+[中文版Readme](README.zh_CN.md)
 
 # JMCCC
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Southern-InfinityStudio/JMCCC?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Build Status](https://travis-ci.org/to2mbn/JMCCC.svg?branch=master)](https://travis-ci.org/to2mbn/JMCCC)<br/>
@@ -26,7 +26,7 @@ The snapshot repository:
 
 ## Compile
 ```
-mvn clean install
+mvn clean package
 ```
 
 ## License
@@ -117,7 +117,7 @@ If you want to save the authentication, you ought to call `getCurrentSession()` 
 The following code snippet downloads minecraft 1.9:
 ```java
 MinecraftDirectory dir = new MinecraftDirectory("/home/user/.minecraft");
-MinecraftDownloader downloader=MinecraftDownloaderBuilder.create().build();
+MinecraftDownloader downloader = MinecraftDownloaderBuilder.buildDefault();
 downloader.downloadIncrementally(dir, "1.9", new CallbackAdapter<Version>() {
 	
 	@Override
@@ -174,7 +174,7 @@ downloader.downloadIncrementally(dir, "1.9", new CallbackAdapter<Version>() {
 
 ##### Minecraft version list downloading
 ```java
-downloader.fetchRemoteVersionList(new CombinedDownloadCallback<RemoteVersionList>() {...});
+downloader.fetchRemoteVersionList(new CallbackAdapter<RemoteVersionList>() {...});
 ```
 
 ##### Forge and LiteLoader supports
@@ -182,7 +182,11 @@ downloader.fetchRemoteVersionList(new CombinedDownloadCallback<RemoteVersionList
 MinecraftDirectory dir = new MinecraftDirectory("/home/user/.minecraft");
 ForgeDownloadProvider forgeProvider = new ForgeDownloadProvider();
 LiteloaderDownloadProvider liteloaderProvider = new LiteloaderDownloadProvider();
-MinecraftDownloader downloader = MinecraftDownloaderBuilder.create().appendProvider(forgeProvider).appendProvider(liteloaderProvider).build();
+MinecraftDownloader downloader = MinecraftDownloaderBuilder.create()
+	.providerChain(DownloadProviderChainBuilder.create()
+		.addProvider(forgeProvider)
+		.addProvider(liteloaderProvider))
+	.build();
 
 downloader.downloadIncrementally(dir, "1.8-forge1.8-11.14.3.1514", new CallbackAdapter<Version>() {...});
 downloader.downloadIncrementally(dir, "1.7.10-LiteLoader1.7.10", new CallbackAdapter<Version>() {...});
@@ -192,7 +196,10 @@ downloader.download(liteloaderProvider.liteloaderVersionList(), new CallbackAdap
 
 ##### Customized download provider
 ```java
-MinecraftDownloader downloader = MinecraftDownloaderBuilder.create().setBaseProvider(new CustomizedDownloadProvider()).build();
+MinecraftDownloader downloader = MinecraftDownloaderBuilder.create()
+	.providerChain(DownloadProviderChainBuilder.create()
+		.baseProvider(new CustomizedDownloadProvider()))
+	.build();
 ```
 
 Finally, don't forget to shutdown the downloader.
@@ -205,7 +212,8 @@ JMCCC won't add fml options (such as `-Dfml.ignoreInvalidMinecraftCertificates=t
 If you have problems launching forge, you may need to add these arguments manually.
 These arguments are already defined in class `ExtraArgumentsTemplates`.
 ```java
-option.setExtraJvmArguments(Arrays.asList(ExtraArgumentsTemplates.FML_IGNORE_INVALID_MINECRAFT_CERTIFICATES, ExtraArgumentsTemplates.FML_IGNORE_PATCH_DISCREPANCISE));
+option.extraJvmArguments().add(ExtraArgumentsTemplates.FML_IGNORE_INVALID_MINECRAFT_CERTIFICATES);
+option.extraJvmArguments().add(ExtraArgumentsTemplates.FML_IGNORE_PATCH_DISCREPANCISE);
 ```
 
 ### Change Logs

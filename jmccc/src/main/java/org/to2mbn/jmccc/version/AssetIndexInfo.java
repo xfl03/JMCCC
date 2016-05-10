@@ -12,17 +12,17 @@ public class AssetIndexInfo extends DownloadInfo {
 	/**
 	 * Constructor of AssetIndexInfo.
 	 * 
-	 * @param url the url, set it null if the url is unknown
-	 * @param checksum the SHA-1 checksum, set it null if the checksum is unknown
-	 * @param size the file size, set it -1 if the size is unknown
+	 * @param url the url, null if the url is unknown
+	 * @param checksum the SHA-1 checksum, null if the checksum is unknown
+	 * @param size the file size, -1 if the size is unknown
 	 * @param id the version of the asset index
-	 * @param totalSize the total size of the assets, set it -1 if the total size if unknown
-	 * @throws NullPointerException if <code>id==null</code>
+	 * @param totalSize the total size of the assets, -1 if the total size is
+	 *            unknown
+	 * @throws NullPointerException if {@code id == null}
 	 */
 	public AssetIndexInfo(String url, String checksum, long size, String id, long totalSize) {
 		super(url, checksum, size);
-		Objects.requireNonNull(id);
-		this.id = id;
+		this.id = Objects.requireNonNull(id);
 		this.totalSize = totalSize;
 	}
 
@@ -54,9 +54,11 @@ public class AssetIndexInfo extends DownloadInfo {
 		if (obj == this) {
 			return true;
 		}
-		if (obj instanceof AssetIndexInfo && super.equals(obj)) {
+		if (obj instanceof AssetIndexInfo) {
 			AssetIndexInfo another = (AssetIndexInfo) obj;
-			return Objects.equals(id, another.id) && totalSize == another.totalSize;
+			return super.equals(obj)
+					&& Objects.equals(id, another.id)
+					&& totalSize == another.totalSize;
 		}
 		return false;
 	}

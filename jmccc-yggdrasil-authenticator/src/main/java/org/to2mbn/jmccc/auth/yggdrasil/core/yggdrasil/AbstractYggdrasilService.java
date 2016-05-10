@@ -20,7 +20,7 @@ abstract public class AbstractYggdrasilService {
 
 	protected void requireNonEmptyResponse(JSONObject response) throws AuthenticationException {
 		if (response == null) {
-			throw new AuthenticationException("empty response");
+			throw new AuthenticationException("Empty response");
 		}
 		tryThrowRemoteException(response);
 	}
@@ -31,7 +31,7 @@ abstract public class AbstractYggdrasilService {
 		}
 
 		tryThrowRemoteException(response);
-		throw new ResponseFormatException("invalid response: " + response);
+		throw new AuthenticationException("Invalid response: " + response);
 	}
 
 	protected JSONHttpRequester getRequester() {
@@ -52,7 +52,7 @@ abstract public class AbstractYggdrasilService {
 				throw new RemoteAuthenticationException(response.getString("error"), response.optString("errorMessage", null), response.optString("cause", null));
 			}
 		} catch (JSONException e) {
-			throw new ResponseFormatException(e);
+			throw new AuthenticationException("Couldn't parse response: " + response, e);
 		}
 	}
 

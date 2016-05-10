@@ -16,7 +16,13 @@ abstract public class ProcessMonitor {
 	private List<Thread> monitors = new ArrayList<>();
 
 	public ProcessMonitor(Process process) {
-		this(process, r -> new Thread(r, "process-monitor-" + r));
+		this(process, new ThreadFactory() {
+
+			@Override
+			public Thread newThread(Runnable r) {
+				return new Thread(r, "process-monitor-" + r);
+			}
+		});
 	}
 
 	public ProcessMonitor(Process process, ThreadFactory threadFactory) {

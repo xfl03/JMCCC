@@ -10,12 +10,12 @@ public class ServerInfo implements Serializable {
 	/**
 	 * The host of server, cannot be null
 	 */
-	private final String host;
+	private String host;
 
 	/**
 	 * The port of server, default to 25565
 	 */
-	private final int port;
+	private int port;
 
 	/**
 	 * Creates a ServerInfo with the given host and default port 25565.
@@ -55,12 +55,37 @@ public class ServerInfo implements Serializable {
 	}
 
 	/**
+	 * Sets the host of server.
+	 * 
+	 * @param host the host to set
+	 * @throws NullPointerException if <code>host==null</code>
+	 */
+	public void setHost(String host) {
+		Objects.requireNonNull(host);
+		this.host = host;
+	}
+
+	/**
 	 * Gets the server port
 	 * 
 	 * @return the port
 	 */
 	public int getPort() {
 		return port;
+	}
+
+	/**
+	 * Sets the port.
+	 * 
+	 * @param port the port to set
+	 * @throws IllegalArgumentException if <code>port&lt;0</code>
+	 */
+	public void setPort(int port) {
+		if (port < 0) {
+			throw new IllegalArgumentException("port<0");
+		}
+
+		this.port = port;
 	}
 
 	@Override
@@ -75,8 +100,7 @@ public class ServerInfo implements Serializable {
 		}
 		if (obj instanceof ServerInfo) {
 			ServerInfo another = (ServerInfo) obj;
-			return port == another.port &&
-					Objects.equals(host, another.host);
+			return port == another.port && host.equals(another.host);
 		}
 		return false;
 	}

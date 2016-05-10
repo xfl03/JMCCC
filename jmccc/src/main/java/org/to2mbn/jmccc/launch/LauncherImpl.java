@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -16,7 +16,10 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import org.json.JSONObject;
 import org.to2mbn.jmccc.auth.AuthInfo;
+import org.to2mbn.jmccc.exec.DaemonStreamPumpMonitor;
 import org.to2mbn.jmccc.exec.GameProcessListener;
+import org.to2mbn.jmccc.exec.LoggingMonitor;
+import org.to2mbn.jmccc.exec.ProcessMonitor;
 import org.to2mbn.jmccc.option.LaunchOption;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.util.FileUtils;
@@ -26,11 +29,12 @@ import org.to2mbn.jmccc.version.Native;
 import org.to2mbn.jmccc.version.Version;
 import org.to2mbn.jmccc.version.Versions;
 
-abstract public class AbstractLauncher implements Launcher {
+public class LauncherImpl implements Launcher {
 
 	private boolean nativeFastCheck = false;
+	private boolean printDebugCommandline = false;
 
-	protected AbstractLauncher() {
+	public LauncherImpl() {
 	}
 
 	@Override
@@ -40,7 +44,7 @@ abstract public class AbstractLauncher implements Launcher {
 
 	@Override
 	public LaunchResult launch(LaunchOption option, GameProcessListener listener) throws LaunchException {
-		return doLaunch(generateLaunchArgs(option), listener);
+		return launch(generateLaunchArgs(option), listener);
 	}
 
 	/**
@@ -48,7 +52,7 @@ abstract public class AbstractLauncher implements Launcher {
 	 * 
 	 * @return true if jmccc was set to do a fast check on natives
 	 * @see #setNativeFastCheck(boolean)
-	 * @see LauncherBuilder#setNativeFastCheck(boolean)
+	 * @see LauncherBuilder#nativeFastCheck(boolean)
 	 */
 	public boolean isNativeFastCheck() {
 		return nativeFastCheck;
@@ -59,27 +63,75 @@ abstract public class AbstractLauncher implements Launcher {
 	 * 
 	 * @param nativeFastCheck true if the jmccc shall do a fast check on natives
 	 * @see #isNativeFastCheck()
-	 * @see LauncherBuilder#setNativeFastCheck(boolean)
+	 * @see LauncherBuilder#nativeFastCheck(boolean)
 	 */
 	public void setNativeFastCheck(boolean nativeFastCheck) {
 		this.nativeFastCheck = nativeFastCheck;
 	}
 
+	/**
+	 * Gets whether to print the launch commandline for debugging.
+	 * 
+	 * @return whether to print the launch commandline for debugging
+	 */
+	public boolean isDebugPrintCommandline() {
+		return printDebugCommandline;
+	}
 
-	abstract protected LaunchResult doLaunch(LaunchArgument arg, GameProcessListener listener) throws LaunchException;
+	/**
+	 * Sets whether to print the launch commandline for debugging.
+	 * 
+	 * @param printDebugCommandline whether to print the launch commandline for
+	 *            debugging.
+	 */
+	public void setPrintDebugCommandline(boolean printDebugCommandline) {
+		this.printDebugCommandline = printDebugCommandline;
+	}
+
+	private LaunchResult launch(LaunchArgument arg, GameProcessListener listener) throws LaunchException {
+		String[] commandline = arg.generateCommandline();
+		if (printDebugCommandline) {
+			printDebugCommandline(commandline);
+		}
+
+		ProcessBuilder processBuilder = new ProcessBuilder(commandline);
+		processBuilder.directory(arg.getLaunchOption().getRuntimeDirectory().getRoot());
+
+		Process process;
+		try {
+			process = processBuilder.start();
+		} catch (SecurityException | IOException e) {
+			throw new LaunchException("Couldn't start process", e);
+		}
+
+		ProcessMonitor monitor;
+		if (listener == null) {
+			monitor = new DaemonStreamPumpMonitor(process);
+		} else {
+			monitor = new LoggingMonitor(process, listener);
+		}
+		monitor.start();
+
+		return new LaunchResult(monitor, process);
+	}
 
 	private LaunchArgument generateLaunchArgs(LaunchOption option) throws LaunchException {
 		Objects.requireNonNull(option);
+
+		if (option.getJavaEnvironment() == null) {
+			throw new IllegalArgumentException("No JavaEnvironment is specified");
+		}
+
 		MinecraftDirectory mcdir = option.getMinecraftDirectory();
 		Version version = option.getVersion();
 
 		// check libraries
 		Set<Library> missing = version.getMissingLibraries(mcdir);
 		if (!missing.isEmpty()) {
-			throw new MissingDependenciesException(missing.toString());
+			throw new MissingDependenciesException(missing);
 		}
 
-		Set<File> javaLibraries = new HashSet<>();
+		Set<File> javaLibraries = new LinkedHashSet<>();
 		File nativesDir = mcdir.getNatives(version);
 		for (Library library : version.getLibraries()) {
 			File libraryFile = mcdir.getLibrary(library);
@@ -87,28 +139,28 @@ abstract public class AbstractLauncher implements Launcher {
 				try {
 					decompressZipWithExcludes(libraryFile, nativesDir, ((Native) library).getExtractExcludes());
 				} catch (IOException e) {
-					throw new LaunchException("Failed to uncompress " + libraryFile, e);
+					throw new LaunchException("Couldn't uncompress " + libraryFile, e);
 				}
 			} else {
 				javaLibraries.add(libraryFile);
 			}
 		}
 		javaLibraries.add(mcdir.getVersionJar(version));
-		javaLibraries.addAll(option.getExtraClasspath());
+		javaLibraries.addAll(option.extraClasspath());
 
 		if (version.isLegacy()) {
 			try {
 				buildLegacyAssets(mcdir, version);
 			} catch (IOException e) {
-				throw new LaunchException("Failed to build virtual assets", e);
+				throw new LaunchException("Couldn't build virtual assets", e);
 			}
 		}
 
 		AuthInfo auth = option.getAuthenticator().auth();
 
-		Map<String, String> tokens = new HashMap<String, String>();
+		Map<String, String> tokens = new HashMap<>();
 		String token = auth.getToken();
-		String assetsDir = version.isLegacy() ? mcdir.getVirtualLegacyAssets().toString() : mcdir.getAssets().toString();
+		String assetsDir = (version.isLegacy() ? mcdir.getVirtualLegacyAssets() : mcdir.getAssets()).getAbsolutePath();
 		tokens.put("assets_root", assetsDir);
 		tokens.put("game_assets", assetsDir);
 		tokens.put("auth_access_token", token);
@@ -119,7 +171,7 @@ abstract public class AbstractLauncher implements Launcher {
 		tokens.put("user_properties", new JSONObject(auth.getProperties()).toString());
 		tokens.put("version_name", version.getVersion());
 		tokens.put("assets_index_name", version.getAssets());
-		tokens.put("game_directory", option.getRuntimeDirectory().toString());
+		tokens.put("game_directory", option.getRuntimeDirectory().getAbsolutePath());
 
 		String type = version.getType();
 		if (type != null) {
@@ -202,6 +254,15 @@ abstract public class AbstractLauncher implements Launcher {
 			}
 		}
 
+	}
+
+	private void printDebugCommandline(String[] commandline) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("jmccc:\n");
+		for (String arg : commandline) {
+			sb.append(arg).append('\n');
+		}
+		System.err.println(sb.toString());
 	}
 
 }

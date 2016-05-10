@@ -16,18 +16,18 @@ public class LaunchResult {
 	}
 
 	/**
-	 * Gets the game process monitor, null if no process has started
+	 * Gets the game process monitor
 	 * 
-	 * @return the game monitor, null if no process has started
+	 * @return the game monitor
 	 */
 	public ProcessMonitor getMonitor() {
 		return monitor;
 	}
 
 	/**
-	 * Gets the game process, null if no process has started
+	 * Gets the game process
 	 * 
-	 * @return the game process, null if no process has started
+	 * @return the game process
 	 */
 	public Process getProcess() {
 		return process;

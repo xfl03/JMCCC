@@ -1,11 +1,13 @@
 package org.to2mbn.jmccc.launch;
 
+import org.to2mbn.jmccc.util.Builder;
+
 /**
  * Builder for {@link Launcher}.
  * 
  * @author yushijinhun
  */
-public class LauncherBuilder {
+public class LauncherBuilder implements Builder<Launcher> {
 
 	/**
 	 * Creates a new <code>LauncherBuilder</code> instance.
@@ -22,11 +24,11 @@ public class LauncherBuilder {
 	 * @return a <code>Launcher</code> instance
 	 */
 	public static Launcher buildDefault() {
-		return new LauncherBuilder().build();
+		return create().build();
 	}
 
 	private boolean nativeFastCheck = false;
-	private boolean debugPrintCommandline = false;
+	private boolean printDebugCommandline = false;
 
 	protected LauncherBuilder() {
 	}
@@ -45,7 +47,7 @@ public class LauncherBuilder {
 	 * @param nativeFastCheck true to let jmccc do a fast check on natives
 	 * @return the builder itself
 	 */
-	public LauncherBuilder setNativeFastCheck(boolean nativeFastCheck) {
+	public LauncherBuilder nativeFastCheck(boolean nativeFastCheck) {
 		this.nativeFastCheck = nativeFastCheck;
 		return this;
 	}
@@ -65,12 +67,12 @@ public class LauncherBuilder {
 	 * 
 	 * </blockquote>
 	 * 
-	 * @param debugPrintCommandline whether to print the launch commandline for
+	 * @param printDebugCommandline whether to print the launch commandline for
 	 *            debugging.
 	 * @return the builder itself
 	 */
-	public LauncherBuilder setDebugPrintCommandline(boolean debugPrintCommandline) {
-		this.debugPrintCommandline = debugPrintCommandline;
+	public LauncherBuilder printDebugCommandline(boolean printDebugCommandline) {
+		this.printDebugCommandline = printDebugCommandline;
 		return this;
 	}
 
@@ -80,10 +82,11 @@ public class LauncherBuilder {
 	 * 
 	 * @return a <code>Launcher</code> instance
 	 */
+	@Override
 	public Launcher build() {
-		ProcessLauncher launcher = new ProcessLauncher();
+		LauncherImpl launcher = new LauncherImpl();
 		launcher.setNativeFastCheck(nativeFastCheck);
-		launcher.setDebugPrintCommandline(debugPrintCommandline);
+		launcher.setPrintDebugCommandline(printDebugCommandline);
 		return launcher;
 	}
 

@@ -5,7 +5,7 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ResolvedLiteloaderVersion implements Serializable {
+class ResolvedLiteloaderVersion implements Serializable {
 
 	private static final Pattern LITELOADER_VERSION_PATTERN = Pattern.compile("^([\\w\\.\\-]+)-[lL]ite[lL]oader([\\w\\.\\-]+)$");
 
