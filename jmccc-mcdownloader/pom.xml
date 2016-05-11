@@ -22,7 +22,7 @@
 		<dependency>
 			<groupId>org.ehcache.modules</groupId>
 			<artifactId>ehcache-impl</artifactId>
-			<version>3.0.0.rc2</version>
+			<version>3.0.0</version>
 			<optional>true</optional>
 		</dependency>
 		<dependency>

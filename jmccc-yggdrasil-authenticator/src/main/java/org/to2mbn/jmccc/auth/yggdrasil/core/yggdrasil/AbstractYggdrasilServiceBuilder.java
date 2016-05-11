@@ -35,21 +35,21 @@ abstract public class AbstractYggdrasilServiceBuilder<T> implements Builder<T> {
 		return this;
 	}
 
-	public AbstractYggdrasilServiceBuilder<?> loadSessionPublicKey(byte[] encodedKey) throws NoSuchAlgorithmException, InvalidKeySpecException {
+	public AbstractYggdrasilServiceBuilder<T> loadSessionPublicKey(byte[] encodedKey) throws NoSuchAlgorithmException, InvalidKeySpecException {
 		return sessionPublicKey(loadX509PublicKey(Objects.requireNonNull(encodedKey)));
 	}
 
-	public AbstractYggdrasilServiceBuilder<?> loadSessionPublicKey(InputStream in) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+	public AbstractYggdrasilServiceBuilder<T> loadSessionPublicKey(InputStream in) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
 		return sessionPublicKey(loadX509PublicKey(Objects.requireNonNull(in)));
 	}
 
-	public AbstractYggdrasilServiceBuilder<?> loadSessionPublicKey(File keyFile) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+	public AbstractYggdrasilServiceBuilder<T> loadSessionPublicKey(File keyFile) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
 		try (InputStream in = new FileInputStream(Objects.requireNonNull(keyFile))) {
 			return sessionPublicKey(loadX509PublicKey(in));
 		}
 	}
 
-	public AbstractYggdrasilServiceBuilder<?> loadSessionPublicKey(String keyFile) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+	public AbstractYggdrasilServiceBuilder<T> loadSessionPublicKey(String keyFile) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
 		return loadSessionPublicKey(new File(Objects.requireNonNull(keyFile)));
 	}
 

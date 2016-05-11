@@ -30,8 +30,8 @@ public class CachedDownloaderBuilder implements Builder<Downloader> {
 		// So we must move it into another class
 		static CacheManager newDefaultCacheManager(String cacheName) {
 			return CacheManagerBuilder.newCacheManagerBuilder()
-					.withCache(cacheName, CacheConfigurationBuilder.newCacheConfigurationBuilder(URI.class, byte[].class)
-							.withResourcePools(ResourcePoolsBuilder.newResourcePoolsBuilder()
+					.withCache(cacheName, CacheConfigurationBuilder.newCacheConfigurationBuilder(URI.class, byte[].class,
+							ResourcePoolsBuilder.newResourcePoolsBuilder()
 									.heap(DEFAULT_CACHE_HEAP, MemoryUnit.valueOf(DEFAULT_CACHE_HEAP_UNIT)))
 							.withExpiry(Expirations.timeToLiveExpiration(new Duration(DEFAULT_CACHE_TTL, DEFAULT_CACHE_TTL_UNIT))))
 					.build();
