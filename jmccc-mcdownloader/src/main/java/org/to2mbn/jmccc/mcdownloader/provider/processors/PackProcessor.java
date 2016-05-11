@@ -21,7 +21,7 @@ import java.util.jar.Pack200;
 import java.util.jar.Pack200.Unpacker;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import org.to2mbn.jmccc.mcdownloader.download.task.ResultProcessor;
+import org.to2mbn.jmccc.mcdownloader.download.tasks.ResultProcessor;
 import org.to2mbn.jmccc.util.FileUtils;
 
 public class PackProcessor implements ResultProcessor<byte[], Void> {

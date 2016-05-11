@@ -1,7 +1,7 @@
 package org.to2mbn.jmccc.mcdownloader.download.concurrent;
 
 import java.util.Objects;
-import org.to2mbn.jmccc.mcdownloader.download.task.DownloadTask;
+import org.to2mbn.jmccc.mcdownloader.download.tasks.DownloadTask;
 
 class AdaptedCallback<V> implements Callback<V>, DownloadCallback<V>, CombinedDownloadCallback<V> {
 

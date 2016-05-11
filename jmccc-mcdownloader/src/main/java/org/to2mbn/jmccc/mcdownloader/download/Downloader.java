@@ -4,7 +4,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.DownloadCallback;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Shutdownable;
-import org.to2mbn.jmccc.mcdownloader.download.task.DownloadTask;
+import org.to2mbn.jmccc.mcdownloader.download.tasks.DownloadTask;
 
 public interface Downloader extends Shutdownable {
 

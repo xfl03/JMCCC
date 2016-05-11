@@ -6,7 +6,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import org.to2mbn.jmccc.mcdownloader.download.task.ResultProcessor;
+import org.to2mbn.jmccc.mcdownloader.download.tasks.ResultProcessor;
 import org.to2mbn.jmccc.util.FileUtils;
 
 class UniversalDecompressor implements ResultProcessor<byte[], Void> {

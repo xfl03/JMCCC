@@ -2,8 +2,8 @@ package org.to2mbn.jmccc.mcdownloader.provider.liteloader;
 
 import org.json.JSONObject;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
-import org.to2mbn.jmccc.mcdownloader.download.task.MemoryDownloadTask;
-import org.to2mbn.jmccc.mcdownloader.download.task.ResultProcessor;
+import org.to2mbn.jmccc.mcdownloader.download.tasks.MemoryDownloadTask;
+import org.to2mbn.jmccc.mcdownloader.download.tasks.ResultProcessor;
 import org.to2mbn.jmccc.mcdownloader.provider.processors.JsonProcessor;
 
 public class DefaultLiteloaderDownloadSource implements LiteloaderDownloadSource {

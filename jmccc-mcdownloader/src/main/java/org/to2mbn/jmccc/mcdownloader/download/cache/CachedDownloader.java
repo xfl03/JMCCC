@@ -12,8 +12,8 @@ import org.ehcache.CacheManager;
 import org.to2mbn.jmccc.mcdownloader.download.Downloader;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.CompletedFuture;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.DownloadCallback;
-import org.to2mbn.jmccc.mcdownloader.download.task.DownloadSession;
-import org.to2mbn.jmccc.mcdownloader.download.task.DownloadTask;
+import org.to2mbn.jmccc.mcdownloader.download.tasks.DownloadSession;
+import org.to2mbn.jmccc.mcdownloader.download.tasks.DownloadTask;
 
 public class CachedDownloader implements Downloader {
 

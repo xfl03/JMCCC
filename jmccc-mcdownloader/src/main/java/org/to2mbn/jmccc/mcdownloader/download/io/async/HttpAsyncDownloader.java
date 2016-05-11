@@ -32,8 +32,8 @@ import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callbacks;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.DownloadCallback;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.DownloadCallbacks;
 import org.to2mbn.jmccc.mcdownloader.download.io.GzipDownloadSession;
-import org.to2mbn.jmccc.mcdownloader.download.task.DownloadSession;
-import org.to2mbn.jmccc.mcdownloader.download.task.DownloadTask;
+import org.to2mbn.jmccc.mcdownloader.download.tasks.DownloadSession;
+import org.to2mbn.jmccc.mcdownloader.download.tasks.DownloadTask;
 
 public class HttpAsyncDownloader implements Downloader {
 

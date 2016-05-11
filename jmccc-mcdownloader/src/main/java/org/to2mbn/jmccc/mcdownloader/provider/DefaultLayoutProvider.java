@@ -2,7 +2,7 @@ package org.to2mbn.jmccc.mcdownloader.provider;
 
 import java.net.URI;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
-import org.to2mbn.jmccc.mcdownloader.download.task.ResultProcessor;
+import org.to2mbn.jmccc.mcdownloader.download.tasks.ResultProcessor;
 import org.to2mbn.jmccc.mcdownloader.util.URIUtils;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.version.Asset;

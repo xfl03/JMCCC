@@ -2,7 +2,7 @@ package org.to2mbn.jmccc.mcdownloader.download.concurrent;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.to2mbn.jmccc.mcdownloader.download.task.DownloadTask;
+import org.to2mbn.jmccc.mcdownloader.download.tasks.DownloadTask;
 
 class CombinedDownloadCallbackGroup<T> extends CallbackGroup<T> implements CombinedDownloadCallback<T> {
 

@@ -2,8 +2,8 @@ package org.to2mbn.jmccc.mcdownloader.download.combine;
 
 import java.io.IOException;
 import java.util.Objects;
-import org.to2mbn.jmccc.mcdownloader.download.task.DownloadTask;
-import org.to2mbn.jmccc.mcdownloader.download.task.ResultProcessor;
+import org.to2mbn.jmccc.mcdownloader.download.tasks.DownloadTask;
+import org.to2mbn.jmccc.mcdownloader.download.tasks.ResultProcessor;
 
 abstract public class CombinedDownloadTask<T> {
 

@@ -8,7 +8,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 import java.util.Objects;
 import java.util.zip.GZIPInputStream;
-import org.to2mbn.jmccc.mcdownloader.download.task.DownloadSession;
+import org.to2mbn.jmccc.mcdownloader.download.tasks.DownloadSession;
 
 public class GzipDownloadSession<T> implements DownloadSession<T> {
 
