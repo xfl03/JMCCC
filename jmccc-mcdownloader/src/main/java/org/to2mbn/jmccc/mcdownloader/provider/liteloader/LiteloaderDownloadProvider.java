@@ -5,17 +5,17 @@ import java.util.Objects;
 import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.to2mbn.jmccc.mcdownloader.download.FileDownloadTask;
-import org.to2mbn.jmccc.mcdownloader.download.MemoryDownloadTask;
-import org.to2mbn.jmccc.mcdownloader.download.ResultProcessor;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadContext;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
+import org.to2mbn.jmccc.mcdownloader.download.task.FileDownloadTask;
+import org.to2mbn.jmccc.mcdownloader.download.task.MemoryDownloadTask;
+import org.to2mbn.jmccc.mcdownloader.download.task.ResultProcessor;
 import org.to2mbn.jmccc.mcdownloader.provider.AbstractMinecraftDownloadProvider;
 import org.to2mbn.jmccc.mcdownloader.provider.ExtendedDownloadProvider;
-import org.to2mbn.jmccc.mcdownloader.provider.M2RepositorySupport;
+import org.to2mbn.jmccc.mcdownloader.provider.MavenRepositories;
 import org.to2mbn.jmccc.mcdownloader.provider.MinecraftDownloadProvider;
-import org.to2mbn.jmccc.mcdownloader.provider.JsonResultProcessor;
-import org.to2mbn.jmccc.mcdownloader.provider.VersionJsonWriteProcessor;
+import org.to2mbn.jmccc.mcdownloader.provider.processors.JsonProcessor;
+import org.to2mbn.jmccc.mcdownloader.provider.processors.VersionJsonProcessor;
 import org.to2mbn.jmccc.mcdownloader.util.VersionComparator;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.util.IOUtils;
@@ -50,7 +50,7 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 
 	public CombinedDownloadTask<LiteloaderVersionList> liteloaderVersionList() {
 		return CombinedDownloadTask.single(new MemoryDownloadTask(source.getLiteloaderManifestUrl())
-				.andThen(new JsonResultProcessor())
+				.andThen(new JsonProcessor())
 				.andThen(new ResultProcessor<JSONObject, LiteloaderVersionList>() {
 
 					@Override
@@ -101,14 +101,14 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 						if (liteloader.getLiteloaderVersion().endsWith("-SNAPSHOT")) {
 							// it's a snapshot
 							return source.liteloaderSnapshotVersionJson(liteloader)
-									.andThen(new VersionJsonWriteProcessor(mcdir));
+									.andThen(new VersionJsonProcessor(mcdir));
 						} else {
 							// it's a release
 							return new CombinedDownloadTask<String>() {
 
 								@Override
 								public void execute(CombinedDownloadContext<String> context) throws Exception {
-									context.done(new VersionJsonWriteProcessor(mcdir).process(createLiteloaderVersion(mcdir, liteloader)));
+									context.done(new VersionJsonProcessor(mcdir).process(createLiteloaderVersion(mcdir, liteloader)));
 								}
 							};
 						}
@@ -135,7 +135,7 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 								if (liteloader != null) {
 									final String repo = liteloader.getRepoUrl();
 									if (repo != null) {
-										return M2RepositorySupport.snapshotPostfix(groupId, artifactId, version, repo)
+										return MavenRepositories.snapshotPostfix(groupId, artifactId, version, repo)
 												.andThenDownload(new ResultProcessor<String, CombinedDownloadTask<Void>>() {
 
 													@Override

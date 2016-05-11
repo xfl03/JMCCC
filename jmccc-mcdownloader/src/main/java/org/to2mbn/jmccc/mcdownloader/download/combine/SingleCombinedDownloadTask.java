@@ -1,7 +1,7 @@
 package org.to2mbn.jmccc.mcdownloader.download.combine;
 
-import org.to2mbn.jmccc.mcdownloader.download.DownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackAdapter;
+import org.to2mbn.jmccc.mcdownloader.download.task.DownloadTask;
 
 class SingleCombinedDownloadTask<T> extends CombinedDownloadTask<T> {
 

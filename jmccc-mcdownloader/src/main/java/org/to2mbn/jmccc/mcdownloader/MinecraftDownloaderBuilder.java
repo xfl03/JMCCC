@@ -4,7 +4,7 @@ import java.util.Objects;
 import org.to2mbn.jmccc.mcdownloader.download.Downloader;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloader;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloaderBuilder;
-import org.to2mbn.jmccc.mcdownloader.provider.DownloadProviderChainBuilder;
+import org.to2mbn.jmccc.mcdownloader.provider.DownloadProviderChain;
 import org.to2mbn.jmccc.mcdownloader.provider.MinecraftDownloadProvider;
 import org.to2mbn.jmccc.util.Builder;
 
@@ -58,7 +58,7 @@ public class MinecraftDownloaderBuilder implements Builder<MinecraftDownloader> 
 	@Override
 	public MinecraftDownloader build() {
 		MinecraftDownloadProvider provider = providerChain == null
-				? DownloadProviderChainBuilder.buildDefault()
+				? DownloadProviderChain.buildDefault()
 				: Objects.requireNonNull(providerChain.build(), "providerChain builder retuns null");
 
 		CombinedDownloader combinedDownloader = null;

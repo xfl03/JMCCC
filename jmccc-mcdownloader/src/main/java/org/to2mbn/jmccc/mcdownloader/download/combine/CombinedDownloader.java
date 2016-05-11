@@ -3,6 +3,7 @@ package org.to2mbn.jmccc.mcdownloader.download.combine;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import org.to2mbn.jmccc.mcdownloader.download.Downloader;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.CombinedDownloadCallback;
 
 public interface CombinedDownloader extends Downloader {
 

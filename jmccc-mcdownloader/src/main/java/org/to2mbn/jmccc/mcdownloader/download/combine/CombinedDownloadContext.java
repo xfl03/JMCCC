@@ -2,9 +2,10 @@ package org.to2mbn.jmccc.mcdownloader.download.combine;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
-import org.to2mbn.jmccc.mcdownloader.download.DownloadCallback;
-import org.to2mbn.jmccc.mcdownloader.download.DownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.CombinedDownloadCallback;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.DownloadCallback;
+import org.to2mbn.jmccc.mcdownloader.download.task.DownloadTask;
 
 public interface CombinedDownloadContext<T> extends Callback<T> {
 

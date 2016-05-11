@@ -2,7 +2,7 @@ package org.to2mbn.jmccc.mcdownloader.download.concurrent;
 
 import java.util.Objects;
 
-public class CallbackGroup<T> implements Callback<T> {
+class CallbackGroup<T> implements Callback<T> {
 
 	private Callback<T>[] callbacks;
 

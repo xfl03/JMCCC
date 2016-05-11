@@ -8,7 +8,7 @@ import org.to2mbn.jmccc.version.Asset;
 import org.to2mbn.jmccc.version.Library;
 import org.to2mbn.jmccc.version.Version;
 
-public class DownloadProviderTree implements MinecraftDownloadProvider {
+class DownloadProviderTree implements MinecraftDownloadProvider {
 
 	private MinecraftDownloadProvider left;
 	private MinecraftDownloadProvider right;

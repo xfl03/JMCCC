@@ -4,8 +4,8 @@ import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import org.to2mbn.jmccc.mcdownloader.download.Downloader;
-import org.to2mbn.jmccc.mcdownloader.download.HttpAsyncDownloaderBuilder;
-import org.to2mbn.jmccc.mcdownloader.download.JdkDownloaderBuilder;
+import org.to2mbn.jmccc.mcdownloader.download.io.JdkDownloaderBuilder;
+import org.to2mbn.jmccc.mcdownloader.download.io.async.HttpAsyncDownloaderBuilder;
 import org.to2mbn.jmccc.mcdownloader.util.ThreadPoolUtils;
 import org.to2mbn.jmccc.util.Builder;
 

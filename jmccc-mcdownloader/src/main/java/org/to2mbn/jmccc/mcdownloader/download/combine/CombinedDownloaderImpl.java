@@ -18,16 +18,17 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import org.to2mbn.jmccc.mcdownloader.download.DownloadCallback;
-import org.to2mbn.jmccc.mcdownloader.download.DownloadCallbacks;
-import org.to2mbn.jmccc.mcdownloader.download.DownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.Downloader;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackAdapter;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackAsyncFutureTask;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackFutureTask;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callbacks;
-import org.to2mbn.jmccc.mcdownloader.download.concurrent.EmptyCallback;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.CombinedDownloadCallback;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.CombinedDownloadCallbacks;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.DownloadCallback;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.DownloadCallbacks;
+import org.to2mbn.jmccc.mcdownloader.download.task.DownloadTask;
 
 public class CombinedDownloaderImpl implements CombinedDownloader {
 
@@ -175,9 +176,7 @@ public class CombinedDownloaderImpl implements CombinedDownloader {
 			if (fatal)
 				callbacks.add(wrapCallback(new FatalSubtaskCallback<R>()));
 
-			/* TODO: Change to `callbacks.add(wrapCallback(Callbacks.whatever(countdownAction)));` in java 8 */
-			Callback<R> countdownCallback = Callbacks.whatever(countdownAction);
-			callbacks.add(wrapCallback(countdownCallback));
+			callbacks.add(wrapCallback(Callbacks.<R> whatever(countdownAction)));
 
 			futureTask.setCallback(Callbacks.group(callbacks));
 
@@ -214,9 +213,7 @@ public class CombinedDownloaderImpl implements CombinedDownloader {
 			if (fatal)
 				callbacks.add(wrapDownloadCallback(DownloadCallbacks.fromCallback(new FatalSubtaskCallback<R>())));
 
-			/* TODO: Change to `callbacks.add(wrapDownloadCallback(DownloadCallbacks.whatever(countdownAction)));` in java 8 */
-			DownloadCallback<R> countdownCallback = DownloadCallbacks.whatever(countdownAction);
-			callbacks.add(wrapDownloadCallback(countdownCallback));
+			callbacks.add(wrapDownloadCallback(DownloadCallbacks.<R> whatever(countdownAction)));
 
 			Future<R> future;
 
@@ -252,9 +249,7 @@ public class CombinedDownloaderImpl implements CombinedDownloader {
 			if (fatal)
 				callbacks.add(wrapCombinedDownloadCallback(CombinedDownloadCallbacks.fromCallback(new FatalSubtaskCallback<R>())));
 
-			/* TODO: Change to `callbacks.add(wrapCombinedDownloadCallback(CombinedDownloadCallbacks.whatever(countdownAction)));` in java 8 */
-			CombinedDownloadCallback<R> countdownCallback = CombinedDownloadCallbacks.whatever(countdownAction);
-			callbacks.add(wrapCombinedDownloadCallback(countdownCallback));
+			callbacks.add(wrapCombinedDownloadCallback(CombinedDownloadCallbacks.<R> whatever(countdownAction)));
 
 			Future<R> future;
 
@@ -366,7 +361,7 @@ public class CombinedDownloaderImpl implements CombinedDownloader {
 		if (tries < 1)
 			throw new IllegalArgumentException("tries < 1");
 
-		CombinedAsyncTask<T> task = new CombinedAsyncTask<>(downloadTask, callback == null ? new EmptyCallback<T>() : callback, tries);
+		CombinedAsyncTask<T> task = new CombinedAsyncTask<>(downloadTask, callback == null ? CombinedDownloadCallbacks.<T> empty() : callback, tries);
 		Callback<T> statusCallback = Callbacks.whatever(new TaskInactiver(task));
 		if (callback != null) {
 			statusCallback = Callbacks.group(statusCallback, callback);

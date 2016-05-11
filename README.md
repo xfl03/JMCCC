@@ -183,7 +183,7 @@ MinecraftDirectory dir = new MinecraftDirectory("/home/user/.minecraft");
 ForgeDownloadProvider forgeProvider = new ForgeDownloadProvider();
 LiteloaderDownloadProvider liteloaderProvider = new LiteloaderDownloadProvider();
 MinecraftDownloader downloader = MinecraftDownloaderBuilder.create()
-	.providerChain(DownloadProviderChainBuilder.create()
+	.providerChain(DownloadProviderChain.create()
 		.addProvider(forgeProvider)
 		.addProvider(liteloaderProvider))
 	.build();

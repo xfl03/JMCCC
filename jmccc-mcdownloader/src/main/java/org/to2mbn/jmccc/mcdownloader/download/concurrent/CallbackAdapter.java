@@ -1,8 +1,6 @@
 package org.to2mbn.jmccc.mcdownloader.download.concurrent;
 
-import org.to2mbn.jmccc.mcdownloader.download.DownloadCallback;
-import org.to2mbn.jmccc.mcdownloader.download.DownloadTask;
-import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadCallback;
+import org.to2mbn.jmccc.mcdownloader.download.task.DownloadTask;
 
 abstract public class CallbackAdapter<V> implements Callback<V>, DownloadCallback<V>, CombinedDownloadCallback<V> {
 

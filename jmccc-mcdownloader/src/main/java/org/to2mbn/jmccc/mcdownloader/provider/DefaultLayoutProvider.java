@@ -1,8 +1,8 @@
 package org.to2mbn.jmccc.mcdownloader.provider;
 
 import java.net.URI;
-import org.to2mbn.jmccc.mcdownloader.download.ResultProcessor;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
+import org.to2mbn.jmccc.mcdownloader.download.task.ResultProcessor;
 import org.to2mbn.jmccc.mcdownloader.util.URIUtils;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.version.Asset;
@@ -15,7 +15,7 @@ abstract public class DefaultLayoutProvider extends URIDownloadProvider {
 	public CombinedDownloadTask<Void> library(final MinecraftDirectory mcdir, final Library library) {
 		if (library.isSnapshotArtifact()) {
 			final String repo = getLibraryRepo(library);
-			return M2RepositorySupport.snapshotPostfix(library.getGroupId(), library.getArtifactId(), library.getVersion(), repo)
+			return MavenRepositories.snapshotPostfix(library.getGroupId(), library.getArtifactId(), library.getVersion(), repo)
 					.andThenDownload(new ResultProcessor<String, CombinedDownloadTask<Void>>() {
 
 						@Override

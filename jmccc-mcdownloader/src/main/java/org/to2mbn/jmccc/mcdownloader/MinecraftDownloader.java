@@ -2,8 +2,8 @@ package org.to2mbn.jmccc.mcdownloader;
 
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
-import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadCallback;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloader;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.CombinedDownloadCallback;
 import org.to2mbn.jmccc.mcdownloader.provider.MinecraftDownloadProvider;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.version.Version;

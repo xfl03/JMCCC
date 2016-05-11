@@ -23,6 +23,10 @@ public final class Callbacks {
 		return new WhateverCallback<>(callback);
 	}
 
+	public static <T> Callback<T> empty() {
+		return new EmptyCallback<>();
+	}
+
 	private Callbacks() {
 	}
 }

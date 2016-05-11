@@ -37,5 +37,4 @@ public class CompletedFuture<V> implements Future<V> {
 	public boolean cancel(boolean mayInterruptIfRunning) {
 		return false;
 	}
-
 }

@@ -2,8 +2,8 @@ package org.to2mbn.jmccc.mcdownloader.download.combine;
 
 import java.util.Objects;
 import java.util.concurrent.Callable;
-import org.to2mbn.jmccc.mcdownloader.download.ResultProcessor;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackAdapter;
+import org.to2mbn.jmccc.mcdownloader.download.task.ResultProcessor;
 
 class AppendedCombinedDownloadTask<R, S> extends CombinedDownloadTask<S> {
 

@@ -10,10 +10,15 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListMap;
 import org.json.JSONObject;
 import org.to2mbn.jmccc.mcdownloader.RemoteVersionList;
-import org.to2mbn.jmccc.mcdownloader.download.FileDownloadTask;
-import org.to2mbn.jmccc.mcdownloader.download.MemoryDownloadTask;
-import org.to2mbn.jmccc.mcdownloader.download.ResultProcessor;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
+import org.to2mbn.jmccc.mcdownloader.download.task.FileDownloadTask;
+import org.to2mbn.jmccc.mcdownloader.download.task.MemoryDownloadTask;
+import org.to2mbn.jmccc.mcdownloader.download.task.ResultProcessor;
+import org.to2mbn.jmccc.mcdownloader.provider.libraries.JarLibraryDownloadHandler;
+import org.to2mbn.jmccc.mcdownloader.provider.libraries.LibraryDownloadHandler;
+import org.to2mbn.jmccc.mcdownloader.provider.libraries.PackLibraryDownloadHandler;
+import org.to2mbn.jmccc.mcdownloader.provider.libraries.XZPackLibraryDownloadHandler;
+import org.to2mbn.jmccc.mcdownloader.provider.processors.JsonProcessor;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.version.Asset;
 import org.to2mbn.jmccc.version.Library;
@@ -55,7 +60,7 @@ abstract public class URIDownloadProvider implements MinecraftDownloadProvider {
 		if (uri == null) {
 			return null;
 		}
-		return CombinedDownloadTask.single(new MemoryDownloadTask(uri).andThen(new JsonResultProcessor()).andThen(new ResultProcessor<JSONObject, RemoteVersionList>() {
+		return CombinedDownloadTask.single(new MemoryDownloadTask(uri).andThen(new JsonProcessor()).andThen(new ResultProcessor<JSONObject, RemoteVersionList>() {
 
 			@Override
 			public RemoteVersionList process(JSONObject json) throws Exception {
