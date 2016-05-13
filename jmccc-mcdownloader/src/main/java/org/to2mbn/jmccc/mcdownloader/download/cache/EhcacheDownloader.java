@@ -15,9 +15,9 @@ import org.to2mbn.jmccc.mcdownloader.download.concurrent.DownloadCallback;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.DownloadSession;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.DownloadTask;
 
-public class CachedDownloader implements Downloader {
+public class EhcacheDownloader implements Downloader {
 
-	public static final String DEFAULT_CACHE_NAME = CachedDownloader.class.getCanonicalName();
+	public static final String DEFAULT_CACHE_NAME = EhcacheDownloader.class.getCanonicalName();
 
 	private class CachingDownloadTask<T> extends DownloadTask<T> {
 
@@ -123,11 +123,11 @@ public class CachedDownloader implements Downloader {
 	private final Cache<URI, byte[]> cache;
 	private final CacheManager cacheManager;
 
-	public CachedDownloader(Downloader upstream, CacheManager cacheManager) {
+	public EhcacheDownloader(Downloader upstream, CacheManager cacheManager) {
 		this(upstream, cacheManager, DEFAULT_CACHE_NAME);
 	}
 
-	public CachedDownloader(Downloader upstream, CacheManager cacheManager, String cacheName) {
+	public EhcacheDownloader(Downloader upstream, CacheManager cacheManager, String cacheName) {
 		Objects.requireNonNull(upstream);
 		Objects.requireNonNull(cacheManager);
 		Objects.requireNonNull(cacheName);

@@ -12,8 +12,8 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
@@ -37,7 +37,7 @@ import org.to2mbn.jmccc.mcdownloader.download.tasks.DownloadTask;
 
 public class HttpAsyncDownloader implements Downloader {
 
-	private static final Log LOGGER = LogFactory.getLog(HttpAsyncDownloader.class);
+	private static final Logger LOGGER = Logger.getLogger(HttpAsyncDownloader.class.getCanonicalName());
 
 	private static final int RUNNING = 0;
 	private static final int SHUTDOWNING = 1;
@@ -436,7 +436,7 @@ public class HttpAsyncDownloader implements Downloader {
 		try {
 			httpClient.close();
 		} catch (IOException e) {
-			LOGGER.error("an exception occurred during shutdown http client", e);
+			LOGGER.log(Level.WARNING, "Couldn't shutdown http async client", e);
 		}
 		httpClient = null;
 	}

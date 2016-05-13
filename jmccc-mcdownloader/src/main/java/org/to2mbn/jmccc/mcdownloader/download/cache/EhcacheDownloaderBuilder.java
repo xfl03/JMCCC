@@ -12,7 +12,7 @@ import org.ehcache.expiry.Expirations;
 import org.to2mbn.jmccc.mcdownloader.download.Downloader;
 import org.to2mbn.jmccc.util.Builder;
 
-public class CachedDownloaderBuilder implements Builder<Downloader> {
+public class EhcacheDownloaderBuilder implements Builder<Downloader> {
 
 	public static boolean isAvailable() {
 		try {
@@ -44,8 +44,8 @@ public class CachedDownloaderBuilder implements Builder<Downloader> {
 	private static final long DEFAULT_CACHE_HEAP = 32;
 	private static final String DEFAULT_CACHE_HEAP_UNIT = "MB";
 
-	public static CachedDownloaderBuilder create() {
-		return new CachedDownloaderBuilder();
+	public static EhcacheDownloaderBuilder create() {
+		return new EhcacheDownloaderBuilder();
 	}
 
 	public static Downloader buildDefault() {
@@ -56,19 +56,19 @@ public class CachedDownloaderBuilder implements Builder<Downloader> {
 	protected Builder<CacheManager> cacheManager;
 	protected String cacheName;
 
-	protected CachedDownloaderBuilder() {}
+	protected EhcacheDownloaderBuilder() {}
 
-	public CachedDownloaderBuilder underlying(Builder<Downloader> underlying) {
+	public EhcacheDownloaderBuilder underlying(Builder<Downloader> underlying) {
 		this.underlying = underlying;
 		return this;
 	}
 
-	public CachedDownloaderBuilder cacheManager(Builder<CacheManager> cacheManager) {
+	public EhcacheDownloaderBuilder cacheManager(Builder<CacheManager> cacheManager) {
 		this.cacheManager = cacheManager;
 		return this;
 	}
 
-	public CachedDownloaderBuilder cacheName(String cacheName) {
+	public EhcacheDownloaderBuilder cacheName(String cacheName) {
 		this.cacheName = cacheName;
 		return this;
 	}
@@ -79,14 +79,14 @@ public class CachedDownloaderBuilder implements Builder<Downloader> {
 			throw new IllegalArgumentException("No underlying DownloaderService");
 		}
 
-		String cacheName = this.cacheName == null ? CachedDownloader.DEFAULT_CACHE_NAME : this.cacheName;
+		String cacheName = this.cacheName == null ? EhcacheDownloader.DEFAULT_CACHE_NAME : this.cacheName;
 
 		CacheManager cacheManager = null;
 		Downloader underlying = null;
 		try {
-			cacheManager = this.cacheManager == null ? buildDefaultCacheManager() : this.cacheManager.build();
+			cacheManager = this.cacheManager == null ? buildDefaultCacheManager(cacheName) : this.cacheManager.build();
 			underlying = this.underlying.build();
-			return new CachedDownloader(underlying, cacheManager, cacheName);
+			return new EhcacheDownloader(underlying, cacheManager, cacheName);
 		} catch (Throwable e) {
 			if (cacheManager != null) {
 				try {
@@ -106,7 +106,7 @@ public class CachedDownloaderBuilder implements Builder<Downloader> {
 		}
 	}
 
-	protected CacheManager buildDefaultCacheManager() {
+	protected CacheManager buildDefaultCacheManager(String cacheName) {
 		return EhcacheSupport.newDefaultCacheManager(cacheName);
 	}
 

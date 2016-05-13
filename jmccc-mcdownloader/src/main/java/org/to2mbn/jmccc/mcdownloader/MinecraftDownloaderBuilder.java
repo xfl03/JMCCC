@@ -18,8 +18,8 @@ public class MinecraftDownloaderBuilder implements Builder<MinecraftDownloader> 
 		return new MinecraftDownloaderBuilder().build();
 	}
 
-	protected boolean checkLibrariesHash = true;
-	protected boolean checkAssetsHash = true;
+	protected boolean checkLibrariesHash = false;
+	protected boolean checkAssetsHash = false;
 	protected boolean updateSnapshots = true;
 	protected Builder<MinecraftDownloadProvider> providerChain;
 	protected Builder<CombinedDownloader> combinedDownloader;
@@ -59,13 +59,13 @@ public class MinecraftDownloaderBuilder implements Builder<MinecraftDownloader> 
 	public MinecraftDownloader build() {
 		MinecraftDownloadProvider provider = providerChain == null
 				? DownloadProviderChain.buildDefault()
-				: Objects.requireNonNull(providerChain.build(), "providerChain builder retuns null");
+				: Objects.requireNonNull(providerChain.build(), "providerChain builder returns null");
 
 		CombinedDownloader combinedDownloader = null;
 		try {
 			combinedDownloader = this.combinedDownloader == null
 					? CombinedDownloaderBuilder.create().downloader(this.downloader).build()
-					: Objects.requireNonNull(this.combinedDownloader.build(), "combinedDownloader builder retuns null");
+					: Objects.requireNonNull(this.combinedDownloader.build(), "combinedDownloader builder returns null");
 
 			return new MinecraftDownloaderImpl(combinedDownloader, provider, checkLibrariesHash, checkAssetsHash, updateSnapshots);
 		} catch (Throwable e) {

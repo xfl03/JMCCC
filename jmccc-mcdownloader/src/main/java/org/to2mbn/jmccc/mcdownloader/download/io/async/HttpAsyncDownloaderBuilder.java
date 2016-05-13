@@ -79,7 +79,7 @@ public class HttpAsyncDownloaderBuilder extends AbstractDownloaderBuilder {
 				client = httpClient.build();
 			}
 
-			pool = ThreadPoolUtils.createPool(bootstrapPoolSize, downloadPoolKeepAliveTime, downloadPoolKeepAliveTimeUnit);
+			pool = ThreadPoolUtils.createPool(bootstrapPoolSize, downloadPoolKeepAliveTime, downloadPoolKeepAliveTimeUnit, "asyncDownloader.bootstrap");
 			return new HttpAsyncDownloader(client, pool);
 		} catch (Throwable e) {
 			if (client != null) {

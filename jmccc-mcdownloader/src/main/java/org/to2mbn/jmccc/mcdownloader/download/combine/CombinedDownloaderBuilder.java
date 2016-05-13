@@ -53,7 +53,7 @@ public class CombinedDownloaderBuilder implements Builder<CombinedDownloader> {
 		ExecutorService pool = null;
 		Downloader downloader = null;
 		try {
-			pool = ThreadPoolUtils.createPool(threadPoolSize, threadPoolKeepAliveTime, threadPoolKeepAliveTimeUnit);
+			pool = ThreadPoolUtils.createPool(threadPoolSize, threadPoolKeepAliveTime, threadPoolKeepAliveTimeUnit, "combinedDownloader");
 			downloader = this.downloader == null
 					? (HttpAsyncDownloaderBuilder.isAvailable() ? HttpAsyncDownloaderBuilder.buildDefault() : JdkDownloaderBuilder.buildDefault())
 					: Objects.requireNonNull(this.downloader.build(), "downloader builder returns null");

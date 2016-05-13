@@ -11,9 +11,11 @@ public class DaemonStreamPumpMonitor extends ProcessMonitor {
 	private static class StreamPump implements Runnable {
 
 		private InputStream in;
+		private boolean isErr;
 
-		public StreamPump(InputStream in) {
+		public StreamPump(InputStream in, boolean isErr) {
 			this.in = in;
+			this.isErr = isErr;
 		}
 
 		@Override
@@ -28,6 +30,11 @@ public class DaemonStreamPumpMonitor extends ProcessMonitor {
 					break;
 				}
 			}
+		}
+
+		@Override
+		public String toString() {
+			return isErr ? "stderr" : "stdout";
 		}
 
 	}
@@ -46,7 +53,7 @@ public class DaemonStreamPumpMonitor extends ProcessMonitor {
 
 	@Override
 	protected Collection<? extends Runnable> createMonitors() {
-		return Arrays.asList(new StreamPump(process.getErrorStream()), new StreamPump(process.getInputStream()));
+		return Arrays.asList(new StreamPump(process.getErrorStream(), true), new StreamPump(process.getInputStream(), false));
 	}
 
 }

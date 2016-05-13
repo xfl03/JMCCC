@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TimeZone;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.json.JSONArray;
@@ -18,10 +20,16 @@ import org.json.JSONObject;
 public class RemoteVersionList implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+	private static final Logger LOGGER = Logger.getLogger(RemoteVersionList.class.getCanonicalName());
 
 	private static final Pattern DATETIME_PATTERN = Pattern.compile("^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2})([+\\-]\\d{2}:?\\d{2})?$");
+	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
-	public static RemoteVersionList fromJson(JSONObject json) throws JSONException, ParseException {
+	static {
+		DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
+	}
+
+	public static RemoteVersionList fromJson(JSONObject json) throws JSONException {
 		String latestSnapshot = null;
 		String latestRelease = null;
 		if (json.has("latest")) {
@@ -48,26 +56,30 @@ public class RemoteVersionList implements Serializable {
 		return new RemoteVersionList(latestSnapshot, latestRelease, versions);
 	}
 
-	private static Date convertDate(String date) throws ParseException {
-		Matcher matcher = DATETIME_PATTERN.matcher(date);
-		if (!matcher.find()) {
-			throw new ParseException("regex mismatch", 0);
+	private static Date convertDate(String date) {
+		try {
+			Matcher matcher = DATETIME_PATTERN.matcher(date);
+			if (!matcher.find()) {
+				throw new IllegalArgumentException("regex mismatch");
+			}
+			String datetime = matcher.group(1);
+			String timezoneoffset = matcher.group(2).replace(":", "");
+			boolean negativeoffset = timezoneoffset.charAt(0) == '-';
+			int offsetsecs = Integer.parseInt(timezoneoffset.substring(1, 3)) * 3600
+					+ Integer.parseInt(timezoneoffset.substring(3, 5));
+			if (negativeoffset) {
+				offsetsecs = -offsetsecs;
+			}
+			Date localdatetime = DATE_FORMAT.parse(datetime);
+			Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+			cal.setTime(localdatetime);
+			cal.add(Calendar.SECOND, -offsetsecs);
+			Date result = cal.getTime();
+			return result;
+		} catch (ParseException | IllegalArgumentException e) {
+			LOGGER.log(Level.WARNING, "Couldn't parse date, skipping: " + date, e);
+			return null;
 		}
-		String datetime = matcher.group(1);
-		String timezoneoffset = matcher.group(2).replace(":", "");
-		boolean negativeoffset = timezoneoffset.charAt(0) == '-';
-		int offsetsecs = Integer.parseInt(timezoneoffset.substring(1, 3)) * 3600 + Integer.parseInt(timezoneoffset.substring(3, 5));
-		if (negativeoffset) {
-			offsetsecs = -offsetsecs;
-		}
-		SimpleDateFormat datetimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-		datetimeFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-		Date localdatetime = datetimeFormat.parse(datetime);
-		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-		cal.setTime(localdatetime);
-		cal.add(Calendar.SECOND, -offsetsecs);
-		Date result = cal.getTime();
-		return result;
 	}
 
 	private String latestSnapshot;
@@ -133,7 +145,9 @@ public class RemoteVersionList implements Serializable {
 		}
 		if (obj instanceof RemoteVersionList) {
 			RemoteVersionList another = (RemoteVersionList) obj;
-			return versions.equals(another.versions) && Objects.equals(latestRelease, another.latestRelease) && Objects.equals(latestSnapshot, another.latestSnapshot);
+			return Objects.equals(versions, another.versions)
+					&& Objects.equals(latestRelease, another.latestRelease) 
+					&& Objects.equals(latestSnapshot, another.latestSnapshot);
 		}
 		return false;
 	}

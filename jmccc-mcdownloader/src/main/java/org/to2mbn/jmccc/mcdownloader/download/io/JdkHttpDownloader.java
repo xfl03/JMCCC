@@ -178,7 +178,7 @@ public class JdkHttpDownloader implements Downloader {
 		this.connectTimeout = connectTimeout;
 		this.readTimeout = readTimeout;
 		this.proxy = proxy;
-		executor = ThreadPoolUtils.createPool(maxConns, poolThreadLivingTime, poolThreadLivingTimeUnit);
+		executor = ThreadPoolUtils.createPool(maxConns, poolThreadLivingTime, poolThreadLivingTimeUnit, "jdkDownloader.io");
 	}
 
 	@Override

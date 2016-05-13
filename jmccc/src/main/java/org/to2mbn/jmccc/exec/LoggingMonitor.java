@@ -65,8 +65,13 @@ public class LoggingMonitor extends ProcessMonitor {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-
 		}
+
+		@Override
+		public String toString() {
+			return isErr ? "stderr" : "stdout";
+		}
+
 	}
 
 	private class ExitMonitor implements Runnable {
@@ -82,6 +87,11 @@ public class LoggingMonitor extends ProcessMonitor {
 
 			int exitCode = process.exitValue();
 			listener.onExit(exitCode);
+		}
+
+		@Override
+		public String toString() {
+			return "exitMonitor";
 		}
 
 	}

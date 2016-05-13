@@ -177,10 +177,10 @@ public class ForgeVersionList implements Serializable {
 		}
 		if (obj instanceof ForgeVersionList) {
 			ForgeVersionList another = (ForgeVersionList) obj;
-			return versions.equals(another.versions) &&
-					latests.equals(another.latests) &&
-					recommendeds.equals(another.recommendeds) &&
-					forgeVersionMapping.equals(another.forgeVersionMapping) &&
+			return Objects.equals(versions, another.versions) &&
+					Objects.equals(latests, another.latests) &&
+					Objects.equals(recommendeds, another.recommendeds) &&
+					Objects.equals(forgeVersionMapping, another.forgeVersionMapping) &&
 					Objects.equals(latest, another.latest) &&
 					Objects.equals(recommended, another.recommended);
 		}
