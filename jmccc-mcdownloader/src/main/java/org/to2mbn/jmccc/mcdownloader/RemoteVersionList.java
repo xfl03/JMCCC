@@ -18,8 +18,8 @@ public class RemoteVersionList implements Serializable {
 		String latestRelease = null;
 		if (json.has("latest")) {
 			JSONObject latest = json.getJSONObject("latest");
-			latestSnapshot = latest.optString("snapshot");
-			latestRelease = latest.optString("release");
+			latestSnapshot = latest.optString("snapshot", null);
+			latestRelease = latest.optString("release", null);
 		}
 
 		JSONArray jsonVersions = json.getJSONArray("versions");
