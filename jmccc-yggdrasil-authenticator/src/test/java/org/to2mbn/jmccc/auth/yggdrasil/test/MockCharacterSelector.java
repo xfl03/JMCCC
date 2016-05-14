@@ -7,6 +7,10 @@ public class MockCharacterSelector implements CharacterSelector {
 
 	private String toSelect;
 
+	public MockCharacterSelector(String toSelect) {
+		this.toSelect = toSelect;
+	}
+
 	@Override
 	public GameProfile select(GameProfile[] availableProfiles) {
 		if (toSelect == null) {
