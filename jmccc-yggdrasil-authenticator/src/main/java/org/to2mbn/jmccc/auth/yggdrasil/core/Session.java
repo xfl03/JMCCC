@@ -71,7 +71,7 @@ public class Session implements Serializable {
 					Objects.equals(getAccessToken(), another.getAccessToken()) &&
 					Objects.equals(getSelectedProfile(), another.getSelectedProfile()) &&
 					Objects.deepEquals(getProfiles(), another.getProfiles()) &&
-					Objects.equals(getProfiles(), another.getProperties()) &&
+					Objects.equals(getProperties(), another.getProperties()) &&
 					Objects.equals(getUserId(), another.getUserId()) &&
 					Objects.equals(getUserType(), another.getUserType());
 		}
