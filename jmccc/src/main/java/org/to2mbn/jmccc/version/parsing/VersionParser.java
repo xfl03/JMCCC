@@ -17,7 +17,6 @@ public interface VersionParser {
 
 	/**
 	 * Parses the DownloadInfo.
-	 * <p>
 	 * 
 	 * <pre>
 	 * {
@@ -124,7 +123,6 @@ public interface VersionParser {
 
 	/**
 	 * Parses the asset index.
-	 * <p>
 	 * 
 	 * <pre>
 	 * {
