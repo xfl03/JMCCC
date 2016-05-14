@@ -5,6 +5,7 @@ import java.io.CharArrayWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
@@ -25,13 +26,18 @@ public final class IOUtils {
 	}
 
 	public static String toString(File file) throws IOException {
-		CharArrayWriter w = new CharArrayWriter((int) (file.length() / 2));
-		try (Reader reader = new InputStreamReader(new FileInputStream(file), "UTF-8")) {
-			char[] buf = new char[4096]; // 8192 bytes
-			int read;
-			while ((read = reader.read(buf)) != -1) {
-				w.write(buf, 0, read);
-			}
+		try (InputStream in = new FileInputStream(file)) {
+			return toString(in);
+		}
+	}
+
+	public static String toString(InputStream in) throws IOException {
+		CharArrayWriter w = new CharArrayWriter();
+		Reader reader = new InputStreamReader(in, "UTF-8");
+		char[] buf = new char[4096]; // 8192 bytes
+		int read;
+		while ((read = reader.read(buf)) != -1) {
+			w.write(buf, 0, read);
 		}
 		return new String(w.toCharArray());
 	}

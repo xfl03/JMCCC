@@ -2,9 +2,7 @@ package org.to2mbn.jmccc.auth.yggdrasil.core.io;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -13,11 +11,11 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Map;
 import java.util.Map.Entry;
+import org.to2mbn.jmccc.util.IOUtils;
 
 public class HttpRequester {
 
 	private static final int TIMEOUT = 15000;
-	private static final int BUFFER_SIZE = 8192;
 
 	private Proxy proxy;
 
@@ -39,7 +37,7 @@ public class HttpRequester {
 		try {
 			connection.connect();
 			try (InputStream in = connection.getInputStream()) {
-				return read(in);
+				return IOUtils.toString(in);
 			}
 		} catch (IOException e) {
 			try (InputStream in = connection.getErrorStream()) {
@@ -65,7 +63,7 @@ public class HttpRequester {
 				out.write(rawpost);
 			}
 			try (InputStream in = connection.getInputStream()) {
-				return read(in);
+				return IOUtils.toString(in);
 			}
 		} catch (IOException e) {
 			try (InputStream in = connection.getErrorStream()) {
@@ -81,24 +79,13 @@ public class HttpRequester {
 			throw e;
 		}
 		try {
-			return read(in);
+			return IOUtils.toString(in);
 		} catch (IOException e1) {
 			if (e != e1) {
 				e1.addSuppressed(e);
 			}
 			throw e1;
 		}
-	}
-
-	private String read(InputStream in) throws UnsupportedEncodingException, IOException {
-		StringBuilder sb = new StringBuilder();
-		char[] buffer = new char[BUFFER_SIZE];
-		Reader reader = new InputStreamReader(in, "UTF-8");
-		int read;
-		while ((read = reader.read(buffer)) != -1) {
-			sb.append(buffer, 0, read);
-		}
-		return sb.toString();
 	}
 
 	private HttpURLConnection createHttpConnection(String baseurl, Map<String, Object> arguments) throws UnsupportedEncodingException, MalformedURLException, IOException {
