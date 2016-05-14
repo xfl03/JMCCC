@@ -12,8 +12,7 @@ public class Texture implements Serializable {
 	private Map<String, String> metadata;
 
 	public Texture(String url, Map<String, String> metadata) {
-		Objects.requireNonNull(url);
-		this.url = url;
+		this.url = Objects.requireNonNull(url);
 		this.metadata = metadata;
 	}
 
@@ -42,7 +41,8 @@ public class Texture implements Serializable {
 		}
 		if (obj instanceof Texture) {
 			Texture another = (Texture) obj;
-			return url.equals(another.url) && Objects.equals(metadata, another.metadata);
+			return Objects.equals(url, another.url)
+					&& Objects.equals(metadata, another.metadata);
 		}
 		return false;
 	}

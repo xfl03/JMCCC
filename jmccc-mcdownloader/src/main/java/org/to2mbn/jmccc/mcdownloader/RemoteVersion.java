@@ -25,8 +25,7 @@ public class RemoteVersion implements Serializable {
 	 * @throws NullPointerException if <code>version==null</code>
 	 */
 	public RemoteVersion(String version, Date uploadTime, Date releaseTime, String type, String url) {
-		Objects.requireNonNull(version);
-		this.version = version;
+		this.version = Objects.requireNonNull(version);
 		this.uploadTime = uploadTime;
 		this.releaseTime = releaseTime;
 		this.type = type;
@@ -71,8 +70,6 @@ public class RemoteVersion implements Serializable {
 		return type;
 	}
 
-
-
 	/**
 	 * Gets the url of the version json, can be null.
 	 * 
@@ -99,7 +96,7 @@ public class RemoteVersion implements Serializable {
 		}
 		if (obj instanceof RemoteVersion) {
 			RemoteVersion another = (RemoteVersion) obj;
-			return version.equals(another.version) &&
+			return Objects.equals(version, another.version) &&
 					Objects.equals(releaseTime, another.releaseTime) &&
 					Objects.equals(uploadTime, another.uploadTime) &&
 					Objects.equals(type, another.type) &&

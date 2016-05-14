@@ -12,10 +12,8 @@ public class GameProfile implements Serializable {
 	private String name;
 
 	public GameProfile(UUID uuid, String name) {
-		Objects.requireNonNull(uuid);
-		Objects.requireNonNull(name);
-		this.uuid = uuid;
-		this.name = name;
+		this.uuid = Objects.requireNonNull(uuid);
+		this.name = Objects.requireNonNull(name);
 	}
 
 	public UUID getUUID() {
@@ -44,7 +42,8 @@ public class GameProfile implements Serializable {
 
 		if (obj instanceof GameProfile) {
 			GameProfile another = (GameProfile) obj;
-			return uuid.equals(another.uuid) && name.equals(another.name);
+			return uuid.equals(another.uuid)
+					&& name.equals(another.name);
 		}
 
 		return false;

@@ -390,9 +390,7 @@ public class YggdrasilAuthenticator implements Authenticator, Serializable {
 	 *             authentication
 	 */
 	public synchronized void refreshWithToken(String clientToken, String accessToken) throws AuthenticationException {
-		Objects.requireNonNull(clientToken);
-		Objects.requireNonNull(accessToken);
-		authResult = authenticationService.refresh(clientToken, accessToken);
+		authResult = authenticationService.refresh(Objects.requireNonNull(clientToken), Objects.requireNonNull(accessToken));
 	}
 
 	/**

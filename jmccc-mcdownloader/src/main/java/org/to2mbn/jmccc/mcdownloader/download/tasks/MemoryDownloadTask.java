@@ -40,8 +40,8 @@ public class MemoryDownloadTask extends DownloadTask<byte[]> {
 	public DownloadSession<byte[]> createSession(final long length) throws IOException {
 		return new DownloadSession<byte[]>() {
 
-			ByteArrayOutputStream out = new ByteArrayOutputStream(length == -1 ? 8192 : (int) length);
-			WritableByteChannel channel = Channels.newChannel(out);
+			private ByteArrayOutputStream out = new ByteArrayOutputStream(length == -1 ? 8192 : (int) length);
+			private WritableByteChannel channel = Channels.newChannel(out);
 
 			@Override
 			public void receiveData(ByteBuffer data) throws IOException {

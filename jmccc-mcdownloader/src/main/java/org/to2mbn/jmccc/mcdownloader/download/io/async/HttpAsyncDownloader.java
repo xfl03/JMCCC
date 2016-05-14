@@ -27,7 +27,7 @@ import org.apache.http.nio.protocol.HttpAsyncResponseConsumer;
 import org.apache.http.protocol.HttpContext;
 import org.to2mbn.jmccc.mcdownloader.download.Downloader;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
-import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackAsyncFutureTask;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackAsyncTask;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callbacks;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.DownloadCallback;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.DownloadCallbacks;
@@ -179,7 +179,7 @@ public class HttpAsyncDownloader implements Downloader {
 
 	}
 
-	private class AsyncDownloadTask<T> extends CallbackAsyncFutureTask<T> {
+	private class AsyncDownloadTask<T> extends CallbackAsyncTask<T> {
 
 		private class DownloadRetryHandler implements DownloadCallback<T> {
 
@@ -349,7 +349,7 @@ public class HttpAsyncDownloader implements Downloader {
 		if (tries < 1)
 			throw new IllegalArgumentException("tries < 1");
 
-		CallbackAsyncFutureTask<T> task = new AsyncDownloadTask<T>(downloadTask, callback == null ? DownloadCallbacks.<T> empty() : callback, tries);
+		CallbackAsyncTask<T> task = new AsyncDownloadTask<T>(downloadTask, callback == null ? DownloadCallbacks.<T> empty() : callback, tries);
 		Callback<T> statusCallback = Callbacks.whatever(new TaskInactiver(task));
 		if (callback != null)
 			statusCallback = Callbacks.group(statusCallback, callback);

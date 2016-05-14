@@ -71,13 +71,7 @@ public class InfoDownloadProvider extends AbstractMinecraftDownloadProvider impl
 								return CombinedDownloadTask.single(
 										new FileDownloadTask(remoteVersion.getUrl(), mcdir.getVersionJson(remoteVersion.getVersion()))
 												.cacheable())
-										.andThen(new ResultProcessor<Void, String>() {
-
-											@Override
-											public String process(Void arg) throws Exception {
-												return remoteVersion.getVersion();
-											}
-										});
+										.andThenReturn(remoteVersion.getVersion());
 							}
 
 							return upstreamProvider.gameVersionJson(mcdir, version);

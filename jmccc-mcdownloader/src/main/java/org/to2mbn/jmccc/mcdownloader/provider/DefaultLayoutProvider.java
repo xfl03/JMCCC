@@ -41,11 +41,8 @@ abstract public class DefaultLayoutProvider extends URIDownloadProvider {
 	}
 
 	private String getLibraryRepo(Library library) {
-		String repo = library.getCustomizedUrl();
-		if (repo == null) {
-			repo = getLibraryBaseURL();
-		}
-		return repo;
+		String customizedUrl = library.getCustomizedUrl();
+		return customizedUrl == null ? getLibraryBaseURL() : customizedUrl;
 	}
 
 	@Override

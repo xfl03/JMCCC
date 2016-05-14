@@ -6,8 +6,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,11 +24,7 @@ public class PropertiesDeserializer implements Serializable {
 	}
 
 	public Map<String, String> toProperties(JSONArray props, boolean forceSignature) throws SignatureException, InvalidKeyException, NoSuchAlgorithmException, JSONException {
-		if (props == null) {
-			return null;
-		}
-
-		Map<String, String> properties = new HashMap<>();
+		Map<String, String> properties = new TreeMap<>();
 		for (int i = 0; i < props.length(); i++) {
 			JSONObject prop = props.getJSONObject(i);
 			String key = prop.getString("name");

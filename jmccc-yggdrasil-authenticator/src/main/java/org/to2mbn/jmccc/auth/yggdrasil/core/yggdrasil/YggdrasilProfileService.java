@@ -1,11 +1,12 @@
 package org.to2mbn.jmccc.auth.yggdrasil.core.yggdrasil;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
 import java.util.UUID;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,6 +19,7 @@ import org.to2mbn.jmccc.auth.yggdrasil.core.PropertiesGameProfile;
 import org.to2mbn.jmccc.auth.yggdrasil.core.Texture;
 import org.to2mbn.jmccc.auth.yggdrasil.core.io.JSONHttpRequester;
 import org.to2mbn.jmccc.auth.yggdrasil.core.util.Base64;
+import org.to2mbn.jmccc.util.IOUtils;
 import org.to2mbn.jmccc.util.UUIDUtils;
 
 public class YggdrasilProfileService extends AbstractYggdrasilService implements ProfileService {
@@ -40,14 +42,24 @@ public class YggdrasilProfileService extends AbstractYggdrasilService implements
 		}
 		requireNonEmptyResponse(response);
 
-		Map<String, String> properties;
 		try {
-			try {
-				properties = getPropertiesDeserializer().toProperties(response.optJSONArray("properties"), true);
-			} catch (GeneralSecurityException e) {
-				throw new AuthenticationException("Invalid signature", e);
+			Map<String, String> properties;
+
+			JSONArray jsonProperties = response.optJSONArray("properties");
+			if (jsonProperties == null) {
+				properties = null;
+			} else {
+				try {
+					properties = Collections.unmodifiableMap(getPropertiesDeserializer().toProperties(jsonProperties, true));
+				} catch (GeneralSecurityException e) {
+					throw new AuthenticationException("Invalid signature", e);
+				}
 			}
-			return new PropertiesGameProfile(UUIDUtils.toUUID(response.getString("id")), response.getString("name"), properties);
+
+			return new PropertiesGameProfile(
+					UUIDUtils.toUUID(response.getString("id")),
+					response.getString("name"),
+					properties);
 		} catch (JSONException e) {
 			throw new AuthenticationException("Couldn't parse response: " + response, e);
 		}
@@ -98,6 +110,10 @@ public class YggdrasilProfileService extends AbstractYggdrasilService implements
 	}
 
 	private PlayerTextures getTextures(Map<String, String> properties) throws AuthenticationException {
+		if (properties == null) {
+			return null;
+		}
+
 		String encodedTextures = properties.get("textures");
 		if (encodedTextures == null) {
 			return null;
@@ -105,8 +121,8 @@ public class YggdrasilProfileService extends AbstractYggdrasilService implements
 
 		JSONObject payload;
 		try {
-			payload = new JSONObject(new String(Base64.decode(encodedTextures.toCharArray()), "UTF-8"));
-		} catch (JSONException | UnsupportedEncodingException e) {
+			payload = IOUtils.toJson(Base64.decode(encodedTextures.toCharArray()));
+		} catch (JSONException e) {
 			throw new AuthenticationException("Couldn't decode texture payload: " + encodedTextures, e);
 		}
 
@@ -129,7 +145,7 @@ public class YggdrasilProfileService extends AbstractYggdrasilService implements
 		String url = json.getString("url");
 		Map<String, String> metadata = null;
 		if (json.has("metadata")) {
-			metadata = new HashMap<>();
+			metadata = new TreeMap<>();
 			JSONObject metadataJson = json.getJSONObject("metadata");
 			for (Object rawtypeKey : metadataJson.keySet()) {
 				String key = (String) rawtypeKey;
@@ -137,6 +153,6 @@ public class YggdrasilProfileService extends AbstractYggdrasilService implements
 				metadata.put(key, value);
 			}
 		}
-		return new Texture(url, metadata);
+		return new Texture(url, Collections.unmodifiableMap(metadata));
 	}
 }

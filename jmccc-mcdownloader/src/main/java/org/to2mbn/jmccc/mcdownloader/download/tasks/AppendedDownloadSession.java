@@ -5,10 +5,10 @@ import java.nio.ByteBuffer;
 
 class AppendedDownloadSession<R, S> implements DownloadSession<S> {
 
-	ResultProcessor<R, S> processor;
-	DownloadSession<R> proxied;
+	private ResultProcessor<R, S> processor;
+	private DownloadSession<R> proxied;
 
-	AppendedDownloadSession(ResultProcessor<R, S> processor, DownloadSession<R> proxied) {
+	public AppendedDownloadSession(ResultProcessor<R, S> processor, DownloadSession<R> proxied) {
 		this.processor = processor;
 		this.proxied = proxied;
 	}

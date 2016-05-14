@@ -4,8 +4,9 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TimeZone;
@@ -39,7 +40,7 @@ public class RemoteVersionList implements Serializable {
 		}
 
 		JSONArray jsonVersions = json.getJSONArray("versions");
-		Map<String, RemoteVersion> versions = new HashMap<>();
+		Map<String, RemoteVersion> versions = new LinkedHashMap<>();
 		for (int i = 0; i < jsonVersions.length(); i++) {
 			JSONObject jsonVersion = jsonVersions.getJSONObject(i);
 			String version = jsonVersion.getString("id");
@@ -49,11 +50,11 @@ public class RemoteVersionList implements Serializable {
 			String url = jsonVersion.optString("url", null);
 			versions.put(version, new RemoteVersion(version,
 					updateTime == null ? null : convertDate(updateTime),
-					updateTime == null ? null : convertDate(releaseTime),
+					releaseTime == null ? null : convertDate(releaseTime),
 					type,
 					url));
 		}
-		return new RemoteVersionList(latestSnapshot, latestRelease, versions);
+		return new RemoteVersionList(latestSnapshot, latestRelease, Collections.unmodifiableMap(versions));
 	}
 
 	private static Date convertDate(String date) {
@@ -74,8 +75,7 @@ public class RemoteVersionList implements Serializable {
 			Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 			cal.setTime(localdatetime);
 			cal.add(Calendar.SECOND, -offsetsecs);
-			Date result = cal.getTime();
-			return result;
+			return cal.getTime();
 		} catch (ParseException | IllegalArgumentException e) {
 			LOGGER.log(Level.WARNING, "Couldn't parse date, skipping: " + date, e);
 			return null;
@@ -95,10 +95,9 @@ public class RemoteVersionList implements Serializable {
 	 * @throws NullPointerException <code>versions==null</code>
 	 */
 	public RemoteVersionList(String latestSnapshot, String latestRelease, Map<String, RemoteVersion> versions) {
-		Objects.requireNonNull(versions);
 		this.latestSnapshot = latestSnapshot;
 		this.latestRelease = latestRelease;
-		this.versions = versions;
+		this.versions = Objects.requireNonNull(versions);
 	}
 
 	/**

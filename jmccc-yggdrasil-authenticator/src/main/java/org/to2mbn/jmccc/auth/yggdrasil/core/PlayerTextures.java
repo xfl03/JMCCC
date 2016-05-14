@@ -46,7 +46,9 @@ public class PlayerTextures implements Serializable {
 		}
 		if (obj instanceof PlayerTextures) {
 			PlayerTextures another = (PlayerTextures) obj;
-			return Objects.equals(skin, another.skin) && Objects.equals(cape, another.cape) && Objects.equals(elytra, another.elytra);
+			return Objects.equals(skin, another.skin)
+					&& Objects.equals(cape, another.cape)
+					&& Objects.equals(elytra, another.elytra);
 		}
 		return false;
 	}

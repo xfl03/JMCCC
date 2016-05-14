@@ -26,7 +26,7 @@ public class PropertiesGameProfile extends GameProfile {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (super.equals(obj) && obj instanceof PropertiesGameProfile) {
+		if (obj instanceof PropertiesGameProfile && super.equals(obj)) {
 			PropertiesGameProfile another = (PropertiesGameProfile) obj;
 			return Objects.equals(properties, another.properties);
 		}

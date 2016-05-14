@@ -26,12 +26,9 @@ public class LiteloaderVersion implements Serializable {
 	}
 
 	public LiteloaderVersion(String minecraftVersion, String liteloaderVersion, String superVersion, String tweakClass, String repoUrl, Set<JSONObject> libraries) {
-		Objects.requireNonNull(minecraftVersion);
-		Objects.requireNonNull(liteloaderVersion);
-		Objects.requireNonNull(superVersion);
-		this.minecraftVersion = minecraftVersion;
-		this.liteloaderVersion = liteloaderVersion;
-		this.superVersion = superVersion;
+		this.minecraftVersion = Objects.requireNonNull(minecraftVersion);
+		this.liteloaderVersion = Objects.requireNonNull(liteloaderVersion);
+		this.superVersion = Objects.requireNonNull(superVersion);
 		this.tweakClass = tweakClass;
 		this.repoUrl = repoUrl;
 		this.libraries = libraries;
@@ -86,9 +83,9 @@ public class LiteloaderVersion implements Serializable {
 		}
 		if (obj instanceof LiteloaderVersion) {
 			LiteloaderVersion another = (LiteloaderVersion) obj;
-			return minecraftVersion.equals(another.minecraftVersion) &&
-					liteloaderVersion.equals(another.liteloaderVersion) &&
-					superVersion.equals(another.superVersion) &&
+			return Objects.equals(minecraftVersion, another.minecraftVersion) &&
+					Objects.equals(liteloaderVersion, another.liteloaderVersion) &&
+					Objects.equals(superVersion, another.superVersion) &&
 					Objects.equals(tweakClass, another.tweakClass) &&
 					Objects.equals(repoUrl, another.repoUrl) &&
 					Objects.equals(libraries, another.libraries);

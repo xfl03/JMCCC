@@ -21,7 +21,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.to2mbn.jmccc.mcdownloader.download.Downloader;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackAdapter;
-import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackAsyncFutureTask;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackAsyncTask;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackFutureTask;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callbacks;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.CombinedDownloadCallback;
@@ -32,7 +32,7 @@ import org.to2mbn.jmccc.mcdownloader.download.tasks.DownloadTask;
 
 public class CombinedDownloaderImpl implements CombinedDownloader {
 
-	private class CombinedAsyncTask<T> extends CallbackAsyncFutureTask<T> implements CombinedDownloadContext<T> {
+	private class CombinedAsyncTask<T> extends CallbackAsyncTask<T> implements CombinedDownloadContext<T> {
 
 		private class ExceptionCatcher implements InvocationHandler {
 

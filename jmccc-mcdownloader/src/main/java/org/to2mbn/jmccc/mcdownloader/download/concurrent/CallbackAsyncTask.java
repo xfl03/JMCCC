@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-abstract public class CallbackAsyncFutureTask<V> implements RunnableFuture<V>, Cancelable {
+abstract public class CallbackAsyncTask<V> implements RunnableFuture<V>, Cancelable {
 
 	protected static interface FutureManager<T> extends Callback<T> {
 
@@ -135,7 +135,7 @@ abstract public class CallbackAsyncFutureTask<V> implements RunnableFuture<V>, C
 
 	private final AtomicBoolean running = new AtomicBoolean(false);
 
-	public CallbackAsyncFutureTask() {
+	public CallbackAsyncTask() {
 		future = new AsyncFuture<>(new CancelProcesser());
 		lifecycle = new InterruptedExceptionMapper<V>(future);
 	}
