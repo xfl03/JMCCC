@@ -9,6 +9,7 @@ import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
 import org.json.JSONObject;
+import org.to2mbn.jmccc.mcdownloader.util.JsonComparing;
 
 public class LiteloaderVersion implements Serializable {
 
@@ -88,7 +89,7 @@ public class LiteloaderVersion implements Serializable {
 					Objects.equals(superVersion, another.superVersion) &&
 					Objects.equals(tweakClass, another.tweakClass) &&
 					Objects.equals(repoUrl, another.repoUrl) &&
-					Objects.equals(libraries, another.libraries);
+					JsonComparing.equals(libraries, another.libraries);
 		}
 		return false;
 	}
