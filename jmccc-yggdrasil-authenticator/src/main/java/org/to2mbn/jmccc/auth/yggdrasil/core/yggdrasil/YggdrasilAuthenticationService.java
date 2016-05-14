@@ -2,6 +2,7 @@ package org.to2mbn.jmccc.auth.yggdrasil.core.yggdrasil;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -160,11 +161,17 @@ public class YggdrasilAuthenticationService extends AbstractYggdrasilService imp
 
 			JSONObject userjson = response.getJSONObject("user");
 			String userId = userjson.getString("id");
+
 			Map<String, String> userProperties;
-			try {
-				userProperties = getPropertiesDeserializer().toProperties(userjson.optJSONArray("properties"), false);
-			} catch (GeneralSecurityException e) {
-				throw new AuthenticationException("Invalid signature", e);
+			JSONArray propertiesJson = userjson.optJSONArray("properties");
+			if (propertiesJson == null) {
+				userProperties = null;
+			} else {
+				try {
+					userProperties = Collections.unmodifiableMap(getPropertiesDeserializer().toProperties(propertiesJson, false));
+				} catch (GeneralSecurityException e) {
+					throw new AuthenticationException("Invalid signature", e);
+				}
 			}
 
 			GameProfile selectedProfile = toGameProfile(response.optJSONObject("selectedProfile"));

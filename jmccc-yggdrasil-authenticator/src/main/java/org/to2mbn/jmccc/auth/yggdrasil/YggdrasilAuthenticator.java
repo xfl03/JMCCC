@@ -366,17 +366,23 @@ public class YggdrasilAuthenticator implements Authenticator, Serializable {
 		String password = passwordProvider.getPassword();
 		authResult = authenticationService.login(username, password, clientToken);
 		if (authResult.getSelectedProfile() == null) {
+			GameProfile[] profiles = authResult.getProfiles();
+			if (profiles == null || profiles.length == 0) {
+				throw new AuthenticationException("No profile is available");
+			}
+
 			// no profile is selected
 			// let's select one
 			CharacterSelector selector = passwordProvider.getCharacterSelector();
 			if (selector == null) {
 				selector = new DefaultCharacterSelector();
 			}
-			GameProfile[] profiles = authResult.getProfiles();
-			if (profiles == null || profiles.length == 0) {
-				throw new AuthenticationException("no profile is available");
-			}
+
 			GameProfile selectedProfile = selector.select(profiles);
+			if (selectedProfile == null) {
+				throw new AuthenticationException("No profile is selected");
+			}
+
 			authResult = authenticationService.selectProfile(authResult.getClientToken(), authResult.getAccessToken(), selectedProfile.getUUID());
 		}
 	}
