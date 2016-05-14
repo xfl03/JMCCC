@@ -1,10 +1,66 @@
 package org.to2mbn.jmccc.mcdownloader;
 
 import java.io.Serializable;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
+import java.util.TimeZone;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class RemoteVersion implements Serializable {
+
+	private static final Logger LOGGER = Logger.getLogger(RemoteVersion.class.getCanonicalName());
+
+	private static final Pattern DATETIME_PATTERN = Pattern.compile("^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2})([+\\-]\\d{2}:?\\d{2})?$");
+	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+	static {
+		DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
+	}
+
+	public static RemoteVersion fromJson(JSONObject json) throws JSONException {
+		String version = json.getString("id");
+		String updateTime = json.optString("time", null);
+		String releaseTime = json.optString("releaseTime", null);
+		String type = json.optString("type", null);
+		String url = json.optString("url", null);
+		return new RemoteVersion(version,
+				updateTime == null ? null : convertDate(updateTime),
+				releaseTime == null ? null : convertDate(releaseTime),
+				type,
+				url);
+	}
+
+	private static Date convertDate(String date) {
+		try {
+			Matcher matcher = DATETIME_PATTERN.matcher(date);
+			if (!matcher.find()) {
+				throw new IllegalArgumentException("regex mismatch");
+			}
+			String datetime = matcher.group(1);
+			String timezoneoffset = matcher.group(2).replace(":", "");
+			boolean negativeoffset = timezoneoffset.charAt(0) == '-';
+			int offsetsecs = Integer.parseInt(timezoneoffset.substring(1, 3)) * 3600
+					+ Integer.parseInt(timezoneoffset.substring(3, 5));
+			if (negativeoffset) {
+				offsetsecs = -offsetsecs;
+			}
+			Date localdatetime = DATE_FORMAT.parse(datetime);
+			Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+			cal.setTime(localdatetime);
+			cal.add(Calendar.SECOND, -offsetsecs);
+			return cal.getTime();
+		} catch (ParseException | IllegalArgumentException e) {
+			LOGGER.log(Level.WARNING, "Couldn't parse date, skipping: " + date, e);
+			return null;
+		}
+	}
 
 	private static final long serialVersionUID = 1L;
 
