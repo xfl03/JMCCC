@@ -7,6 +7,10 @@ import org.to2mbn.jmccc.mcdownloader.download.tasks.ResultProcessor;
 
 abstract public class CombinedDownloadTask<T> {
 
+	public static enum CacheStrategy {
+		DEFAULT, FORCIBLY_CACHE, CACHEABLE, NON_CACHEABLE;
+	}
+
 	/**
 	 * Creates a CombinedDownloadTask from a DownloadTask.
 	 * 
@@ -64,6 +68,18 @@ abstract public class CombinedDownloadTask<T> {
 	}
 
 	abstract public void execute(CombinedDownloadContext<T> context) throws Exception;
+
+	public CacheStrategy getCacheStrategy() {
+		return CacheStrategy.DEFAULT;
+	}
+
+	public CombinedDownloadTask<T> cacheable(CacheStrategy strategy) {
+		Objects.requireNonNull(strategy);
+		if (getCacheStrategy() == strategy) {
+			return this;
+		}
+		return new CachedCombinedDownloadTask<>(this, strategy);
+	}
 
 	public <R> CombinedDownloadTask<R> andThen(ResultProcessor<T, R> processor) {
 		return new AppendedCombinedDownloadTask<>(this, processor);

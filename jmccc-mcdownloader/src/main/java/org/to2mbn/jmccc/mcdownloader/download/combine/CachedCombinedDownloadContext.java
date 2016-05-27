@@ -1,0 +1,90 @@
+package org.to2mbn.jmccc.mcdownloader.download.combine;
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask.CacheStrategy;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.CombinedDownloadCallback;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.DownloadCallback;
+import org.to2mbn.jmccc.mcdownloader.download.tasks.DownloadTask;
+
+class CachedCombinedDownloadContext<T> implements CombinedDownloadContext<T> {
+
+	private CombinedDownloadContext<T> proxied;
+	private CacheStrategy strategy;
+
+	public CachedCombinedDownloadContext(CombinedDownloadContext<T> proxied, CacheStrategy strategy) {
+		this.proxied = proxied;
+		this.strategy = strategy;
+	}
+
+	@Override
+	public void done(T result) {
+		proxied.done(result);
+	}
+
+	@Override
+	public void failed(Throwable e) {
+		proxied.failed(e);
+	}
+
+	@Override
+	public void cancelled() {
+		proxied.cancelled();
+	}
+
+	@Override
+	public <R> Future<R> submit(Callable<R> task, Callback<R> callback, boolean fatal) throws InterruptedException {
+		return proxied.submit(task, callback, fatal);
+	}
+
+	@Override
+	public <R> Future<R> submit(DownloadTask<R> task, DownloadCallback<R> callback, boolean fatal) throws InterruptedException {
+		DownloadTask<R> processed;
+		switch (strategy) {
+			case CACHEABLE:
+			case FORCIBLY_CACHE:
+				processed = task.cacheable(true);
+				break;
+
+			case NON_CACHEABLE:
+				processed = task.cacheable(false);
+				break;
+
+			default:
+				processed = task;
+				break;
+		}
+		return proxied.submit(processed, callback, fatal);
+	}
+
+	@Override
+	public <R> Future<R> submit(CombinedDownloadTask<R> task, CombinedDownloadCallback<R> callback, boolean fatal) throws InterruptedException {
+		CombinedDownloadTask<R> processed;
+		switch (strategy) {
+			case CACHEABLE:
+				if (task.getCacheStrategy() == CacheStrategy.DEFAULT) {
+					processed = task.cacheable(CacheStrategy.CACHEABLE);
+				} else {
+					processed = task;
+				}
+				break;
+
+			case FORCIBLY_CACHE:
+			case NON_CACHEABLE:
+				processed = task.cacheable(strategy);
+				break;
+
+			default:
+				processed = task;
+				break;
+		}
+		return proxied.submit(processed, callback, fatal);
+	}
+
+	@Override
+	public void awaitAllTasks(Callable<Void> callback) throws InterruptedException {
+		proxied.awaitAllTasks(callback);
+	}
+
+}

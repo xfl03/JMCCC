@@ -87,6 +87,9 @@ abstract public class DownloadTask<T> {
 	}
 
 	public DownloadTask<T> cacheable(boolean cacheable) {
+		if (isCacheable() == cacheable) {
+			return this;
+		}
 		return new CachedDownloadTask<>(this, cacheable);
 	}
 
