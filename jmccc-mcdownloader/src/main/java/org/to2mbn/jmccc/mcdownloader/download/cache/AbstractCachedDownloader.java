@@ -7,17 +7,13 @@ import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.Objects;
 import java.util.concurrent.Future;
-import org.ehcache.Cache;
-import org.ehcache.CacheManager;
 import org.to2mbn.jmccc.mcdownloader.download.Downloader;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.CompletedFuture;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.DownloadCallback;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.DownloadSession;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.DownloadTask;
 
-public class EhcacheDownloader implements Downloader {
-
-	public static final String DEFAULT_CACHE_NAME = EhcacheDownloader.class.getCanonicalName();
+abstract public class AbstractCachedDownloader implements Downloader {
 
 	private class CachingDownloadTask<T> extends DownloadTask<T> {
 
@@ -97,7 +93,7 @@ public class EhcacheDownloader implements Downloader {
 						ByteArrayOutputStream buf = bufRef.get();
 						if (buf != null) {
 							byte[] data = buf.toByteArray();
-							cache.put(proxiedTask.getURI(), data);
+							addCache(proxiedTask.getCachePool(), proxiedTask.getURI(), data);
 						}
 					} catch (OutOfMemoryError e) {
 						dropCache();
@@ -120,24 +116,10 @@ public class EhcacheDownloader implements Downloader {
 	}
 
 	private final Downloader upstream;
-	private final Cache<URI, byte[]> cache;
-	private final CacheManager cacheManager;
 
-	public EhcacheDownloader(Downloader upstream, CacheManager cacheManager) {
-		this(upstream, cacheManager, DEFAULT_CACHE_NAME);
-	}
-
-	public EhcacheDownloader(Downloader upstream, CacheManager cacheManager, String cacheName) {
+	public AbstractCachedDownloader(Downloader upstream) {
 		Objects.requireNonNull(upstream);
-		Objects.requireNonNull(cacheManager);
-		Objects.requireNonNull(cacheName);
 		this.upstream = upstream;
-
-		this.cacheManager = cacheManager;
-		cache = cacheManager.getCache(cacheName, URI.class, byte[].class);
-		if (cache == null) {
-			throw new IllegalArgumentException(String.format("No such cache [%s]", cacheName));
-		}
 	}
 
 	@Override
@@ -152,11 +134,7 @@ public class EhcacheDownloader implements Downloader {
 
 	@Override
 	public void shutdown() {
-		try {
-			upstream.shutdown();
-		} finally {
-			cacheManager.close();
-		}
+		upstream.shutdown();
 	}
 
 	@Override
@@ -166,7 +144,7 @@ public class EhcacheDownloader implements Downloader {
 
 	private <T> Future<T> downloadIfNecessary(DownloadTask<T> task, DownloadCallback<T> callback, int tries) {
 		if (task.isCacheable()) {
-			byte[] cached = cache.get(task.getURI());
+			byte[] cached = getCache(task.getCachePool(), task.getURI());
 			if (cached == null) {
 				return submitToUpstream(new CachingDownloadTask<>(task), callback, tries);
 			} else {
@@ -174,7 +152,7 @@ public class EhcacheDownloader implements Downloader {
 				try {
 					result = processCache(task, cached);
 				} catch (Throwable e) {
-					cache.remove(task.getURI());
+					removeCache(task.getCachePool(), task.getURI());
 					return submitToUpstream(new CachingDownloadTask<>(task), callback, tries);
 				}
 				if (callback != null) {
@@ -205,5 +183,11 @@ public class EhcacheDownloader implements Downloader {
 		}
 		return session.completed();
 	}
+
+	abstract protected byte[] getCache(String pool, URI key);
+
+	abstract protected void addCache(String pool, URI key, byte[] value);
+
+	abstract protected void removeCache(String pool, URI key);
 
 }

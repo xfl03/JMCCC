@@ -1,4 +1,4 @@
-package org.to2mbn.jmccc.mcdownloader.download.cache;
+package org.to2mbn.jmccc.mcdownloader.download.cache.ehcache;
 
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
