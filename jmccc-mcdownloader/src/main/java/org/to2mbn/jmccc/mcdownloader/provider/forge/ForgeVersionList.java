@@ -5,15 +5,11 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 public class ForgeVersionList implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	private static final Logger LOGGER = Logger.getLogger(ForgeVersionList.class.getCanonicalName());
 
 	public static ForgeVersionList fromJson(JSONObject json) {
 		Map<Integer, ForgeVersion> versions = new TreeMap<>();
@@ -26,18 +22,19 @@ public class ForgeVersionList implements Serializable {
 		JSONObject versionsJson = json.getJSONObject("number");
 		for (String strbuildnum : versionsJson.keySet()) {
 			JSONObject versionJson = versionsJson.getJSONObject(strbuildnum);
-			try {
-				String mcversion = versionJson.getString("mcversion");
-				String forgeversion = versionJson.getString("version");
-				int buildnum = versionJson.getInt("build");
-				String branch = versionJson.optString("branch", null);
-				ForgeVersion version = new ForgeVersion(mcversion, forgeversion, buildnum, branch);
+			String mcversion = versionJson.optString("mcversion", null);
+			String forgeversion = versionJson.optString("version", null);
+			int buildnum = versionJson.optInt("build", -1);
 
-				versions.put(buildnum, version);
-				forgeVersionMapping.put(forgeversion, version);
-			} catch (JSONException e) {
-				LOGGER.log(Level.WARNING, "Couldn't parse forge version, skipping: " + versionJson, e);
+			if (mcversion == null || forgeversion == null || buildnum == -1) {
+				continue;
 			}
+
+			String branch = versionJson.optString("branch", null);
+			ForgeVersion version = new ForgeVersion(mcversion, forgeversion, buildnum, branch);
+
+			versions.put(buildnum, version);
+			forgeVersionMapping.put(forgeversion, version);
 		}
 		JSONObject promos = json.getJSONObject("promos");
 		for (String key : promos.keySet()) {
