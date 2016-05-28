@@ -38,7 +38,7 @@ public class LiteloaderVersionList implements Serializable {
 					String liteloaderVersion = artefactJson.getString("version");
 					String tweakClass = artefactJson.optString("tweakClass", null);
 					Set<JSONObject> libraries = parseLibraries(artefactJson.optJSONArray("libraries"));
-					artefacts.put(artefactId, new LiteloaderVersion(mcversion, liteloaderVersion, tweakClass, repoUrl, Collections.unmodifiableSet(libraries)));
+					artefacts.put(artefactId, new LiteloaderVersion(mcversion, liteloaderVersion, tweakClass, null, Collections.unmodifiableSet(libraries)));
 				}
 			}
 
