@@ -10,8 +10,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import static org.to2mbn.jmccc.mcdownloader.provider.liteloader.LiteloaderDownloadProvider.LAUNCH_WRAPPER_GROUP_ID;
-import static org.to2mbn.jmccc.mcdownloader.provider.liteloader.LiteloaderDownloadProvider.LAUNCH_WRAPPER_ARTIFACT_ID;
+import static org.to2mbn.jmccc.mcdownloader.provider.liteloader.LiteloaderDownloadProvider.LITELOADER_GROUP_ID;
+import static org.to2mbn.jmccc.mcdownloader.provider.liteloader.LiteloaderDownloadProvider.LITELOADER_ARTIFACT_ID;
 
 public class LiteloaderVersionList implements Serializable {
 
@@ -32,7 +32,7 @@ public class LiteloaderVersionList implements Serializable {
 
 			JSONObject artefactsJson = versionRootJson.optJSONObject("artefacts");
 			if (artefactsJson != null) {
-				JSONObject liteloaderArtefactsJson = artefactsJson.getJSONObject(LAUNCH_WRAPPER_GROUP_ID + ":" + LAUNCH_WRAPPER_ARTIFACT_ID);
+				JSONObject liteloaderArtefactsJson = artefactsJson.getJSONObject(LITELOADER_GROUP_ID + ":" + LITELOADER_ARTIFACT_ID);
 				for (String artefactId : liteloaderArtefactsJson.keySet()) {
 					JSONObject artefactJson = liteloaderArtefactsJson.getJSONObject(artefactId);
 					String liteloaderVersion = artefactJson.getString("version");

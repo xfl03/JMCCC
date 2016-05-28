@@ -3,6 +3,7 @@ package org.to2mbn.jmccc.mcdownloader.download.cache;
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
 import org.ehcache.CacheManager;
+import org.ehcache.Status;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
 import org.ehcache.config.builders.CacheManagerBuilder;
 import org.ehcache.config.builders.ResourcePoolsBuilder;
@@ -37,6 +38,27 @@ public class EhcacheDownloaderBuilder implements Builder<Downloader> {
 							.withExpiry(Expirations.timeToLiveExpiration(new Duration(DEFAULT_CACHE_TTL, DEFAULT_CACHE_TTL_UNIT))))
 					.build();
 		}
+
+		static void initCacheManager(CacheManager cacheManager) {
+			if (cacheManager.getStatus() == Status.UNINITIALIZED) {
+				cacheManager.init();
+			}
+		}
+	}
+
+	private static class EhcacheBuilderAdapter<T> implements Builder<T> {
+
+		private org.ehcache.config.Builder<T> adapted;
+
+		public EhcacheBuilderAdapter(org.ehcache.config.Builder<T> adapted) {
+			this.adapted = adapted;
+		}
+
+		@Override
+		public T build() {
+			return adapted.build();
+		}
+
 	}
 
 	private static final long DEFAULT_CACHE_TTL = 2;
@@ -53,7 +75,7 @@ public class EhcacheDownloaderBuilder implements Builder<Downloader> {
 	}
 
 	protected Builder<Downloader> underlying;
-	protected Builder<CacheManager> cacheManager;
+	protected Builder<? extends CacheManager> cacheManager;
 	protected String cacheName;
 
 	protected EhcacheDownloaderBuilder() {}
@@ -63,8 +85,13 @@ public class EhcacheDownloaderBuilder implements Builder<Downloader> {
 		return this;
 	}
 
-	public EhcacheDownloaderBuilder cacheManager(Builder<CacheManager> cacheManager) {
+	public EhcacheDownloaderBuilder cacheManager(Builder<? extends CacheManager> cacheManager) {
 		this.cacheManager = cacheManager;
+		return this;
+	}
+
+	public EhcacheDownloaderBuilder cacheManager(org.ehcache.config.Builder<? extends CacheManager> cacheManager) {
+		this.cacheManager = new EhcacheBuilderAdapter<>(cacheManager);
 		return this;
 	}
 
@@ -86,6 +113,9 @@ public class EhcacheDownloaderBuilder implements Builder<Downloader> {
 		try {
 			cacheManager = this.cacheManager == null ? buildDefaultCacheManager(cacheName) : this.cacheManager.build();
 			underlying = this.underlying.build();
+
+			EhcacheSupport.initCacheManager(cacheManager);
+
 			return new EhcacheDownloader(underlying, cacheManager, cacheName);
 		} catch (Throwable e) {
 			if (cacheManager != null) {
