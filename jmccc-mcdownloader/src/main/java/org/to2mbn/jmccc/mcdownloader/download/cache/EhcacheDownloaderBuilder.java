@@ -76,7 +76,7 @@ public class EhcacheDownloaderBuilder implements Builder<Downloader> {
 
 	protected Builder<Downloader> underlying;
 	protected Builder<? extends CacheManager> cacheManager;
-	protected String cacheName;
+	protected String defaultCacheName;
 
 	protected EhcacheDownloaderBuilder() {}
 
@@ -95,8 +95,8 @@ public class EhcacheDownloaderBuilder implements Builder<Downloader> {
 		return this;
 	}
 
-	public EhcacheDownloaderBuilder cacheName(String cacheName) {
-		this.cacheName = cacheName;
+	public EhcacheDownloaderBuilder defaultCacheName(String defaultCacheName) {
+		this.defaultCacheName = defaultCacheName;
 		return this;
 	}
 
@@ -106,7 +106,7 @@ public class EhcacheDownloaderBuilder implements Builder<Downloader> {
 			throw new IllegalArgumentException("No underlying DownloaderService");
 		}
 
-		String cacheName = this.cacheName == null ? EhcacheDownloader.DEFAULT_CACHE_NAME : this.cacheName;
+		String cacheName = this.defaultCacheName == null ? EhcacheDownloader.DEFAULT_CACHE_NAME : this.defaultCacheName;
 
 		CacheManager cacheManager = null;
 		Downloader underlying = null;

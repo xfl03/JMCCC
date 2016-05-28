@@ -58,6 +58,10 @@ abstract public class DownloadTask<T> {
 		return false;
 	}
 
+	public String getCachePool() {
+		return null;
+	}
+
 	/**
 	 * Calls when the download task begins.
 	 * 
@@ -91,6 +95,13 @@ abstract public class DownloadTask<T> {
 			return this;
 		}
 		return new CachedDownloadTask<>(this, cacheable);
+	}
+
+	public DownloadTask<T> cachePool(String pool) {
+		if (getCachePool() == pool) {
+			return this;
+		}
+		return new CachePoolDownloadTask<>(this, pool);
 	}
 
 }
