@@ -80,9 +80,9 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 									@Override
 									public LiteloaderVersion process(LiteloaderVersionList versionList) throws Exception {
 										String mcversion = liteloaderInfo.getMinecraftVersion();
-										LiteloaderVersion genericLiteloader = versionList.getLatest(mcversion);
+										LiteloaderVersion genericLiteloader = versionList.getSnapshot(mcversion);
 										if (genericLiteloader == null) {
-											genericLiteloader = versionList.getSnapshot(mcversion);
+											genericLiteloader = versionList.getLatest(mcversion);
 										}
 
 										if (genericLiteloader == null) {
