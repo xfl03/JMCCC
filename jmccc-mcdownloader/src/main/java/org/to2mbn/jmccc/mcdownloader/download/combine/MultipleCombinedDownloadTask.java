@@ -13,7 +13,7 @@ class MultipleCombinedDownloadTask extends CombinedDownloadTask<Void> {
 	@Override
 	public void execute(final CombinedDownloadContext<Void> context) throws Exception {
 		for (CombinedDownloadTask<?> task : tasks) {
-			if (task == null) {
+			if (task != null) {
 				context.submit(task, null, true);
 			}
 		}
