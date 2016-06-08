@@ -132,16 +132,20 @@ public class ForgeDownloadProvider extends AbstractMinecraftDownloadProvider imp
 			}
 		}
 
-		// downloads the superversion's jar
-		CombinedDownloadTask<Version> baseTask = upstreamProvider.gameVersionJson(mcdir, forgeInfo.getMinecraftVersion())
-				.andThenDownload(new ResultProcessor<String, CombinedDownloadTask<Version>>() {
+		// downloads the super version
+		CombinedDownloadTask<Version> baseTask;
+		if (forgeInfo.getMinecraftVersion() == null) {
+			baseTask = forgeVersion(forgeInfo.getForgeVersion())
+					.andThenDownload(new ResultProcessor<ForgeVersion, CombinedDownloadTask<Version>>() {
 
-					@Override
-					public CombinedDownloadTask<Version> process(String resolvedMcversion) throws Exception {
-						final Version superversion = Versions.resolveVersion(mcdir, resolvedMcversion);
-						return upstreamProvider.gameJar(mcdir, superversion).andThenReturn(superversion);
-					}
-				});
+						@Override
+						public CombinedDownloadTask<Version> process(ForgeVersion forge) throws Exception {
+							return downloadSuperVersion(mcdir, forge.getMinecraftVersion());
+						}
+					});
+		} else {
+			baseTask = downloadSuperVersion(mcdir, forgeInfo.getMinecraftVersion());
+		}
 
 		final File targetJar = mcdir.getVersionJar(version);
 
@@ -297,6 +301,18 @@ public class ForgeDownloadProvider extends AbstractMinecraftDownloadProvider imp
 
 	private boolean isMetaInfEntry(ZipEntry entry) {
 		return entry.getName().startsWith("META-INF/");
+	}
+
+	private CombinedDownloadTask<Version> downloadSuperVersion(final MinecraftDirectory mcdir, String version) {
+		return upstreamProvider.gameVersionJson(mcdir, version)
+				.andThenDownload(new ResultProcessor<String, CombinedDownloadTask<Version>>() {
+
+					@Override
+					public CombinedDownloadTask<Version> process(String resolvedMcversion) throws Exception {
+						final Version superversion = Versions.resolveVersion(mcdir, resolvedMcversion);
+						return upstreamProvider.gameJar(mcdir, superversion).andThenReturn(superversion);
+					}
+				});
 	}
 
 }
