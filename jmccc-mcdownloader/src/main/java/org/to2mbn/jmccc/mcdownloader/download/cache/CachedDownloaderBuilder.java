@@ -9,6 +9,7 @@ import org.to2mbn.jmccc.mcdownloader.download.cache.provider.CacheProvider;
 import org.to2mbn.jmccc.mcdownloader.download.cache.provider.EhcacheProvider;
 import org.to2mbn.jmccc.mcdownloader.download.cache.provider.JCacheProvider;
 import org.to2mbn.jmccc.util.Builder;
+import org.to2mbn.jmccc.util.Builders;
 
 public class CachedDownloaderBuilder implements Builder<Downloader> {
 
@@ -128,13 +129,7 @@ public class CachedDownloaderBuilder implements Builder<Downloader> {
 
 	public CachedDownloaderBuilder ehcache(final org.ehcache.CacheManager ehcache, boolean autoClose) {
 		Objects.requireNonNull(ehcache);
-		return ehcache(new Builder<org.ehcache.CacheManager>() {
-
-			@Override
-			public org.ehcache.CacheManager build() {
-				return ehcache;
-			}
-		}, autoClose);
+		return ehcache(Builders.of(ehcache), autoClose);
 	}
 
 	public CachedDownloaderBuilder ehcache(org.ehcache.CacheManager ehcache) {
@@ -209,13 +204,7 @@ public class CachedDownloaderBuilder implements Builder<Downloader> {
 
 	public CachedDownloaderBuilder jcache(final javax.cache.CacheManager jcache, boolean autoClose) {
 		Objects.requireNonNull(jcache);
-		this.cacheProvider = new JCacheProviderBuilder(new Builder<javax.cache.CacheManager>() {
-
-			@Override
-			public javax.cache.CacheManager build() {
-				return jcache;
-			}
-		}, autoClose);
+		this.cacheProvider = new JCacheProviderBuilder(Builders.of(jcache), autoClose);
 		return this;
 	}
 

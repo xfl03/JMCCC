@@ -7,6 +7,7 @@ import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloaderBuilder;
 import org.to2mbn.jmccc.mcdownloader.provider.DownloadProviderChain;
 import org.to2mbn.jmccc.mcdownloader.provider.MinecraftDownloadProvider;
 import org.to2mbn.jmccc.util.Builder;
+import org.to2mbn.jmccc.util.Builders;
 
 public class MinecraftDownloaderBuilder implements Builder<MinecraftDownloader> {
 
@@ -70,7 +71,7 @@ public class MinecraftDownloaderBuilder implements Builder<MinecraftDownloader> 
 			if (underlying instanceof CombinedDownloader) {
 				combinedDownloader = (CombinedDownloader) underlying;
 			} else {
-				combinedDownloader = CombinedDownloaderBuilder.buildDefault();
+				combinedDownloader = CombinedDownloaderBuilder.buildDefault(Builders.of(underlying));
 			}
 
 			return new MinecraftDownloaderImpl(combinedDownloader, provider, checkLibrariesHash, checkAssetsHash, updateSnapshots);

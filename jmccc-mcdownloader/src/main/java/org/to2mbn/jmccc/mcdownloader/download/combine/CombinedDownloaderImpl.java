@@ -442,4 +442,9 @@ public class CombinedDownloaderImpl implements CombinedDownloader {
 			throw new RejectedExecutionException("The downloader has been shutdown.");
 	}
 
+	@Override
+	public String toString() {
+		return String.format("CombinedDownloaderImpl [executor=%s, downloader=%s, defaultTries=%s, shutdown=%s]", executor, downloader, defaultTries, shutdown);
+	}
+
 }

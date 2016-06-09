@@ -7,6 +7,8 @@ import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.Objects;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.to2mbn.jmccc.mcdownloader.download.Downloader;
 import org.to2mbn.jmccc.mcdownloader.download.cache.provider.CacheProvider;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.CompletedFuture;
@@ -15,6 +17,8 @@ import org.to2mbn.jmccc.mcdownloader.download.tasks.DownloadSession;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.DownloadTask;
 
 public class CachedDownloader implements Downloader {
+
+	private static final Logger LOGGER = Logger.getLogger(CachedDownloader.class.getCanonicalName());
 
 	private class CachingDownloadTask<T> extends DownloadTask<T> {
 
@@ -136,7 +140,15 @@ public class CachedDownloader implements Downloader {
 
 	@Override
 	public void shutdown() {
-		upstream.shutdown();
+		try {
+			upstream.shutdown();
+		} finally {
+			try {
+				cacheProvider.close();
+			} catch (IOException e) {
+				LOGGER.log(Level.WARNING, "Couldn't close cache provider: " + cacheProvider, e);
+			}
+		}
 	}
 
 	@Override
@@ -184,6 +196,11 @@ public class CachedDownloader implements Downloader {
 			throw e;
 		}
 		return session.completed();
+	}
+
+	@Override
+	public String toString() {
+		return String.format("CachedDownloader [upstream=%s, cacheProvider=%s]", upstream, cacheProvider);
 	}
 
 }

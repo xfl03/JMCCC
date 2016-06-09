@@ -72,4 +72,9 @@ public class MinecraftDownloaderImpl implements MinecraftDownloader {
 		return downloadProvider;
 	}
 
+	@Override
+	public String toString() {
+		return String.format("MinecraftDownloaderImpl [combinedDownloader=%s, downloadProvider=%s, checkLibrariesHash=%s, checkAssetsHash=%s, updateSnapshots=%s]", combinedDownloader, downloadProvider, checkLibrariesHash, checkAssetsHash, updateSnapshots);
+	}
+
 }
