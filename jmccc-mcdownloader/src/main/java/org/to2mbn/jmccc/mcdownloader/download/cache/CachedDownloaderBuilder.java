@@ -249,12 +249,12 @@ public class CachedDownloaderBuilder implements Builder<Downloader> {
 	private CacheProvider<URI, byte[]> buildCacheProvider() {
 		CacheProvider<URI, byte[]> provider;
 		if (cacheProvider == null) {
-			provider = Objects.requireNonNull(createDefaultCacheProvider(), "Cache provider builder returns null");
-		} else {
-			provider = cacheProvider.build();
+			provider = createDefaultCacheProvider();
 			if (provider == null) {
 				throw new IllegalStateException("No default cache provider found");
 			}
+		} else {
+			provider = Objects.requireNonNull(cacheProvider.build(), "Cache provider builder returns null");
 		}
 
 		return provider;
