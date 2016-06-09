@@ -10,20 +10,31 @@ import org.to2mbn.jmccc.util.Builder;
 
 public class MinecraftDownloaderBuilder implements Builder<MinecraftDownloader> {
 
+	public static MinecraftDownloaderBuilder create(Builder<? extends Downloader> underlying) {
+		return new MinecraftDownloaderBuilder(underlying);
+	}
+
 	public static MinecraftDownloaderBuilder create() {
-		return new MinecraftDownloaderBuilder();
+		return create(CombinedDownloaderBuilder.create());
+	}
+
+	public static MinecraftDownloader buildDefault(Builder<? extends Downloader> underlying) {
+		return new MinecraftDownloaderBuilder(underlying).build();
 	}
 
 	public static MinecraftDownloader buildDefault() {
-		return new MinecraftDownloaderBuilder().build();
+		return buildDefault(CombinedDownloaderBuilder.create());
 	}
 
+	protected final Builder<? extends Downloader> underlying;
 	protected boolean checkLibrariesHash = false;
 	protected boolean checkAssetsHash = false;
 	protected boolean updateSnapshots = true;
 	protected Builder<MinecraftDownloadProvider> providerChain;
-	protected Builder<CombinedDownloader> combinedDownloader;
-	protected Builder<Downloader> downloader;
+
+	protected MinecraftDownloaderBuilder(Builder<? extends Downloader> underlying) {
+		this.underlying = underlying;
+	}
 
 	public MinecraftDownloaderBuilder checkLibrariesHash(boolean checkLibrariesHash) {
 		this.checkLibrariesHash = checkLibrariesHash;
@@ -45,16 +56,6 @@ public class MinecraftDownloaderBuilder implements Builder<MinecraftDownloader> 
 		return this;
 	}
 
-	public MinecraftDownloaderBuilder combinedDownloader(Builder<CombinedDownloader> combinedDownloader) {
-		this.combinedDownloader = combinedDownloader;
-		return this;
-	}
-
-	public MinecraftDownloaderBuilder downloader(Builder<Downloader> downloader) {
-		this.downloader = downloader;
-		return this;
-	}
-
 	@Override
 	public MinecraftDownloader build() {
 		MinecraftDownloadProvider provider = providerChain == null
@@ -62,16 +63,28 @@ public class MinecraftDownloaderBuilder implements Builder<MinecraftDownloader> 
 				: Objects.requireNonNull(providerChain.build(), "providerChain builder returns null");
 
 		CombinedDownloader combinedDownloader = null;
+		Downloader underlying = null;
 		try {
-			combinedDownloader = this.combinedDownloader == null
-					? CombinedDownloaderBuilder.create().downloader(this.downloader).build()
-					: Objects.requireNonNull(this.combinedDownloader.build(), "combinedDownloader builder returns null");
+			underlying = Objects.requireNonNull(this.underlying.build(), "Underlying downloader builder returns null");
+
+			if (underlying instanceof CombinedDownloader) {
+				combinedDownloader = (CombinedDownloader) underlying;
+			} else {
+				combinedDownloader = CombinedDownloaderBuilder.buildDefault();
+			}
 
 			return new MinecraftDownloaderImpl(combinedDownloader, provider, checkLibrariesHash, checkAssetsHash, updateSnapshots);
 		} catch (Throwable e) {
 			if (combinedDownloader != null) {
 				try {
 					combinedDownloader.shutdown();
+				} catch (Throwable e1) {
+					e.addSuppressed(e1);
+				}
+			}
+			if (underlying != null) {
+				try {
+					underlying.shutdown();
 				} catch (Throwable e1) {
 					e.addSuppressed(e1);
 				}

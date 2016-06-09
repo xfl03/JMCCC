@@ -24,6 +24,10 @@ public class CachedDownloaderBuilder implements Builder<Downloader> {
 		return create(underlying).build();
 	}
 
+	public static boolean isAvailable() {
+		return (JCacheProvider.isAvailable() && JCacheSupport.hasAvailableProvider()) || EhcacheProvider.isAvailable();
+	}
+
 	// === Default cache settings
 	private static final long DEFAULT_CACHE_TTL = 2;
 	private static final TimeUnit DEFAULT_CACHE_TTL_UNIT = TimeUnit.HOURS;
@@ -188,6 +192,10 @@ public class CachedDownloaderBuilder implements Builder<Downloader> {
 			}
 			return adapt(cacheManager, cacheName, true);
 		}
+
+		static boolean hasAvailableProvider() {
+			return javax.cache.Caching.getCachingProviders().iterator().hasNext();
+		}
 	}
 
 	public CachedDownloaderBuilder jcache(Builder<? extends javax.cache.CacheManager> jcache, boolean autoClose) {
@@ -223,7 +231,7 @@ public class CachedDownloaderBuilder implements Builder<Downloader> {
 		CacheProvider<URI, byte[]> cache = null;
 
 		try {
-			underlying = this.underlying.build();
+			underlying = Objects.requireNonNull(this.underlying.build(), "Underlying downloader builder returns null");
 			cache = buildCacheProvider();
 			LOGGER.info("Using cache provider: " + cache);
 			return new CachedDownloader(underlying, cache);

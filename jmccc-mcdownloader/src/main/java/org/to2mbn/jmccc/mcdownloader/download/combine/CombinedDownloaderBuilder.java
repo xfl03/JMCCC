@@ -4,32 +4,36 @@ import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import org.to2mbn.jmccc.mcdownloader.download.Downloader;
-import org.to2mbn.jmccc.mcdownloader.download.io.JdkDownloaderBuilder;
-import org.to2mbn.jmccc.mcdownloader.download.io.async.HttpAsyncDownloaderBuilder;
+import org.to2mbn.jmccc.mcdownloader.download.DownloaderBuilders;
 import org.to2mbn.jmccc.mcdownloader.util.ThreadPoolUtils;
 import org.to2mbn.jmccc.util.Builder;
 
 public class CombinedDownloaderBuilder implements Builder<CombinedDownloader> {
 
+	public static CombinedDownloaderBuilder create(Builder<Downloader> underlying) {
+		return new CombinedDownloaderBuilder(underlying);
+	}
+
 	public static CombinedDownloaderBuilder create() {
-		return new CombinedDownloaderBuilder();
+		return create(DownloaderBuilders.cacheableDownloader());
+	}
+
+	public static CombinedDownloader buildDefault(Builder<Downloader> underlying) {
+		return create(underlying).build();
 	}
 
 	public static CombinedDownloader buildDefault() {
-		return create().build();
+		return buildDefault(DownloaderBuilders.cacheableDownloader());
 	}
 
-	protected Builder<Downloader> downloader;
+	protected final Builder<Downloader> underlying;
 	protected int threadPoolSize = Runtime.getRuntime().availableProcessors();
 	protected long threadPoolKeepAliveTime = 10;
 	protected TimeUnit threadPoolKeepAliveTimeUnit = TimeUnit.SECONDS;
 	protected int defaultTries = 3;
 
-	protected CombinedDownloaderBuilder() {}
-
-	public CombinedDownloaderBuilder downloader(Builder<Downloader> downloader) {
-		this.downloader = downloader;
-		return this;
+	protected CombinedDownloaderBuilder(Builder<Downloader> underlying) {
+		this.underlying = Objects.requireNonNull(underlying);
 	}
 
 	public CombinedDownloaderBuilder threadPoolSize(int threadPoolSize) {
@@ -54,9 +58,7 @@ public class CombinedDownloaderBuilder implements Builder<CombinedDownloader> {
 		Downloader downloader = null;
 		try {
 			pool = ThreadPoolUtils.createPool(threadPoolSize, threadPoolKeepAliveTime, threadPoolKeepAliveTimeUnit, "combinedDownloader");
-			downloader = this.downloader == null
-					? (HttpAsyncDownloaderBuilder.isAvailable() ? HttpAsyncDownloaderBuilder.buildDefault() : JdkDownloaderBuilder.buildDefault())
-					: Objects.requireNonNull(this.downloader.build(), "downloader builder returns null");
+			downloader = Objects.requireNonNull(this.underlying.build(), "Underlying downloader builder returns null");
 			return new CombinedDownloaderImpl(pool, downloader, defaultTries);
 		} catch (Throwable e) {
 			if (pool != null) {
