@@ -1,4 +1,4 @@
-package org.to2mbn.jmccc.mcdownloader.download.cache;
+package org.to2mbn.jmccc.mcdownloader.download.cache.provider;
 
 import java.io.Closeable;
 

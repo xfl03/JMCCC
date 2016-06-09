@@ -8,6 +8,7 @@ import java.nio.ByteBuffer;
 import java.util.Objects;
 import java.util.concurrent.Future;
 import org.to2mbn.jmccc.mcdownloader.download.Downloader;
+import org.to2mbn.jmccc.mcdownloader.download.cache.provider.CacheProvider;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.CompletedFuture;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.DownloadCallback;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.DownloadSession;

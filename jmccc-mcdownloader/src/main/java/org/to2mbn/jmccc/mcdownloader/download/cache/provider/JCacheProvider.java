@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Objects;
 import javax.cache.Cache;
 import javax.cache.CacheManager;
-import org.to2mbn.jmccc.mcdownloader.download.cache.CacheProvider;
 
 public class JCacheProvider<K, V> implements CacheProvider<K, V> {
 

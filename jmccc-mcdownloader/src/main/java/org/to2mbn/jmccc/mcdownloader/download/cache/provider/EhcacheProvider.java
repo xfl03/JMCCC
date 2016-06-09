@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Objects;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
-import org.to2mbn.jmccc.mcdownloader.download.cache.CacheProvider;
 
 public class EhcacheProvider<K, V> implements CacheProvider<K, V> {
 

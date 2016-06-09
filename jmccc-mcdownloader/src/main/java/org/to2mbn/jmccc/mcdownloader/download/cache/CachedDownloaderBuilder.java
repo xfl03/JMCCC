@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import org.to2mbn.jmccc.mcdownloader.download.Downloader;
+import org.to2mbn.jmccc.mcdownloader.download.cache.provider.CacheProvider;
 import org.to2mbn.jmccc.mcdownloader.download.cache.provider.EhcacheProvider;
 import org.to2mbn.jmccc.mcdownloader.download.cache.provider.JCacheProvider;
 import org.to2mbn.jmccc.util.Builder;
