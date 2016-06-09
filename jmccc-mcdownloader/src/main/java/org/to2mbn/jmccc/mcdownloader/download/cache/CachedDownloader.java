@@ -13,7 +13,7 @@ import org.to2mbn.jmccc.mcdownloader.download.concurrent.DownloadCallback;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.DownloadSession;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.DownloadTask;
 
-abstract public class AbstractCachedDownloader implements Downloader {
+public class CachedDownloader implements Downloader {
 
 	private class CachingDownloadTask<T> extends DownloadTask<T> {
 
@@ -93,7 +93,7 @@ abstract public class AbstractCachedDownloader implements Downloader {
 						ByteArrayOutputStream buf = bufRef.get();
 						if (buf != null) {
 							byte[] data = buf.toByteArray();
-							addCache(proxiedTask.getCachePool(), proxiedTask.getURI(), data);
+							cacheProvider.put(proxiedTask.getCachePool(), proxiedTask.getURI(), data);
 						}
 					} catch (OutOfMemoryError e) {
 						dropCache();
@@ -115,11 +115,12 @@ abstract public class AbstractCachedDownloader implements Downloader {
 
 	}
 
-	private final Downloader upstream;
+	private Downloader upstream;
+	private CacheProvider<URI, byte[]> cacheProvider;
 
-	public AbstractCachedDownloader(Downloader upstream) {
-		Objects.requireNonNull(upstream);
-		this.upstream = upstream;
+	public CachedDownloader(Downloader upstream, CacheProvider<URI, byte[]> cacheProvider) {
+		this.upstream = Objects.requireNonNull(upstream);
+		this.cacheProvider = Objects.requireNonNull(cacheProvider);
 	}
 
 	@Override
@@ -144,7 +145,7 @@ abstract public class AbstractCachedDownloader implements Downloader {
 
 	private <T> Future<T> downloadIfNecessary(DownloadTask<T> task, DownloadCallback<T> callback, int tries) {
 		if (task.isCacheable()) {
-			byte[] cached = getCache(task.getCachePool(), task.getURI());
+			byte[] cached = cacheProvider.get(task.getCachePool(), task.getURI());
 			if (cached == null) {
 				return submitToUpstream(new CachingDownloadTask<>(task), callback, tries);
 			} else {
@@ -152,7 +153,7 @@ abstract public class AbstractCachedDownloader implements Downloader {
 				try {
 					result = processCache(task, cached);
 				} catch (Throwable e) {
-					removeCache(task.getCachePool(), task.getURI());
+					cacheProvider.remove(task.getCachePool(), task.getURI());
 					return submitToUpstream(new CachingDownloadTask<>(task), callback, tries);
 				}
 				if (callback != null) {
@@ -183,11 +184,5 @@ abstract public class AbstractCachedDownloader implements Downloader {
 		}
 		return session.completed();
 	}
-
-	abstract protected byte[] getCache(String pool, URI key);
-
-	abstract protected void addCache(String pool, URI key, byte[] value);
-
-	abstract protected void removeCache(String pool, URI key);
 
 }
