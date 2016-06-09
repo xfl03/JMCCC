@@ -56,4 +56,33 @@ public class LiteloaderVersionTest {
 		assertEquals(false, new LiteloaderVersion("1.9", "1.9", null, null, libsB).equals(new LiteloaderVersion("1.9", "1.9", null, null, libsA)));
 	}
 
+	@Test
+	public void testEq() {
+		Set<JSONObject> libsA = new LinkedHashSet<JSONObject>();
+		JSONObject lib;
+
+		lib = new JSONObject();
+		lib.put("name", "net.minecraft:launchwrapper:1.11");
+		libsA.add(lib);
+
+		lib = new JSONObject();
+		lib.put("name", "org.spongepowered:mixin:0.5.5-SNAPSHOT");
+		lib.put("url", "https://repo.spongepowered.org/maven/");
+		libsA.add(lib);
+
+		Set<JSONObject> libsB = new LinkedHashSet<JSONObject>();
+
+		lib = new JSONObject();
+		lib.put("name", "net.minecraft:launchwrapper:1.11");
+		libsB.add(lib);
+
+		lib = new JSONObject();
+		lib.put("name", "org.spongepowered:mixin:0.5.5-SNAPSHOT");
+		lib.put("url", "https://repo.spongepowered.org/maven/");
+		libsB.add(lib);
+
+		assertEquals(true, new LiteloaderVersion("1.9", "1.9", null, null, libsA).equals(new LiteloaderVersion("1.9", "1.9", null, null, libsB)));
+		assertEquals(true, new LiteloaderVersion("1.9", "1.9", null, null, libsB).equals(new LiteloaderVersion("1.9", "1.9", null, null, libsA)));
+	}
+
 }

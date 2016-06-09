@@ -89,7 +89,7 @@ public class LiteloaderVersion implements Serializable {
 					Objects.equals(superVersion, another.superVersion) &&
 					Objects.equals(tweakClass, another.tweakClass) &&
 					Objects.equals(repoUrl, another.repoUrl) &&
-					JsonComparing.equals(libraries, another.libraries);
+					JsonComparing.equalsJsonSet(libraries, another.libraries);
 		}
 		return false;
 	}
