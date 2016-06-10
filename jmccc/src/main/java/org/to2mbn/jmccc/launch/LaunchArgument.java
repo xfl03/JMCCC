@@ -66,7 +66,9 @@ class LaunchArgument {
 				cpBuilder.append(lib.getAbsolutePath()).append(Platform.getPathSpearator());
 			}
 		}
-		cpBuilder.deleteCharAt(cpBuilder.length() - 1); // to avoid the last unnecessary ':'
+		if (cpBuilder.length() > 0) {
+			cpBuilder.deleteCharAt(cpBuilder.length() - 1); // to avoid the last unnecessary ':'
+		}
 
 		args.add(cpBuilder.toString());
 		// ==========END==========
