@@ -12,7 +12,7 @@ public enum Platform {
 	 * 
 	 * @return the file separator of current platform
 	 */
-	public static String getFileSpearator() {
+	public static String getFileSeparator() {
 		return System.getProperty("file.separator");
 	}
 
@@ -23,7 +23,7 @@ public enum Platform {
 	 * 
 	 * @return the path separator of current platform
 	 */
-	public static String getPathSpearator() {
+	public static String getPathSeparator() {
 		return System.getProperty("path.separator");
 	}
 
@@ -34,7 +34,7 @@ public enum Platform {
 	 * 
 	 * @return the line separator of current platform
 	 */
-	public static String getLineSpearator() {
+	public static String getLineSeparator() {
 		return System.lineSeparator();
 	}
 

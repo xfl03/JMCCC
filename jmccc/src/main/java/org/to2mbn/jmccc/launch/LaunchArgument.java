@@ -63,7 +63,7 @@ class LaunchArgument {
 		// libraries
 		for (File lib : libraries) {
 			if (lib != null) {
-				cpBuilder.append(lib.getAbsolutePath()).append(Platform.getPathSpearator());
+				cpBuilder.append(lib.getAbsolutePath()).append(Platform.getPathSeparator());
 			}
 		}
 		if (cpBuilder.length() > 0) {

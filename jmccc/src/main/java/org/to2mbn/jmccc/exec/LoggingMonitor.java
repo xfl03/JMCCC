@@ -25,7 +25,7 @@ public class LoggingMonitor extends ProcessMonitor {
 
 		@Override
 		public void run() {
-			char[] eol = Platform.getLineSpearator().toCharArray();
+			char[] eol = Platform.getLineSeparator().toCharArray();
 			try {
 				// no need for close this
 				// because we don't need to close the base stream
