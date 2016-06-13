@@ -98,7 +98,10 @@ public class CachedDownloader implements Downloader {
 						ByteArrayOutputStream buf = bufRef.get();
 						if (buf != null) {
 							byte[] data = buf.toByteArray();
-							cacheProvider.put(proxiedTask.getCachePool(), proxiedTask.getURI(), data);
+							URI uri = proxiedTask.getURI();
+							String pool = proxiedTask.getCachePool();
+							cacheProvider.put(pool, uri, data);
+							LOGGER.fine(String.format("Cached [%s] into [%s], length=%d", uri, pool, data.length));
 						}
 					} catch (OutOfMemoryError e) {
 						dropCache();
@@ -158,17 +161,24 @@ public class CachedDownloader implements Downloader {
 
 	private <T> Future<T> downloadIfNecessary(DownloadTask<T> task, DownloadCallback<T> callback, int tries) {
 		if (task.isCacheable()) {
-			byte[] cached = cacheProvider.get(task.getCachePool(), task.getURI());
+			URI uri = task.getURI();
+			String pool = task.getCachePool();
+			byte[] cached = cacheProvider.get(pool, uri);
 			if (cached == null) {
 				return submitToUpstream(new CachingDownloadTask<>(task), callback, tries);
 			} else {
+
 				T result;
 				try {
 					result = processCache(task, cached);
 				} catch (Throwable e) {
-					cacheProvider.remove(task.getCachePool(), task.getURI());
+					cacheProvider.remove(pool, uri);
+					LOGGER.log(Level.FINE, String.format("Removed cache [%s] from [%s] because an exception has thrown when applying cache", uri, pool), e);
 					return submitToUpstream(new CachingDownloadTask<>(task), callback, tries);
 				}
+
+				LOGGER.fine(String.format("Applied cache [%s] from [%s], length=%d", uri, pool, cached.length));
+
 				if (callback != null) {
 					callback.done(result);
 				}
