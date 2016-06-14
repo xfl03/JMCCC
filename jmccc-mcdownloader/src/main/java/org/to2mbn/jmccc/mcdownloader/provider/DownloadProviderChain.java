@@ -88,6 +88,7 @@ public class DownloadProviderChain implements Builder<MinecraftDownloadProvider>
 	protected List<MinecraftDownloadProvider> providers = new ArrayList<>();
 	protected List<Builder<MinecraftDownloadProvider>> aheadProviders = new ArrayList<>();
 	protected boolean useDownloadInfo = true;
+	protected List<DownloadInfoProcessor> downloadInfoProcessor = new ArrayList<>();
 
 	protected DownloadProviderChain() {}
 
@@ -111,6 +112,11 @@ public class DownloadProviderChain implements Builder<MinecraftDownloadProvider>
 		return this;
 	}
 
+	public DownloadProviderChain addDownloadInfoProcessor(DownloadInfoProcessor processor) {
+		this.downloadInfoProcessor.add(Objects.requireNonNull(processor));
+		return this;
+	}
+
 	@Override
 	public MinecraftDownloadProvider build() {
 		MinecraftDownloadProvider right = this.baseProvider == null ? new MojangDownloadProvider() : this.baseProvider;
@@ -130,7 +136,7 @@ public class DownloadProviderChain implements Builder<MinecraftDownloadProvider>
 			ahead.add(Objects.requireNonNull(builder.build(), "Ahead provider builder [" + builder + "] returns null"));
 		}
 		if (useDownloadInfo) {
-			ahead.add(new InfoDownloadProvider());
+			ahead.add(new DownloadInfoProvider(new ArrayList<>(downloadInfoProcessor)));
 		}
 
 		for (MinecraftDownloadProvider left : ahead) {

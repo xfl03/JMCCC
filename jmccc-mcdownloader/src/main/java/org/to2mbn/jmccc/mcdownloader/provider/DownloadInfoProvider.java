@@ -2,6 +2,8 @@ package org.to2mbn.jmccc.mcdownloader.provider;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.to2mbn.jmccc.mcdownloader.RemoteVersion;
@@ -9,6 +11,7 @@ import org.to2mbn.jmccc.mcdownloader.RemoteVersionList;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.FileDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.ResultProcessor;
+import org.to2mbn.jmccc.mcdownloader.util.URIUtils;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.util.ChecksumUtils;
 import org.to2mbn.jmccc.version.Asset;
@@ -18,9 +21,14 @@ import org.to2mbn.jmccc.version.LibraryInfo;
 import org.to2mbn.jmccc.version.Version;
 import org.to2mbn.jmccc.version.Versions;
 
-public class InfoDownloadProvider extends AbstractMinecraftDownloadProvider implements ExtendedDownloadProvider {
+public class DownloadInfoProvider extends AbstractMinecraftDownloadProvider implements ExtendedDownloadProvider {
 
+	private List<DownloadInfoProcessor> urlProcessors;
 	private MinecraftDownloadProvider upstreamProvider;
+
+	public DownloadInfoProvider(List<DownloadInfoProcessor> urlProcessors) {
+		this.urlProcessors = urlProcessors;
+	}
 
 	@Override
 	public CombinedDownloadTask<Set<Asset>> assetsIndex(final MinecraftDirectory mcdir, final Version version) {
@@ -69,7 +77,7 @@ public class InfoDownloadProvider extends AbstractMinecraftDownloadProvider impl
 							final RemoteVersion remoteVersion = result.getVersions().get(version);
 							if (remoteVersion != null && remoteVersion.getUrl() != null) {
 								return CombinedDownloadTask.single(
-										new FileDownloadTask(remoteVersion.getUrl(), mcdir.getVersionJson(remoteVersion.getVersion()))
+										new FileDownloadTask(parseURI(remoteVersion.getUrl()), mcdir.getVersionJson(remoteVersion.getVersion()))
 												.cacheable())
 										.andThenReturn(remoteVersion.getVersion());
 							}
@@ -89,7 +97,7 @@ public class InfoDownloadProvider extends AbstractMinecraftDownloadProvider impl
 		if (info == null || info.getUrl() == null) {
 			return null;
 		}
-		return CombinedDownloadTask.single(new FileDownloadTask(info.getUrl(), target)
+		return CombinedDownloadTask.single(new FileDownloadTask(parseURI(info.getUrl()), target)
 				.andThen(new ResultProcessor<Void, Void>() {
 
 					@Override
@@ -100,6 +108,13 @@ public class InfoDownloadProvider extends AbstractMinecraftDownloadProvider impl
 						return null;
 					}
 				}));
+	}
+
+	private URI parseURI(String str) {
+		for (DownloadInfoProcessor urlProcessor : urlProcessors) {
+			str = urlProcessor.process(str);
+		}
+		return URIUtils.toURI(str);
 	}
 
 }
