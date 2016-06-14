@@ -222,7 +222,7 @@ public class CachedDownloaderBuilder implements Builder<Downloader> {
 		try {
 			underlying = Objects.requireNonNull(this.underlying.build(), "Underlying downloader builder returns null");
 			cache = buildCacheProvider();
-			LOGGER.info("Using cache provider: " + cache);
+			LOGGER.fine("Using cache provider: " + cache);
 			return new CachedDownloader(underlying, cache);
 
 		} catch (Throwable e) {
