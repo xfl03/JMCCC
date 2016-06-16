@@ -163,6 +163,8 @@ public class CachedDownloader implements Downloader {
 		if (task.isCacheable()) {
 			URI uri = task.getURI();
 			String pool = resolveCachePool(task.getCachePool());
+			LOGGER.finer(String.format("Resolve [%s] as [%s]", task.getCachePool(), pool));
+
 			byte[] cached = cacheProvider.get(pool, uri);
 			if (cached == null) {
 				return submitToUpstream(new CachingDownloadTask<>(task), callback, tries);
