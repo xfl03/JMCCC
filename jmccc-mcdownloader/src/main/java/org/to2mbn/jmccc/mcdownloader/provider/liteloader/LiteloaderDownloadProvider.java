@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.to2mbn.jmccc.mcdownloader.download.cache.CacheNames;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadContext;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.FileDownloadTask;
@@ -58,7 +59,8 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 						return LiteloaderVersionList.fromJson(json);
 					}
 				})
-				.cacheable());
+				.cacheable()
+				.cachePool(CacheNames.LITELOADER_VERSION_LIST));
 	}
 
 	@Override
@@ -100,8 +102,10 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 					public CombinedDownloadTask<String> process(final LiteloaderVersion liteloader) throws Exception {
 						if (liteloader.getLiteloaderVersion().endsWith("-SNAPSHOT")) {
 							// it's a snapshot
+
 							return source.liteloaderSnapshotVersionJson(liteloader)
-									.andThen(new VersionJsonProcessor(mcdir));
+									.andThen(new VersionJsonProcessor(mcdir))
+									.cachePool(CacheNames.LITELOADER_VERSION_JSON);
 						} else {
 							// it's a release
 							return new CombinedDownloadTask<String>() {
@@ -143,7 +147,8 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 														Library libToDownload = new Library(groupId, artifactId, version, "release", library.getType());
 														return CombinedDownloadTask.single(
 																new FileDownloadTask(repo + libToDownload.getPath(postfix), mcdir.getLibrary(library))
-																		.cacheable());
+																		.cacheable()
+																		.cachePool(CacheNames.LIBRARY));
 													}
 												});
 									}

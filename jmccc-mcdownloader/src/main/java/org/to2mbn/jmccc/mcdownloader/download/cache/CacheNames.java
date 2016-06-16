@@ -28,6 +28,9 @@ public final class CacheNames {
 	public static final String LITELOADER_VERSION_LIST 	= PREFIX_DYNAMIC + "liteloader.versionList";
 	public static final String LITELOADER_VERSION_JSON 	= PREFIX_DYNAMIC + "liteloader.versionJson";
 
+	// Maven
+	public static final String M2_METADATA 				= PREFIX_DYNAMIC + "m2.metadata";
+
 	// @formatter:on
 
 	private CacheNames() {}

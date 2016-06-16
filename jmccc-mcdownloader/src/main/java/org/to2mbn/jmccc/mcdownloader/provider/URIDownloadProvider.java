@@ -138,9 +138,10 @@ abstract public class URIDownloadProvider implements MinecraftDownloadProvider {
 		if (handler == null) {
 			throw new IllegalArgumentException("unable to resolve library download handler, path: " + path);
 		}
+
 		return CombinedDownloadTask.single(
-				handler.createDownloadTask(mcdir.getLibrary(library), library, uri)
-						.cachePool(CacheNames.LIBRARY));
+				handler.createDownloadTask(mcdir.getLibrary(library), library, uri))
+				.cachePool(CacheNames.LIBRARY);
 	}
 
 	@Override

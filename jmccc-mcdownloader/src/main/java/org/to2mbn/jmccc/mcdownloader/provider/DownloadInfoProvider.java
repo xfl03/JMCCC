@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import org.to2mbn.jmccc.mcdownloader.RemoteVersion;
 import org.to2mbn.jmccc.mcdownloader.RemoteVersionList;
+import org.to2mbn.jmccc.mcdownloader.download.cache.CacheNames;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.FileDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.ResultProcessor;
@@ -34,13 +35,15 @@ public class DownloadInfoProvider extends AbstractMinecraftDownloadProvider impl
 	public CombinedDownloadTask<Set<Asset>> assetsIndex(final MinecraftDirectory mcdir, final Version version) {
 		CombinedDownloadTask<Void> task = download(version.getAssetIndexDownloadInfo(), mcdir.getAssetIndex(version));
 		if (task != null) {
-			return task.andThen(new ResultProcessor<Void, Set<Asset>>() {
+			return task
+					.andThen(new ResultProcessor<Void, Set<Asset>>() {
 
-				@Override
-				public Set<Asset> process(Void arg) throws Exception {
-					return Versions.resolveAssets(mcdir, version);
-				}
-			});
+						@Override
+						public Set<Asset> process(Void arg) throws Exception {
+							return Versions.resolveAssets(mcdir, version);
+						}
+					})
+					.cachePool(CacheNames.ASSET_INDEX);
 		} else {
 			return null;
 		}
@@ -50,7 +53,8 @@ public class DownloadInfoProvider extends AbstractMinecraftDownloadProvider impl
 	public CombinedDownloadTask<Void> gameJar(MinecraftDirectory mcdir, Version version) {
 		Map<String, DownloadInfo> downloads = version.getDownloads();
 		if (downloads != null) {
-			return download(downloads.get("client"), mcdir.getVersionJar(version));
+			return download(downloads.get("client"), mcdir.getVersionJar(version))
+					.cachePool(CacheNames.GAME_JAR);
 		}
 		return null;
 	}
@@ -59,7 +63,8 @@ public class DownloadInfoProvider extends AbstractMinecraftDownloadProvider impl
 	public CombinedDownloadTask<Void> library(MinecraftDirectory mcdir, Library library) {
 		LibraryInfo info = library.getDownloadInfo();
 		if (info != null) {
-			return download(info, mcdir.getLibrary(library));
+			return download(info, mcdir.getLibrary(library))
+					.cachePool(CacheNames.LIBRARY);
 		}
 		return null;
 	}
@@ -78,7 +83,8 @@ public class DownloadInfoProvider extends AbstractMinecraftDownloadProvider impl
 							if (remoteVersion != null && remoteVersion.getUrl() != null) {
 								return CombinedDownloadTask.single(
 										new FileDownloadTask(parseURI(remoteVersion.getUrl()), mcdir.getVersionJson(remoteVersion.getVersion()))
-												.cacheable())
+												.cacheable()
+												.cachePool(CacheNames.VERSION_JSON))
 										.andThenReturn(remoteVersion.getVersion());
 							}
 

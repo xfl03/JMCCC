@@ -12,6 +12,7 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.to2mbn.jmccc.mcdownloader.download.cache.CacheNames;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.FileDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.MemoryDownloadTask;
@@ -63,7 +64,8 @@ public class ForgeDownloadProvider extends AbstractMinecraftDownloadProvider imp
 								return ForgeVersionList.fromJson(json);
 							}
 						})
-						.cacheable());
+						.cacheable()
+						.cachePool(CacheNames.FORGE_VERSION_LIST));
 	}
 
 	@Override
@@ -200,7 +202,10 @@ public class ForgeDownloadProvider extends AbstractMinecraftDownloadProvider imp
 
 	protected CombinedDownloadTask<byte[]> installerTask(String m2Version) {
 		Library lib = new Library(FORGE_GROUP_ID, FORGE_ARTIFACT_ID, m2Version, CLASSIFIER_INSTALLER, "jar");
-		return CombinedDownloadTask.single(new MemoryDownloadTask(source.getForgeMavenRepositoryUrl() + lib.getPath()));
+		return CombinedDownloadTask.single(
+				new MemoryDownloadTask(source.getForgeMavenRepositoryUrl() + lib.getPath())
+						.cacheable()
+						.cachePool(CacheNames.FORGE_INSTALLER));
 	}
 
 	protected CombinedDownloadTask<Void> universalTask(String m2Version, File target) {
@@ -213,7 +218,9 @@ public class ForgeDownloadProvider extends AbstractMinecraftDownloadProvider imp
 
 		for (int i = 0; i < types.length; i++) {
 			Library lib = new Library(FORGE_GROUP_ID, FORGE_ARTIFACT_ID, m2Version, CLASSIFIER_UNIVERSAL, types[i]);
-			tasks[i + 1] = CombinedDownloadTask.single(new FileDownloadTask(source.getForgeMavenRepositoryUrl() + lib.getPath(), target));
+			tasks[i + 1] = CombinedDownloadTask.single(
+					new FileDownloadTask(source.getForgeMavenRepositoryUrl() + lib.getPath(), target)
+							.cachePool(CacheNames.FORGE_UNIVERSAL));
 		}
 
 		return CombinedDownloadTask.any(tasks);
