@@ -101,7 +101,9 @@ public class CachedDownloader implements Downloader {
 							URI uri = proxiedTask.getURI();
 							String pool = resolveCachePool(proxiedTask.getCachePool());
 							cacheProvider.put(pool, uri, data);
-							LOGGER.fine(String.format("Cached [%s] into [%s], length=%d", uri, pool, data.length));
+
+							if (LOGGER.isLoggable(Level.FINE))
+								LOGGER.fine(String.format("Cached [%s] into [%s], length=%d", uri, pool, data.length));
 						}
 					} catch (OutOfMemoryError e) {
 						dropCache();
@@ -163,7 +165,9 @@ public class CachedDownloader implements Downloader {
 		if (task.isCacheable()) {
 			URI uri = task.getURI();
 			String pool = resolveCachePool(task.getCachePool());
-			LOGGER.finer(String.format("Resolve [%s] as [%s]", task.getCachePool(), pool));
+
+			if (LOGGER.isLoggable(Level.FINER))
+				LOGGER.finer(String.format("Resolved the cache pool of [%s]: [%s] -> [%s]", uri, task.getCachePool(), pool));
 
 			byte[] cached = cacheProvider.get(pool, uri);
 			if (cached == null) {
@@ -175,11 +179,15 @@ public class CachedDownloader implements Downloader {
 					result = processCache(task, cached);
 				} catch (Throwable e) {
 					cacheProvider.remove(pool, uri);
-					LOGGER.log(Level.FINE, String.format("Removed cache [%s] from [%s] because an exception has thrown when applying cache", uri, pool), e);
+
+					if (LOGGER.isLoggable(Level.FINE))
+						LOGGER.log(Level.FINE, String.format("Removed cache [%s] from [%s] because an exception has thrown when applying cache", uri, pool), e);
+
 					return submitToUpstream(new CachingDownloadTask<>(task), callback, tries);
 				}
 
-				LOGGER.fine(String.format("Applied cache [%s] from [%s], length=%d", uri, pool, cached.length));
+				if (LOGGER.isLoggable(Level.FINE))
+					LOGGER.fine(String.format("Applied cache [%s] from [%s], length=%d", uri, pool, cached.length));
 
 				if (callback != null) {
 					callback.done(result);
