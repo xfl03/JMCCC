@@ -99,7 +99,7 @@ public class CachedDownloader implements Downloader {
 						if (buf != null) {
 							byte[] data = buf.toByteArray();
 							URI uri = proxiedTask.getURI();
-							String pool = proxiedTask.getCachePool();
+							String pool = resolveCachePool(proxiedTask.getCachePool());
 							cacheProvider.put(pool, uri, data);
 							LOGGER.fine(String.format("Cached [%s] into [%s], length=%d", uri, pool, data.length));
 						}
@@ -162,7 +162,9 @@ public class CachedDownloader implements Downloader {
 	private <T> Future<T> downloadIfNecessary(DownloadTask<T> task, DownloadCallback<T> callback, int tries) {
 		if (task.isCacheable()) {
 			URI uri = task.getURI();
-			String pool = task.getCachePool();
+			String pool = resolveCachePool(task.getCachePool());
+			LOGGER.finer(String.format("Resolve [%s] as [%s]", task.getCachePool(), pool));
+
 			byte[] cached = cacheProvider.get(pool, uri);
 			if (cached == null) {
 				return submitToUpstream(new CachingDownloadTask<>(task), callback, tries);
@@ -206,6 +208,22 @@ public class CachedDownloader implements Downloader {
 			throw e;
 		}
 		return session.completed();
+	}
+
+	private String resolveCachePool(String unresolved) {
+		if (unresolved == null) {
+			return CacheNames.DEFAULT;
+		}
+		for (;;) {
+			if (cacheProvider.hasCache(unresolved)) {
+				return unresolved;
+			}
+			int lastDot = unresolved.lastIndexOf('.');
+			if (lastDot == -1) {
+				return CacheNames.DEFAULT;
+			}
+			unresolved = unresolved.substring(0, lastDot);
+		}
 	}
 
 	@Override

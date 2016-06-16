@@ -17,12 +17,14 @@ public class JCacheProvider<K, V> implements CacheProvider<K, V> {
 	}
 
 	private CacheManager manager;
-	private String defaultPool;
+	private Class<K> keyClass;
+	private Class<V> valueClass;
 	private boolean closeCache;
 
-	public JCacheProvider(CacheManager manager, String defaultPool, boolean closeCache) {
+	public JCacheProvider(CacheManager manager, Class<K> keyClass, Class<V> valueClass, boolean closeCache) {
 		this.manager = Objects.requireNonNull(manager);
-		this.defaultPool = Objects.requireNonNull(defaultPool);
+		this.keyClass = Objects.requireNonNull(keyClass);
+		this.valueClass = Objects.requireNonNull(valueClass);
 		this.closeCache = closeCache;
 	}
 
@@ -41,14 +43,15 @@ public class JCacheProvider<K, V> implements CacheProvider<K, V> {
 		getCache(cachePool).remove(key);
 	}
 
+	@Override
+	public boolean hasCache(String cachePool) {
+		return manager.getCache(cachePool, keyClass, valueClass) != null;
+	}
+
 	private Cache<K, V> getCache(String pool) {
-		Cache<K, V> cache = null;
-		if (pool != null)
-			cache = manager.getCache(pool);
+		Cache<K, V> cache = manager.getCache(pool, keyClass, valueClass);
 		if (cache == null)
-			cache = manager.getCache(defaultPool);
-		if (cache == null)
-			throw new IllegalStateException("Default cache pool [" + defaultPool + "] is not configured.");
+			throw new IllegalStateException("Default cache pool [" + pool + "] is not configured.");
 		return cache;
 	}
 
@@ -61,7 +64,7 @@ public class JCacheProvider<K, V> implements CacheProvider<K, V> {
 
 	@Override
 	public String toString() {
-		return String.format("JCacheProvider [manager=%s, defaultPool=%s, closeCache=%s]", manager, defaultPool, closeCache);
+		return String.format("JCacheProvider [manager=%s, keyClass=%s, valueClass=%s, closeCache=%s]", manager, keyClass, valueClass, closeCache);
 	}
 
 }

@@ -98,7 +98,7 @@ abstract public class DownloadTask<T> {
 	}
 
 	public DownloadTask<T> cachePool(String pool) {
-		if (getCachePool() == pool) {
+		if (Objects.equals(getCachePool(), pool)) {
 			return this;
 		}
 		return new CachePoolDownloadTask<>(this, pool);
