@@ -12,7 +12,7 @@ class CachePoolCombinedDownloadTask<T> extends CombinedDownloadTask<T> {
 
 	@Override
 	public void execute(CombinedDownloadContext<T> context) throws Exception {
-		proxied.execute(context);
+		proxied.execute(new CachePoolCombinedDownloadContext<>(context, cachePool));
 	}
 
 	@Override
