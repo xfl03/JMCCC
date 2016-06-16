@@ -19,6 +19,11 @@ class CachedDownloadTask<T> extends DownloadTask<T> {
 	}
 
 	@Override
+	public String getCachePool() {
+		return proxied.getCachePool();
+	}
+
+	@Override
 	public DownloadSession<T> createSession() throws IOException {
 		return proxied.createSession();
 	}
