@@ -10,4 +10,6 @@ public interface CacheProvider<K, V> extends Closeable {
 
 	void remove(String cachePool, K key);
 
+	boolean hasCache(String cachePool);
+
 }

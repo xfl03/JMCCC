@@ -15,8 +15,6 @@ public class CachedDownloaderBuilder implements Builder<Downloader> {
 
 	private static final Logger LOGGER = Logger.getLogger(CachedDownloaderBuilder.class.getCanonicalName());
 
-	public static final String DEFAULT_CACHE_NAME = CachedDownloader.class.getCanonicalName();
-
 	public static CachedDownloaderBuilder create(Builder<Downloader> underlying) {
 		return new CachedDownloaderBuilder(underlying);
 	}
@@ -38,15 +36,9 @@ public class CachedDownloaderBuilder implements Builder<Downloader> {
 
 	protected final Builder<Downloader> underlying;
 	protected Builder<? extends CacheProvider<URI, byte[]>> cacheProvider;
-	protected String defaultCacheName = DEFAULT_CACHE_NAME;
 
 	protected CachedDownloaderBuilder(Builder<Downloader> underlying) {
 		this.underlying = Objects.requireNonNull(underlying);
-	}
-
-	public CachedDownloaderBuilder defaultCacheName(String cacheName) {
-		this.defaultCacheName = cacheName == null ? DEFAULT_CACHE_NAME : cacheName;
-		return this;
 	}
 
 	public CachedDownloaderBuilder cacheProvider(Builder<? extends CacheProvider<URI, byte[]>> cacheProvider) {
@@ -68,7 +60,7 @@ public class CachedDownloaderBuilder implements Builder<Downloader> {
 
 		@Override
 		public CacheProvider<URI, byte[]> build() {
-			return EhcacheSupport.adapt(ehcache.build(), CachedDownloaderBuilder.this.defaultCacheName, autoClose);
+			return EhcacheSupport.adapt(ehcache.build(), autoClose);
 		}
 	}
 
@@ -89,23 +81,23 @@ public class CachedDownloaderBuilder implements Builder<Downloader> {
 
 	private static class EhcacheSupport {
 
-		static CacheProvider<URI, byte[]> adapt(org.ehcache.CacheManager manager, String cacheName, boolean autoClose) {
+		static CacheProvider<URI, byte[]> adapt(org.ehcache.CacheManager manager, boolean autoClose) {
 			if (manager.getStatus() == org.ehcache.Status.UNINITIALIZED)
 				manager.init();
 
-			return new EhcacheProvider<>(manager, cacheName, URI.class, byte[].class, autoClose);
+			return new EhcacheProvider<>(manager, URI.class, byte[].class, autoClose);
 		}
 
-		static org.ehcache.config.Builder<org.ehcache.CacheManager> defaultCacheManagerBuilder(String cacheName) {
+		static org.ehcache.config.Builder<org.ehcache.CacheManager> defaultCacheManagerBuilder() {
 			return org.ehcache.config.builders.CacheManagerBuilder.newCacheManagerBuilder()
-					.withCache(cacheName, org.ehcache.config.builders.CacheConfigurationBuilder.newCacheConfigurationBuilder(URI.class, byte[].class,
+					.withCache(CacheNames.DEFAULT, org.ehcache.config.builders.CacheConfigurationBuilder.newCacheConfigurationBuilder(URI.class, byte[].class,
 							org.ehcache.config.builders.ResourcePoolsBuilder.newResourcePoolsBuilder()
 									.heap(DEFAULT_CACHE_HEAP, org.ehcache.config.units.MemoryUnit.valueOf(DEFAULT_CACHE_HEAP_UNIT)))
 							.withExpiry(org.ehcache.expiry.Expirations.timeToLiveExpiration(new org.ehcache.expiry.Duration(DEFAULT_CACHE_TTL, DEFAULT_CACHE_TTL_UNIT))));
 		}
 
-		static CacheProvider<URI, byte[]> createDefault(String cacheName) {
-			return adapt(defaultCacheManagerBuilder(cacheName).build(), cacheName, true);
+		static CacheProvider<URI, byte[]> createDefault() {
+			return adapt(defaultCacheManagerBuilder().build(), true);
 		}
 
 	}
@@ -152,17 +144,17 @@ public class CachedDownloaderBuilder implements Builder<Downloader> {
 
 		@Override
 		public CacheProvider<URI, byte[]> build() {
-			return JCacheSupport.adapt(jcache.build(), CachedDownloaderBuilder.this.defaultCacheName, autoClose);
+			return JCacheSupport.adapt(jcache.build(), autoClose);
 		}
 	}
 
 	private static class JCacheSupport {
 
-		static CacheProvider<URI, byte[]> adapt(javax.cache.CacheManager manager, String cacheName, boolean autoClose) {
-			return new JCacheProvider<>(manager, cacheName, autoClose);
+		static CacheProvider<URI, byte[]> adapt(javax.cache.CacheManager manager, boolean autoClose) {
+			return new JCacheProvider<>(manager, URI.class, byte[].class, autoClose);
 		}
 
-		static javax.cache.CacheManager defaultCacheManager(String cacheName) {
+		static javax.cache.CacheManager defaultCacheManager() {
 			javax.cache.spi.CachingProvider cachingProvider;
 			try {
 				cachingProvider = javax.cache.Caching.getCachingProvider();
@@ -171,8 +163,8 @@ public class CachedDownloaderBuilder implements Builder<Downloader> {
 			}
 			javax.cache.CacheManager cacheManager = cachingProvider.getCacheManager();
 
-			if (cacheManager.getCache(cacheName, URI.class, byte[].class) == null) {
-				cacheManager.createCache(cacheName, new javax.cache.configuration.MutableConfiguration<URI, byte[]>()
+			if (cacheManager.getCache(CacheNames.DEFAULT, URI.class, byte[].class) == null) {
+				cacheManager.createCache(CacheNames.DEFAULT, new javax.cache.configuration.MutableConfiguration<URI, byte[]>()
 						.setTypes(URI.class, byte[].class)
 						.setExpiryPolicyFactory(javax.cache.expiry.CreatedExpiryPolicy.factoryOf(
 								new javax.cache.expiry.Duration(DEFAULT_CACHE_TTL_UNIT, DEFAULT_CACHE_TTL))));
@@ -180,12 +172,12 @@ public class CachedDownloaderBuilder implements Builder<Downloader> {
 			return cacheManager;
 		}
 
-		static CacheProvider<URI, byte[]> createDefault(String cacheName) {
-			javax.cache.CacheManager cacheManager = defaultCacheManager(cacheName);
+		static CacheProvider<URI, byte[]> createDefault() {
+			javax.cache.CacheManager cacheManager = defaultCacheManager();
 			if (cacheManager == null) {
 				return null;
 			}
-			return adapt(cacheManager, cacheName, true);
+			return adapt(cacheManager, true);
 		}
 
 		static boolean hasAvailableProvider() {
@@ -262,12 +254,12 @@ public class CachedDownloaderBuilder implements Builder<Downloader> {
 		CacheProvider<URI, byte[]> provider = null;
 
 		if (JCacheProvider.isAvailable()) {
-			provider = JCacheSupport.createDefault(defaultCacheName);
+			provider = JCacheSupport.createDefault();
 		}
 
 		if (provider == null) {
 			if (EhcacheProvider.isAvailable()) {
-				provider = EhcacheSupport.createDefault(defaultCacheName);
+				provider = EhcacheSupport.createDefault();
 			}
 		}
 
