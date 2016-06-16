@@ -16,6 +16,11 @@ class CachedCombinedDownloadTask<T> extends CombinedDownloadTask<T> {
 	}
 
 	@Override
+	public String getCachePool() {
+		return proxied.getCachePool();
+	}
+
+	@Override
 	public CacheStrategy getCacheStrategy() {
 		return strategy;
 	}

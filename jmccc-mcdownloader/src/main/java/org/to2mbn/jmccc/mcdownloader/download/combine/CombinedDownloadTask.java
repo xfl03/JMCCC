@@ -73,12 +73,23 @@ abstract public class CombinedDownloadTask<T> {
 		return CacheStrategy.DEFAULT;
 	}
 
+	public String getCachePool() {
+		return null;
+	}
+
 	public CombinedDownloadTask<T> cacheable(CacheStrategy strategy) {
 		Objects.requireNonNull(strategy);
 		if (getCacheStrategy() == strategy) {
 			return this;
 		}
 		return new CachedCombinedDownloadTask<>(this, strategy);
+	}
+
+	public CombinedDownloadTask<T> cachePool(String pool) {
+		if (Objects.equals(getCachePool(), pool)) {
+			return this;
+		}
+		return new CachePoolCombinedDownloadTask<>(this, pool);
 	}
 
 	public <R> CombinedDownloadTask<R> andThen(ResultProcessor<T, R> processor) {
