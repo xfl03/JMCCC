@@ -27,9 +27,9 @@ import org.to2mbn.jmccc.version.Asset;
 import org.to2mbn.jmccc.version.Library;
 import org.to2mbn.jmccc.version.Native;
 import org.to2mbn.jmccc.version.Version;
-import org.to2mbn.jmccc.version.Versions;
+import org.to2mbn.jmccc.version.parsing.Versions;
 
-public class LauncherImpl implements Launcher {
+class LauncherImpl implements Launcher {
 
 	private boolean nativeFastCheck = false;
 	private boolean printDebugCommandline = false;

@@ -21,7 +21,7 @@ import org.to2mbn.jmccc.version.LibraryInfo;
 import org.to2mbn.jmccc.version.Native;
 import org.to2mbn.jmccc.version.Version;
 
-public class VersionParserImpl implements VersionParser {
+class VersionParserImpl implements VersionParser {
 
 	@Override
 	public DownloadInfo parseDownloadInfo(JSONObject json) throws JSONException {

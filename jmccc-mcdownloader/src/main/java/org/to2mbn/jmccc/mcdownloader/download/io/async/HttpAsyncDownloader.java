@@ -35,7 +35,7 @@ import org.to2mbn.jmccc.mcdownloader.download.io.GzipDownloadSession;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.DownloadSession;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.DownloadTask;
 
-public class HttpAsyncDownloader implements Downloader {
+class HttpAsyncDownloader implements Downloader {
 
 	private static final Logger LOGGER = Logger.getLogger(HttpAsyncDownloader.class.getCanonicalName());
 

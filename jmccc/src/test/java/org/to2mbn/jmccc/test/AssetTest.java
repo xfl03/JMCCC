@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 import org.junit.Test;
 import org.to2mbn.jmccc.version.Asset;
-import org.to2mbn.jmccc.version.Versions;
+import org.to2mbn.jmccc.version.parsing.Versions;
 
 public class AssetTest extends MinecraftEnvironmentTest {
 

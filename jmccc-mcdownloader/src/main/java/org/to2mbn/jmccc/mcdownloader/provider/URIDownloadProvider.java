@@ -24,7 +24,7 @@ import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.version.Asset;
 import org.to2mbn.jmccc.version.Library;
 import org.to2mbn.jmccc.version.Version;
-import org.to2mbn.jmccc.version.Versions;
+import org.to2mbn.jmccc.version.parsing.Versions;
 
 abstract public class URIDownloadProvider implements MinecraftDownloadProvider {
 

@@ -1,4 +1,4 @@
-package org.to2mbn.jmccc.version;
+package org.to2mbn.jmccc.version.parsing;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,9 +11,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.util.IOUtils;
-import org.to2mbn.jmccc.version.parsing.PlatformDescription;
-import org.to2mbn.jmccc.version.parsing.VersionParser;
-import org.to2mbn.jmccc.version.parsing.VersionParserImpl;
+import org.to2mbn.jmccc.version.Asset;
+import org.to2mbn.jmccc.version.Version;
 
 /**
  * A tool class for resolving versions.

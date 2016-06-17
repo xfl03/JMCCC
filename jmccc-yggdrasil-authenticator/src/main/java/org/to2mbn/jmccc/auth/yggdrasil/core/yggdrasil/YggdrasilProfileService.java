@@ -22,7 +22,7 @@ import org.to2mbn.jmccc.auth.yggdrasil.core.util.Base64;
 import org.to2mbn.jmccc.util.IOUtils;
 import org.to2mbn.jmccc.util.UUIDUtils;
 
-public class YggdrasilProfileService extends AbstractYggdrasilService implements ProfileService {
+class YggdrasilProfileService extends AbstractYggdrasilService implements ProfileService {
 
 	public YggdrasilProfileService(JSONHttpRequester requester, PropertiesDeserializer propertiesDeserializer, YggdrasilAPIProvider api) {
 		super(requester, propertiesDeserializer, api);

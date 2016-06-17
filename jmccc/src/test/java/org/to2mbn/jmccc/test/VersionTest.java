@@ -20,7 +20,7 @@ import org.to2mbn.jmccc.version.Library;
 import org.to2mbn.jmccc.version.LibraryInfo;
 import org.to2mbn.jmccc.version.Native;
 import org.to2mbn.jmccc.version.Version;
-import org.to2mbn.jmccc.version.Versions;
+import org.to2mbn.jmccc.version.parsing.Versions;
 
 @RunWith(Parameterized.class)
 public class VersionTest extends MinecraftEnvironmentTest {

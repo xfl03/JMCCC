@@ -20,7 +20,7 @@ import org.to2mbn.jmccc.auth.yggdrasil.core.UserType;
 import org.to2mbn.jmccc.auth.yggdrasil.core.io.JSONHttpRequester;
 import org.to2mbn.jmccc.util.UUIDUtils;
 
-public class YggdrasilAuthenticationService extends AbstractYggdrasilService implements AuthenticationService {
+class YggdrasilAuthenticationService extends AbstractYggdrasilService implements AuthenticationService {
 
 	private Agent agent;
 

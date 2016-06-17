@@ -20,9 +20,9 @@ import org.to2mbn.jmccc.version.DownloadInfo;
 import org.to2mbn.jmccc.version.Library;
 import org.to2mbn.jmccc.version.LibraryInfo;
 import org.to2mbn.jmccc.version.Version;
-import org.to2mbn.jmccc.version.Versions;
+import org.to2mbn.jmccc.version.parsing.Versions;
 
-public class DownloadInfoProvider extends AbstractMinecraftDownloadProvider implements ExtendedDownloadProvider {
+class DownloadInfoProvider extends AbstractMinecraftDownloadProvider implements ExtendedDownloadProvider {
 
 	private List<DownloadInfoProcessor> urlProcessors;
 	private MinecraftDownloadProvider upstreamProvider;

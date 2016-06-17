@@ -30,7 +30,7 @@ import org.to2mbn.jmccc.mcdownloader.download.concurrent.DownloadCallback;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.DownloadCallbacks;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.DownloadTask;
 
-public class CombinedDownloaderImpl implements CombinedDownloader {
+class CombinedDownloaderImpl implements CombinedDownloader {
 
 	private class CombinedAsyncTask<T> extends CallbackAsyncTask<T> implements CombinedDownloadContext<T> {
 

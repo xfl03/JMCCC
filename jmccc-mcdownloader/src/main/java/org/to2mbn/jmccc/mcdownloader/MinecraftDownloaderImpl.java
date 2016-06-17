@@ -11,7 +11,7 @@ import org.to2mbn.jmccc.mcdownloader.provider.MinecraftDownloadProvider;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.version.Version;
 
-public class MinecraftDownloaderImpl implements MinecraftDownloader {
+class MinecraftDownloaderImpl implements MinecraftDownloader {
 
 	private CombinedDownloader combinedDownloader;
 	private MinecraftDownloadProvider downloadProvider;

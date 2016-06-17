@@ -16,7 +16,7 @@ import org.to2mbn.jmccc.mcdownloader.download.concurrent.DownloadCallback;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.DownloadSession;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.DownloadTask;
 
-public class CachedDownloader implements Downloader {
+class CachedDownloader implements Downloader {
 
 	private static final Logger LOGGER = Logger.getLogger(CachedDownloader.class.getCanonicalName());
 

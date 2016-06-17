@@ -12,7 +12,7 @@ import java.util.Objects;
 import java.util.Set;
 import org.to2mbn.jmccc.auth.Authenticator;
 import org.to2mbn.jmccc.version.Version;
-import org.to2mbn.jmccc.version.Versions;
+import org.to2mbn.jmccc.version.parsing.Versions;
 
 /**
  * Notes for serialization:<br>
