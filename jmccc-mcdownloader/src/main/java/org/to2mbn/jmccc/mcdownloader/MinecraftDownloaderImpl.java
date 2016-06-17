@@ -4,6 +4,7 @@ import java.util.Objects;
 import java.util.concurrent.Future;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloader;
+import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask.CacheStrategy;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.CombinedDownloadCallback;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.DownloadCallback;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.DownloadTask;
@@ -15,16 +16,10 @@ class MinecraftDownloaderImpl implements MinecraftDownloader {
 
 	private CombinedDownloader combinedDownloader;
 	private MinecraftDownloadProvider downloadProvider;
-	private boolean checkLibrariesHash;
-	private boolean checkAssetsHash;
-	private boolean updateSnapshots;
 
-	public MinecraftDownloaderImpl(CombinedDownloader combinedDownloader, MinecraftDownloadProvider downloadProvider, boolean checkLibrariesHash, boolean checkAssetsHash, boolean updateSnapshots) {
+	public MinecraftDownloaderImpl(CombinedDownloader combinedDownloader, MinecraftDownloadProvider downloadProvider) {
 		this.combinedDownloader = Objects.requireNonNull(combinedDownloader);
 		this.downloadProvider = Objects.requireNonNull(downloadProvider);
-		this.checkLibrariesHash = checkLibrariesHash;
-		this.checkAssetsHash = checkAssetsHash;
-		this.updateSnapshots = updateSnapshots;
 	}
 
 	@Override
@@ -58,13 +53,56 @@ class MinecraftDownloaderImpl implements MinecraftDownloader {
 	}
 
 	@Override
-	public Future<Version> downloadIncrementally(MinecraftDirectory dir, String version, CombinedDownloadCallback<Version> callback) {
-		return download(new IncrementallyDownloadTask(downloadProvider, dir, version, checkLibrariesHash, checkAssetsHash, updateSnapshots), callback);
+	public Future<Version> downloadIncrementally(MinecraftDirectory dir, String version, CombinedDownloadCallback<Version> callback, MinecraftDownloadOption... options) {
+		boolean checkLibrariesHash = false;
+		boolean checkAssetsHash = false;
+		boolean updateSnapshots = false;
+		CacheOption cacheOption = null;
+
+		for (MinecraftDownloadOption option : options) {
+			if (option instanceof CacheOption) {
+				cacheOption = (CacheOption) option;
+
+			} else if (option instanceof MavenOption) {
+				switch ((MavenOption) option) {
+					case UPDATE_SNAPSHOTS:
+						updateSnapshots = true;
+						break;
+					default:
+						break;
+				}
+
+			} else if (option instanceof ChecksumOption) {
+				switch ((ChecksumOption) option) {
+					case CHECK_ASSETS:
+						checkAssetsHash = true;
+						break;
+					case CHECK_LIBRAIES:
+						checkLibrariesHash = true;
+						break;
+					default:
+						break;
+				}
+			}
+		}
+
+		CombinedDownloadTask<Version> task = new IncrementallyDownloadTask(downloadProvider, dir, version, checkLibrariesHash, checkAssetsHash, updateSnapshots);
+
+		if (cacheOption != null) {
+			task = processCacheOption(task, cacheOption);
+		}
+
+		return download(task, callback);
 	}
 
 	@Override
-	public Future<RemoteVersionList> fetchRemoteVersionList(CombinedDownloadCallback<RemoteVersionList> callback) {
-		return download(downloadProvider.versionList(), callback);
+	public Future<RemoteVersionList> fetchRemoteVersionList(CombinedDownloadCallback<RemoteVersionList> callback, CacheOption... options) {
+		CombinedDownloadTask<RemoteVersionList> task = downloadProvider.versionList();
+		if (options.length != 0) {
+			// apply the last one
+			task = processCacheOption(task, options[options.length - 1]);
+		}
+		return download(task, callback);
 	}
 
 	@Override
@@ -74,7 +112,20 @@ class MinecraftDownloaderImpl implements MinecraftDownloader {
 
 	@Override
 	public String toString() {
-		return String.format("MinecraftDownloaderImpl [combinedDownloader=%s, downloadProvider=%s, checkLibrariesHash=%s, checkAssetsHash=%s, updateSnapshots=%s]", combinedDownloader, downloadProvider, checkLibrariesHash, checkAssetsHash, updateSnapshots);
+		return String.format("MinecraftDownloaderImpl [combinedDownloader=%s, downloadProvider=%s]", combinedDownloader, downloadProvider);
+	}
+
+	private <T> CombinedDownloadTask<T> processCacheOption(CombinedDownloadTask<T> task, CacheOption option) {
+		switch (option) {
+			case CACHE:
+				return task.cacheable(CacheStrategy.CACHEABLE);
+			case FORCIBLY_CACHE:
+				return task.cacheable(CacheStrategy.FORCIBLY_CACHE);
+			case NO_CACHE:
+				return task.cacheable(CacheStrategy.NON_CACHEABLE);
+			default:
+				return task;
+		}
 	}
 
 }

@@ -28,28 +28,10 @@ public class MinecraftDownloaderBuilder implements Builder<MinecraftDownloader> 
 	}
 
 	protected final Builder<? extends Downloader> underlying;
-	protected boolean checkLibrariesHash = false;
-	protected boolean checkAssetsHash = false;
-	protected boolean updateSnapshots = true;
 	protected Builder<MinecraftDownloadProvider> providerChain;
 
 	protected MinecraftDownloaderBuilder(Builder<? extends Downloader> underlying) {
 		this.underlying = underlying;
-	}
-
-	public MinecraftDownloaderBuilder checkLibrariesHash(boolean checkLibrariesHash) {
-		this.checkLibrariesHash = checkLibrariesHash;
-		return this;
-	}
-
-	public MinecraftDownloaderBuilder checkAssetsHash(boolean checkAssetsHash) {
-		this.checkAssetsHash = checkAssetsHash;
-		return this;
-	}
-
-	public MinecraftDownloaderBuilder updateSnapshots(boolean updateSnapshots) {
-		this.updateSnapshots = updateSnapshots;
-		return this;
 	}
 
 	public MinecraftDownloaderBuilder providerChain(Builder<MinecraftDownloadProvider> providerChain) {
@@ -74,7 +56,7 @@ public class MinecraftDownloaderBuilder implements Builder<MinecraftDownloader> 
 				combinedDownloader = CombinedDownloaderBuilder.buildDefault(Builders.of(underlying));
 			}
 
-			return new MinecraftDownloaderImpl(combinedDownloader, provider, checkLibrariesHash, checkAssetsHash, updateSnapshots);
+			return new MinecraftDownloaderImpl(combinedDownloader, provider);
 		} catch (Throwable e) {
 			if (combinedDownloader != null) {
 				try {
