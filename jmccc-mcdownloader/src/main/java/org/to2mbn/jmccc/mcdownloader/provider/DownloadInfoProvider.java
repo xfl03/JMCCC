@@ -33,7 +33,7 @@ class DownloadInfoProvider extends AbstractMinecraftDownloadProvider implements 
 
 	@Override
 	public CombinedDownloadTask<Set<Asset>> assetsIndex(final MinecraftDirectory mcdir, final Version version) {
-		CombinedDownloadTask<Void> task = download(version.getAssetIndexDownloadInfo(), mcdir.getAssetIndex(version));
+		CombinedDownloadTask<Void> task = download(version.getAssetIndexDownloadInfo(), mcdir.getAssetIndex(version), CacheNames.ASSET_INDEX);
 		if (task != null) {
 			return task
 					.andThen(new ResultProcessor<Void, Set<Asset>>() {
@@ -42,8 +42,7 @@ class DownloadInfoProvider extends AbstractMinecraftDownloadProvider implements 
 						public Set<Asset> process(Void arg) throws Exception {
 							return Versions.resolveAssets(mcdir, version);
 						}
-					})
-					.cachePool(CacheNames.ASSET_INDEX);
+					});
 		} else {
 			return null;
 		}
@@ -53,8 +52,7 @@ class DownloadInfoProvider extends AbstractMinecraftDownloadProvider implements 
 	public CombinedDownloadTask<Void> gameJar(MinecraftDirectory mcdir, Version version) {
 		Map<String, DownloadInfo> downloads = version.getDownloads();
 		if (downloads != null) {
-			return download(downloads.get("client"), mcdir.getVersionJar(version))
-					.cachePool(CacheNames.GAME_JAR);
+			return download(downloads.get("client"), mcdir.getVersionJar(version), CacheNames.GAME_JAR);
 		}
 		return null;
 	}
@@ -63,8 +61,7 @@ class DownloadInfoProvider extends AbstractMinecraftDownloadProvider implements 
 	public CombinedDownloadTask<Void> library(MinecraftDirectory mcdir, Library library) {
 		LibraryInfo info = library.getDownloadInfo();
 		if (info != null) {
-			return download(info, mcdir.getLibrary(library))
-					.cachePool(CacheNames.LIBRARY);
+			return download(info, mcdir.getLibrary(library), CacheNames.LIBRARY);
 		}
 		return null;
 	}
@@ -99,7 +96,7 @@ class DownloadInfoProvider extends AbstractMinecraftDownloadProvider implements 
 		this.upstreamProvider = upstreamProvider;
 	}
 
-	private CombinedDownloadTask<Void> download(final DownloadInfo info, final File target) {
+	private CombinedDownloadTask<Void> download(final DownloadInfo info, final File target, String cachePool) {
 		if (info == null || info.getUrl() == null) {
 			return null;
 		}
@@ -113,7 +110,8 @@ class DownloadInfoProvider extends AbstractMinecraftDownloadProvider implements 
 						}
 						return null;
 					}
-				}));
+				})
+				.cachePool(cachePool));
 	}
 
 	private URI parseURI(String str) {

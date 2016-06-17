@@ -3,7 +3,7 @@ package org.to2mbn.jmccc.mcdownloader.download.cache;
 public final class CacheNames {
 
 	// @formatter:off
-
+	
 	private static final String PREFIX 					= "org.to2mbn.jmccc.mcdownloader.cache.";
 	private static final String PREFIX_STATIC 			= PREFIX + "static.";
 	private static final String PREFIX_DYNAMIC 			= PREFIX + "dynamic.";
