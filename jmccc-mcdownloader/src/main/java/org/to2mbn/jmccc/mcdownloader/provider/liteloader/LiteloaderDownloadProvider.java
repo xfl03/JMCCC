@@ -104,6 +104,13 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 							// it's a snapshot
 
 							return source.liteloaderSnapshotVersionJson(liteloader)
+									.andThen(new ResultProcessor<JSONObject, JSONObject>() {
+
+										@Override
+										public JSONObject process(JSONObject json) throws Exception {
+											return processSnapshotLiteloaderVersion(mcdir, json, liteloader);
+										}
+									})
 									.andThen(new VersionJsonProcessor(mcdir))
 									.cachePool(CacheNames.LITELOADER_VERSION_JSON);
 						} else {
@@ -189,10 +196,9 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 		String tweakClass = liteloader.getTweakClass();
 		Set<JSONObject> liteloaderLibraries = liteloader.getLibraries();
 
-		JSONObject versionjson = IOUtils.toJson(mcdir.getVersionJson(superVersion));
+		JSONObject versionJson = IOUtils.toJson(mcdir.getVersionJson(superVersion));
 
-		String version = String.format("%s-LiteLoader%s", superVersion, minecraftVersion);
-		String minecraftArguments = String.format("%s --tweakClass %s", versionjson.getString("minecraftArguments"),
+		String minecraftArguments = String.format("%s --tweakClass %s", versionJson.getString("minecraftArguments"),
 				tweakClass == null ? LITELOADER_TWEAK_CLASS : tweakClass);
 		JSONArray libraries = new JSONArray();
 		JSONObject liteloaderLibrary = new JSONObject();
@@ -220,15 +226,38 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 			}
 		}
 
-		versionjson.put("inheritsFrom", superVersion);
-		versionjson.put("minecraftArguments", minecraftArguments);
-		versionjson.put("mainClass", LAUNCH_WRAPPER_MAINCLASS);
-		versionjson.put("id", version);
-		versionjson.put("libraries", libraries);
-		versionjson.remove("downloads");
-		versionjson.remove("assets");
-		versionjson.remove("assetIndex");
-		return versionjson;
+		versionJson.put("inheritsFrom", superVersion);
+		versionJson.put("minecraftArguments", minecraftArguments);
+		versionJson.put("mainClass", LAUNCH_WRAPPER_MAINCLASS);
+		versionJson.put("id", generateLiteloaderVersionName(liteloader));
+		versionJson.put("libraries", libraries);
+		versionJson.remove("downloads");
+		versionJson.remove("assets");
+		versionJson.remove("assetIndex");
+		return versionJson;
+	}
+
+	protected JSONObject processSnapshotLiteloaderVersion(MinecraftDirectory mcdir, JSONObject versionJson, LiteloaderVersion liteloader) throws IOException {
+		versionJson.put("inheritsFrom", liteloader.getSuperVersion());
+		versionJson.put("id", generateLiteloaderVersionName(liteloader));
+
+		final String TWEAK_CLASS_ARG_PREFIX = "--tweakClass ";
+		String minecraftArguments = versionJson.getString("minecraftArguments");
+		int tweakArgIdx = minecraftArguments.lastIndexOf(TWEAK_CLASS_ARG_PREFIX);
+		String tweakClass = tweakArgIdx == -1
+				? LITELOADER_TWEAK_CLASS
+				: minecraftArguments.substring(tweakArgIdx + TWEAK_CLASS_ARG_PREFIX.length());
+
+		JSONObject superVersionJson = IOUtils.toJson(mcdir.getVersionJson(liteloader.getSuperVersion()));
+		String superMinecraftArguments = superVersionJson.getString("minecraftArguments");
+
+		versionJson.put("minecraftArguments", String.format("%s --tweakClass %s", superMinecraftArguments, tweakClass));
+
+		return versionJson;
+	}
+
+	protected String generateLiteloaderVersionName(LiteloaderVersion liteloader) {
+		return String.format("%s-LiteLoader%s", liteloader.getSuperVersion(), liteloader.getMinecraftVersion());
 	}
 
 }
