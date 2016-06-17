@@ -33,11 +33,12 @@ class IncrementallyDownloadTask extends CombinedDownloadTask<Version> {
 	private boolean checkLibrariesHash;
 	private boolean checkAssetsHash;
 	private boolean updateSnapshots;
+	private AssetOption assetOption;
 
 	private Set<String> handledVersions = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
 	private String resolvedVersion;
 
-	public IncrementallyDownloadTask(MinecraftDownloadProvider downloadProvider, MinecraftDirectory mcdir, String version, boolean checkLibrariesHash, boolean checkAssetsHash, boolean updateSnapshots) {
+	public IncrementallyDownloadTask(MinecraftDownloadProvider downloadProvider, MinecraftDirectory mcdir, String version, boolean checkLibrariesHash, boolean checkAssetsHash, boolean updateSnapshots, AssetOption assetOption) {
 		Objects.requireNonNull(mcdir);
 		Objects.requireNonNull(version);
 		Objects.requireNonNull(downloadProvider);
@@ -47,6 +48,7 @@ class IncrementallyDownloadTask extends CombinedDownloadTask<Version> {
 		this.checkLibrariesHash = checkLibrariesHash;
 		this.checkAssetsHash = checkAssetsHash;
 		this.updateSnapshots = updateSnapshots;
+		this.assetOption = assetOption;
 	}
 
 	@Override
@@ -151,7 +153,7 @@ class IncrementallyDownloadTask extends CombinedDownloadTask<Version> {
 	}
 
 	private void downloadAssets(final CombinedDownloadContext<Version> context, Set<Asset> assets) throws InterruptedException {
-		if (assets == null)
+		if (assets == null || assetOption == AssetOption.SKIP_ASSETS)
 			return;
 
 		Map<String, Asset> hashMapping = new HashMap<>();
@@ -161,6 +163,8 @@ class IncrementallyDownloadTask extends CombinedDownloadTask<Version> {
 			hashMapping.put(asset.getHash(), asset);
 		}
 
+		final boolean fatal = assetOption == AssetOption.FORCIBLY_DOWNLOAD;
+
 		if (checkAssetsHash)
 			for (final Asset asset : hashMapping.values())
 				context.submit(new Callable<Void>() {
@@ -168,7 +172,7 @@ class IncrementallyDownloadTask extends CombinedDownloadTask<Version> {
 					@Override
 					public Void call() throws Exception {
 						if (!asset.isValid(mcdir))
-							context.submit(provider.asset(mcdir, asset), null, false);
+							context.submit(provider.asset(mcdir, asset), null, fatal);
 
 						return null;
 					}
@@ -177,7 +181,7 @@ class IncrementallyDownloadTask extends CombinedDownloadTask<Version> {
 		else
 			for (Asset asset : hashMapping.values())
 				if (!mcdir.getAsset(asset).isFile())
-					context.submit(provider.asset(mcdir, asset), null, false);
+					context.submit(provider.asset(mcdir, asset), null, fatal);
 	}
 
 	private void downloadLibraries(final CombinedDownloadContext<?> context, Version version) throws InterruptedException {

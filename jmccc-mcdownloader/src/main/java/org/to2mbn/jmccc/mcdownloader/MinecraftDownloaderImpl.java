@@ -57,11 +57,15 @@ class MinecraftDownloaderImpl implements MinecraftDownloader {
 		boolean checkLibrariesHash = false;
 		boolean checkAssetsHash = false;
 		boolean updateSnapshots = false;
+		AssetOption assetOption = null;
 		CacheOption cacheOption = null;
 
 		for (MinecraftDownloadOption option : options) {
 			if (option instanceof CacheOption) {
 				cacheOption = (CacheOption) option;
+
+			} else if (option instanceof AssetOption) {
+				assetOption = (AssetOption) option;
 
 			} else if (option instanceof MavenOption) {
 				switch ((MavenOption) option) {
@@ -86,7 +90,7 @@ class MinecraftDownloaderImpl implements MinecraftDownloader {
 			}
 		}
 
-		CombinedDownloadTask<Version> task = new IncrementallyDownloadTask(downloadProvider, dir, version, checkLibrariesHash, checkAssetsHash, updateSnapshots);
+		CombinedDownloadTask<Version> task = new IncrementallyDownloadTask(downloadProvider, dir, version, checkLibrariesHash, checkAssetsHash, updateSnapshots, assetOption);
 
 		if (cacheOption != null) {
 			task = processCacheOption(task, cacheOption);
