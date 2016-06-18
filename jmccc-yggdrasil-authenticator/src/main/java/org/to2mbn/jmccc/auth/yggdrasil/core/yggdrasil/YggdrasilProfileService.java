@@ -3,26 +3,31 @@ package org.to2mbn.jmccc.auth.yggdrasil.core.yggdrasil;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.to2mbn.jmccc.auth.AuthenticationException;
 import org.to2mbn.jmccc.auth.yggdrasil.core.GameProfile;
-import org.to2mbn.jmccc.auth.yggdrasil.core.PlayerTextures;
 import org.to2mbn.jmccc.auth.yggdrasil.core.ProfileService;
 import org.to2mbn.jmccc.auth.yggdrasil.core.PropertiesGameProfile;
 import org.to2mbn.jmccc.auth.yggdrasil.core.Texture;
+import org.to2mbn.jmccc.auth.yggdrasil.core.TextureType;
 import org.to2mbn.jmccc.auth.yggdrasil.core.io.JSONHttpRequester;
 import org.to2mbn.jmccc.auth.yggdrasil.core.util.Base64;
 import org.to2mbn.jmccc.util.IOUtils;
 import org.to2mbn.jmccc.util.UUIDUtils;
 
 class YggdrasilProfileService extends AbstractYggdrasilService implements ProfileService {
+
+	private static final Logger LOGGER = Logger.getLogger(YggdrasilProfileService.class.getCanonicalName());
 
 	public YggdrasilProfileService(JSONHttpRequester requester, PropertiesDeserializer propertiesDeserializer, YggdrasilAPIProvider api) {
 		super(requester, propertiesDeserializer, api);
@@ -66,7 +71,7 @@ class YggdrasilProfileService extends AbstractYggdrasilService implements Profil
 	}
 
 	@Override
-	public PlayerTextures getTextures(GameProfile profile) throws AuthenticationException {
+	public Map<TextureType, Texture> getTextures(GameProfile profile) throws AuthenticationException {
 		Objects.requireNonNull(profile);
 
 		if (!(profile instanceof PropertiesGameProfile)) {
@@ -109,7 +114,7 @@ class YggdrasilProfileService extends AbstractYggdrasilService implements Profil
 		}
 	}
 
-	private PlayerTextures getTextures(Map<String, String> properties) throws AuthenticationException {
+	private Map<TextureType, Texture> getTextures(Map<String, String> properties) throws AuthenticationException {
 		if (properties == null) {
 			return null;
 		}
@@ -126,22 +131,28 @@ class YggdrasilProfileService extends AbstractYggdrasilService implements Profil
 			throw new AuthenticationException("Couldn't decode texture payload: " + encodedTextures, e);
 		}
 
+		Map<TextureType, Texture> result = new EnumMap<>(TextureType.class);
+
 		try {
 			JSONObject textures = payload.getJSONObject("textures");
-			return new PlayerTextures(
-					getTexture(textures.optJSONObject("SKIN")),
-					getTexture(textures.optJSONObject("CAPE")),
-					getTexture(textures.optJSONObject("ELYTRA")));
+			for (String textureTypeName : textures.keySet()) {
+				TextureType textureType;
+				try {
+					textureType = TextureType.valueOf(textureTypeName);
+				} catch (IllegalArgumentException e) {
+					LOGGER.log(Level.WARNING, "Unknown texture type: " + textureTypeName, e);
+					continue;
+				}
+				result.put(textureType, getTexture(textures.getJSONObject(textureTypeName)));
+			}
 		} catch (JSONException e) {
 			throw new AuthenticationException("Couldn't parse texture payload: " + payload, e);
 		}
+
+		return Collections.unmodifiableMap(result);
 	}
 
 	private Texture getTexture(JSONObject json) {
-		if (json == null) {
-			return null;
-		}
-
 		String url = json.getString("url");
 		Map<String, String> metadata = null;
 		if (json.has("metadata")) {
@@ -153,6 +164,6 @@ class YggdrasilProfileService extends AbstractYggdrasilService implements Profil
 				metadata.put(key, value);
 			}
 		}
-		return new Texture(url, Collections.unmodifiableMap(metadata));
+		return new Texture(url, metadata == null ? null : Collections.unmodifiableMap(metadata));
 	}
 }
