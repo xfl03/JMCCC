@@ -12,7 +12,7 @@ public class Texture implements Serializable {
 	private Map<String, String> metadata;
 
 	public Texture(String url, Map<String, String> metadata) {
-		this.url = Objects.requireNonNull(url);
+		this.url = url;
 		this.metadata = metadata;
 	}
 

@@ -170,11 +170,17 @@
 				<artifactId>jmccc</artifactId>
 				<version>${project.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>org.to2mbn</groupId>
+				<artifactId>jmccc-yggdrasil-authenticator</artifactId>
+				<version>${project.version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 	<modules>
 		<module>jmccc</module>
 		<module>jmccc-yggdrasil-authenticator</module>
 		<module>jmccc-mcdownloader</module>
+		<module>jmccc-mojang-api</module>
 	</modules>
 </project>

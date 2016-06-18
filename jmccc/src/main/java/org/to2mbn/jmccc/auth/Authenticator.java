@@ -6,7 +6,7 @@ public interface Authenticator {
 	 * Authenticates and returns the result information of the authentication.
 	 * 
 	 * @return the result information of the authentication
-	 * @throws AuthenticationException when an exception occurred during the
+	 * @throws AuthenticationException if an exception occurs during
 	 *             authentication
 	 */
 	AuthInfo auth() throws AuthenticationException;
