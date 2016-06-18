@@ -1,8 +1,6 @@
 package org.to2mbn.jmccc.auth.yggdrasil.core.io;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.util.Map;
 import org.json.JSONArray;
@@ -14,23 +12,34 @@ public class JSONHttpRequester extends HttpRequester {
 
 	private static final String CONTENT_TYPE_JSON = "application/json";
 
-	public JSONHttpRequester() {
-	}
+	public JSONHttpRequester() {}
 
 	public JSONHttpRequester(Proxy proxy) {
 		super(proxy);
 	}
 
-	public Object jsonPost(String url, Map<String, Object> arguments, JSONObject post) throws JSONException, UnsupportedEncodingException, MalformedURLException, IOException {
-		return toJson(post(url, arguments, post.toString(), CONTENT_TYPE_JSON));
+	public Object jsonPost(String url, Map<String, Object> arguments, JSONObject post) throws JSONException, IOException {
+		return jsonPost(url, arguments, post, null);
 	}
 
-	public Object jsonPost(String url, Map<String, Object> arguments, JSONArray post) throws JSONException, UnsupportedEncodingException, MalformedURLException, IOException {
-		return toJson(post(url, arguments, post.toString(), CONTENT_TYPE_JSON));
+	public Object jsonPost(String url, Map<String, Object> arguments, JSONArray post) throws JSONException, IOException {
+		return jsonPost(url, arguments, post, null);
 	}
 
-	public Object jsonGet(String url, Map<String, Object> arguments) throws JSONException, UnsupportedEncodingException, MalformedURLException, IOException {
-		return toJson(get(url, arguments));
+	public Object jsonGet(String url, Map<String, Object> arguments) throws JSONException, IOException {
+		return jsonGet(url, arguments, null);
+	}
+
+	public Object jsonPost(String url, Map<String, Object> arguments, JSONObject post, Map<String, String> headers) throws JSONException, IOException {
+		return toJson(post(url, arguments, post.toString(), CONTENT_TYPE_JSON, headers));
+	}
+
+	public Object jsonPost(String url, Map<String, Object> arguments, JSONArray post, Map<String, String> headers) throws JSONException, IOException {
+		return toJson(post(url, arguments, post.toString(), CONTENT_TYPE_JSON, headers));
+	}
+
+	public Object jsonGet(String url, Map<String, Object> arguments, Map<String, String> headers) throws JSONException, IOException {
+		return toJson(get(url, arguments, headers));
 	}
 
 	private Object toJson(String json) {

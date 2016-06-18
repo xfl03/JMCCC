@@ -31,8 +31,8 @@ public class HttpRequester {
 		return proxy;
 	}
 
-	public String get(String url, Map<String, Object> arguments) throws UnsupportedEncodingException, MalformedURLException, IOException {
-		HttpURLConnection connection = createHttpConnection(url, arguments);
+	public String get(String url, Map<String, Object> arguments, Map<String, String> headers) throws IOException {
+		HttpURLConnection connection = createHttpConnection(url, arguments, headers);
 		connection.setRequestMethod("GET");
 		try {
 			connection.connect();
@@ -48,10 +48,10 @@ public class HttpRequester {
 		}
 	}
 
-	public String post(String url, Map<String, Object> arguments, String post, String contentType) throws UnsupportedEncodingException, MalformedURLException, IOException {
+	public String post(String url, Map<String, Object> arguments, String post, String contentType, Map<String, String> headers) throws IOException {
 		byte[] rawpost = post.getBytes("UTF-8");
 
-		HttpURLConnection connection = createHttpConnection(url, arguments);
+		HttpURLConnection connection = createHttpConnection(url, arguments, headers);
 		connection.setRequestMethod("POST");
 		connection.setRequestProperty("Content-Type", contentType + "; charset=utf-8");
 		connection.setRequestProperty("Content-Length", String.valueOf(rawpost.length));
@@ -88,12 +88,18 @@ public class HttpRequester {
 		}
 	}
 
-	private HttpURLConnection createHttpConnection(String baseurl, Map<String, Object> arguments) throws UnsupportedEncodingException, MalformedURLException, IOException {
+	private HttpURLConnection createHttpConnection(String baseurl, Map<String, Object> arguments, Map<String, String> headers) throws UnsupportedEncodingException, MalformedURLException, IOException {
 		String url = baseurl;
 		if (arguments != null) {
 			url = url + "?" + generateArguments(arguments);
 		}
-		return createHttpConnection(new URL(url));
+		HttpURLConnection connection = createHttpConnection(new URL(url));
+		if (headers != null) {
+			for (Entry<String, String> header : headers.entrySet()) {
+				connection.setRequestProperty(header.getKey(), header.getValue());
+			}
+		}
+		return connection;
 	}
 
 	private HttpURLConnection createHttpConnection(URL url) throws IOException {
