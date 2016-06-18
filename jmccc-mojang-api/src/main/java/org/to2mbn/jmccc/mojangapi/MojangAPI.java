@@ -55,4 +55,17 @@ public interface MojangAPI {
 	 */
 	AccountInfo getAccountInfo(SessionCredential credential) throws AuthenticationException;
 
+	/**
+	 * Gets the blocked server list.
+	 * <p>
+	 * For further information, see <a href=
+	 * "https://www.reddit.com/r/Minecraft/comments/4h3c6u/mojang_is_blocking_certain_servers_as_of_193_r2/">
+	 * Mojang is blocking certain servers as of 1.9.3 r2. - Reddit</a>
+	 * 
+	 * @return the blocked server list
+	 * @throws AuthenticationException if an exception occurred during
+	 *             requesting
+	 */
+	BlockedServerList getBlockedServerList() throws AuthenticationException;
+
 }
