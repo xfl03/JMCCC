@@ -1,7 +1,5 @@
 package org.to2mbn.jmccc.auth.yggdrasil.core.yggdrasil;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -9,10 +7,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.to2mbn.jmccc.auth.AuthenticationException;
 import org.to2mbn.jmccc.auth.yggdrasil.core.GameProfile;
@@ -34,87 +32,83 @@ class YggdrasilProfileService extends AbstractYggdrasilService implements Profil
 	}
 
 	@Override
-	public PropertiesGameProfile getGameProfile(UUID profileUUID) throws AuthenticationException {
+	public PropertiesGameProfile getGameProfile(final UUID profileUUID) throws AuthenticationException {
 		Objects.requireNonNull(profileUUID);
 
-		Map<String, Object> arguments = new HashMap<>();
+		final Map<String, Object> arguments = new HashMap<>();
 		arguments.put("unsigned", "false");
-		JSONObject response;
-		try {
-			response = (JSONObject) getRequester().jsonGet(getApi().profile(profileUUID), arguments);
-		} catch (JSONException | IOException e) {
-			throw new AuthenticationException(e);
-		}
-		requireNonEmptyResponse(response);
 
-		try {
-			Map<String, String> properties;
+		return invokeOperation(new Callable<PropertiesGameProfile>() {
 
-			JSONArray jsonProperties = response.optJSONArray("properties");
-			if (jsonProperties == null) {
-				properties = null;
-			} else {
-				try {
-					properties = Collections.unmodifiableMap(getPropertiesDeserializer().toProperties(jsonProperties, true));
-				} catch (GeneralSecurityException e) {
-					throw new AuthenticationException("Invalid signature", e);
+			@Override
+			public PropertiesGameProfile call() throws Exception {
+				JSONObject response = requireJsonObject(requester.jsonGet(api.profile(profileUUID), arguments));
+
+				Map<String, String> properties;
+				JSONArray jsonProperties = response.optJSONArray("properties");
+				if (jsonProperties == null) {
+					properties = null;
+				} else {
+					properties = Collections.unmodifiableMap(propertiesDeserializer.toProperties(jsonProperties, true));
 				}
-			}
 
-			return new PropertiesGameProfile(
-					UUIDUtils.toUUID(response.getString("id")),
-					response.getString("name"),
-					properties);
-		} catch (JSONException e) {
-			throw new AuthenticationException("Couldn't parse response: " + response, e);
-		}
+				return new PropertiesGameProfile(
+						UUIDUtils.toUUID(response.getString("id")),
+						response.getString("name"),
+						properties);
+			}
+		});
 	}
 
 	@Override
 	public Map<TextureType, Texture> getTextures(GameProfile profile) throws AuthenticationException {
 		Objects.requireNonNull(profile);
 
+
 		if (!(profile instanceof PropertiesGameProfile)) {
 			profile = getGameProfile(profile.getUUID());
 		}
-		return getTextures(((PropertiesGameProfile) profile).getProperties());
+
+		final Map<String, String> properties = ((PropertiesGameProfile) profile).getProperties();
+
+		return invokeOperation(new Callable<Map<TextureType, Texture>>() {
+
+			@Override
+			public Map<TextureType, Texture> call() throws Exception {
+				return getTextures(properties);
+			}
+		});
 	}
 
 	@Override
 	public UUID lookupUUIDByName(String playerName) throws AuthenticationException {
 		Objects.requireNonNull(playerName);
 
-		JSONArray request = new JSONArray();
+		final JSONArray request = new JSONArray();
 		request.put(playerName);
-		Object rawResponse;
-		try {
-			rawResponse = getRequester().jsonPost(getApi().profileLookup(), null, request);
-		} catch (JSONException | IOException e) {
-			throw new AuthenticationException(e);
-		}
-		try {
-			if (rawResponse instanceof JSONObject) {
-				requireNonEmptyResponse((JSONObject) rawResponse);
-				throw new JSONException("Response should be a json array");
-			}
-			JSONArray response = (JSONArray) rawResponse;
-			switch (response.length()) {
-				case 0:
-					// no profile is in the response
-					return null;
 
-				case 1:
-					return UUIDUtils.toUUID(response.getJSONObject(0).getString("id"));
+		return invokeOperation(new Callable<UUID>() {
 
-				default:
-					throw new AuthenticationException("We only queried one player's profile, but the server sent us more than one profile: " + response);
+			@Override
+			public UUID call() throws Exception {
+				JSONArray response = requireJsonArray(requester.jsonPost(api.profileLookup(), null, request));
+
+				switch (response.length()) {
+					case 0:
+						// no profile is in the response
+						return null;
+
+					case 1:
+						return UUIDUtils.toUUID(response.getJSONObject(0).getString("id"));
+
+					default:
+						throw new AuthenticationException("We only queried one player's profile, but the server sent us more than one profile: " + response);
+				}
 			}
-		} catch (JSONException e) {
-			throw new AuthenticationException("Couldn't parse response: " + rawResponse, e);
-		}
+		});
 	}
 
-	private Map<TextureType, Texture> getTextures(Map<String, String> properties) throws AuthenticationException {
+	private Map<TextureType, Texture> getTextures(Map<String, String> properties) {
 		if (properties == null) {
 			return null;
 		}
@@ -124,29 +118,20 @@ class YggdrasilProfileService extends AbstractYggdrasilService implements Profil
 			return null;
 		}
 
-		JSONObject payload;
-		try {
-			payload = IOUtils.toJson(Base64.decode(encodedTextures.toCharArray()));
-		} catch (JSONException e) {
-			throw new AuthenticationException("Couldn't decode texture payload: " + encodedTextures, e);
-		}
+		JSONObject payload = IOUtils.toJson(Base64.decode(encodedTextures.toCharArray()));
 
 		Map<TextureType, Texture> result = new EnumMap<>(TextureType.class);
 
-		try {
-			JSONObject textures = payload.getJSONObject("textures");
-			for (String textureTypeName : textures.keySet()) {
-				TextureType textureType;
-				try {
-					textureType = TextureType.valueOf(textureTypeName);
-				} catch (IllegalArgumentException e) {
-					LOGGER.log(Level.WARNING, "Unknown texture type: " + textureTypeName, e);
-					continue;
-				}
-				result.put(textureType, getTexture(textures.getJSONObject(textureTypeName)));
+		JSONObject textures = payload.getJSONObject("textures");
+		for (String textureTypeName : textures.keySet()) {
+			TextureType textureType;
+			try {
+				textureType = TextureType.valueOf(textureTypeName);
+			} catch (IllegalArgumentException e) {
+				LOGGER.log(Level.WARNING, "Unknown texture type: " + textureTypeName, e);
+				continue;
 			}
-		} catch (JSONException e) {
-			throw new AuthenticationException("Couldn't parse texture payload: " + payload, e);
+			result.put(textureType, getTexture(textures.getJSONObject(textureTypeName)));
 		}
 
 		return Collections.unmodifiableMap(result);

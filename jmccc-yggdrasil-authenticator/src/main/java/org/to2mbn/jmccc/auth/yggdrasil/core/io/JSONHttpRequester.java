@@ -30,11 +30,7 @@ public class JSONHttpRequester extends HttpRequester {
 		return jsonGet(url, arguments, null);
 	}
 
-	public Object jsonPost(String url, Map<String, Object> arguments, JSONObject post, Map<String, String> headers) throws JSONException, IOException {
-		return toJson(post(url, arguments, post.toString(), CONTENT_TYPE_JSON, headers));
-	}
-
-	public Object jsonPost(String url, Map<String, Object> arguments, JSONArray post, Map<String, String> headers) throws JSONException, IOException {
+	public Object jsonPost(String url, Map<String, Object> arguments, Object post, Map<String, String> headers) throws JSONException, IOException {
 		return toJson(post(url, arguments, post.toString(), CONTENT_TYPE_JSON, headers));
 	}
 

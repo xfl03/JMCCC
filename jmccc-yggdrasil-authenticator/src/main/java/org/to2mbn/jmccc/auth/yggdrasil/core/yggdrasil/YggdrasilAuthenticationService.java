@@ -1,14 +1,13 @@
 package org.to2mbn.jmccc.auth.yggdrasil.core.yggdrasil;
 
-import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.to2mbn.jmccc.auth.AuthenticationException;
 import org.to2mbn.jmccc.auth.yggdrasil.core.Agent;
@@ -30,24 +29,27 @@ class YggdrasilAuthenticationService extends AbstractYggdrasilService implements
 	}
 
 	@Override
-	public Session login(String username, String password, String clientToken) throws AuthenticationException {
+	public Session login(String username, String password, final String clientToken) throws AuthenticationException {
 		Objects.requireNonNull(username);
 		Objects.requireNonNull(password);
 		Objects.requireNonNull(clientToken);
 
-		Map<String, Object> request = new HashMap<>();
+		final Map<String, Object> request = new HashMap<>();
 		request.put("agent", agent);
 		request.put("username", username);
 		request.put("password", password);
 		request.put("clientToken", clientToken);
 		request.put("requestUser", true);
-		JSONObject response;
-		try {
-			response = (JSONObject) getRequester().jsonPost(getApi().authenticate(), null, new JSONObject(request));
-		} catch (JSONException | IOException e) {
-			throw new AuthenticationException(e);
-		}
-		return handleAuthResponse(response, clientToken);
+
+		return invokeOperation(new Callable<Session>() {
+
+			@Override
+			public Session call() throws Exception {
+				return handleAuthResponse(
+						requester.jsonPost(api.authenticate(), null, new JSONObject(request)),
+						clientToken);
+			}
+		});
 	}
 
 	@Override
@@ -56,11 +58,11 @@ class YggdrasilAuthenticationService extends AbstractYggdrasilService implements
 	}
 
 	@Override
-	public Session selectProfile(String clientToken, String accessToken, UUID profile) throws AuthenticationException {
+	public Session selectProfile(final String clientToken, String accessToken, UUID profile) throws AuthenticationException {
 		Objects.requireNonNull(clientToken);
 		Objects.requireNonNull(accessToken);
 
-		Map<String, Object> request = new HashMap<>();
+		final Map<String, Object> request = new HashMap<>();
 		request.put("clientToken", clientToken);
 		request.put("accessToken", accessToken);
 		request.put("requestUser", true);
@@ -71,13 +73,15 @@ class YggdrasilAuthenticationService extends AbstractYggdrasilService implements
 			request.put("selectedProfile", selectedProfile);
 		}
 
-		JSONObject response;
-		try {
-			response = (JSONObject) getRequester().jsonPost(getApi().refresh(), null, new JSONObject(request));
-		} catch (JSONException | IOException e) {
-			throw new AuthenticationException(e);
-		}
-		return handleAuthResponse(response, clientToken);
+		return invokeOperation(new Callable<Session>() {
+
+			@Override
+			public Session call() throws Exception {
+				return handleAuthResponse(
+						requester.jsonPost(api.refresh(), null, new JSONObject(request)),
+						clientToken);
+			}
+		});
 	}
 
 	@Override
@@ -89,26 +93,27 @@ class YggdrasilAuthenticationService extends AbstractYggdrasilService implements
 	public boolean validate(String clientToken, String accessToken) throws AuthenticationException {
 		Objects.requireNonNull(accessToken);
 
-		Map<String, Object> request = new HashMap<>();
+		final Map<String, Object> request = new HashMap<>();
 		if (clientToken != null) {
 			request.put("clientToken", clientToken);
 		}
 		request.put("accessToken", accessToken);
-		JSONObject response;
-		try {
-			response = (JSONObject) getRequester().jsonPost(getApi().validate(), null, new JSONObject(request));
-		} catch (JSONException | IOException e) {
-			throw new AuthenticationException(e);
-		}
 
-		try {
-			requireEmptyResponse(response);
-		} catch (RemoteAuthenticationException e) {
-			if ("ForbiddenOperationException".equals(e.getRemoteExceptionName())) {
-				return false;
+		return invokeOperation(new Callable<Boolean>() {
+
+			@Override
+			public Boolean call() throws Exception {
+				try {
+					requireEmpty(requester.jsonPost(api.validate(), null, new JSONObject(request)));
+					return true;
+				} catch (RemoteAuthenticationException e) {
+					if ("ForbiddenOperationException".equals(e.getRemoteExceptionName())) {
+						return false;
+					}
+					throw e;
+				}
 			}
-		}
-		return true;
+		});
 	}
 
 	@Override
@@ -116,16 +121,18 @@ class YggdrasilAuthenticationService extends AbstractYggdrasilService implements
 		Objects.requireNonNull(clientToken);
 		Objects.requireNonNull(accessToken);
 
-		Map<String, Object> request = new HashMap<>();
+		final Map<String, Object> request = new HashMap<>();
 		request.put("clientToken", clientToken);
 		request.put("accessToken", accessToken);
-		JSONObject response;
-		try {
-			response = (JSONObject) getRequester().jsonPost(getApi().invalidate(), null, new JSONObject(request));
-		} catch (JSONException | IOException e) {
-			throw new AuthenticationException(e);
-		}
-		requireEmptyResponse(response);
+
+		invokeOperation(new Callable<Void>() {
+
+			@Override
+			public Void call() throws Exception {
+				requireEmpty(requester.jsonPost(api.invalidate(), null, new JSONObject(request)));
+				return null;
+			}
+		});
 	}
 
 	@Override
@@ -133,71 +140,65 @@ class YggdrasilAuthenticationService extends AbstractYggdrasilService implements
 		Objects.requireNonNull(username);
 		Objects.requireNonNull(password);
 
-		Map<String, Object> request = new HashMap<>();
+		final Map<String, Object> request = new HashMap<>();
 		request.put("username", username);
 		request.put("password", password);
-		JSONObject response;
-		try {
-			response = (JSONObject) getRequester().jsonPost(getApi().signout(), null, new JSONObject(request));
-		} catch (JSONException | IOException e) {
-			throw new AuthenticationException(e);
-		}
-		requireEmptyResponse(response);
+
+		invokeOperation(new Callable<Void>() {
+
+			@Override
+			public Void call() throws Exception {
+				requireEmpty(requester.jsonPost(api.signout(), null, new JSONObject(request)));
+				return null;
+			}
+		});
 	}
 
 	public Agent getAgent() {
 		return agent;
 	}
 
-	private Session handleAuthResponse(JSONObject response, String clientToken) throws AuthenticationException {
-		requireNonEmptyResponse(response);
+	private Session handleAuthResponse(Object rawResponse, String clientToken) throws AuthenticationException, GeneralSecurityException {
+		JSONObject response = requireJsonObject(rawResponse);
 
-		try {
-			if (clientToken != null && !clientToken.equals(response.getString("clientToken"))) {
-				throw new AuthenticationException("clientToken changed from " + clientToken + " to " + response.getString("clientToken"));
-			}
-
-			String accessToken = response.getString("accessToken");
-
-			JSONObject userjson = response.getJSONObject("user");
-			String userId = userjson.getString("id");
-
-			Map<String, String> userProperties;
-			JSONArray propertiesJson = userjson.optJSONArray("properties");
-			if (propertiesJson == null) {
-				userProperties = null;
-			} else {
-				try {
-					userProperties = Collections.unmodifiableMap(getPropertiesDeserializer().toProperties(propertiesJson, false));
-				} catch (GeneralSecurityException e) {
-					throw new AuthenticationException("Invalid signature", e);
-				}
-			}
-
-			GameProfile selectedProfile = toGameProfile(response.optJSONObject("selectedProfile"));
-
-			JSONArray profilesArray = response.optJSONArray("availableProfiles");
-			GameProfile[] availableProfiles;
-			if (profilesArray == null) {
-				availableProfiles = null;
-			} else {
-				availableProfiles = new GameProfile[profilesArray.length()];
-				for (int i = 0; i < profilesArray.length(); i++) {
-					availableProfiles[i] = toGameProfile(profilesArray.getJSONObject(i));
-				}
-			}
-			return new Session(clientToken, accessToken, selectedProfile, availableProfiles, userId, userProperties, UserType.MOJANG);
-		} catch (JSONException e) {
-			throw new AuthenticationException("Couldn't parse response: " + response, e);
+		if (clientToken != null && !clientToken.equals(response.getString("clientToken"))) {
+			throw new AuthenticationException("clientToken changed from " + clientToken + " to " + response.getString("clientToken"));
 		}
+
+		String accessToken = response.getString("accessToken");
+
+		JSONObject userjson = response.getJSONObject("user");
+		String userId = userjson.getString("id");
+
+		Map<String, String> userProperties;
+		JSONArray propertiesJson = userjson.optJSONArray("properties");
+		if (propertiesJson == null) {
+			userProperties = null;
+		} else {
+			userProperties = Collections.unmodifiableMap(propertiesDeserializer.toProperties(propertiesJson, false));
+		}
+
+		GameProfile selectedProfile = toGameProfile(response.optJSONObject("selectedProfile"));
+
+		JSONArray profilesArray = response.optJSONArray("availableProfiles");
+		GameProfile[] availableProfiles;
+		if (profilesArray == null) {
+			availableProfiles = null;
+		} else {
+			availableProfiles = new GameProfile[profilesArray.length()];
+			for (int i = 0; i < profilesArray.length(); i++) {
+				availableProfiles[i] = toGameProfile(profilesArray.getJSONObject(i));
+			}
+		}
+		return new Session(clientToken, accessToken, selectedProfile, availableProfiles, userId, userProperties, UserType.MOJANG);
 	}
 
-	private GameProfile toGameProfile(JSONObject gameprofileResponse) throws JSONException {
-		if (gameprofileResponse == null) {
+	private GameProfile toGameProfile(JSONObject gameProfileResponse) {
+		if (gameProfileResponse == null) {
 			return null;
 		}
 
-		return new GameProfile(UUIDUtils.toUUID(gameprofileResponse.getString("id")), gameprofileResponse.getString("name"));
+		return new GameProfile(UUIDUtils.toUUID(gameProfileResponse.getString("id")), gameProfileResponse.getString("name"));
 	}
 
 }
