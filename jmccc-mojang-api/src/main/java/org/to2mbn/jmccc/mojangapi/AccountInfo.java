@@ -3,6 +3,14 @@ package org.to2mbn.jmccc.mojangapi;
 import java.io.Serializable;
 import java.util.Objects;
 
+/**
+ * The information of a Mojang account.
+ * <p>
+ * Each property of {@code AccountInfo} can be null (if the property is not
+ * specified in Mojang server's response).
+ * 
+ * @author yushijinhun
+ */
 public class AccountInfo implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -45,70 +53,125 @@ public class AccountInfo implements Serializable {
 		this.hashed = hashed;
 	}
 
+	/**
+	 * @return Account Identifier?
+	 */
 	public String getId() {
 		return id;
 	}
 
+	/**
+	 * @return Email attached to account
+	 */
 	public String getEmail() {
 		return email;
 	}
 
+	/**
+	 * @return Username of account, with migrated accounts this is the same as
+	 *         email
+	 */
 	public String getUsername() {
 		return username;
 	}
 
+	/**
+	 * @return IP used to register account
+	 */
 	public String getRegisterIp() {
 		return registerIp;
 	}
 
+	/**
+	 * @return Epoch timestamp in ms of date the Mojang account was registered
+	 */
 	public Long getRegisteredAt() {
 		return registeredAt;
 	}
 
+	/**
+	 * @return Epoch timestamp of time password was last changed
+	 */
 	public Long getPasswordChangedAt() {
 		return passwordChangedAt;
 	}
 
+	/**
+	 * @return Epoch timestamp of date of birth for this Mojang Account
+	 */
 	public Long getDateOfBirth() {
 		return dateOfBirth;
 	}
 
+	/**
+	 * @return Unknown, probably whether account has been deleted or not
+	 */
 	public Boolean getDeleted() {
 		return deleted;
 	}
 
+	/**
+	 * @return Unknown, probably whether account has been blocked or not
+	 */
 	public Boolean getBlocked() {
 		return blocked;
 	}
 
+	/**
+	 * @return Whether security questions are enabled on this Mojang Account
+	 */
 	public Boolean getSecured() {
 		return secured;
 	}
 
+	/**
+	 * @return Whether the account has been migrated, if the account was made
+	 *         after Mojang Accounts were mandatory for new accounts this is set
+	 *         to false
+	 */
 	public Boolean getMigrated() {
 		return migrated;
 	}
 
+	/**
+	 * @return Whether the email attached to the account is verified
+	 */
 	public Boolean getEmailVerified() {
 		return emailVerified;
 	}
 
+	/**
+	 * @return Whether the account is a legacy user?
+	 */
 	public Boolean getLegacyUser() {
 		return legacyUser;
 	}
 
+	/**
+	 * @return Whether the account has been verified by parent, is set to false
+	 *         if no parent verification was needed
+	 */
 	public Boolean getVerifiedByParent() {
 		return verifiedByParent;
 	}
 
+	/**
+	 * @return Full name attached to Mojang account, can be an empty string
+	 */
 	public String getFullName() {
 		return fullName;
 	}
 
+	/**
+	 * @return Not sure, probably related to migrated?
+	 */
 	public Boolean getFromMigratedUser() {
 		return fromMigratedUser;
 	}
 
+	/**
+	 * @return Unsure, seems to be set to false?
+	 */
 	public Boolean getHashed() {
 		return hashed;
 	}

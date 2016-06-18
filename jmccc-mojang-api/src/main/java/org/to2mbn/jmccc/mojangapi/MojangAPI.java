@@ -7,6 +7,14 @@ import org.to2mbn.jmccc.auth.yggdrasil.SessionCredential;
 import org.to2mbn.jmccc.auth.yggdrasil.core.Texture;
 import org.to2mbn.jmccc.auth.yggdrasil.core.TextureType;
 
+/**
+ * The Mojang API client.
+ * <p>
+ * For further information, see <a href="http://wiki.vg/Mojang_API">Mojang API -
+ * wiki.vg</a>
+ * 
+ * @author yushijinhun
+ */
 public interface MojangAPI {
 
 	/**
