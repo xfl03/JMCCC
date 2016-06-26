@@ -2,9 +2,11 @@ package org.to2mbn.jmccc.mojangapi;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -131,8 +133,24 @@ public class MojangAPIImpl extends AbstractClientService implements MojangAPI {
 
 	@Override
 	public BlockedServerList getBlockedServerList() throws AuthenticationException {
-		// TODO Auto-generated method stub
-		return null;
+		return invokeOperation(new Callable<BlockedServerList>() {
+
+			@Override
+			public BlockedServerList call() throws Exception {
+				String[] entries = requester.request("GET", api.blockedServers()).split("\n");
+
+				Set<String> entriesSet = new LinkedHashSet<>();
+				for (String entry : entries) {
+					entry = entry.trim();
+					if (entry.isEmpty()) {
+						continue;
+					}
+					entriesSet.add(entry);
+				}
+
+				return new SHA1BlockedServerList(entriesSet);
+			}
+		});
 	}
 
 	private Map<String, String> getAuthorizationHeaders(SessionCredential credential) throws AuthenticationException {

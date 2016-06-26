@@ -24,11 +24,15 @@ class SHA1BlockedServerList implements BlockedServerList {
 
 	@Override
 	public boolean isBlocked(String host) {
+		if (isBlockedServer(host)) {
+			return true;
+		}
+
 		InetAddress address;
 		try {
 			address = InetAddress.getByName(null);
 		} catch (UnknownHostException e) {
-			return isBlockedServer(host);
+			return false;
 		}
 		return isBlockedServer(address.getHostAddress())
 				|| isBlockedServer(address.getHostName());
@@ -76,6 +80,28 @@ class SHA1BlockedServerList implements BlockedServerList {
 					return true;
 		}
 		return false;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == this) {
+			return true;
+		}
+		if (obj instanceof SHA1BlockedServerList) {
+			SHA1BlockedServerList another = (SHA1BlockedServerList) obj;
+			return Objects.equals(entries, another.entries);
+		}
+		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(entries);
+	}
+
+	@Override
+	public String toString() {
+		return String.format("SHA1BlockedServerList [entries=%s]", entries);
 	}
 
 }
