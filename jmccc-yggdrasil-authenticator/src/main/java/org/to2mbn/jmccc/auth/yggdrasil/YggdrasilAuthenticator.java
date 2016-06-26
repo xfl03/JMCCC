@@ -380,11 +380,9 @@ public class YggdrasilAuthenticator implements Authenticator, SessionCredential,
 			}
 
 			GameProfile selectedProfile = selector.select(profiles);
-			if (selectedProfile == null) {
-				throw new AuthenticationException("No profile is selected");
+			if (selectedProfile != null) {
+				authResult = authenticationService.selectProfile(authResult.getClientToken(), authResult.getAccessToken(), selectedProfile.getUUID());
 			}
-
-			authResult = authenticationService.selectProfile(authResult.getClientToken(), authResult.getAccessToken(), selectedProfile.getUUID());
 		}
 	}
 

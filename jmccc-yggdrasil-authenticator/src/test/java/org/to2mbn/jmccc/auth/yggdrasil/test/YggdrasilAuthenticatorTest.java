@@ -27,14 +27,12 @@ public class YggdrasilAuthenticatorTest {
 		assertEquals(service.e_profiles[1], authenticator.getCurrentSession().getSelectedProfile());
 	}
 
-	@Test(expected = AuthenticationException.class)
 	public void testRefreshWithPasswordNullProfile() throws AuthenticationException {
 		MockAuthenticationService service = new MockAuthenticationService();
 		YggdrasilAuthenticator authenticator = new YggdrasilAuthenticator(service);
 		authenticator.refreshWithPassword("user", "password", new MockCharacterSelector(null));
 	}
 
-	@Test(expected = AuthenticationException.class)
 	public void testRefreshWithPasswordNoProfile() throws AuthenticationException {
 		MockAuthenticationService service = new MockAuthenticationService();
 		service.e_profiles = new GameProfile[0];
