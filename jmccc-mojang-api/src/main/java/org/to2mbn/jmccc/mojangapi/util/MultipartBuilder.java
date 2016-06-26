@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.Charset;
 import java.security.SecureRandom;
 import org.to2mbn.jmccc.util.HexUtils;
 
@@ -24,7 +25,7 @@ public class MultipartBuilder {
 
 	private String boundary = randomBoundary();
 	private ByteArrayOutputStream out = new ByteArrayOutputStream();
-	private Writer writer = new OutputStreamWriter(out);
+	private Writer writer = new OutputStreamWriter(out, Charset.forName("UTF-8"));
 	private int status = READY;
 
 	public String getBoundary() {
@@ -85,6 +86,7 @@ public class MultipartBuilder {
 		status = READY;
 
 		writer.write("\r\n");
+		writer.flush();
 		out.write(payload);
 		writer.write("\r\n");
 
@@ -100,6 +102,7 @@ public class MultipartBuilder {
 		writer.write("--");
 		writer.write(boundary);
 		writer.write("--\r\n");
+		writer.flush();
 		return out.toByteArray();
 	}
 

@@ -137,7 +137,13 @@ public class MojangAPIImpl extends AbstractClientService implements MojangAPI {
 
 			@Override
 			public BlockedServerList call() throws Exception {
-				String[] entries = requester.request("GET", api.blockedServers()).split("\n");
+				String response = requester.request("GET", api.blockedServers());
+				if (response.trim().startsWith("{")) {
+					requireJsonObject(response);
+					throw new AuthenticationException("Illegal response: " + response);
+				}
+
+				String[] entries = response.split("\n");
 
 				Set<String> entriesSet = new LinkedHashSet<>();
 				for (String entry : entries) {
