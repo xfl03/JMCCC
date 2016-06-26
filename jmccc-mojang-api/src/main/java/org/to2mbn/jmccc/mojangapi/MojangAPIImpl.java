@@ -126,9 +126,34 @@ public class MojangAPIImpl extends AbstractClientService implements MojangAPI {
 	}
 
 	@Override
-	public AccountInfo getAccountInfo(SessionCredential credential) throws AuthenticationException {
-		// TODO Auto-generated method stub
-		return null;
+	public AccountInfo getAccountInfo(final SessionCredential credential) throws AuthenticationException {
+		return invokeOperation(new Callable<AccountInfo>() {
+
+			@Override
+			public AccountInfo call() throws Exception {
+				JSONObject response = requireJsonObject(requester.request("GET", api.userInfo(), getAuthorizationHeaders(credential)));
+
+				String id = response.has("id") ? response.getString("id") : null;
+				String email = response.has("email") ? response.getString("email") : null;
+				String username = response.has("username") ? response.getString("username") : null;
+				String registerIp = response.has("registerIp") ? response.getString("registerIp") : null;
+				Long registeredAt = response.has("registeredAt") ? response.getLong("registeredAt") : null;
+				Long passwordChangedAt = response.has("passwordChangedAt") ? response.getLong("passwordChangedAt") : null;
+				Long dateOfBirth = response.has("dateOfBirth") ? response.getLong("dateOfBirth") : null;
+				Boolean deleted = response.has("deleted") ? response.getBoolean("deleted") : null;
+				Boolean blocked = response.has("blocked") ? response.getBoolean("blocked") : null;
+				Boolean secured = response.has("secured") ? response.getBoolean("secured") : null;
+				Boolean migrated = response.has("migrated") ? response.getBoolean("migrated") : null;
+				Boolean emailVerified = response.has("emailVerified") ? response.getBoolean("emailVerified") : null;
+				Boolean legacyUser = response.has("legacyUser") ? response.getBoolean("legacyUser") : null;
+				Boolean verifiedByParent = response.has("verifiedByParent") ? response.getBoolean("verifiedByParent") : null;
+				String fullName = response.has("fullName") ? response.getString("fullName") : null;
+				Boolean fromMigratedUser = response.has("fromMigratedUser") ? response.getBoolean("fromMigratedUser") : null;
+				Boolean hashed = response.has("hashed") ? response.getBoolean("hashed") : null;
+
+				return new AccountInfo(id, email, username, registerIp, registeredAt, passwordChangedAt, dateOfBirth, deleted, blocked, secured, migrated, emailVerified, legacyUser, verifiedByParent, fullName, fromMigratedUser, hashed);
+			}
+		});
 	}
 
 	@Override
@@ -161,7 +186,7 @@ public class MojangAPIImpl extends AbstractClientService implements MojangAPI {
 
 	private Map<String, String> getAuthorizationHeaders(SessionCredential credential) throws AuthenticationException {
 		Map<String, String> headers = new HashMap<>();
-		headers.put("Bearer", credential.session().getAccessToken());
+		headers.put("Authorization", "Bearer: " + credential.session().getAccessToken());
 		return headers;
 	}
 
