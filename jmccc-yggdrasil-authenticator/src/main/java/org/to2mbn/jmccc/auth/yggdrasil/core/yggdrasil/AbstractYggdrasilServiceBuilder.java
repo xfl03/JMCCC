@@ -12,7 +12,7 @@ import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Objects;
-import org.to2mbn.jmccc.auth.yggdrasil.core.io.JSONHttpRequester;
+import org.to2mbn.jmccc.auth.yggdrasil.core.io.HttpRequester;
 import org.to2mbn.jmccc.util.Builder;
 
 abstract public class AbstractYggdrasilServiceBuilder<T> implements Builder<T> {
@@ -62,8 +62,8 @@ abstract public class AbstractYggdrasilServiceBuilder<T> implements Builder<T> {
 		return apiProvider == null ? new MojangYggdrasilAPIProvider() : apiProvider;
 	}
 
-	protected JSONHttpRequester buildJSONHttpRequester() {
-		return new JSONHttpRequester(proxy == null ? Proxy.NO_PROXY : proxy);
+	protected HttpRequester buildHttpRequester() {
+		return new HttpRequester(proxy == null ? Proxy.NO_PROXY : proxy);
 	}
 
 	protected PropertiesDeserializer buildPropertiesDeserializer() {

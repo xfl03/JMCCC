@@ -17,19 +17,20 @@ import org.to2mbn.jmccc.auth.AuthenticationException;
 import org.to2mbn.jmccc.auth.yggdrasil.core.GameProfile;
 import org.to2mbn.jmccc.auth.yggdrasil.core.ProfileService;
 import org.to2mbn.jmccc.auth.yggdrasil.core.PropertiesGameProfile;
-import org.to2mbn.jmccc.auth.yggdrasil.core.io.JSONHttpRequester;
+import org.to2mbn.jmccc.auth.yggdrasil.core.io.HttpRequester;
 import org.to2mbn.jmccc.auth.yggdrasil.core.texture.Texture;
 import org.to2mbn.jmccc.auth.yggdrasil.core.texture.TextureType;
 import org.to2mbn.jmccc.auth.yggdrasil.core.texture.Textures;
 import org.to2mbn.jmccc.auth.yggdrasil.core.util.Base64;
 import org.to2mbn.jmccc.util.IOUtils;
 import org.to2mbn.jmccc.util.UUIDUtils;
+import static org.to2mbn.jmccc.auth.yggdrasil.core.util.HttpUtils.*;
 
 class YggdrasilProfileService extends AbstractYggdrasilService implements ProfileService {
 
 	private static final Logger LOGGER = Logger.getLogger(YggdrasilProfileService.class.getCanonicalName());
 
-	public YggdrasilProfileService(JSONHttpRequester requester, PropertiesDeserializer propertiesDeserializer, YggdrasilAPIProvider api) {
+	public YggdrasilProfileService(HttpRequester requester, PropertiesDeserializer propertiesDeserializer, YggdrasilAPIProvider api) {
 		super(requester, propertiesDeserializer, api);
 	}
 
@@ -37,14 +38,13 @@ class YggdrasilProfileService extends AbstractYggdrasilService implements Profil
 	public PropertiesGameProfile getGameProfile(final UUID profileUUID) throws AuthenticationException {
 		Objects.requireNonNull(profileUUID);
 
-		final Map<String, Object> arguments = new HashMap<>();
-		arguments.put("unsigned", "false");
-
 		return invokeOperation(new Callable<PropertiesGameProfile>() {
 
 			@Override
 			public PropertiesGameProfile call() throws Exception {
-				JSONObject response = requireJsonObject(requester.jsonGet(api.profile(profileUUID), arguments));
+				Map<String, Object> arguments = new HashMap<>();
+				arguments.put("unsigned", "false");
+				JSONObject response = requireJsonObject(requester.request("GET", withUrlArguments(api.profile(profileUUID), arguments)));
 
 				Map<String, String> properties;
 				JSONArray jsonProperties = response.optJSONArray("properties");
@@ -65,7 +65,6 @@ class YggdrasilProfileService extends AbstractYggdrasilService implements Profil
 	@Override
 	public Map<TextureType, Texture> getTextures(GameProfile profile) throws AuthenticationException {
 		Objects.requireNonNull(profile);
-
 
 		if (!(profile instanceof PropertiesGameProfile)) {
 			profile = getGameProfile(profile.getUUID());
@@ -93,7 +92,7 @@ class YggdrasilProfileService extends AbstractYggdrasilService implements Profil
 
 			@Override
 			public UUID call() throws Exception {
-				JSONArray response = requireJsonArray(requester.jsonPost(api.profileLookup(), null, request));
+				JSONArray response = requireJsonArray(requester.requestWithPayload("POST", api.profileLookup(), request, CONTENT_TYPE_JSON));
 
 				switch (response.length()) {
 					case 0:

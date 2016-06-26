@@ -4,18 +4,21 @@ import java.util.concurrent.Callable;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 import org.to2mbn.jmccc.auth.AuthenticationException;
 import org.to2mbn.jmccc.auth.yggdrasil.core.RemoteAuthenticationException;
 
 public class AbstractClientService {
 
-	protected final JSONHttpRequester requester;
+	protected final HttpRequester requester;
 
-	public AbstractClientService(JSONHttpRequester requester) {
+	public AbstractClientService(HttpRequester requester) {
 		this.requester = requester;
 	}
 
 	protected JSONObject requireJsonObject(Object response) throws AuthenticationException, JSONException {
+		response = toJsonIfNecessary(response);
+
 		if (response instanceof JSONObject) {
 			JSONObject cast = (JSONObject) response;
 			tryThrowRemoteException(cast);
@@ -25,6 +28,8 @@ public class AbstractClientService {
 	}
 
 	protected JSONArray requireJsonArray(Object response) throws AuthenticationException, JSONException {
+		response = toJsonIfNecessary(response);
+
 		if (response instanceof JSONArray) {
 			return (JSONArray) response;
 		} else if (response instanceof JSONObject) {
@@ -34,6 +39,8 @@ public class AbstractClientService {
 	}
 
 	protected void requireEmpty(Object response) throws AuthenticationException, JSONException {
+		response = toJsonIfNecessary(response);
+
 		if (response == null) {
 			return;
 		}
@@ -64,6 +71,35 @@ public class AbstractClientService {
 		} catch (JSONException e) {
 			throw new JSONException("Couldn't parse response: " + response, e);
 		}
+	}
+
+	private static Object toJsonIfNecessary(Object obj) throws JSONException {
+		if (obj instanceof String) {
+			return toJson((String) obj);
+		} else {
+			return obj;
+		}
+	}
+
+	private static Object toJson(String json) throws JSONException {
+		if (json == null || json.trim().isEmpty()) {
+			return null;
+		}
+
+		try {
+			JSONTokener tokener = new JSONTokener(json);
+			char next = tokener.nextClean();
+			tokener.back();
+			if (next == '{') {
+				return new JSONObject(tokener);
+			} else if (next == '[') {
+				return new JSONArray(tokener);
+			}
+		} catch (JSONException e) {
+			throw new JSONException("Couldn't resolve json: " + json, e);
+		}
+
+		throw new JSONException("Couldn't resolve json: " + json);
 	}
 
 }

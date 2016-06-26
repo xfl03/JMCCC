@@ -7,7 +7,7 @@ import java.net.URL;
 import java.util.Map;
 import java.util.Objects;
 
-class URLTexture implements Serializable, Texture {
+public class URLTexture implements Serializable, Texture {
 
 	private static final long serialVersionUID = 1L;
 

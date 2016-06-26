@@ -16,14 +16,15 @@ import org.to2mbn.jmccc.auth.yggdrasil.core.GameProfile;
 import org.to2mbn.jmccc.auth.yggdrasil.core.RemoteAuthenticationException;
 import org.to2mbn.jmccc.auth.yggdrasil.core.Session;
 import org.to2mbn.jmccc.auth.yggdrasil.core.UserType;
-import org.to2mbn.jmccc.auth.yggdrasil.core.io.JSONHttpRequester;
+import org.to2mbn.jmccc.auth.yggdrasil.core.io.HttpRequester;
 import org.to2mbn.jmccc.util.UUIDUtils;
+import static org.to2mbn.jmccc.auth.yggdrasil.core.util.HttpUtils.*;
 
 class YggdrasilAuthenticationService extends AbstractYggdrasilService implements AuthenticationService {
 
 	private Agent agent;
 
-	public YggdrasilAuthenticationService(JSONHttpRequester requester, PropertiesDeserializer propertiesDeserializer, YggdrasilAPIProvider api, Agent agent) {
+	public YggdrasilAuthenticationService(HttpRequester requester, PropertiesDeserializer propertiesDeserializer, YggdrasilAPIProvider api, Agent agent) {
 		super(requester, propertiesDeserializer, api);
 		this.agent = agent;
 	}
@@ -46,7 +47,7 @@ class YggdrasilAuthenticationService extends AbstractYggdrasilService implements
 			@Override
 			public Session call() throws Exception {
 				return handleAuthResponse(
-						requester.jsonPost(api.authenticate(), null, new JSONObject(request)),
+						requester.requestWithPayload("POST", api.authenticate(), new JSONObject(request), CONTENT_TYPE_JSON),
 						clientToken);
 			}
 		});
@@ -78,7 +79,7 @@ class YggdrasilAuthenticationService extends AbstractYggdrasilService implements
 			@Override
 			public Session call() throws Exception {
 				return handleAuthResponse(
-						requester.jsonPost(api.refresh(), null, new JSONObject(request)),
+						requester.requestWithPayload("POST", api.refresh(), new JSONObject(request), CONTENT_TYPE_JSON),
 						clientToken);
 			}
 		});
@@ -104,7 +105,7 @@ class YggdrasilAuthenticationService extends AbstractYggdrasilService implements
 			@Override
 			public Boolean call() throws Exception {
 				try {
-					requireEmpty(requester.jsonPost(api.validate(), null, new JSONObject(request)));
+					requireEmpty(requester.requestWithPayload("POST", api.validate(), new JSONObject(request), CONTENT_TYPE_JSON));
 					return true;
 				} catch (RemoteAuthenticationException e) {
 					if ("ForbiddenOperationException".equals(e.getRemoteExceptionName())) {
@@ -129,7 +130,7 @@ class YggdrasilAuthenticationService extends AbstractYggdrasilService implements
 
 			@Override
 			public Void call() throws Exception {
-				requireEmpty(requester.jsonPost(api.invalidate(), null, new JSONObject(request)));
+				requireEmpty(requester.requestWithPayload("POST", api.invalidate(), new JSONObject(request), CONTENT_TYPE_JSON));
 				return null;
 			}
 		});
@@ -148,7 +149,7 @@ class YggdrasilAuthenticationService extends AbstractYggdrasilService implements
 
 			@Override
 			public Void call() throws Exception {
-				requireEmpty(requester.jsonPost(api.signout(), null, new JSONObject(request)));
+				requireEmpty(requester.requestWithPayload("POST", api.signout(), new JSONObject(request), CONTENT_TYPE_JSON));
 				return null;
 			}
 		});

@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 
-class ByteArrayTexture implements Texture {
+public class ByteArrayTexture implements Texture {
 
 	private byte[] data;
 	private Map<String, String> metadata;

@@ -1,6 +1,7 @@
 package org.to2mbn.jmccc.util;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.CharArrayWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -48,6 +49,16 @@ public final class IOUtils {
 		} catch (UnsupportedEncodingException e) {
 			throw new IllegalStateException("UTF-8 is not supported", e);
 		}
+	}
+
+	public static byte[] toByteArray(InputStream in) throws IOException {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		byte[] buffer = new byte[8192];
+		int read;
+		while ((read = in.read(buffer)) != -1) {
+			out.write(buffer, 0, read);
+		}
+		return out.toByteArray();
 	}
 
 	private IOUtils() {}
