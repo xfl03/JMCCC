@@ -1,7 +1,7 @@
 package org.to2mbn.jmccc.mojangapi;
 
 import java.util.UUID;
-import org.to2mbn.jmccc.auth.yggdrasil.core.TextureType;
+import org.to2mbn.jmccc.auth.yggdrasil.core.texture.TextureType;
 
 public interface MojangAPIProvider {
 

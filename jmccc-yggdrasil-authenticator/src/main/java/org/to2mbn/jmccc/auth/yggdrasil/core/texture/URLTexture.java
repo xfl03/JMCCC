@@ -1,32 +1,41 @@
-package org.to2mbn.jmccc.auth.yggdrasil.core;
+package org.to2mbn.jmccc.auth.yggdrasil.core.texture;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
+import java.net.URL;
 import java.util.Map;
 import java.util.Objects;
 
-public class Texture implements Serializable {
+class URLTexture implements Serializable, Texture {
 
 	private static final long serialVersionUID = 1L;
 
-	private String url;
+	private URL url;
 	private Map<String, String> metadata;
 
-	public Texture(String url, Map<String, String> metadata) {
-		this.url = url;
+	public URLTexture(URL url, Map<String, String> metadata) {
+		this.url = Objects.requireNonNull(url);
 		this.metadata = metadata;
 	}
 
-	public String getUrl() {
+	public URL getURL() {
 		return url;
 	}
 
+	@Override
 	public Map<String, String> getMetadata() {
 		return metadata;
 	}
 
 	@Override
+	public InputStream openStream() throws IOException {
+		return url.openStream();
+	}
+
+	@Override
 	public String toString() {
-		return "Texture [url=" + url + ", metadata=" + metadata + "]";
+		return "URLTexture [url=" + url + ", metadata=" + metadata + "]";
 	}
 
 	@Override
@@ -39,8 +48,8 @@ public class Texture implements Serializable {
 		if (obj == this) {
 			return true;
 		}
-		if (obj instanceof Texture) {
-			Texture another = (Texture) obj;
+		if (obj instanceof URLTexture) {
+			URLTexture another = (URLTexture) obj;
 			return Objects.equals(url, another.url)
 					&& Objects.equals(metadata, another.metadata);
 		}

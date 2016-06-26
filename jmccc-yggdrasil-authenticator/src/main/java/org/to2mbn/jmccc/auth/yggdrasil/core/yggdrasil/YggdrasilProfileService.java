@@ -1,5 +1,6 @@
 package org.to2mbn.jmccc.auth.yggdrasil.core.yggdrasil;
 
+import java.net.MalformedURLException;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -16,9 +17,10 @@ import org.to2mbn.jmccc.auth.AuthenticationException;
 import org.to2mbn.jmccc.auth.yggdrasil.core.GameProfile;
 import org.to2mbn.jmccc.auth.yggdrasil.core.ProfileService;
 import org.to2mbn.jmccc.auth.yggdrasil.core.PropertiesGameProfile;
-import org.to2mbn.jmccc.auth.yggdrasil.core.Texture;
-import org.to2mbn.jmccc.auth.yggdrasil.core.TextureType;
 import org.to2mbn.jmccc.auth.yggdrasil.core.io.JSONHttpRequester;
+import org.to2mbn.jmccc.auth.yggdrasil.core.texture.Texture;
+import org.to2mbn.jmccc.auth.yggdrasil.core.texture.TextureType;
+import org.to2mbn.jmccc.auth.yggdrasil.core.texture.Textures;
 import org.to2mbn.jmccc.auth.yggdrasil.core.util.Base64;
 import org.to2mbn.jmccc.util.IOUtils;
 import org.to2mbn.jmccc.util.UUIDUtils;
@@ -131,13 +133,18 @@ class YggdrasilProfileService extends AbstractYggdrasilService implements Profil
 				LOGGER.log(Level.WARNING, "Unknown texture type: " + textureTypeName, e);
 				continue;
 			}
-			result.put(textureType, getTexture(textures.getJSONObject(textureTypeName)));
+			JSONObject texureJson = textures.getJSONObject(textureTypeName);
+			try {
+				result.put(textureType, getTexture(texureJson));
+			} catch (MalformedURLException e) {
+				LOGGER.log(Level.WARNING, "Couldn't parse texture: " + texureJson, e);
+			}
 		}
 
 		return Collections.unmodifiableMap(result);
 	}
 
-	private Texture getTexture(JSONObject json) {
+	private Texture getTexture(JSONObject json) throws MalformedURLException {
 		String url = json.getString("url");
 		Map<String, String> metadata = null;
 		if (json.has("metadata")) {
@@ -149,6 +156,6 @@ class YggdrasilProfileService extends AbstractYggdrasilService implements Profil
 				metadata.put(key, value);
 			}
 		}
-		return new Texture(url, metadata == null ? null : Collections.unmodifiableMap(metadata));
+		return Textures.createTexture(url, metadata == null ? null : Collections.unmodifiableMap(metadata));
 	}
 }

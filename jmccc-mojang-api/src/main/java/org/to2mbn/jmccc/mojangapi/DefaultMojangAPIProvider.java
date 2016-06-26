@@ -2,7 +2,7 @@ package org.to2mbn.jmccc.mojangapi;
 
 import java.io.Serializable;
 import java.util.UUID;
-import org.to2mbn.jmccc.auth.yggdrasil.core.TextureType;
+import org.to2mbn.jmccc.auth.yggdrasil.core.texture.TextureType;
 import org.to2mbn.jmccc.util.UUIDUtils;
 
 public class DefaultMojangAPIProvider implements MojangAPIProvider, Serializable {

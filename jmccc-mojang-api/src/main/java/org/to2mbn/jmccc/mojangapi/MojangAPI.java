@@ -4,8 +4,8 @@ import java.util.Map;
 import java.util.UUID;
 import org.to2mbn.jmccc.auth.AuthenticationException;
 import org.to2mbn.jmccc.auth.yggdrasil.SessionCredential;
-import org.to2mbn.jmccc.auth.yggdrasil.core.Texture;
-import org.to2mbn.jmccc.auth.yggdrasil.core.TextureType;
+import org.to2mbn.jmccc.auth.yggdrasil.core.texture.Texture;
+import org.to2mbn.jmccc.auth.yggdrasil.core.texture.TextureType;
 
 /**
  * The Mojang API client.

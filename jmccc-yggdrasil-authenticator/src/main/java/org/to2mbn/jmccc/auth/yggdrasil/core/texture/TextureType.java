@@ -1,4 +1,4 @@
-package org.to2mbn.jmccc.auth.yggdrasil.core;
+package org.to2mbn.jmccc.auth.yggdrasil.core.texture;
 
 public enum TextureType {
 

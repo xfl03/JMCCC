@@ -10,10 +10,10 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.to2mbn.jmccc.auth.AuthenticationException;
 import org.to2mbn.jmccc.auth.yggdrasil.SessionCredential;
-import org.to2mbn.jmccc.auth.yggdrasil.core.Texture;
-import org.to2mbn.jmccc.auth.yggdrasil.core.TextureType;
 import org.to2mbn.jmccc.auth.yggdrasil.core.io.AbstractClientService;
 import org.to2mbn.jmccc.auth.yggdrasil.core.io.JSONHttpRequester;
+import org.to2mbn.jmccc.auth.yggdrasil.core.texture.Texture;
+import org.to2mbn.jmccc.auth.yggdrasil.core.texture.TextureType;
 
 public class MojangAPIImpl extends AbstractClientService implements MojangAPI {
 
