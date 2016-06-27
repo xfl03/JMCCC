@@ -1,5 +1,7 @@
 package org.to2mbn.jmccc.mojangapi;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -11,9 +13,11 @@ import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.to2mbn.jmccc.auth.AuthenticationException;
 import org.to2mbn.jmccc.auth.yggdrasil.SessionCredential;
+import org.to2mbn.jmccc.auth.yggdrasil.core.RemoteAuthenticationException;
 import org.to2mbn.jmccc.auth.yggdrasil.core.io.AbstractClientService;
 import org.to2mbn.jmccc.auth.yggdrasil.core.io.HttpRequester;
 import org.to2mbn.jmccc.auth.yggdrasil.core.texture.Texture;
@@ -91,38 +95,70 @@ class MojangAPIImpl extends AbstractClientService implements MojangAPI {
 					// reset texture
 					requireEmpty(requester.request("DELETE", url, headers));
 				} else {
-					Map<String, String> metadata = texture.getMetadata();
 
 					if (texture instanceof URLTexture) {
-						// change texture
-						Map<String, Object> form = new HashMap<>();
-						if (metadata != null) {
-							form.putAll(metadata);
-						}
-						form.put("url", ((URLTexture) texture).getURL());
+						try {
+							updateTexture((URLTexture) texture, url, headers);
 
-						requireEmpty(requester.requestWithPayload("POST", url, encodeForm(form), "application/x-www-form-urlencoded", headers));
+						} catch (RemoteAuthenticationException exUpdate) {
+							if ("IllegalArgumentException".equals(exUpdate.getRemoteExceptionName())) {
+								// maybe cannot fetch texture from the url
+								try {
+									uploadTexture(texture, url, headers);
+								} catch (Exception exUpload) {
+									exUpload.addSuppressed(exUpdate);
+									throw exUpload;
+								}
+							} else {
+								throw exUpdate;
+							}
+						}
 
 					} else {
 						// upload texture
-						MultipartBuilder multipart = new MultipartBuilder();
-						if (metadata != null) {
-							for (Entry<String, String> property : metadata.entrySet()) {
-								multipart.disposition("name", property.getKey())
-										.content(property.getValue().getBytes("UTF-8"));
-							}
-						}
-						multipart.disposition("name", "file")
-								.header("Content-Type", "image/png")
-								.content(IOUtils.toByteArray(texture.openStream()));
-
-						requireEmpty(requester.requestWithPayload("PUT", url, multipart.finish(), multipart.getContentType(), headers));
+						uploadTexture(texture, url, headers);
 					}
 				}
 
 				return null;
 			}
 		});
+	}
+
+	private void updateTexture(URLTexture texture, String url, Map<String, String> headers) throws AuthenticationException, JSONException, IOException {
+		Map<String, Object> form = new HashMap<>();
+
+		Map<String, String> metadata = texture.getMetadata();
+		if (metadata != null) {
+			form.putAll(metadata);
+		}
+
+		form.put("url", texture.getURL());
+
+		requireEmpty(requester.requestWithPayload("POST", url, encodeForm(form), "application/x-www-form-urlencoded", headers));
+	}
+
+	private void uploadTexture(Texture texture, String url, Map<String, String> headers) throws AuthenticationException, JSONException, IOException {
+		byte[] image;
+		try (InputStream in = texture.openStream()) {
+			image = IOUtils.toByteArray(in);
+		}
+
+		MultipartBuilder multipart = new MultipartBuilder();
+
+		Map<String, String> metadata = texture.getMetadata();
+		if (metadata != null) {
+			for (Entry<String, String> property : metadata.entrySet()) {
+				multipart.disposition("name", property.getKey())
+						.content(property.getValue().getBytes("UTF-8"));
+			}
+		}
+
+		multipart.disposition("name", "file")
+				.header("Content-Type", "image/png")
+				.content(image);
+
+		requireEmpty(requester.requestWithPayload("PUT", url, multipart.finish(), multipart.getContentType(), headers));
 	}
 
 	@Override
