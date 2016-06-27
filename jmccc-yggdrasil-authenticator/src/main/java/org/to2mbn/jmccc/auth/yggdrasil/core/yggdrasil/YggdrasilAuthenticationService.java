@@ -179,7 +179,7 @@ class YggdrasilAuthenticationService extends AbstractYggdrasilService implements
 			userProperties = Collections.unmodifiableMap(propertiesDeserializer.toProperties(propertiesJson, false));
 		}
 
-		GameProfile selectedProfile = toGameProfile(response.optJSONObject("selectedProfile"));
+		GameProfile selectedProfile = parseGameProfile(response.optJSONObject("selectedProfile"));
 
 		JSONArray profilesArray = response.optJSONArray("availableProfiles");
 		GameProfile[] availableProfiles;
@@ -188,18 +188,10 @@ class YggdrasilAuthenticationService extends AbstractYggdrasilService implements
 		} else {
 			availableProfiles = new GameProfile[profilesArray.length()];
 			for (int i = 0; i < profilesArray.length(); i++) {
-				availableProfiles[i] = toGameProfile(profilesArray.getJSONObject(i));
+				availableProfiles[i] = parseGameProfile(profilesArray.getJSONObject(i));
 			}
 		}
 		return new Session(clientToken, accessToken, selectedProfile, availableProfiles, userId, userProperties, UserType.MOJANG);
-	}
-
-	private GameProfile toGameProfile(JSONObject gameProfileResponse) {
-		if (gameProfileResponse == null) {
-			return null;
-		}
-
-		return new GameProfile(UUIDUtils.toUUID(gameProfileResponse.getString("id")), gameProfileResponse.getString("name"));
 	}
 
 }

@@ -1,7 +1,10 @@
 package org.to2mbn.jmccc.auth.yggdrasil.core.yggdrasil;
 
+import org.json.JSONObject;
+import org.to2mbn.jmccc.auth.yggdrasil.core.GameProfile;
 import org.to2mbn.jmccc.auth.yggdrasil.core.io.AbstractClientService;
 import org.to2mbn.jmccc.auth.yggdrasil.core.io.HttpRequester;
+import org.to2mbn.jmccc.util.UUIDUtils;
 
 abstract public class AbstractYggdrasilService extends AbstractClientService {
 
@@ -12,6 +15,14 @@ abstract public class AbstractYggdrasilService extends AbstractClientService {
 		super(requester);
 		this.propertiesDeserializer = propertiesDeserializer;
 		this.api = api;
+	}
+
+	protected GameProfile parseGameProfile(JSONObject json) {
+		if (json == null) {
+			return null;
+		}
+
+		return new GameProfile(UUIDUtils.toUUID(json.getString("id")), json.getString("name"));
 	}
 
 }

@@ -16,6 +16,24 @@ public class AbstractClientService {
 		this.requester = requester;
 	}
 
+	protected JSONObject nullableJsonObject(Object response) throws AuthenticationException, JSONException {
+		response = toJsonIfNecessary(response);
+		if (response == null) {
+			return null;
+		} else {
+			return requireJsonObject(response);
+		}
+	}
+
+	protected JSONArray nullableJsonArray(Object response) throws AuthenticationException, JSONException {
+		response = toJsonIfNecessary(response);
+		if (response == null) {
+			return null;
+		} else {
+			return requireJsonArray(response);
+		}
+	}
+
 	protected JSONObject requireJsonObject(Object response) throws AuthenticationException, JSONException {
 		response = toJsonIfNecessary(response);
 

@@ -1,5 +1,6 @@
 package org.to2mbn.jmccc.auth.yggdrasil.core.yggdrasil;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -12,6 +13,7 @@ import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.to2mbn.jmccc.auth.AuthenticationException;
 import org.to2mbn.jmccc.auth.yggdrasil.core.GameProfile;
@@ -44,7 +46,11 @@ class YggdrasilProfileService extends AbstractYggdrasilService implements Profil
 			public PropertiesGameProfile call() throws Exception {
 				Map<String, Object> arguments = new HashMap<>();
 				arguments.put("unsigned", "false");
-				JSONObject response = requireJsonObject(requester.request("GET", withUrlArguments(api.profile(profileUUID), arguments)));
+				JSONObject response = nullableJsonObject(requester.request("GET", withUrlArguments(api.profile(profileUUID), arguments)));
+
+				if (response == null) {
+					return null;
+				}
 
 				Map<String, String> properties;
 				JSONArray jsonProperties = response.optJSONArray("properties");
@@ -67,7 +73,11 @@ class YggdrasilProfileService extends AbstractYggdrasilService implements Profil
 		Objects.requireNonNull(profile);
 
 		if (!(profile instanceof PropertiesGameProfile)) {
-			profile = getGameProfile(profile.getUUID());
+			UUID uuid = profile.getUUID();
+			profile = getGameProfile(uuid);
+			if (profile == null) {
+				throw new AuthenticationException("No such game profile: " + uuid);
+			}
 		}
 
 		final Map<String, String> properties = ((PropertiesGameProfile) profile).getProperties();
@@ -82,31 +92,33 @@ class YggdrasilProfileService extends AbstractYggdrasilService implements Profil
 	}
 
 	@Override
-	public UUID lookupUUIDByName(String playerName) throws AuthenticationException {
-		Objects.requireNonNull(playerName);
-
-		final JSONArray request = new JSONArray();
-		request.put(playerName);
-
-		return invokeOperation(new Callable<UUID>() {
+	public GameProfile lookupGameProfile(final String name) throws AuthenticationException {
+		Objects.requireNonNull(name);
+		return invokeOperation(new Callable<GameProfile>() {
 
 			@Override
-			public UUID call() throws Exception {
-				JSONArray response = requireJsonArray(requester.requestWithPayload("POST", api.profileLookup(), request, CONTENT_TYPE_JSON));
-
-				switch (response.length()) {
-					case 0:
-						// no profile is in the response
-						return null;
-
-					case 1:
-						return UUIDUtils.toUUID(response.getJSONObject(0).getString("id"));
-
-					default:
-						throw new AuthenticationException("We only queried one player's profile, but the server sent us more than one profile: " + response);
-				}
+			public GameProfile call() throws Exception {
+				return lookupGameProfile0(api.profileByUsername(name));
 			}
 		});
+	}
+
+	@Override
+	public GameProfile lookupGameProfile(final String name, final long timestamp) throws AuthenticationException {
+		Objects.requireNonNull(name);
+		return invokeOperation(new Callable<GameProfile>() {
+
+			@Override
+			public GameProfile call() throws Exception {
+				Map<String, Object> arguments = new HashMap<>();
+				arguments.put("at", timestamp / 1000);
+				return lookupGameProfile0(withUrlArguments(api.profileByUsername(name), arguments));
+			}
+		});
+	}
+
+	private GameProfile lookupGameProfile0(String url) throws AuthenticationException, JSONException, IOException {
+		return parseGameProfile(nullableJsonObject(requester.request("GET", url)));
 	}
 
 	private Map<TextureType, Texture> getTextures(Map<String, String> properties) {
