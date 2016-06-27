@@ -23,7 +23,7 @@ import org.to2mbn.jmccc.mojangapi.util.MultipartBuilder;
 import org.to2mbn.jmccc.util.IOUtils;
 import static org.to2mbn.jmccc.auth.yggdrasil.core.util.HttpUtils.*;
 
-public class MojangAPIImpl extends AbstractClientService implements MojangAPI {
+class MojangAPIImpl extends AbstractClientService implements MojangAPI {
 
 	private MojangAPIProvider api;
 
