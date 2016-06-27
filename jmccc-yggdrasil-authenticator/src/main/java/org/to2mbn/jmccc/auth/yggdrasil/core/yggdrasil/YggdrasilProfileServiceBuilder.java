@@ -14,7 +14,7 @@ public class YggdrasilProfileServiceBuilder extends AbstractYggdrasilServiceBuil
 
 	@Override
 	public ProfileService build() {
-		return new YggdrasilProfileService(buildJSONHttpRequester(), buildPropertiesDeserializer(), buildAPIProvider());
+		return new YggdrasilProfileService(buildHttpRequester(), buildPropertiesDeserializer(), buildAPIProvider());
 	}
 
 }

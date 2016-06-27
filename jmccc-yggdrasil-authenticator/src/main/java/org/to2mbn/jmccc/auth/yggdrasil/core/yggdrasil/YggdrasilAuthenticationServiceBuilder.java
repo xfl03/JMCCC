@@ -22,7 +22,7 @@ public class YggdrasilAuthenticationServiceBuilder extends AbstractYggdrasilServ
 
 	@Override
 	public AuthenticationService build() {
-		return new YggdrasilAuthenticationService(buildJSONHttpRequester(), buildPropertiesDeserializer(), buildAPIProvider(), buildAgent());
+		return new YggdrasilAuthenticationService(buildHttpRequester(), buildPropertiesDeserializer(), buildAPIProvider(), buildAgent());
 	}
 
 	protected Agent buildAgent() {

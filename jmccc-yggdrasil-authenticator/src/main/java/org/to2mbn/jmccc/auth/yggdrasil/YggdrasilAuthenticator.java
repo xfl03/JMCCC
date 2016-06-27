@@ -20,7 +20,7 @@ import org.to2mbn.jmccc.util.UUIDUtils;
  * 
  * @author yushijinhun
  */
-public class YggdrasilAuthenticator implements Authenticator, Serializable {
+public class YggdrasilAuthenticator implements Authenticator, SessionCredential, Serializable {
 
 	/**
 	 * Provides username and password for yggdrasil authentication.
@@ -260,6 +260,7 @@ public class YggdrasilAuthenticator implements Authenticator, Serializable {
 	 *             couldn't get an available session
 	 * @see #refresh()
 	 */
+	@Override
 	public synchronized Session session() throws AuthenticationException {
 		if (authResult == null || !authenticationService.validate(authResult.getClientToken(), authResult.getAccessToken())) {
 			refresh();
@@ -368,7 +369,7 @@ public class YggdrasilAuthenticator implements Authenticator, Serializable {
 		if (authResult.getSelectedProfile() == null) {
 			GameProfile[] profiles = authResult.getProfiles();
 			if (profiles == null || profiles.length == 0) {
-				throw new AuthenticationException("No profile is available");
+				return;
 			}
 
 			// no profile is selected
@@ -379,11 +380,9 @@ public class YggdrasilAuthenticator implements Authenticator, Serializable {
 			}
 
 			GameProfile selectedProfile = selector.select(profiles);
-			if (selectedProfile == null) {
-				throw new AuthenticationException("No profile is selected");
+			if (selectedProfile != null) {
+				authResult = authenticationService.selectProfile(authResult.getClientToken(), authResult.getAccessToken(), selectedProfile.getUUID());
 			}
-
-			authResult = authenticationService.selectProfile(authResult.getClientToken(), authResult.getAccessToken(), selectedProfile.getUUID());
 		}
 	}
 

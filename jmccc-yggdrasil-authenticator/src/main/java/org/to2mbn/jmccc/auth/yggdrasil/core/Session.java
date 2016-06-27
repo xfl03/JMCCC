@@ -78,4 +78,9 @@ public class Session implements Serializable {
 		return false;
 	}
 
+	@Override
+	public String toString() {
+		return String.format("Session [clientToken=%s, accessToken=%s, selectedProfile=%s, profiles=%s, userId=%s, properties=%s, userType=%s]", clientToken, accessToken, selectedProfile, Arrays.toString(profiles), userId, properties, userType);
+	}
+
 }

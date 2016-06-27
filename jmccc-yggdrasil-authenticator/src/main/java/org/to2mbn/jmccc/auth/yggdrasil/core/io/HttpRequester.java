@@ -8,7 +8,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.Map;
 import java.util.Map.Entry;
 import org.to2mbn.jmccc.util.IOUtils;
@@ -27,13 +26,13 @@ public class HttpRequester {
 		this.proxy = proxy == null ? Proxy.NO_PROXY : proxy;
 	}
 
-	public Proxy getProxy() {
-		return proxy;
+	public String request(String method, String url) throws IOException {
+		return request(method, url, null);
 	}
 
-	public String get(String url, Map<String, Object> arguments) throws UnsupportedEncodingException, MalformedURLException, IOException {
-		HttpURLConnection connection = createHttpConnection(url, arguments);
-		connection.setRequestMethod("GET");
+	public String request(String method, String url, Map<String, String> headers) throws IOException {
+		HttpURLConnection connection = createHttpConnection(url, headers);
+		connection.setRequestMethod(method);
 		try {
 			connection.connect();
 			try (InputStream in = connection.getInputStream()) {
@@ -48,19 +47,30 @@ public class HttpRequester {
 		}
 	}
 
-	public String post(String url, Map<String, Object> arguments, String post, String contentType) throws UnsupportedEncodingException, MalformedURLException, IOException {
-		byte[] rawpost = post.getBytes("UTF-8");
+	public String requestWithPayload(String method, String url, Object payload, String contentType) throws IOException {
+		return requestWithPayload(method, url, payload, contentType, null);
+	}
 
-		HttpURLConnection connection = createHttpConnection(url, arguments);
-		connection.setRequestMethod("POST");
-		connection.setRequestProperty("Content-Type", contentType + "; charset=utf-8");
-		connection.setRequestProperty("Content-Length", String.valueOf(rawpost.length));
+	public String requestWithPayload(String method, String url, Object payload, String contentType, Map<String, String> headers) throws IOException {
+		byte[] bytePayload;
+		if (payload instanceof byte[]) {
+			bytePayload = (byte[]) payload;
+		} else if (payload == null) {
+			bytePayload = new byte[0];
+		} else {
+			bytePayload = String.valueOf(payload).getBytes("UTF-8");
+		}
+
+		HttpURLConnection connection = createHttpConnection(url, headers);
+		connection.setRequestMethod(method);
+		connection.setRequestProperty("Content-Type", contentType);
+		connection.setRequestProperty("Content-Length", String.valueOf(bytePayload.length));
 		connection.setDoOutput(true);
 
 		try {
 			connection.connect();
 			try (OutputStream out = connection.getOutputStream()) {
-				out.write(rawpost);
+				out.write(bytePayload);
 			}
 			try (InputStream in = connection.getInputStream()) {
 				return IOUtils.toString(in);
@@ -88,12 +98,14 @@ public class HttpRequester {
 		}
 	}
 
-	private HttpURLConnection createHttpConnection(String baseurl, Map<String, Object> arguments) throws UnsupportedEncodingException, MalformedURLException, IOException {
-		String url = baseurl;
-		if (arguments != null) {
-			url = url + "?" + generateArguments(arguments);
+	private HttpURLConnection createHttpConnection(String url, Map<String, String> headers) throws UnsupportedEncodingException, MalformedURLException, IOException {
+		HttpURLConnection connection = createHttpConnection(new URL(url));
+		if (headers != null) {
+			for (Entry<String, String> header : headers.entrySet()) {
+				connection.setRequestProperty(header.getKey(), header.getValue());
+			}
 		}
-		return createHttpConnection(new URL(url));
+		return connection;
 	}
 
 	private HttpURLConnection createHttpConnection(URL url) throws IOException {
@@ -102,18 +114,6 @@ public class HttpRequester {
 		connection.setReadTimeout(TIMEOUT);
 		connection.setUseCaches(false);
 		return connection;
-	}
-
-	private String generateArguments(Map<String, Object> arguments) throws UnsupportedEncodingException {
-		StringBuilder result = new StringBuilder();
-		for (Entry<String, Object> argument : arguments.entrySet()) {
-			result.append(URLEncoder.encode(argument.getKey(), "UTF-8"));
-			result.append('=');
-			result.append(URLEncoder.encode(String.valueOf(argument.getValue()), "UTF-8"));
-			result.append('&');
-		}
-		result.deleteCharAt(result.length() - 1);
-		return result.toString();
 	}
 
 }
