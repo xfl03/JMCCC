@@ -3,7 +3,7 @@ package org.to2mbn.jmccc.mojangapi;
 import java.util.Objects;
 
 /**
- * Describes one of a character's former names.
+ * Describes one of a player's former names.
  * 
  * @author yushijinhun
  */
@@ -27,10 +27,10 @@ public class FormerName {
 	}
 
 	/**
-	 * Returns when the character changed its name to this, null if the time is
-	 * unknown (for example, this is the character's first username).
+	 * Returns when the player changed its name to this, or null if the time is
+	 * unknown (for example, this is the player's first username).
 	 * 
-	 * @return when the character changed its name to this, can be null
+	 * @return when the player changed its name to this, can be null
 	 */
 	public Long getChangedToAt() {
 		return changedToAt;

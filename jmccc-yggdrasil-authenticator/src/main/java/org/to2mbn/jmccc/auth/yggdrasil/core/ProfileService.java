@@ -23,8 +23,7 @@ public interface ProfileService {
 	 * 
 	 * @param profileUUID the player's uuid
 	 * @return the specified player's profile, null if the player doesn't exist
-	 * @throws AuthenticationException if an exception occurred during
-	 *             requesting
+	 * @throws AuthenticationException if an exception occurs during requesting
 	 */
 	PropertiesGameProfile getGameProfile(UUID profileUUID) throws AuthenticationException;
 
@@ -39,8 +38,7 @@ public interface ProfileService {
 	 * 
 	 * @param profile the player's profile
 	 * @return the player's textures, can be null
-	 * @throws AuthenticationException if an exception occurred during
-	 *             requesting
+	 * @throws AuthenticationException if an exception occurs during requesting
 	 */
 	Map<TextureType, Texture> getTextures(GameProfile profile) throws AuthenticationException;
 
@@ -51,8 +49,7 @@ public interface ProfileService {
 	 * @param name the player's name
 	 * @return the profile of the player that uses the specified username, or
 	 *         null if no such a player exists
-	 * @throws AuthenticationException if an exception occurred during
-	 *             requesting
+	 * @throws AuthenticationException if an exception occurs during requesting
 	 */
 	GameProfile lookupGameProfile(String name) throws AuthenticationException;
 
@@ -64,8 +61,7 @@ public interface ProfileService {
 	 * @param timestamp the timestamp (java timestamp)
 	 * @return the profile of the player that uses the specified username at the
 	 *         timestamp provided, or null if no such a player exists
-	 * @throws AuthenticationException if an exception occurred during
-	 *             requesting
+	 * @throws AuthenticationException if an exception occurs during requesting
 	 */
 	GameProfile lookupGameProfile(String name, long timestamp) throws AuthenticationException;
 

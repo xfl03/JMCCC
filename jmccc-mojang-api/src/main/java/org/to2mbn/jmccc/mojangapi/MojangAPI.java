@@ -21,35 +21,32 @@ public interface MojangAPI {
 	 * Returns status of various Mojang services.
 	 * 
 	 * @return the status of Mojang services
-	 * @throws AuthenticationException if an exception occurred during
-	 *             requesting
+	 * @throws AuthenticationException if an exception occurs during requesting
 	 */
 	Map<String, ServiceStatus> getServiceStatus() throws AuthenticationException;
 
 	/**
-	 * Returns the name history of the specified character.
+	 * Returns the name history of the specified player.
 	 * <p>
-	 * The array is sorted by time. The first element is the character's first
+	 * The array is sorted by time. The first element is the player's first
 	 * username. And the last element is the current username.
 	 * 
-	 * @param uuid the character's uuid
-	 * @return the name history of the specified character
-	 * @throws AuthenticationException if an exception occurred during
-	 *             requesting
+	 * @param uuid the player's uuid
+	 * @return the name history of the specified player
+	 * @throws AuthenticationException if an exception occurs during requesting
 	 */
 	FormerName[] getNameHistory(UUID uuid) throws AuthenticationException;
 
 	/**
-	 * Sets the character's texture.
+	 * Sets the player's texture.
 	 * <p>
 	 * If {@code texture} is {@code null}, this method will reset the texture.
 	 * 
 	 * @param credential the account's credential
-	 * @param uuid the character's uuid
+	 * @param uuid the player's uuid
 	 * @param type the type of the texture
 	 * @param texture the texture, can be null
-	 * @throws AuthenticationException if an exception occurred during
-	 *             requesting
+	 * @throws AuthenticationException if an exception occurs during requesting
 	 */
 	void setTexture(SessionCredential credential, UUID uuid, TextureType type, Texture texture) throws AuthenticationException;
 
@@ -58,8 +55,7 @@ public interface MojangAPI {
 	 * 
 	 * @param credential the account's credential
 	 * @return the information of the account
-	 * @throws AuthenticationException if an exception occurred during
-	 *             requesting
+	 * @throws AuthenticationException if an exception occurs during requesting
 	 */
 	AccountInfo getAccountInfo(SessionCredential credential) throws AuthenticationException;
 
@@ -71,8 +67,7 @@ public interface MojangAPI {
 	 * Mojang is blocking certain servers as of 1.9.3 r2. - Reddit</a>
 	 * 
 	 * @return the blocked server list
-	 * @throws AuthenticationException if an exception occurred during
-	 *             requesting
+	 * @throws AuthenticationException if an exception occurs during requesting
 	 */
 	BlockedServerList getBlockedServerList() throws AuthenticationException;
 
@@ -83,8 +78,7 @@ public interface MojangAPI {
 	 * 
 	 * @param metricKeys the metric keys
 	 * @return the statistics on the sales
-	 * @throws AuthenticationException if an exception occurred during
-	 *             requesting
+	 * @throws AuthenticationException if an exception occurs during requesting
 	 */
 	SalesStatistics querySales(String... metricKeys) throws AuthenticationException;
 
