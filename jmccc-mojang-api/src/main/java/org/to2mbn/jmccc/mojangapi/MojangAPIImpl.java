@@ -184,6 +184,26 @@ public class MojangAPIImpl extends AbstractClientService implements MojangAPI {
 		});
 	}
 
+	@Override
+	public SalesStatistics querySales(final String... metricKeys) throws AuthenticationException {
+		return invokeOperation(new Callable<SalesStatistics>() {
+
+			@Override
+			public SalesStatistics call() throws Exception {
+				JSONObject request = new JSONObject();
+				request.put("metricKeys", metricKeys);
+
+				JSONObject response = requireJsonObject(requester.requestWithPayload("POST", api.salesStatistics(), request, CONTENT_TYPE_JSON));
+
+				long total = response.optLong("total", -1);
+				long last24h = response.optLong("last24h", -1);
+				long saleVelocityPerSeconds = response.optLong("saleVelocityPerSeconds", -1);
+
+				return new SalesStatistics(total, last24h, saleVelocityPerSeconds);
+			}
+		});
+	}
+
 	private Map<String, String> getAuthorizationHeaders(SessionCredential credential) throws AuthenticationException {
 		Map<String, String> headers = new HashMap<>();
 		headers.put("Authorization", "Bearer: " + credential.session().getAccessToken());

@@ -15,4 +15,6 @@ public interface MojangAPIProvider {
 
 	String blockedServers();
 
+	String salesStatistics();
+
 }

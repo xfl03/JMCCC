@@ -76,4 +76,16 @@ public interface MojangAPI {
 	 */
 	BlockedServerList getBlockedServerList() throws AuthenticationException;
 
+	/**
+	 * Queries the statistics on the sales.
+	 * <p>
+	 * Valid metric keys are defined in {@link SalesStatistics.MetricKeys}.
+	 * 
+	 * @param metricKeys the metric keys
+	 * @return the statistics on the sales
+	 * @throws AuthenticationException if an exception occurred during
+	 *             requesting
+	 */
+	SalesStatistics querySales(String... metricKeys) throws AuthenticationException;
+
 }

@@ -45,7 +45,7 @@ class SHA1BlockedServerList implements BlockedServerList {
 
 	private boolean isInBlockedList(String str) {
 		try {
-			return entries.contains(HexUtils.bytesToHex(MessageDigest.getInstance("SHA-1").digest(str.getBytes("ISO-8859-1"))));
+			return entries.contains(HexUtils.bytesToHex(MessageDigest.getInstance("SHA-1").digest(str.toLowerCase().getBytes("ISO-8859-1"))));
 		} catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
 			throw new IllegalStateException(e);
 		}

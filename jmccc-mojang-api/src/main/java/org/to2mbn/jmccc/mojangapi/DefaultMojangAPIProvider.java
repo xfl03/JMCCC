@@ -34,4 +34,9 @@ public class DefaultMojangAPIProvider implements MojangAPIProvider, Serializable
 		return "https://sessionserver.mojang.com/blockedservers";
 	}
 
+	@Override
+	public String salesStatistics() {
+		return "https://api.mojang.com/orders/statistics";
+	}
+
 }
