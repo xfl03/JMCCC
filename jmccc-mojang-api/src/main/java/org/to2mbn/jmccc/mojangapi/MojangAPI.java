@@ -12,6 +12,34 @@ import org.to2mbn.jmccc.auth.yggdrasil.core.texture.TextureType;
  * <p>
  * For further information, see <a href="http://wiki.vg/Mojang_API">Mojang API -
  * wiki.vg</a>
+ * <p>
+ * If secured questions are enabled, there may be some problems. The following
+ * exception may be thrown:
+ * 
+ * <pre>
+ * org.to2mbn.jmccc.auth.yggdrasil.core.RemoteAuthenticationException: Forbidden: Current IP not secured
+ * </pre>
+ * 
+ * This means you haven't answered the questions, so you are not authorized to
+ * access the api. To resolve this problem, you need to answer these questions
+ * on the current computer, then your ip will be authorized.<br>
+ * You can do the following in a web view:
+ * 
+ * <pre>
+ * {@code POST https://account.mojang.com/login}
+ * </pre>
+ * 
+ * With the form data:
+ * 
+ * <pre>
+ * authenticityToken=[an random 40-characters hex string]
+ * username=[email]
+ * password=[password]
+ * </pre>
+ * 
+ * Then Mojang will ask you some questions. Once the questions are correctly
+ * answered (the web view jumps to {@code https://account.mojang.com/me}), your
+ * ip will be authorized.
  * 
  * @author yushijinhun
  */
