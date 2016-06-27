@@ -116,7 +116,7 @@ class MojangAPIImpl extends AbstractClientService implements MojangAPI {
 								.header("Content-Type", "image/png")
 								.content(IOUtils.toByteArray(texture.openStream()));
 
-						requireEmpty(requester.requestWithPayload("PUT", url, multipart.finish(), multipart.getContentType()));
+						requireEmpty(requester.requestWithPayload("PUT", url, multipart.finish(), multipart.getContentType(), headers));
 					}
 				}
 
