@@ -4,12 +4,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public enum TextureModel {
+public enum SkinModel {
 	STEVE(""), ALEX("slim");
 
 	public static final String METADATA_KEY_MODEL = "model";
 
-	public static TextureModel inferModel(Texture texture) {
+	public static SkinModel inferModel(Texture texture) {
 		if (texture == null) {
 			return STEVE;
 		} else {
@@ -17,7 +17,7 @@ public enum TextureModel {
 		}
 	}
 
-	public static TextureModel inferModel(Map<String, String> metadata) {
+	public static SkinModel inferModel(Map<String, String> metadata) {
 		if (metadata != null && ALEX.modelName.equals(metadata.get(METADATA_KEY_MODEL))) {
 			return ALEX;
 		} else {
@@ -28,7 +28,7 @@ public enum TextureModel {
 	private String modelName;
 	private Map<String, String> metadata;
 
-	TextureModel(String modelName) {
+	SkinModel(String modelName) {
 		this.modelName = modelName;
 
 		Map<String, String> modifiableMetadata = new HashMap<>();
