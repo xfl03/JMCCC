@@ -91,7 +91,9 @@ public class FileDownloadTask extends DownloadTask<Void> {
 			@Override
 			public void failed() throws IOException {
 				close();
-				partFile.delete();
+				if (!partFile.delete()) {
+					throw new IOException("Failed to delete " + partFile);
+				}
 			}
 
 			@Override
@@ -99,9 +101,13 @@ public class FileDownloadTask extends DownloadTask<Void> {
 				close();
 				FileUtils.prepareWrite(target);
 				if (target.exists()) {
-					target.delete();
+					if (!target.delete()) {
+						throw new IOException("Failed to delete " + target);
+					}
 				}
-				partFile.renameTo(target);
+				if (!partFile.renameTo(target)) {
+					throw new IOException("Failed to rename " + partFile + " to " + target);
+				}
 				return null;
 			}
 
