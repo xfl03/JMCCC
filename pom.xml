@@ -6,7 +6,7 @@
 	<url>https://github.com/to2mbn/JMCCC</url>
 	<packaging>pom</packaging>
 	<name>jmccc-parent</name>
-	<description>Jmccc is an open-source lightweight library for launching and downloading Minecraft.</description>
+	<description>Jmccc is a powerful open-source library for launching and downloading Minecraft.</description>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jar.source>1.7</jar.source>

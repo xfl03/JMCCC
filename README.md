@@ -1,11 +1,40 @@
-[中文版Readme](README.zh_CN.md)
-
 # JMCCC
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Southern-InfinityStudio/JMCCC?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Build Status](https://travis-ci.org/to2mbn/JMCCC.svg?branch=master)](https://travis-ci.org/to2mbn/JMCCC)<br/>
-An open-source lightweight library for launching and downloading Minecraft.
+A powerful open-source library for launching and downloading Minecraft.
 
-## Download
-You can get the latest releases from [the maven central repository](https://search.maven.org/#search|ga|1|g%3A%22org.to2mbn%22).
+## License
+JMCCC is licensed under [the MIT license](https://to2mbn.github.io/jmccc/LICENSE.txt).
+
+## Features
+ * Launches all versions of Minecraft
+ * Scalable authentication
+   * Supports Yggdrasil/Offline, and can be extended
+ * Downloads all versions of Minecraft
+   * Supports Forge/Liteloader
+     * Supports Liteloader snapshots
+   * Customizable download source
+   * Asynchronous task system
+   * Supports BIO/NIO
+     * Can work on top of [Apache HttpAsyncClient](http://hc.apache.org/httpcomponents-asyncclient-dev/) or JDK
+   * Supports caching
+     * Pluggable cache provider
+       * Can work on top of Ehcache or javax.cache
+     * Different strategies for different files
+ * Mojang API supports
+   * Game profiles lookup
+   * Fetches/Uploads textures
+   * Fetches account information
+   * Fetches name history
+   * Blocked servers checking
+
+## Quick Start
+### Dependencies
+|Dependency                                |Description                      |
+|------------------------------------------|---------------------------------|
+|`org.to2mbn:jmccc`                        |Minecraft launching feature.     |
+|`org.to2mbn:jmccc-yggdrasil-authenticator`|Yggdrasil authentication feature.|
+|`org.to2mbn:jmccc-mcdownloader`           |Minecraft downloading feature.   |
+|`org.to2mbn:jmccc-mojang-api`             |Mojang API client.               |
 
 The snapshot repository:
 ```xml
@@ -18,107 +47,19 @@ The snapshot repository:
 </repository>
 ```
 
-|ArtifactId                   |Description                                    |
-|-----------------------------|-----------------------------------------------|
-|jmccc                        |Provides classes for launching minecraft.      |
-|jmccc-yggdrasil-authenticator|Provides the yggdrasil authentication feature. |
-|jmccc-mcdownloader           |Provides the download feature.                 |
-
-## Compile
-```
-mvn clean package
-```
-
-## License
-JMCCC is licensed under [the MIT license](https://to2mbn.github.io/jmccc/LICENSE.txt).
-
-## Examples
-
-### Minecraft launching
+### Launching Minecraft
 ```java
 MinecraftDirectory dir = new MinecraftDirectory("/home/user/.minecraft");
 Launcher launcher = LauncherBuilder.buildDefault();
-launcher.launch(new LaunchOption("1.9", new OfflineAuthenticator("user"), dir), new GameProcessListener() {
-
-    @Override
-    public void onLog(String log) {
-        System.out.println(log);
-    }
-    
-    @Override
-    public void onErrorLog(String log) {
-        System.err.println(log);
-    }
-
-    @Override
-    public void onExit(int code) {
-        System.err.println("Exit code: " + code);
-    }
-});
+launcher.launch(new LaunchOption("1.10", YggdrasilAuthenticator.password("<email>", "<password>"), dir));
 ```
-In the example above, we use `/home/user/.minecraft` as the .minecraft directory, and launches Minecraft 1.9 with an offline
-account `user`. And the logs output from game process will print to stdout and stderr. When the game process terminated,
-this program will print `Exit code: <process exit code>` to stderr, and then the monitor threads terminates.
+You can replace `YggdrasilAuthenticator.password("<email>", "<password>")` with `new OfflineAuthenticator("<username>")` if you want to use offline authentication.
 
-### Yggdrasil authentication
-#### Login with password
-```java
-YggdrasilAuthenticator.password("<username>", "<password>")
-```
-
-#### Interactive login
-```java
-YggdrasilAuthenticator authenticator = new YggdrasilAuthenticator() {
-
-	Scanner scanner = new Scanner(System.in);
-
-	@Override
-	protected PasswordProvider tryPasswordLogin() throws AuthenticationException {
-		return new PasswordProvider() {
-
-			@Override
-			public String getUsername() throws AuthenticationException {
-				System.out.printf("login: ");
-				return scanner.nextLine();
-			}
-
-			@Override
-			public String getPassword() throws AuthenticationException {
-				System.out.printf("password: ");
-				return scanner.nextLine();
-			}
-
-			@Override
-			public CharacterSelector getCharacterSelector() {
-				return null;
-			}
-		};
-	}
-};
-authenticator.auth();
-System.out.println("Logged in!");
-```
-The console output:
-```
-login: <username>
-password: <password>
-Logged in!
-```
-
-When method `auth()` is called, YggdrasilAuthenticator validates the current token. If the current token is not available, YggdrasilAuthenticator will try refreshing the token. When YggdrasilAuthenticator failed to refresh, it will call method `tryPasswordLogin()` to ask the password for authentication. If no password is available, YggdrasilAuthenticator will throw a `AuthenticationException`. The default implementation of `tryPasswordLogin()` returns `null`, you may need to override it.
-
-If you want to update the current token manually, you ought to call `refresh()`, `refreshWithToken(String, String)` or `refreshWithPassword(String, String)`.
-If you want to save the authentication, you ought to call `getCurrentSession()` to get the current authentication and serialize it, and call `setCurrentSession(Session)` to load the authentication.
-
-### Game & Asset Download
-> jmccc-mcdownloader can work on top of [Apache HttpAsyncClient](http://hc.apache.org/httpcomponents-asyncclient-dev/) or JDK. Note that the JDK implementation uses BIO, so you should limit your max connections, because each connetion will start a thread. If you want to use Apache HttpAsyncClient, just put it in the classpath. This is an optional dependency in the POM.
-
-##### Minecraft downloading
-The following code snippet downloads minecraft 1.9:
+### Downloading Minecraft
 ```java
 MinecraftDirectory dir = new MinecraftDirectory("/home/user/.minecraft");
 MinecraftDownloader downloader = MinecraftDownloaderBuilder.buildDefault();
-downloader.downloadIncrementally(dir, "1.9", new CallbackAdapter<Version>() {
+downloader.downloadIncrementally(dir, "1.10", new CallbackAdapter<Version>() {
 	
 	@Override
 	public void failed(Throwable e) {
@@ -170,14 +111,16 @@ downloader.downloadIncrementally(dir, "1.9", new CallbackAdapter<Version>() {
 	}
 });
 ```
-`MinecraftDownloader.downloadIncrementally()` will find out the missing libraries, broken assets, etc, and download them.
 
-##### Minecraft version list downloading
+You can pass a `null` callback if you don't want to monitor the whole task.
+You can also return `null` in `taskStart()` if you don't want to monitor sub tasks.
+
+Don't forget to shutdown the downloader when you are no longer going to use it.
 ```java
-downloader.fetchRemoteVersionList(new CallbackAdapter<RemoteVersionList>() {...});
+downloader.shutdown();
 ```
 
-##### Forge and LiteLoader supports
+### Downloading Forge/Liteloader
 ```java
 MinecraftDirectory dir = new MinecraftDirectory("/home/user/.minecraft");
 ForgeDownloadProvider forgeProvider = new ForgeDownloadProvider();
@@ -194,20 +137,7 @@ downloader.download(forgeProvider.forgeVersionList(), new CallbackAdapter<ForgeV
 downloader.download(liteloaderProvider.liteloaderVersionList(), new CallbackAdapter<LiteloaderVersionList>() {...});
 ```
 
-##### Customized download provider
-```java
-MinecraftDownloader downloader = MinecraftDownloaderBuilder.create()
-	.providerChain(DownloadProviderChainBuilder.create()
-		.baseProvider(new CustomizedDownloadProvider()))
-	.build();
-```
-
-Finally, don't forget to shutdown the downloader.
-```java
-downloader.shutdown();
-```
-
-### Forge
+### FML options
 JMCCC won't add fml options (such as `-Dfml.ignoreInvalidMinecraftCertificates=true` and `-Dfml.ignorePatchDiscrepancies=true`) to the command line automatically.
 If you have problems launching forge, you may need to add these arguments manually.
 These arguments are already defined in class `ExtraArgumentsTemplates`.
@@ -215,13 +145,3 @@ These arguments are already defined in class `ExtraArgumentsTemplates`.
 option.extraJvmArguments().add(ExtraArgumentsTemplates.FML_IGNORE_INVALID_MINECRAFT_CERTIFICATES);
 option.extraJvmArguments().add(ExtraArgumentsTemplates.FML_IGNORE_PATCH_DISCREPANCISE);
 ```
-
-### Change Logs
-See [wiki](https://github.com/to2mbn/JMCCC/wiki/Change-logs).
-
-### Contributing
-Contributing is good. But please read the following requirements first before you PR.
-* Use tabs.
-* No trailing whitespaces.
-* No \r\n line endings, \n only.
-
