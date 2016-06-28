@@ -17,8 +17,7 @@ JMCCC is licensed under [the MIT license](https://to2mbn.github.io/jmccc/LICENSE
    * Supports BIO/NIO
      * Can work on top of [Apache HttpAsyncClient](http://hc.apache.org/httpcomponents-asyncclient-dev/) or JDK
    * Supports caching
-     * Pluggable cache provider
-       * Can work on top of Ehcache or javax.cache
+     * Can work on top of Ehcache or javax.cache
      * Different strategies for different files
  * Mojang API supports
    * Game profiles lookup
