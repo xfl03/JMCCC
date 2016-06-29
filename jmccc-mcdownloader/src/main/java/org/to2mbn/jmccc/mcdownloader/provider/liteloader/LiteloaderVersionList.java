@@ -8,8 +8,8 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import org.to2mbn.jmccc.internal.org.json.JSONArray;
+import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import static org.to2mbn.jmccc.mcdownloader.provider.liteloader.LiteloaderDownloadProvider.LITELOADER_GROUP_ID;
 import static org.to2mbn.jmccc.mcdownloader.provider.liteloader.LiteloaderDownloadProvider.LITELOADER_ARTIFACT_ID;
 

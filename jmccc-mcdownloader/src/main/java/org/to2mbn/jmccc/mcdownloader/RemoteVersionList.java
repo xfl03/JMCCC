@@ -5,9 +5,9 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.to2mbn.jmccc.internal.org.json.JSONArray;
+import org.to2mbn.jmccc.internal.org.json.JSONException;
+import org.to2mbn.jmccc.internal.org.json.JSONObject;
 
 public class RemoteVersionList implements Serializable {
 

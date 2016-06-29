@@ -2,9 +2,9 @@ package org.to2mbn.jmccc.version.parsing;
 
 import java.util.Set;
 import java.util.Stack;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.to2mbn.jmccc.internal.org.json.JSONArray;
+import org.to2mbn.jmccc.internal.org.json.JSONException;
+import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import org.to2mbn.jmccc.version.Asset;
 import org.to2mbn.jmccc.version.AssetIndexInfo;
 import org.to2mbn.jmccc.version.DownloadInfo;

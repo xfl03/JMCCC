@@ -1,6 +1,6 @@
 package org.to2mbn.jmccc.mcdownloader.provider.processors;
 
-import org.json.JSONObject;
+import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.ResultProcessor;
 import org.to2mbn.jmccc.util.IOUtils;
 

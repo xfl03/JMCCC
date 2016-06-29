@@ -1,15 +1,9 @@
 package org.to2mbn.jmccc.mcdownloader.provider.liteloader;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
-import org.json.JSONObject;
-import org.to2mbn.jmccc.mcdownloader.util.JsonComparing;
+import org.to2mbn.jmccc.internal.org.json.JSONObject;
 
 public class LiteloaderVersion implements Serializable {
 
@@ -20,7 +14,7 @@ public class LiteloaderVersion implements Serializable {
 	private String superVersion;
 	private String tweakClass;
 	private String repoUrl;
-	private transient Set<JSONObject> libraries;
+	private Set<JSONObject> libraries;
 
 	public LiteloaderVersion(String minecraftVersion, String liteloaderVersion, String tweakClass, String repoUrl, Set<JSONObject> libraries) {
 		this(minecraftVersion, liteloaderVersion, minecraftVersion, tweakClass, repoUrl, libraries);
@@ -89,33 +83,9 @@ public class LiteloaderVersion implements Serializable {
 					Objects.equals(superVersion, another.superVersion) &&
 					Objects.equals(tweakClass, another.tweakClass) &&
 					Objects.equals(repoUrl, another.repoUrl) &&
-					JsonComparing.equalsJsonSet(libraries, another.libraries);
+					Objects.equals(libraries, another.libraries);
 		}
 		return false;
-	}
-
-	private void writeObject(ObjectOutputStream out) throws IOException {
-		out.defaultWriteObject();
-		out.writeBoolean(libraries == null);
-		if (libraries != null) {
-			out.writeInt(libraries.size());
-			for (JSONObject element : libraries) {
-				out.writeUTF(element.toString());
-			}
-		}
-	}
-
-	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		in.defaultReadObject();
-		if (!in.readBoolean()) {
-			int size = in.readInt();
-			Set<JSONObject> newLibraries = new LinkedHashSet<>();
-			for (int i = 0; i < size; i++)
-				newLibraries.add(new JSONObject(in.readUTF()));
-			libraries = Collections.unmodifiableSet(newLibraries);
-		} else {
-			libraries = null;
-		}
 	}
 
 }
