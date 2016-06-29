@@ -459,6 +459,7 @@ public class JSONObject implements Serializable {
 	 * 
 	 * @param clazz The type of enum to retrieve.
 	 * @param key A key string.
+	 * @param <E> The enum to retrieve
 	 * @return The enum value associated with the key
 	 * @throws JSONException if the key is not found or if the value cannot be
 	 *             converted to an enum.
@@ -756,6 +757,7 @@ public class JSONObject implements Serializable {
 	 * 
 	 * @param clazz The type of enum to retrieve.
 	 * @param key A key string.
+	 * @param <E> The enum to retrieve
 	 * @return The enum value associated with the key or null if not found
 	 */
 	public <E extends Enum<E>> E optEnum(Class<E> clazz, String key) {
@@ -768,6 +770,7 @@ public class JSONObject implements Serializable {
 	 * @param clazz The type of enum to retrieve.
 	 * @param key A key string.
 	 * @param defaultValue The default in case the value is not found
+	 * @param <E> The enum to retrieve
 	 * @return The enum value associated with the key or defaultValue if the
 	 *         value is not found or cannot be assigned to clazz
 	 */
@@ -1224,9 +1227,10 @@ public class JSONObject implements Serializable {
 
 	/**
 	 * Produce a string in double quotes with backslash sequences in all the
-	 * right places. A backslash will be inserted within </, producing <\/,
-	 * allowing JSON text to be delivered in HTML. In JSON text, a string cannot
-	 * contain a control character or an unescaped quote or backslash.
+	 * right places. A backslash will be inserted within &lt;/, producing
+	 * &lt;\/, allowing JSON text to be delivered in HTML. In JSON text, a
+	 * string cannot contain a control character or an unescaped quote or
+	 * backslash.
 	 *
 	 * @param string A String
 	 * @return A String correctly formatted for insertion in a JSON text.

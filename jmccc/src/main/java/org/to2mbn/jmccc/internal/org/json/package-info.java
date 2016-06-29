@@ -1,6 +1,5 @@
 /**
  * Modified <a href="https://github.com/stleary/JSON-java">org.json:json</a>.
- * <p>
  * 
  * <pre>
  * Copyright (c) 2002 JSON.org
