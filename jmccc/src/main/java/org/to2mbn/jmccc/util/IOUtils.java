@@ -10,9 +10,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONTokener;
+import org.to2mbn.jmccc.internal.org.json.JSONException;
+import org.to2mbn.jmccc.internal.org.json.JSONObject;
+import org.to2mbn.jmccc.internal.org.json.JSONTokener;
 
 public final class IOUtils {
 

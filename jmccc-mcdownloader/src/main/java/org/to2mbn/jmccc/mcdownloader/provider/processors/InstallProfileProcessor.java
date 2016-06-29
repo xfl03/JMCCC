@@ -4,8 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import org.json.JSONObject;
-import org.json.JSONTokener;
+import org.to2mbn.jmccc.internal.org.json.JSONObject;
+import org.to2mbn.jmccc.internal.org.json.JSONTokener;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.ResultProcessor;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 

@@ -3,7 +3,7 @@ package org.to2mbn.jmccc.mcdownloader.test;
 import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import org.json.JSONObject;
+import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import org.junit.Test;
 import org.to2mbn.jmccc.mcdownloader.provider.liteloader.LiteloaderVersion;
 import static org.junit.Assert.*;

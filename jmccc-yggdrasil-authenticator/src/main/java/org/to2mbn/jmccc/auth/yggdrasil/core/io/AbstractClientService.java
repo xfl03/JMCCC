@@ -1,10 +1,10 @@
 package org.to2mbn.jmccc.auth.yggdrasil.core.io;
 
 import java.util.concurrent.Callable;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONTokener;
+import org.to2mbn.jmccc.internal.org.json.JSONArray;
+import org.to2mbn.jmccc.internal.org.json.JSONException;
+import org.to2mbn.jmccc.internal.org.json.JSONObject;
+import org.to2mbn.jmccc.internal.org.json.JSONTokener;
 import org.to2mbn.jmccc.auth.AuthenticationException;
 import org.to2mbn.jmccc.auth.yggdrasil.core.RemoteAuthenticationException;
 

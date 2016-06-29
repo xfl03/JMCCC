@@ -5,7 +5,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import org.json.JSONObject;
+import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.ResultProcessor;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.util.FileUtils;

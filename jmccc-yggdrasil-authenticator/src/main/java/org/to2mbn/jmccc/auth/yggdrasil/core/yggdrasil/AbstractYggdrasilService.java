@@ -1,6 +1,6 @@
 package org.to2mbn.jmccc.auth.yggdrasil.core.yggdrasil;
 
-import org.json.JSONObject;
+import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import org.to2mbn.jmccc.auth.yggdrasil.core.GameProfile;
 import org.to2mbn.jmccc.auth.yggdrasil.core.io.AbstractClientService;
 import org.to2mbn.jmccc.auth.yggdrasil.core.io.HttpRequester;

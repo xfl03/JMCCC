@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
-import org.json.JSONObject;
+import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import static org.junit.Assert.*;
 
 @RunWith(Parameterized.class)

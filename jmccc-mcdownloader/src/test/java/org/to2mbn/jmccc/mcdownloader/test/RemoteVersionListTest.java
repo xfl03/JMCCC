@@ -2,7 +2,7 @@ package org.to2mbn.jmccc.mcdownloader.test;
 
 import static org.junit.Assert.*;
 import java.util.Collections;
-import org.json.JSONObject;
+import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import org.junit.Test;
 import org.to2mbn.jmccc.mcdownloader.RemoteVersion;
 import org.to2mbn.jmccc.mcdownloader.RemoteVersionList;

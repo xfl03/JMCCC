@@ -8,9 +8,9 @@ import java.security.Signature;
 import java.security.SignatureException;
 import java.util.Map;
 import java.util.TreeMap;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.to2mbn.jmccc.internal.org.json.JSONArray;
+import org.to2mbn.jmccc.internal.org.json.JSONException;
+import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import org.to2mbn.jmccc.auth.yggdrasil.core.util.Base64;
 
 public class PropertiesDeserializer implements Serializable {
