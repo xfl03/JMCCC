@@ -159,7 +159,7 @@ public class LiteloaderVersionList implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(versions);
+		return versions.hashCode();
 	}
 
 	@Override
