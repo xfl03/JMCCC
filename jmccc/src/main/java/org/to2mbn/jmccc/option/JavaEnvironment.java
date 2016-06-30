@@ -68,14 +68,14 @@ public class JavaEnvironment implements Serializable {
 		}
 		if (obj instanceof JavaEnvironment) {
 			JavaEnvironment another = (JavaEnvironment) obj;
-			return Objects.equals(javaPath, another.javaPath);
+			return javaPath.equals(another.javaPath);
 		}
 		return false;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(javaPath);
+		return javaPath.hashCode();
 	}
 
 }

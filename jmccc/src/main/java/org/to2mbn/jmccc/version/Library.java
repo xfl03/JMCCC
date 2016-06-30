@@ -1,7 +1,6 @@
 package org.to2mbn.jmccc.version;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Objects;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 
@@ -106,7 +105,7 @@ public class Library implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(groupId, artifactId, version, classifier, type, downloadInfo, customizedUrl, Arrays.hashCode(checksums));
+		return Objects.hash(groupId, artifactId, version, classifier, type);
 	}
 
 	@Override

@@ -30,11 +30,6 @@ public class Native extends Library {
 	// @formatter:on
 
 	@Override
-	public int hashCode() {
-		return Objects.hash(super.hashCode(), extractExcludes);
-	}
-
-	@Override
 	public boolean equals(Object obj) {
 		if (obj == this) {
 			return true;

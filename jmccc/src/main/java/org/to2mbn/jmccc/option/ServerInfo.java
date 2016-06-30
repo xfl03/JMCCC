@@ -100,7 +100,8 @@ public class ServerInfo implements Serializable {
 		}
 		if (obj instanceof ServerInfo) {
 			ServerInfo another = (ServerInfo) obj;
-			return port == another.port && host.equals(another.host);
+			return port == another.port
+					&& host.equals(another.host);
 		}
 		return false;
 	}

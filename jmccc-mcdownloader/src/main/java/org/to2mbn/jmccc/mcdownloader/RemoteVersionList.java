@@ -83,7 +83,7 @@ public class RemoteVersionList implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(latestSnapshot, latestRelease, versions);
+		return versions.hashCode();
 	}
 
 	@Override

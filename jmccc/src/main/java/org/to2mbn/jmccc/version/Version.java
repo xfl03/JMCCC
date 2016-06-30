@@ -195,7 +195,7 @@ public class Version implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(version, type, mainClass, assets, launchArgs, root, libraries, legacy, assetIndexDownloadInfo, downloads);
+		return Objects.hash(version, libraries);
 	}
 
 	@Override

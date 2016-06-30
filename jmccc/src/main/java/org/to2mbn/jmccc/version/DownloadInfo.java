@@ -53,7 +53,7 @@ public class DownloadInfo implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(url, checksum, size);
+		return Objects.hash(url, checksum);
 	}
 
 	@Override

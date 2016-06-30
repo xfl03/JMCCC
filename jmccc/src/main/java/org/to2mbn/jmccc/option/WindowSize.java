@@ -1,7 +1,6 @@
 package org.to2mbn.jmccc.option;
 
 import java.io.Serializable;
-import java.util.Objects;
 
 public class WindowSize implements Serializable {
 
@@ -109,14 +108,18 @@ public class WindowSize implements Serializable {
 		}
 		if (obj instanceof WindowSize) {
 			WindowSize another = (WindowSize) obj;
-			return fullscreen == another.fullscreen && (fullscreen || (width == another.width && height == another.height));
+			return fullscreen == another.fullscreen
+					&& (fullscreen ||
+							(width == another.width && height == another.height));
 		}
 		return false;
 	}
 
 	@Override
 	public int hashCode() {
-		return fullscreen ? 1 : Objects.hash(width, height);
+		return fullscreen
+				? 1
+				: 31 * width + height;
 	}
 
 }

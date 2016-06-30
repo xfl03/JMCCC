@@ -96,7 +96,7 @@ class SHA1BlockedServerList implements BlockedServerList {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(entries);
+		return entries.hashCode();
 	}
 
 	@Override

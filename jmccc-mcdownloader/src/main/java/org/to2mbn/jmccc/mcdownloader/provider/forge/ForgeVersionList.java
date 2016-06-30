@@ -164,7 +164,7 @@ public class ForgeVersionList implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(versions, latests, recommendeds, forgeVersionMapping, latest, recommended);
+		return versions.hashCode();
 	}
 
 	@Override

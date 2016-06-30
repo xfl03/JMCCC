@@ -169,7 +169,9 @@ public class LiteloaderVersionList implements Serializable {
 		}
 		if (obj instanceof LiteloaderVersionList) {
 			LiteloaderVersionList another = (LiteloaderVersionList) obj;
-			return versions.equals(another.versions);
+			return Objects.equals(versions, another.versions)
+					&& Objects.equals(latests, another.latests)
+					&& Objects.equals(snapshots, another.snapshots);
 		}
 		return false;
 	}

@@ -47,7 +47,7 @@ public class ByteArrayTexture implements Texture {
 
 	@Override
 	public int hashCode() {
-		return Arrays.deepHashCode(new Object[] { data, metadata });
+		return 31 * data.length + Objects.hashCode(metadata);
 	}
 
 }

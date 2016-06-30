@@ -57,7 +57,7 @@ public class Session implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Arrays.deepHashCode(new Object[] { clientToken, accessToken, selectedProfile, profiles, userId, properties, userType });
+		return Objects.hashCode(accessToken);
 	}
 
 	@Override
@@ -67,13 +67,13 @@ public class Session implements Serializable {
 		}
 		if (obj instanceof Session) {
 			Session another = (Session) obj;
-			return Objects.equals(getClientToken(), another.getClientToken()) &&
-					Objects.equals(getAccessToken(), another.getAccessToken()) &&
-					Objects.equals(getSelectedProfile(), another.getSelectedProfile()) &&
-					Objects.deepEquals(getProfiles(), another.getProfiles()) &&
-					Objects.equals(getProperties(), another.getProperties()) &&
-					Objects.equals(getUserId(), another.getUserId()) &&
-					Objects.equals(getUserType(), another.getUserType());
+			return Objects.equals(clientToken, another.clientToken) &&
+					Objects.equals(accessToken, another.accessToken) &&
+					Objects.equals(selectedProfile, another.selectedProfile) &&
+					Objects.deepEquals(profiles, another.profiles) &&
+					Objects.equals(properties, another.properties) &&
+					Objects.equals(userId, another.userId) &&
+					Objects.equals(userType, another.userType);
 		}
 		return false;
 	}

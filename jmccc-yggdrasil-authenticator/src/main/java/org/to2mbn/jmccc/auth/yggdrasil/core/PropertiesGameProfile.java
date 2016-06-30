@@ -20,11 +20,6 @@ public class PropertiesGameProfile extends GameProfile {
 	}
 
 	@Override
-	public int hashCode() {
-		return Objects.hash(super.hashCode(), properties);
-	}
-
-	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof PropertiesGameProfile && super.equals(obj)) {
 			PropertiesGameProfile another = (PropertiesGameProfile) obj;

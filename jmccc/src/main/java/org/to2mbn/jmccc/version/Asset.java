@@ -104,7 +104,7 @@ public class Asset implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(virtualPath, hash, size);
+		return hash.hashCode();
 	}
 
 	@Override

@@ -95,14 +95,18 @@ public class AuthInfo implements Serializable {
 		}
 		if (obj instanceof AuthInfo) {
 			AuthInfo another = (AuthInfo) obj;
-			return username.equals(another.username) && token.equals(another.token) && uuid.equals(another.uuid) && properties.equals(another.properties) && userType.equals(another.userType);
+			return Objects.equals(username, another.username)
+					&& Objects.equals(token, another.token)
+					&& Objects.equals(uuid, another.uuid)
+					&& Objects.equals(properties, another.properties)
+					&& Objects.equals(userType, another.userType);
 		}
 		return false;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(username, token, uuid, properties, userType);
+		return token.hashCode();
 	}
 
 }

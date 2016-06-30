@@ -13,28 +13,19 @@ public class ForgeVersion implements Serializable {
 	private String branch;
 
 	public ForgeVersion(String minecraftVersion, String forgeVersion, int buildNumber, String branch) {
-		Objects.requireNonNull(forgeVersion);
-		this.minecraftVersion = minecraftVersion;
-		this.forgeVersion = forgeVersion;
+		this.minecraftVersion = Objects.requireNonNull(minecraftVersion);
+		this.forgeVersion = Objects.requireNonNull(forgeVersion);
 		this.buildNumber = buildNumber;
 		this.branch = branch;
 	}
 
-	public String getMinecraftVersion() {
-		return minecraftVersion;
-	}
-
-	public String getForgeVersion() {
-		return forgeVersion;
-	}
-
-	public int getBuildNumber() {
-		return buildNumber;
-	}
-
-	public String getBranch() {
-		return branch;
-	}
+	// Getters
+	// @formatter:off
+	public String getMinecraftVersion() { return minecraftVersion; }
+	public String getForgeVersion() { return forgeVersion; }
+	public int getBuildNumber() { return buildNumber; }
+	public String getBranch() { return branch; }
+	// @formatter:on
 
 	public String getVersionName() {
 		return minecraftVersion + "-forge" + minecraftVersion + "-" + forgeVersion;
@@ -54,7 +45,7 @@ public class ForgeVersion implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(minecraftVersion, forgeVersion, buildNumber, branch);
+		return forgeVersion.hashCode();
 	}
 
 	@Override
@@ -64,7 +55,10 @@ public class ForgeVersion implements Serializable {
 		}
 		if (obj instanceof ForgeVersion) {
 			ForgeVersion another = (ForgeVersion) obj;
-			return minecraftVersion.equals(another.minecraftVersion) && forgeVersion.equals(forgeVersion) && buildNumber == another.buildNumber && Objects.equals(branch, another.branch);
+			return Objects.equals(minecraftVersion, another.minecraftVersion)
+					&& Objects.equals(forgeVersion, another.forgeVersion)
+					&& buildNumber == another.buildNumber
+					&& Objects.equals(branch, another.branch);
 		}
 		return false;
 	}

@@ -387,7 +387,7 @@ public class LaunchOption implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(maxMemory, minMemory, version, authenticator, minecraftDirectory, runtimeDirectory, javaEnvironment, serverInfo, windowSize, extraJvmArguments, extraMinecraftArguments, commandlineVariables, extraClasspath);
+		return Objects.hash(version, authenticator, minecraftDirectory);
 	}
 
 }

@@ -29,32 +29,18 @@ public class LiteloaderVersion implements Serializable {
 		this.libraries = libraries;
 	}
 
-	public String getMinecraftVersion() {
-		return minecraftVersion;
-	}
-
-	public String getLiteloaderVersion() {
-		return liteloaderVersion;
-	}
-
-	public String getSuperVersion() {
-		return superVersion;
-	}
+	// Getters
+	// @formatter:off
+	public String getMinecraftVersion() { return minecraftVersion; }
+	public String getLiteloaderVersion() { return liteloaderVersion; }
+	public String getSuperVersion() { return superVersion; }
+	public String getTweakClass() { return tweakClass; }
+	public String getRepoUrl() { return repoUrl; }
+	public Set<JSONObject> getLibraries() { return libraries; }
+	// @formatter:on
 
 	public String getVersionName() {
 		return superVersion + "-LiteLoader" + minecraftVersion;
-	}
-
-	public String getTweakClass() {
-		return tweakClass;
-	}
-
-	public String getRepoUrl() {
-		return repoUrl;
-	}
-
-	public Set<JSONObject> getLibraries() {
-		return libraries;
 	}
 
 	public LiteloaderVersion customize(String superVersion) {
@@ -68,7 +54,7 @@ public class LiteloaderVersion implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(minecraftVersion, liteloaderVersion, superVersion, tweakClass, repoUrl, libraries);
+		return Objects.hash(minecraftVersion, liteloaderVersion);
 	}
 
 	@Override

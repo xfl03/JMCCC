@@ -142,7 +142,7 @@ public class RemoteVersion implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(version, uploadTime, releaseTime, type, url);
+		return version.hashCode();
 	}
 
 	@Override

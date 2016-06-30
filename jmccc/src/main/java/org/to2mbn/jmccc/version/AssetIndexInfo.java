@@ -45,11 +45,6 @@ public class AssetIndexInfo extends DownloadInfo {
 	}
 
 	@Override
-	public int hashCode() {
-		return Objects.hash(super.hashCode(), id, totalSize);
-	}
-
-	@Override
 	public boolean equals(Object obj) {
 		if (obj == this) {
 			return true;
