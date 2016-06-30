@@ -136,20 +136,11 @@ class LaunchArgument {
 		return args;
 	}
 
-	public LaunchOption getLaunchOption() {
-		return launchOption;
-	}
-
-	public File getNativesPath() {
-		return nativesPath;
-	}
-
-	public Set<File> getLibraries() {
-		return libraries;
-	}
-
-	public Map<String, String> getTokens() {
-		return defaultVariables;
-	}
-
+	// Getters
+	// @formatter:off
+	public LaunchOption getLaunchOption() { return launchOption; }
+	public File getNativesPath() { return nativesPath; }
+	public Set<File> getLibraries() { return libraries; }
+	public Map<String, String> getTokens() { return defaultVariables; }
+	// @formatter:on
 }
