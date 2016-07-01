@@ -1,6 +1,6 @@
-package org.to2mbn.jmccc.exec;
+package org.to2mbn.jmccc.launch;
 
-public interface GameProcessListener {
+public interface ProcessListener {
 
 	/**
 	 * Called when receiving a log from stdout.

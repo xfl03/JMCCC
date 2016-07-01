@@ -15,10 +15,6 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import org.to2mbn.jmccc.auth.AuthInfo;
-import org.to2mbn.jmccc.exec.DaemonStreamPumpMonitor;
-import org.to2mbn.jmccc.exec.GameProcessListener;
-import org.to2mbn.jmccc.exec.LoggingMonitor;
-import org.to2mbn.jmccc.exec.ProcessMonitor;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import org.to2mbn.jmccc.option.LaunchOption;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
@@ -33,62 +29,34 @@ class LauncherImpl implements Launcher {
 
 	private boolean nativeFastCheck = false;
 	private boolean printDebugCommandline = false;
+	private boolean useDaemonThreads = false;
 
 	public LauncherImpl() {
 	}
 
 	@Override
-	public LaunchResult launch(LaunchOption option) throws LaunchException {
+	public Process launch(LaunchOption option) throws LaunchException {
 		return launch(option, null);
 	}
 
 	@Override
-	public LaunchResult launch(LaunchOption option, GameProcessListener listener) throws LaunchException {
+	public Process launch(LaunchOption option, ProcessListener listener) throws LaunchException {
 		return launch(generateLaunchArgs(option), listener);
 	}
 
-	/**
-	 * Gets whether to do a fast check on natives.
-	 * 
-	 * @return true if jmccc was set to do a fast check on natives
-	 * @see #setNativeFastCheck(boolean)
-	 * @see LauncherBuilder#nativeFastCheck(boolean)
-	 */
-	public boolean isNativeFastCheck() {
-		return nativeFastCheck;
-	}
-
-	/**
-	 * Sets whether to do a fast check on natives.
-	 * 
-	 * @param nativeFastCheck true if the jmccc shall do a fast check on natives
-	 * @see #isNativeFastCheck()
-	 * @see LauncherBuilder#nativeFastCheck(boolean)
-	 */
 	public void setNativeFastCheck(boolean nativeFastCheck) {
 		this.nativeFastCheck = nativeFastCheck;
 	}
 
-	/**
-	 * Gets whether to print the launch commandline for debugging.
-	 * 
-	 * @return whether to print the launch commandline for debugging
-	 */
-	public boolean isDebugPrintCommandline() {
-		return printDebugCommandline;
-	}
-
-	/**
-	 * Sets whether to print the launch commandline for debugging.
-	 * 
-	 * @param printDebugCommandline whether to print the launch commandline for
-	 *            debugging.
-	 */
 	public void setPrintDebugCommandline(boolean printDebugCommandline) {
 		this.printDebugCommandline = printDebugCommandline;
 	}
 
-	private LaunchResult launch(LaunchArgument arg, GameProcessListener listener) throws LaunchException {
+	public void setUseDaemonThreads(boolean useDaemonThreads) {
+		this.useDaemonThreads = useDaemonThreads;
+	}
+
+	private Process launch(LaunchArgument arg, ProcessListener listener) throws LaunchException {
 		String[] commandline = arg.generateCommandline();
 		if (printDebugCommandline) {
 			printDebugCommandline(commandline);
@@ -104,15 +72,13 @@ class LauncherImpl implements Launcher {
 			throw new LaunchException("Couldn't start process", e);
 		}
 
-		ProcessMonitor monitor;
 		if (listener == null) {
-			monitor = new DaemonStreamPumpMonitor(process);
+			startStreamPumps(process);
 		} else {
-			monitor = new LoggingMonitor(process, listener);
+			startStreamLoggers(process, listener, useDaemonThreads);
 		}
-		monitor.start();
 
-		return new LaunchResult(monitor, process);
+		return process;
 	}
 
 	private LaunchArgument generateLaunchArgs(LaunchOption option) throws LaunchException {
@@ -263,6 +229,24 @@ class LauncherImpl implements Launcher {
 			sb.append(arg).append('\n');
 		}
 		System.err.println(sb.toString());
+	}
+
+	private void startStreamPumps(Process process) {
+		startThread("stdout-pump", true, new StreamPump(process.getInputStream()));
+		startThread("stderr-pump", true, new StreamPump(process.getErrorStream()));
+	}
+
+	private void startStreamLoggers(Process process, ProcessListener listener, boolean daemon) {
+		startThread("stdout-logger", daemon, new StreamLogger(listener, false, process.getInputStream()));
+		startThread("stderr-logger", daemon, new StreamLogger(listener, true, process.getErrorStream()));
+		startThread("exit-waiter", daemon, new ExitWaiter(process, listener));
+	}
+
+	private void startThread(String name, boolean daemon, Runnable runnable) {
+		Thread t = new Thread(runnable);
+		t.setName(name);
+		t.setDaemon(daemon);
+		t.start();
 	}
 
 }

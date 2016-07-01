@@ -29,6 +29,7 @@ public class LauncherBuilder implements Builder<Launcher> {
 
 	private boolean nativeFastCheck = false;
 	private boolean printDebugCommandline = false;
+	private boolean useDaemonThreads = false;
 
 	protected LauncherBuilder() {}
 
@@ -77,6 +78,18 @@ public class LauncherBuilder implements Builder<Launcher> {
 	}
 
 	/**
+	 * Sets whether to use daemon threads to receive logs from the subprocess.
+	 * 
+	 * @param useDaemonThreads whether to use daemon threads to receive logs
+	 *            from the subprocess
+	 * @return the builder itself
+	 */
+	public LauncherBuilder useDaemonThreads(boolean useDaemonThreads) {
+		this.useDaemonThreads = useDaemonThreads;
+		return this;
+	}
+
+	/**
 	 * Creates a new <code>Launcher</code> instance according to the
 	 * configurations.
 	 * 
@@ -87,6 +100,7 @@ public class LauncherBuilder implements Builder<Launcher> {
 		LauncherImpl launcher = new LauncherImpl();
 		launcher.setNativeFastCheck(nativeFastCheck);
 		launcher.setPrintDebugCommandline(printDebugCommandline);
+		launcher.setUseDaemonThreads(useDaemonThreads);
 		return launcher;
 	}
 
