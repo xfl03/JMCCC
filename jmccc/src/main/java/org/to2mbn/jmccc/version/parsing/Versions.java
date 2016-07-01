@@ -28,7 +28,7 @@ public final class Versions {
 	 * 
 	 * @param minecraftDir the minecraft directory
 	 * @param version the version name
-	 * @return the version object, null if the version does not exist
+	 * @return the version object, or null if the version does not exist
 	 * @throws IOException if an I/O error has occurred during resolving version
 	 * @throws NullPointerException if
 	 *             <code>minecraftDir==null || version==null</code>
@@ -78,7 +78,7 @@ public final class Versions {
 	 * 
 	 * @param minecraftDir the minecraft directory
 	 * @param version the owner version of the asset index
-	 * @return the asset index, null if the asset index does not exist
+	 * @return the asset index, or null if the asset index does not exist
 	 * @throws IOException if an I/O error occurs during resolving asset index
 	 * @throws NullPointerException if
 	 *             <code>minecraftDir==null || version==null</code>
