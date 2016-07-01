@@ -15,6 +15,7 @@ import java.util.concurrent.Callable;
 import org.to2mbn.jmccc.internal.org.json.JSONArray;
 import org.to2mbn.jmccc.internal.org.json.JSONException;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
+import org.to2mbn.jmccc.mojangapi.io.MultipartBuilder;
 import org.to2mbn.jmccc.auth.AuthenticationException;
 import org.to2mbn.jmccc.auth.yggdrasil.SessionCredential;
 import org.to2mbn.jmccc.auth.yggdrasil.core.RemoteAuthenticationException;
@@ -23,7 +24,6 @@ import org.to2mbn.jmccc.auth.yggdrasil.core.io.HttpRequester;
 import org.to2mbn.jmccc.auth.yggdrasil.core.texture.Texture;
 import org.to2mbn.jmccc.auth.yggdrasil.core.texture.TextureType;
 import org.to2mbn.jmccc.auth.yggdrasil.core.texture.URLTexture;
-import org.to2mbn.jmccc.mojangapi.util.MultipartBuilder;
 import org.to2mbn.jmccc.util.IOUtils;
 import static org.to2mbn.jmccc.auth.yggdrasil.core.util.HttpUtils.*;
 

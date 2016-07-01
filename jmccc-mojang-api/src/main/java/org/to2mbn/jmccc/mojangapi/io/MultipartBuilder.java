@@ -1,4 +1,4 @@
-package org.to2mbn.jmccc.mojangapi.util;
+package org.to2mbn.jmccc.mojangapi.io;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
