@@ -19,10 +19,9 @@ import org.to2mbn.jmccc.mcdownloader.download.tasks.MemoryDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.ResultProcessor;
 import org.to2mbn.jmccc.mcdownloader.provider.AbstractMinecraftDownloadProvider;
 import org.to2mbn.jmccc.mcdownloader.provider.ExtendedDownloadProvider;
+import org.to2mbn.jmccc.mcdownloader.provider.JsonDecoder;
 import org.to2mbn.jmccc.mcdownloader.provider.MinecraftDownloadProvider;
-import org.to2mbn.jmccc.mcdownloader.provider.processors.InstallProfileProcessor;
-import org.to2mbn.jmccc.mcdownloader.provider.processors.JsonProcessor;
-import org.to2mbn.jmccc.mcdownloader.provider.processors.VersionJsonProcessor;
+import org.to2mbn.jmccc.mcdownloader.provider.VersionJsonInstaller;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.util.FileUtils;
 import org.to2mbn.jmccc.util.IOUtils;
@@ -56,7 +55,7 @@ public class ForgeDownloadProvider extends AbstractMinecraftDownloadProvider imp
 	public CombinedDownloadTask<ForgeVersionList> forgeVersionList() {
 		return CombinedDownloadTask.single(
 				new MemoryDownloadTask(source.getForgeVersionListUrl())
-						.andThen(new JsonProcessor())
+						.andThen(new JsonDecoder())
 						.andThen(new ResultProcessor<JSONObject, ForgeVersionList>() {
 
 							@Override
@@ -90,7 +89,7 @@ public class ForgeDownloadProvider extends AbstractMinecraftDownloadProvider imp
 													return createForgeVersionJson(mcdir, forge);
 												}
 											})
-											.andThen(new VersionJsonProcessor(mcdir)));
+											.andThen(new VersionJsonInstaller(mcdir)));
 						}
 					});
 		}

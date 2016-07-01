@@ -1,4 +1,4 @@
-package org.to2mbn.jmccc.mcdownloader.provider.processors;
+package org.to2mbn.jmccc.mcdownloader.provider;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -10,11 +10,11 @@ import org.to2mbn.jmccc.mcdownloader.download.tasks.ResultProcessor;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.util.FileUtils;
 
-public class VersionJsonProcessor implements ResultProcessor<JSONObject, String> {
+public class VersionJsonInstaller implements ResultProcessor<JSONObject, String> {
 
 	private MinecraftDirectory mcdir;
 
-	public VersionJsonProcessor(MinecraftDirectory mcdir) {
+	public VersionJsonInstaller(MinecraftDirectory mcdir) {
 		this.mcdir = mcdir;
 	}
 

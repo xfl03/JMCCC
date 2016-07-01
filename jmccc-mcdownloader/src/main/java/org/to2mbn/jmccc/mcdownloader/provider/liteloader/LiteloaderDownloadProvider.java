@@ -13,11 +13,10 @@ import org.to2mbn.jmccc.mcdownloader.download.tasks.MemoryDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.ResultProcessor;
 import org.to2mbn.jmccc.mcdownloader.provider.AbstractMinecraftDownloadProvider;
 import org.to2mbn.jmccc.mcdownloader.provider.ExtendedDownloadProvider;
+import org.to2mbn.jmccc.mcdownloader.provider.JsonDecoder;
 import org.to2mbn.jmccc.mcdownloader.provider.MavenRepositories;
 import org.to2mbn.jmccc.mcdownloader.provider.MinecraftDownloadProvider;
-import org.to2mbn.jmccc.mcdownloader.provider.processors.JsonProcessor;
-import org.to2mbn.jmccc.mcdownloader.provider.processors.VersionJsonProcessor;
-import org.to2mbn.jmccc.mcdownloader.util.VersionComparator;
+import org.to2mbn.jmccc.mcdownloader.provider.VersionJsonInstaller;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.util.IOUtils;
 import org.to2mbn.jmccc.version.Library;
@@ -51,7 +50,7 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 
 	public CombinedDownloadTask<LiteloaderVersionList> liteloaderVersionList() {
 		return CombinedDownloadTask.single(new MemoryDownloadTask(source.getLiteloaderManifestUrl())
-				.andThen(new JsonProcessor())
+				.andThen(new JsonDecoder())
 				.andThen(new ResultProcessor<JSONObject, LiteloaderVersionList>() {
 
 					@Override
@@ -111,7 +110,7 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 											return processSnapshotLiteloaderVersion(mcdir, json, liteloader);
 										}
 									})
-									.andThen(new VersionJsonProcessor(mcdir))
+									.andThen(new VersionJsonInstaller(mcdir))
 									.cachePool(CacheNames.LITELOADER_VERSION_JSON);
 						} else {
 							// it's a release
@@ -119,7 +118,7 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
 
 								@Override
 								public void execute(CombinedDownloadContext<String> context) throws Exception {
-									context.done(new VersionJsonProcessor(mcdir).process(createLiteloaderVersion(mcdir, liteloader)));
+									context.done(new VersionJsonInstaller(mcdir).process(createLiteloaderVersion(mcdir, liteloader)));
 								}
 							};
 						}

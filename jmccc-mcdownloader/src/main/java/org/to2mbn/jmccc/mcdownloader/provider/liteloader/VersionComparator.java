@@ -1,8 +1,8 @@
-package org.to2mbn.jmccc.mcdownloader.util;
+package org.to2mbn.jmccc.mcdownloader.provider.liteloader;
 
 import java.util.Comparator;
 
-public class VersionComparator implements Comparator<String> {
+class VersionComparator implements Comparator<String> {
 
 	@Override
 	public int compare(String a, String b) {

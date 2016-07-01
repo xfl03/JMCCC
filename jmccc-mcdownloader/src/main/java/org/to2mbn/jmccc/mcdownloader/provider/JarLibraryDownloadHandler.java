@@ -1,4 +1,4 @@
-package org.to2mbn.jmccc.mcdownloader.provider.libraries;
+package org.to2mbn.jmccc.mcdownloader.provider;
 
 import java.io.File;
 import java.net.URI;
@@ -6,7 +6,7 @@ import org.to2mbn.jmccc.mcdownloader.download.tasks.DownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.FileDownloadTask;
 import org.to2mbn.jmccc.version.Library;
 
-public class JarLibraryDownloadHandler implements LibraryDownloadHandler {
+class JarLibraryDownloadHandler implements LibraryDownloadHandler {
 
 	@Override
 	public DownloadTask<Void> createDownloadTask(File target, Library library, URI libraryUri) {

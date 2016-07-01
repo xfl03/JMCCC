@@ -1,4 +1,4 @@
-package org.to2mbn.jmccc.mcdownloader.provider.libraries;
+package org.to2mbn.jmccc.mcdownloader.provider;
 
 import java.io.File;
 import java.net.URI;

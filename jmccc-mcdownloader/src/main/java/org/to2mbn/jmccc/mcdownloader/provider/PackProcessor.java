@@ -1,4 +1,4 @@
-package org.to2mbn.jmccc.mcdownloader.provider.processors;
+package org.to2mbn.jmccc.mcdownloader.provider;
 
 import static org.to2mbn.jmccc.util.HexUtils.bytesToHex;
 import static org.to2mbn.jmccc.util.HexUtils.hexToBytes;
@@ -24,7 +24,7 @@ import java.util.zip.ZipInputStream;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.ResultProcessor;
 import org.to2mbn.jmccc.util.FileUtils;
 
-public class PackProcessor implements ResultProcessor<byte[], Void> {
+class PackProcessor implements ResultProcessor<byte[], Void> {
 
 	private static final byte[] POSTFIX;
 

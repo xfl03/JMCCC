@@ -1,4 +1,4 @@
-package org.to2mbn.jmccc.mcdownloader.provider.processors;
+package org.to2mbn.jmccc.mcdownloader.provider.forge;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
@@ -7,9 +7,10 @@ import java.util.zip.ZipInputStream;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import org.to2mbn.jmccc.internal.org.json.JSONTokener;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.ResultProcessor;
+import org.to2mbn.jmccc.mcdownloader.provider.VersionJsonInstaller;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 
-public class InstallProfileProcessor implements ResultProcessor<byte[], String> {
+class InstallProfileProcessor implements ResultProcessor<byte[], String> {
 
 	private MinecraftDirectory mcdir;
 
@@ -24,7 +25,7 @@ public class InstallProfileProcessor implements ResultProcessor<byte[], String> 
 			ZipEntry entry;
 			while ((entry = in.getNextEntry()) != null) {
 				if ("install_profile.json".equals(entry.getName())) {
-					version = new VersionJsonProcessor(mcdir).process((processJson(new JSONObject(new JSONTokener(new InputStreamReader(in, "UTF-8"))))));
+					version = new VersionJsonInstaller(mcdir).process((processJson(new JSONObject(new JSONTokener(new InputStreamReader(in, "UTF-8"))))));
 					in.closeEntry();
 					break;
 				}

@@ -15,11 +15,6 @@ import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.FileDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.MemoryDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.ResultProcessor;
-import org.to2mbn.jmccc.mcdownloader.provider.libraries.JarLibraryDownloadHandler;
-import org.to2mbn.jmccc.mcdownloader.provider.libraries.LibraryDownloadHandler;
-import org.to2mbn.jmccc.mcdownloader.provider.libraries.PackLibraryDownloadHandler;
-import org.to2mbn.jmccc.mcdownloader.provider.libraries.XZPackLibraryDownloadHandler;
-import org.to2mbn.jmccc.mcdownloader.provider.processors.JsonProcessor;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.version.Asset;
 import org.to2mbn.jmccc.version.Library;
@@ -63,7 +58,7 @@ abstract public class URIDownloadProvider implements MinecraftDownloadProvider {
 		}
 		return CombinedDownloadTask.single(
 				new MemoryDownloadTask(uri)
-						.andThen(new JsonProcessor())
+						.andThen(new JsonDecoder())
 						.andThen(new ResultProcessor<JSONObject, RemoteVersionList>() {
 
 							@Override
