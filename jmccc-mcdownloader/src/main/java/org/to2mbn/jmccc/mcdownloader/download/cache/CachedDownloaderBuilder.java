@@ -48,7 +48,7 @@ public class CachedDownloaderBuilder implements Builder<Downloader> {
 
 	// === Ehcache Supports
 
-	private class EhcacheProviderBuilder implements Builder<CacheProvider<URI, byte[]>> {
+	private static class EhcacheProviderBuilder implements Builder<CacheProvider<URI, byte[]>> {
 
 		private Builder<? extends org.ehcache.CacheManager> ehcache;
 		private boolean autoClose;
@@ -132,7 +132,7 @@ public class CachedDownloaderBuilder implements Builder<Downloader> {
 
 	// === javax.cache Supports
 
-	private class JCacheProviderBuilder implements Builder<CacheProvider<URI, byte[]>> {
+	private static class JCacheProviderBuilder implements Builder<CacheProvider<URI, byte[]>> {
 
 		private Builder<? extends javax.cache.CacheManager> jcache;
 		private boolean autoClose;
