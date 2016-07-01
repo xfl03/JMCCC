@@ -13,7 +13,7 @@ import org.to2mbn.jmccc.internal.org.json.JSONException;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import org.to2mbn.jmccc.auth.yggdrasil.core.util.Base64;
 
-public class PropertiesDeserializer implements Serializable {
+class PropertiesDeserializer implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 

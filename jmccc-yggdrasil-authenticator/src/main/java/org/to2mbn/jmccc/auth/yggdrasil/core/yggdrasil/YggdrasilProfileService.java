@@ -1,5 +1,6 @@
 package org.to2mbn.jmccc.auth.yggdrasil.core.yggdrasil;
 
+import static org.to2mbn.jmccc.auth.yggdrasil.core.io.HttpUtils.*;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Collections;
@@ -26,7 +27,6 @@ import org.to2mbn.jmccc.auth.yggdrasil.core.texture.Textures;
 import org.to2mbn.jmccc.auth.yggdrasil.core.util.Base64;
 import org.to2mbn.jmccc.util.IOUtils;
 import org.to2mbn.jmccc.util.UUIDUtils;
-import static org.to2mbn.jmccc.auth.yggdrasil.core.util.HttpUtils.*;
 
 class YggdrasilProfileService extends AbstractYggdrasilService implements ProfileService {
 

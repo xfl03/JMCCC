@@ -1,4 +1,4 @@
-package org.to2mbn.jmccc.auth.yggdrasil.core.util;
+package org.to2mbn.jmccc.auth.yggdrasil.core.io;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;

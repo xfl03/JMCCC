@@ -6,7 +6,7 @@ import org.to2mbn.jmccc.auth.yggdrasil.core.io.AbstractClientService;
 import org.to2mbn.jmccc.auth.yggdrasil.core.io.HttpRequester;
 import org.to2mbn.jmccc.util.UUIDUtils;
 
-abstract public class AbstractYggdrasilService extends AbstractClientService {
+abstract class AbstractYggdrasilService extends AbstractClientService {
 
 	protected final PropertiesDeserializer propertiesDeserializer;
 	protected final YggdrasilAPIProvider api;

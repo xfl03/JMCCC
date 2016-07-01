@@ -1,5 +1,6 @@
 package org.to2mbn.jmccc.mojangapi;
 
+import static org.to2mbn.jmccc.auth.yggdrasil.core.io.HttpUtils.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
@@ -25,7 +26,6 @@ import org.to2mbn.jmccc.auth.yggdrasil.core.texture.Texture;
 import org.to2mbn.jmccc.auth.yggdrasil.core.texture.TextureType;
 import org.to2mbn.jmccc.auth.yggdrasil.core.texture.URLTexture;
 import org.to2mbn.jmccc.util.IOUtils;
-import static org.to2mbn.jmccc.auth.yggdrasil.core.util.HttpUtils.*;
 
 class MojangAPIImpl extends AbstractClientService implements MojangAPI {
 

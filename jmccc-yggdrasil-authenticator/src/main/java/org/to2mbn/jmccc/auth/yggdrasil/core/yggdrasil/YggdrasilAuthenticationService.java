@@ -1,5 +1,6 @@
 package org.to2mbn.jmccc.auth.yggdrasil.core.yggdrasil;
 
+import static org.to2mbn.jmccc.auth.yggdrasil.core.io.HttpUtils.*;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -18,7 +19,6 @@ import org.to2mbn.jmccc.auth.yggdrasil.core.Session;
 import org.to2mbn.jmccc.auth.yggdrasil.core.UserType;
 import org.to2mbn.jmccc.auth.yggdrasil.core.io.HttpRequester;
 import org.to2mbn.jmccc.util.UUIDUtils;
-import static org.to2mbn.jmccc.auth.yggdrasil.core.util.HttpUtils.*;
 
 class YggdrasilAuthenticationService extends AbstractYggdrasilService implements AuthenticationService {
 
