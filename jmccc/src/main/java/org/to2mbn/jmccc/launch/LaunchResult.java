@@ -16,16 +16,20 @@ public class LaunchResult {
 	}
 
 	/**
-	 * Gets the game process monitor
+	 * Gets the process monitor.
+	 * <p>
+	 * We recommend you not to call {@link ProcessMonitor#stop()}. This may
+	 * cause the subprocess to be blocked (because the buffers of stdout and
+	 * stderr may become full), and it's not always effective.
 	 * 
-	 * @return the game monitor
+	 * @return the process monitor
 	 */
 	public ProcessMonitor getMonitor() {
 		return monitor;
 	}
 
 	/**
-	 * Gets the game process
+	 * Gets the game process.
 	 * 
 	 * @return the game process
 	 */

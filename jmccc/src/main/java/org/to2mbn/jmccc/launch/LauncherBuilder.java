@@ -30,19 +30,19 @@ public class LauncherBuilder implements Builder<Launcher> {
 	private boolean nativeFastCheck = false;
 	private boolean printDebugCommandline = false;
 
-	protected LauncherBuilder() {
-	}
+	protected LauncherBuilder() {}
 
 	/**
 	 * Sets whether to do a fast check on natives.
 	 * <p>
-	 * By default, this feature is off. In this case, when decompressing natives,
-	 * the jmccc will fully compare the existing natives and the natives in jars. If, and only if,
-	 * a existing native is modified, jmccc will replace it. Because replacing a native in use
-	 * may cause the running JVM to be crashed.<br>
-	 * If the feature is on, the jmccc won't compare the full content of natives.
-	 * Jmccc only compares the sizes. This can improve the launching speed.
-	 * But we cannot ensure the content of the natives are correct.
+	 * By default, this feature is off. In this case, when decompressing
+	 * natives, the jmccc will fully compare the existing natives and the
+	 * natives in jars. If, and only if, a existing native is modified, jmccc
+	 * will replace it. Because replacing a native in use may cause the running
+	 * JVM to be crashed.<br>
+	 * If the feature is on, the jmccc won't compare the full content of
+	 * natives. Jmccc only compares the sizes. This can improve the launching
+	 * speed. But we cannot ensure the contents of the natives are correct.
 	 * 
 	 * @param nativeFastCheck true to let jmccc do a fast check on natives
 	 * @return the builder itself

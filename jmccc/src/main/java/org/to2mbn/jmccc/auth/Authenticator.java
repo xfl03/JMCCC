@@ -3,9 +3,9 @@ package org.to2mbn.jmccc.auth;
 public interface Authenticator {
 
 	/**
-	 * Authenticates and returns the result information of the authentication.
+	 * Authenticates and returns the result of authentication.
 	 * 
-	 * @return the result information of the authentication
+	 * @return the result of authentication
 	 * @throws AuthenticationException if an exception occurs during
 	 *             authentication
 	 */

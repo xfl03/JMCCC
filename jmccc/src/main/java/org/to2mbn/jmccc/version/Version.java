@@ -27,7 +27,7 @@ public class Version implements Serializable {
 	 * Constructor of Version.
 	 * 
 	 * @param version the version number
-	 * @param type the type of the version, null if the type is unknown
+	 * @param type the type of the version, or null if the type is unknown
 	 * @param mainClass the main class
 	 * @param assets the assets index name
 	 * @param launchArgs the launch arguments
@@ -38,7 +38,7 @@ public class Version implements Serializable {
 	 * @param assetIndexDownloadInfo the asset download info, can be null
 	 * @param downloads the download infos
 	 * @throws NullPointerException if any of the arguments (except type,
-	 *             assetIndexDownloadInfo, downloads) is null
+	 *             assetIndexDownloadInfo) is null
 	 */
 	public Version(String version, String type, String mainClass, String assets, String launchArgs, String root, Set<Library> libraries, boolean legacy, AssetIndexInfo assetIndexDownloadInfo, Map<String, DownloadInfo> downloads) {
 		this.version = Objects.requireNonNull(version);
@@ -63,10 +63,10 @@ public class Version implements Serializable {
 	}
 
 	/**
-	 * Gets the type of the version, e.g. "snapshot", "release", null if the
+	 * Gets the type of the version, e.g. "snapshot", "release", or null if the
 	 * type is unknown.
 	 * 
-	 * @return the type of the version, null if the type is unknown
+	 * @return the type of the version, or null if the type is unknown
 	 */
 	public String getType() {
 		return type;
@@ -167,7 +167,7 @@ public class Version implements Serializable {
 	public Set<Library> getMissingLibraries(MinecraftDirectory minecraftDir) {
 		Set<Library> missing = new LinkedHashSet<>();
 		for (Library library : libraries)
-			if (library.isMissing(minecraftDir)) 
+			if (library.isMissing(minecraftDir))
 				missing.add(library);
 		return Collections.unmodifiableSet(missing);
 	}

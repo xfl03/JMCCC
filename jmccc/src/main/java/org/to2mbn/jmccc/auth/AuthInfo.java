@@ -4,6 +4,11 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * Describes the result of authentication.
+ * 
+ * @author yushijinhun
+ */
 public class AuthInfo implements Serializable {
 
 	private static final long serialVersionUID = 1L;

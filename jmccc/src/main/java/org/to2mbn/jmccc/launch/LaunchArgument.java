@@ -12,7 +12,7 @@ import org.to2mbn.jmccc.util.Platform;
 import org.to2mbn.jmccc.version.Version;
 
 /**
- * To generate launching command line.
+ * {@code LaunchArgument} is used to generate launching command line.
  */
 class LaunchArgument {
 

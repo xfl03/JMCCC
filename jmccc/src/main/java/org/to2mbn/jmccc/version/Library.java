@@ -67,7 +67,7 @@ public class Library implements Serializable {
 	 * Checks if the library is missing in the given minecraft directory.
 	 * 
 	 * @param minecraftDir the minecraft directory to check
-	 * @return true if the library is missing in the given minecraft directory
+	 * @return true if the library is missing
 	 */
 	public boolean isMissing(MinecraftDirectory minecraftDir) {
 		return !minecraftDir.getLibrary(this).isFile();
@@ -82,6 +82,10 @@ public class Library implements Serializable {
 			throw new IllegalArgumentException("The artifact is not a snapshot.");
 		}
 		return getPath0(version.substring(0, version.length() - "SNAPSHOT".length()) + snapshotPostfix);
+	}
+
+	private String getPath0(String version0) {
+		return getArtifactBasePath(groupId, artifactId, version) + artifactId + "-" + version0 + (classifier == null ? "" : "-" + classifier) + "." + type;
 	}
 
 	@Override
@@ -111,10 +115,6 @@ public class Library implements Serializable {
 	@Override
 	public String toString() {
 		return groupId + ":" + artifactId + ":" + version + (classifier == null ? "" : ":" + classifier);
-	}
-
-	private String getPath0(String version0) {
-		return getArtifactBasePath(groupId, artifactId, version) + artifactId + "-" + version0 + (classifier == null ? "" : "-" + classifier) + "." + type;
 	}
 
 }

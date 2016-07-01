@@ -28,7 +28,7 @@ public class Asset implements Serializable {
 	public Asset(String virtualPath, String hash, int size) {
 		this.virtualPath = Objects.requireNonNull(virtualPath);
 		this.hash = Objects.requireNonNull(hash);
-		if (size < 0) 
+		if (size < 0)
 			throw new IllegalArgumentException("size < 0");
 		this.size = size;
 	}
@@ -68,7 +68,8 @@ public class Asset implements Serializable {
 	/**
 	 * Gets the relative path of the asset.
 	 * <p>
-	 * The method uses '/' separator, and uses 'assets/objects' as the base dir.<br>
+	 * The method uses '/' as the separator, and uses 'assets/objects' as the
+	 * base dir. <br>
 	 * The asset file is located at:
 	 * 
 	 * <pre>
@@ -90,13 +91,15 @@ public class Asset implements Serializable {
 	/**
 	 * Validates the asset in the given mcdir.
 	 * <p>
-	 * This method checks the size, hash of the asset. If, one of them mismatches, or the asset file doesn't exist, this
-	 * method will return false. Or this method will return true.
+	 * This method checks the size and hash of the asset. If, one of them
+	 * mismatches, or the asset file doesn't exist, this method will return
+	 * false. Otherwise, this method will return true.
 	 * 
 	 * @param dir the mcdir where the asset is in
-	 * @return true if the asset is valid
+	 * @return true if, and only if, the asset is valid
 	 * @throws IOException if an i/o error occurs
-	 * @throws NoSuchAlgorithmException if the default hash algorithm SHA-1 doesn't exist
+	 * @throws NoSuchAlgorithmException if the default hash algorithm SHA-1
+	 *             doesn't exist
 	 */
 	public boolean isValid(MinecraftDirectory dir) throws IOException, NoSuchAlgorithmException {
 		return ChecksumUtils.verify(dir.getAsset(this), getHash(), "SHA-1", size);

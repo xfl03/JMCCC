@@ -1,7 +1,7 @@
 package org.to2mbn.jmccc.launch;
 
 /**
- * Thrown when failed to launch the game.
+ * Thrown when failing to launch the game.
  * 
  * @author yushijinhun
  */

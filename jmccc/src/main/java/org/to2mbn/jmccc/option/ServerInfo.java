@@ -3,6 +3,12 @@ package org.to2mbn.jmccc.option;
 import java.io.Serializable;
 import java.util.Objects;
 
+
+/**
+ * Describes a minecraft server.
+ * 
+ * @author yushijinhun
+ */
 public class ServerInfo implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -46,46 +52,21 @@ public class ServerInfo implements Serializable {
 	}
 
 	/**
-	 * Gets the host of server.
+	 * Gets the host.
 	 * 
-	 * @return the host of server
+	 * @return the host
 	 */
 	public String getHost() {
 		return host;
 	}
 
 	/**
-	 * Sets the host of server.
-	 * 
-	 * @param host the host to set
-	 * @throws NullPointerException if <code>host==null</code>
-	 */
-	public void setHost(String host) {
-		Objects.requireNonNull(host);
-		this.host = host;
-	}
-
-	/**
-	 * Gets the server port
+	 * Gets the port.
 	 * 
 	 * @return the port
 	 */
 	public int getPort() {
 		return port;
-	}
-
-	/**
-	 * Sets the port.
-	 * 
-	 * @param port the port to set
-	 * @throws IllegalArgumentException if <code>port&lt;0</code>
-	 */
-	public void setPort(int port) {
-		if (port < 0) {
-			throw new IllegalArgumentException("port<0");
-		}
-
-		this.port = port;
 	}
 
 	@Override

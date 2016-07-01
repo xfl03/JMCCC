@@ -27,8 +27,8 @@ public class LoggingMonitor extends ProcessMonitor {
 		public void run() {
 			char[] eol = Platform.getLineSeparator().toCharArray();
 			try {
-				// no need for close this
-				// because we don't need to close the base stream
+				// no need for closing this
+				// because we don't need to close the underlying stream
 				Reader reader = new InputStreamReader(in, Platform.getEncoding());
 
 				StringBuilder buffer = new StringBuilder();

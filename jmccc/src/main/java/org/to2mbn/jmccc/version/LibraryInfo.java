@@ -11,10 +11,10 @@ public class LibraryInfo extends DownloadInfo {
 	/**
 	 * Constructor of LibraryInfo.
 	 * 
-	 * @param url the download url, null if the url is unknown
-	 * @param checksum the SHA-1 checksum, null if the checksum is unknown
-	 * @param size the file size, -1 if the size is unknown
-	 * @param path the path of the library, null if the path is unknown
+	 * @param url the download url, or null if the url is unknown
+	 * @param checksum the SHA-1 checksum, or null if the checksum is unknown
+	 * @param size the file size, or -1 if the size is unknown
+	 * @param path the path of the library, or null if the path is unknown
 	 */
 	public LibraryInfo(String url, String checksum, long size, String path) {
 		super(url, checksum, size);
@@ -22,9 +22,9 @@ public class LibraryInfo extends DownloadInfo {
 	}
 
 	/**
-	 * Gets the path of the library, null if the path is unknown.
+	 * Gets the path of the library, or null if the path is unknown.
 	 * 
-	 * @return the path of the library, null if the path is unknown
+	 * @return the path of the library, or null if the path is unknown
 	 */
 	public String getPath() {
 		return path;

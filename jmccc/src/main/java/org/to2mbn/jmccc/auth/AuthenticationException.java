@@ -3,7 +3,7 @@ package org.to2mbn.jmccc.auth;
 import org.to2mbn.jmccc.launch.LaunchException;
 
 /**
- * Throws when failed to authenticate.
+ * Thrown when authentication fails.
  * 
  * @author yushijinhun
  */

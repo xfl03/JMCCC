@@ -12,11 +12,11 @@ public class AssetIndexInfo extends DownloadInfo {
 	/**
 	 * Constructor of AssetIndexInfo.
 	 * 
-	 * @param url the url, null if the url is unknown
-	 * @param checksum the SHA-1 checksum, null if the checksum is unknown
-	 * @param size the file size, -1 if the size is unknown
+	 * @param url the url, or null if the url is unknown
+	 * @param checksum the SHA-1 checksum, or null if the checksum is unknown
+	 * @param size the file size, or -1 if the size is unknown
 	 * @param id the version of the asset index
-	 * @param totalSize the total size of the assets, -1 if the total size is
+	 * @param totalSize the total size of the assets, or -1 if the total size is
 	 *            unknown
 	 * @throws NullPointerException if {@code id == null}
 	 */
@@ -36,9 +36,10 @@ public class AssetIndexInfo extends DownloadInfo {
 	}
 
 	/**
-	 * Gets the total size of the assets, -1 if the total size if unknown. (the 'totalSize' element in the json)
+	 * Gets the total size of the assets, or -1 if the total size if unknown.
+	 * (the 'totalSize' element in the json)
 	 * 
-	 * @return the total size of the assets, -1 if the total size if unknown
+	 * @return the total size of the assets, or -1 if the total size if unknown
 	 */
 	public long getTotalSize() {
 		return totalSize;

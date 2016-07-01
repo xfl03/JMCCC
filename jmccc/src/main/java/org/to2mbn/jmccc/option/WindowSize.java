@@ -14,7 +14,8 @@ public class WindowSize implements Serializable {
 	}
 
 	/**
-	 * A factory method for creating non-fullscreen WindowSize. Returns a WindowSize with the given height and width.
+	 * A factory method for creating non-fullscreen WindowSize. Returns a
+	 * WindowSize with the given width and height.
 	 * 
 	 * @param width the width
 	 * @param height the height
@@ -28,7 +29,7 @@ public class WindowSize implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * True if the window is fullscreen
+	 * True for fullscreen
 	 */
 	private boolean fullscreen;
 

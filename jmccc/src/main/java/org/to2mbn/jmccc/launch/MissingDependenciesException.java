@@ -4,7 +4,7 @@ import java.util.Set;
 import org.to2mbn.jmccc.version.Library;
 
 /**
- * Throws when dependent natives or libraries are missing.
+ * Thrown when dependent natives or libraries are missing.
  * 
  * @author yushijinhun
  */
