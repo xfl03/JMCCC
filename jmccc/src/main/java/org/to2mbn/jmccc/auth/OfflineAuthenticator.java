@@ -33,13 +33,13 @@ public class OfflineAuthenticator implements Authenticator, Serializable {
 	@Override
 	public AuthInfo auth() throws AuthenticationException {
 		try {
-			return new AuthInfo(playerName, UUIDUtils.randomUnsignedUUID(), UUIDUtils.unsign(generateUUID()), Collections.unmodifiableMap(new HashMap<String, String>()), "mojang");
+			return new AuthInfo(playerName, UUIDUtils.randomUnsignedUUID(), getPlayerUUID(), Collections.unmodifiableMap(new HashMap<String, String>()), "mojang");
 		} catch (UnsupportedEncodingException e) {
 			throw new AuthenticationException("UTF-8 is not supported", e);
 		}
 	}
 
-	private UUID generateUUID() throws UnsupportedEncodingException {
+	private UUID getPlayerUUID() throws UnsupportedEncodingException {
 		return UUID.nameUUIDFromBytes(("OfflinePlayer:" + playerName).getBytes("UTF-8"));
 	}
 

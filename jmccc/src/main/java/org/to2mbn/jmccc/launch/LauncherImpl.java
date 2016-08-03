@@ -19,6 +19,7 @@ import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import org.to2mbn.jmccc.option.LaunchOption;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.util.FileUtils;
+import org.to2mbn.jmccc.util.UUIDUtils;
 import org.to2mbn.jmccc.version.Asset;
 import org.to2mbn.jmccc.version.Library;
 import org.to2mbn.jmccc.version.Native;
@@ -132,7 +133,7 @@ class LauncherImpl implements Launcher {
 		tokens.put("auth_access_token", token);
 		tokens.put("auth_session", token);
 		tokens.put("auth_player_name", auth.getUsername());
-		tokens.put("auth_uuid", auth.getUUID());
+		tokens.put("auth_uuid", UUIDUtils.unsign(auth.getUUID()));
 		tokens.put("user_type", auth.getUserType());
 		tokens.put("user_properties", new JSONObject(auth.getProperties()).toString());
 		tokens.put("version_name", version.getVersion());
