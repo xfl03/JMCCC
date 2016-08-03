@@ -3,7 +3,6 @@ package org.to2mbn.jmccc.mcdownloader.provider;
 import java.net.URI;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.ResultProcessor;
-import org.to2mbn.jmccc.mcdownloader.util.URIUtils;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.version.Asset;
 import org.to2mbn.jmccc.version.Library;
@@ -24,7 +23,7 @@ abstract public class DefaultLayoutProvider extends URIDownloadProvider {
 							if (library.getChecksums() != null) {
 								url += ".pack.xz";
 							}
-							return DefaultLayoutProvider.this.library(mcdir, library, URIUtils.toURI(url));
+							return DefaultLayoutProvider.this.library(mcdir, library, URI.create(url));
 						}
 					});
 		}
@@ -37,7 +36,7 @@ abstract public class DefaultLayoutProvider extends URIDownloadProvider {
 		if (library.getChecksums() != null) {
 			url += ".pack.xz";
 		}
-		return URIUtils.toURI(url);
+		return URI.create(url);
 	}
 
 	private String getLibraryRepo(Library library) {
@@ -47,27 +46,27 @@ abstract public class DefaultLayoutProvider extends URIDownloadProvider {
 
 	@Override
 	public URI getGameJar(Version version) {
-		return URIUtils.toURI(getVersionBaseURL() + version.getRoot() + "/" + version.getRoot() + ".jar");
+		return URI.create(getVersionBaseURL() + version.getRoot() + "/" + version.getRoot() + ".jar");
 	}
 
 	@Override
 	public URI getGameVersionJson(String version) {
-		return URIUtils.toURI(getVersionBaseURL() + version + "/" + version + ".json");
+		return URI.create(getVersionBaseURL() + version + "/" + version + ".json");
 	}
 
 	@Override
 	public URI getAssetIndex(Version version) {
-		return URIUtils.toURI(getAssetIndexBaseURL() + version.getAssets() + ".json");
+		return URI.create(getAssetIndexBaseURL() + version.getAssets() + ".json");
 	}
 
 	@Override
 	public URI getVersionList() {
-		return URIUtils.toURI(getVersionListURL());
+		return URI.create(getVersionListURL());
 	}
 
 	@Override
 	public URI getAsset(Asset asset) {
-		return URIUtils.toURI(getAssetBaseURL() + asset.getPath());
+		return URI.create(getAssetBaseURL() + asset.getPath());
 	}
 
 	abstract protected String getLibraryBaseURL();

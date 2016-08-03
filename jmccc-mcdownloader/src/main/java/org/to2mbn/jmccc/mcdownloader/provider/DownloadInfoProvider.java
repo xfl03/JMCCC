@@ -12,7 +12,6 @@ import org.to2mbn.jmccc.mcdownloader.download.cache.CacheNames;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.FileDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.ResultProcessor;
-import org.to2mbn.jmccc.mcdownloader.util.URIUtils;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.util.ChecksumUtils;
 import org.to2mbn.jmccc.version.Asset;
@@ -118,7 +117,7 @@ class DownloadInfoProvider extends AbstractMinecraftDownloadProvider implements 
 		for (DownloadInfoProcessor urlProcessor : urlProcessors) {
 			str = urlProcessor.process(str);
 		}
-		return URIUtils.toURI(str);
+		return URI.create(str);
 	}
 
 }
