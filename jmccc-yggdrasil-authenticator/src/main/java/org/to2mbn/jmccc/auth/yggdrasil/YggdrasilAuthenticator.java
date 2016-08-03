@@ -243,7 +243,7 @@ public class YggdrasilAuthenticator implements Authenticator, SessionCredential,
 			properties = Collections.emptyMap();
 		}
 
-		return new AuthInfo(selectedProfile.getName(), authResult.getAccessToken(), UUIDUtils.unsign(selectedProfile.getUUID()), properties, authResult.getUserType().getName());
+		return new AuthInfo(selectedProfile.getName(), authResult.getAccessToken(), selectedProfile.getUUID(), properties, authResult.getUserType().getName());
 	}
 
 	/**
