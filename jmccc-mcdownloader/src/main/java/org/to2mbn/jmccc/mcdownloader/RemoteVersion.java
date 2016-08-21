@@ -51,7 +51,11 @@ public class RemoteVersion implements Serializable {
 			if (negativeoffset) {
 				offsetsecs = -offsetsecs;
 			}
-			Date localdatetime = DATE_FORMAT.parse(datetime);
+			Date localdatetime;
+			synchronized (DATE_FORMAT) {
+				localdatetime = DATE_FORMAT.parse(datetime);
+			}
+
 			Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 			cal.setTime(localdatetime);
 			cal.add(Calendar.SECOND, -offsetsecs);
