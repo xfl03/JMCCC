@@ -40,8 +40,8 @@ class HttpAsyncDownloader implements Downloader {
 	private static final Logger LOGGER = Logger.getLogger(HttpAsyncDownloader.class.getCanonicalName());
 
 	private static final int RUNNING = 0;
-	private static final int SHUTDOWNING = 1;
-	private static final int SHUTDOWNED = 2;
+	private static final int SHUTTING_DOWN = 1;
+	private static final int TERMINATED = 2;
 
 	private static class DownloadSessionHandler<T> {
 
@@ -268,20 +268,20 @@ class HttpAsyncDownloader implements Downloader {
 			* ++++ read lock
 			* 	1. Remove itself from tasks. ..................................................... write tasks
 			* ---- read unlock
-			* 	2. Is status SHUTDOWNING? ........................................................ read status
+			* 	2. Is status SHUTTING_DOWN? ........................................................ read status
 			* 		Yes -
 			* 			++++ write lock
-			* 			1. Is status SHUTDOWNING? ................................................ read status
+			* 			1. Is status SHUTTING_DOWN? ................................................ read status
 			* 				Yes - Go on.
 			* 				No - Do nothing.
-			* 
+			*
 			* 			2. Is tasks empty? ....................................................... read tasks
 			* 				Yes - Go on.
 			* 				No - Do nothing.
-			* 
-			* 			3. Set status to SHUTDOWNED. ............................................. write status
+			*
+			* 			3. Set status to TERMINATED. ............................................. write status
 			* 			---- write unlock
-			* 			
+			*
 			* 			4. Cleanup. .............................................................. write status
 			* 		No - Do nothing.
 			*/
@@ -294,13 +294,13 @@ class HttpAsyncDownloader implements Downloader {
 				rlock.unlock();
 			}
 
-			if (status == SHUTDOWNING) {
+			if (status == SHUTTING_DOWN) {
 				boolean doCleanup = false;
 				Lock wlock = rwlock.writeLock();
 				wlock.lock();
 				try {
-					if (status == SHUTDOWNING && tasks.isEmpty()) {
-						status = SHUTDOWNED;
+					if (status == SHUTTING_DOWN && tasks.isEmpty()) {
+						status = TERMINATED;
 						doCleanup = true;
 					}
 				} finally {
@@ -338,9 +338,9 @@ class HttpAsyncDownloader implements Downloader {
 		 * 	1. Has the shutdown flag been set? ................................................... read status
 		 * 		Yes - Reject execution.
 		 * 		No - Go on.
-		 * 
+		 *
 		 * 	2. Create a task handler, store it in tasks. ......................................... write tasks
-		 * 
+		 *
 		 * 	3. Start the task handler. ........................................................... read status
 		 * ---- read unlock
 		 */
@@ -379,19 +379,19 @@ class HttpAsyncDownloader implements Downloader {
 		 * 	1. Is the downloader running? ........................................................ read status
 		 * 		Yes - Go on.
 		 * 		No - Do nothing.
-		 * 	
-		 * 	2. Set the status to SHUTDOWNING. .................................................... write status
-		 * 
+		 *
+		 * 	2. Set the status to SHUTTING_DOWN. .................................................... write status
+		 *
 		 * 	3. Is any task running? .............................................................. read tasks
-		 * 		Yes - 
+		 * 		Yes -
 		 * 				---- write unlock
 		 * 				1. Cancel all the tasks and then do nothing.
 		 * 					Let the last terminated thread cleanup.
 		 * 		No -
-		 * 				1. Set the status to SHUTDOWNING. ........................................ write status
+		 * 				1. Set the status to TERMINATED. ........................................ write status
 		 * 				---- write unlock
 		 * 				2. Cleanup. .............................................................. write status
-		 * 
+		 *
 		 */
 		boolean isTasksEmpty;
 
@@ -402,10 +402,10 @@ class HttpAsyncDownloader implements Downloader {
 				return;
 			}
 
-			status = SHUTDOWNING;
+			status = SHUTTING_DOWN;
 			isTasksEmpty = tasks.isEmpty();
 			if (isTasksEmpty) {
-				status = SHUTDOWNED;
+				status = TERMINATED;
 			}
 		} finally {
 			lock.unlock();

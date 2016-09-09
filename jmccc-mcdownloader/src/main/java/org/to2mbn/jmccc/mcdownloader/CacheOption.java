@@ -2,7 +2,7 @@ package org.to2mbn.jmccc.mcdownloader;
 
 public enum CacheOption implements MinecraftDownloadOption {
 
-	/*
+	/**
 	 * Cache all the downloads forcibly.
 	 */
 	FORCIBLY_CACHE,
