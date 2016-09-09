@@ -81,7 +81,7 @@ class MinecraftDownloaderImpl implements MinecraftDownloader {
 					case CHECK_ASSETS:
 						checkAssetsHash = true;
 						break;
-					case CHECK_LIBRAIES:
+					case CHECK_LIBRARIES:
 						checkLibrariesHash = true;
 						break;
 					default:
