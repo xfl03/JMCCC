@@ -6,7 +6,7 @@ public enum ChecksumOption implements MinecraftDownloadOption {
 	 * Verify the checksums of libraries (only available when the checksum is
 	 * defined in version.json).
 	 */
-	CHECK_LIBRAIES,
+	CHECK_LIBRARIES,
 
 	/**
 	 * Verify the checksums of assets.
