@@ -18,6 +18,7 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.nio.IOControl;
@@ -31,7 +32,9 @@ import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackAsyncTask;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callbacks;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.DownloadCallback;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.DownloadCallbacks;
+import org.to2mbn.jmccc.mcdownloader.download.io.DownloaderHelper;
 import org.to2mbn.jmccc.mcdownloader.download.io.GzipDownloadSession;
+import org.to2mbn.jmccc.mcdownloader.download.io.IllegalHttpResponseCodeException;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.DownloadSession;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.DownloadTask;
 
@@ -62,12 +65,12 @@ class HttpAsyncDownloader implements Downloader {
 
 			@Override
 			protected void onResponseReceived(HttpResponse response) throws HttpException, IOException {
-				if (response.getStatusLine() != null) {
-					int statusCode = response.getStatusLine().getStatusCode();
+				StatusLine statusLine = response.getStatusLine();
+				if (statusLine != null) {
+					int statusCode = statusLine.getStatusCode();
 					if (statusCode < 200 || statusCode > 299)
 						// non-2xx response code
-						throw new IOException("Illegal http response code: " + statusCode);
-
+						throw new IllegalHttpResponseCodeException(statusLine.toString(), statusCode);
 				}
 
 				if (session == null) {
@@ -183,30 +186,42 @@ class HttpAsyncDownloader implements Downloader {
 
 		private class DownloadRetryHandler implements DownloadCallback<T> {
 
+			private volatile boolean skipRetry;
+
 			@Override
 			public void done(T result) {
+				skipRetry = true;
 				lifecycle().done(result);
+				skipRetry = false;
 			}
 
 			@Override
 			public void failed(Throwable e) {
 				currentTries++;
-				if (e instanceof IOException && currentTries < maxTries) {
+				if (currentTries < maxTries && !skipRetry && DownloaderHelper.shouldRetry(e)) {
+					skipRetry = true;
 					callback.retry(e, currentTries, maxTries);
+					skipRetry = false;
 					download();
 				} else {
+					skipRetry = true;
 					lifecycle().failed(e);
+					skipRetry = false;
 				}
 			}
 
 			@Override
 			public void cancelled() {
+				skipRetry = true;
 				lifecycle().cancelled();
+				skipRetry = false;
 			}
 
 			@Override
 			public void updateProgress(long done, long total) {
+				skipRetry = true;
 				callback.updateProgress(done, total);
+				skipRetry = false;
 			}
 
 			@Override

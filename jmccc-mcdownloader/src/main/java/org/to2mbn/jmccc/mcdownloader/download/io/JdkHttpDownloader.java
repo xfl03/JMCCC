@@ -41,6 +41,8 @@ class JdkHttpDownloader implements Downloader {
 		private final DownloadCallback<T> callback;
 		private final int maxTries;
 
+		private boolean skipRetry = false;
+
 		public CallableDownloadTask(DownloadTask<T> task, DownloadCallback<T> callback, int maxTries) {
 			Objects.requireNonNull(task);
 			Objects.requireNonNull(callback);
@@ -61,7 +63,7 @@ class JdkHttpDownloader implements Downloader {
 				} catch (IOException e) {
 					checkInterrupted();
 					currentTries++;
-					if (currentTries < maxTries) {
+					if (currentTries < maxTries && !skipRetry && DownloaderHelper.shouldRetry(e)) {
 						callback.retry(e, currentTries, maxTries);
 					} else {
 						throw e;
@@ -70,7 +72,7 @@ class JdkHttpDownloader implements Downloader {
 			}
 		}
 
-		private T download() throws IOException, InterruptedException, Exception {
+		private T download() throws Exception {
 			URLConnection connection = task.getURI().toURL().openConnection(proxy);
 			connection.setReadTimeout(readTimeout);
 			connection.setConnectTimeout(connectTimeout);
@@ -87,7 +89,7 @@ class JdkHttpDownloader implements Downloader {
 					int responseCode = ((HttpURLConnection) connection).getResponseCode();
 					if (responseCode < 200 || responseCode > 299) {
 						// non-2xx response code
-						throw new IOException("Illegal http response code: " + responseCode);
+						throw new IllegalHttpResponseCodeException(((HttpURLConnection) connection).getHeaderField(0), responseCode);
 					}
 				}
 
@@ -97,11 +99,11 @@ class JdkHttpDownloader implements Downloader {
 					try {
 						contentLength = Long.parseLong(contentLengthStr);
 						if (contentLength < 0) {
-							LOGGER.warning("Invalid Content-Length: " + contentLengthStr + ", ignore");
+							LOGGER.warning("Invalid Content-Length: " + contentLengthStr + ", ignoring");
 							contentLength = -1;
 						}
 					} catch (NumberFormatException e) {
-						LOGGER.warning("Invalid Content-Length: " + contentLengthStr + ", ignore: " + e);
+						LOGGER.warning("Invalid Content-Length: " + contentLengthStr + ", ignoring: " + e);
 					}
 				}
 
@@ -124,7 +126,9 @@ class JdkHttpDownloader implements Downloader {
 						checkInterrupted();
 						downloaded += read;
 						session.receiveData(ByteBuffer.wrap(buf, 0, read));
+						skipRetry = true;
 						callback.updateProgress(downloaded, contentLength);
+						skipRetry = false;
 					}
 				} catch (Throwable e) {
 					session.failed();

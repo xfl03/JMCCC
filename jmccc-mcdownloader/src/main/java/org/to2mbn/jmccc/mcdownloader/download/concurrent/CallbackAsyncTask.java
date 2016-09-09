@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 abstract public class CallbackAsyncTask<V> implements RunnableFuture<V>, Cancelable {
 
-	protected static interface FutureManager<T> extends Callback<T> {
+	public static interface FutureManager<T> extends Callback<T> {
 
 		void setFuture(Future<?> future);
 
