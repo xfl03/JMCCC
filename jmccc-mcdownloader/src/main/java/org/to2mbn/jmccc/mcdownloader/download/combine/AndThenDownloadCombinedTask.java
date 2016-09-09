@@ -1,21 +1,17 @@
 package org.to2mbn.jmccc.mcdownloader.download.combine;
 
 import java.util.Objects;
-import java.util.concurrent.Callable;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackAdapter;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.ResultProcessor;
 
-class AppendedCombinedDownloadTask<R, S> extends CombinedDownloadTask<S> {
+class AndThenDownloadCombinedTask<R, S> extends CombinedDownloadTask<S> {
 
 	private final CombinedDownloadTask<R> prev;
-	private final ResultProcessor<R, S> next;
+	private final ResultProcessor<R, CombinedDownloadTask<S>> next;
 
-	public AppendedCombinedDownloadTask(CombinedDownloadTask<R> prev, ResultProcessor<R, S> next) {
-		Objects.requireNonNull(prev);
-		Objects.requireNonNull(next);
-
-		this.prev = prev;
-		this.next = next;
+	public AndThenDownloadCombinedTask(CombinedDownloadTask<R> prev, ResultProcessor<R, CombinedDownloadTask<S>> next) {
+		this.prev = Objects.requireNonNull(prev);
+		this.next = Objects.requireNonNull(next);
 	}
 
 	@Override
@@ -23,16 +19,9 @@ class AppendedCombinedDownloadTask<R, S> extends CombinedDownloadTask<S> {
 		context.submit(prev, new CallbackAdapter<R>() {
 
 			@Override
-			public void done(final R result1) {
+			public void done(R result1) {
 				try {
-					context.submit(new Callable<S>() {
-
-						@Override
-						public S call() throws Exception {
-							return next.process(result1);
-						}
-
-					}, new CallbackAdapter<S>() {
+					context.submit(next.process(result1), new CallbackAdapter<S>() {
 
 						@Override
 						public void done(S result2) {

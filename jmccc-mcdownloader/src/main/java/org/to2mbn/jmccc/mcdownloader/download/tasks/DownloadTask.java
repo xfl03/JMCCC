@@ -44,7 +44,7 @@ abstract public class DownloadTask<T> {
 	 * 
 	 * @return the uri of the resource to download
 	 */
-	public URI getURI() {
+	public final URI getURI() {
 		return uri;
 	}
 
@@ -80,27 +80,27 @@ abstract public class DownloadTask<T> {
 		return createSession();
 	}
 
-	public <R> DownloadTask<R> andThen(ResultProcessor<T, R> processor) {
+	public final <R> DownloadTask<R> andThen(ResultProcessor<T, R> processor) {
 		Objects.requireNonNull(processor);
-		return new AppendedDownloadTask<>(processor, this);
+		return new AndThenDownloadTask<>(processor, this);
 	}
 
-	public DownloadTask<T> cacheable() {
+	public final DownloadTask<T> cacheable() {
 		return cacheable(true);
 	}
 
-	public DownloadTask<T> cacheable(boolean cacheable) {
+	public final DownloadTask<T> cacheable(boolean cacheable) {
 		if (isCacheable() == cacheable) {
 			return this;
 		}
-		return new CachedDownloadTask<>(this, cacheable);
+		return new DownloadTaskCacheableDecorator<>(this, cacheable);
 	}
 
-	public DownloadTask<T> cachePool(String pool) {
+	public final DownloadTask<T> cachePool(String pool) {
 		if (Objects.equals(getCachePool(), pool)) {
 			return this;
 		}
-		return new CachePoolDownloadTask<>(this, pool);
+		return new DownloadTaskCachePoolDecorator<>(this, pool);
 	}
 
 }

@@ -3,12 +3,12 @@ package org.to2mbn.jmccc.mcdownloader.download.combine;
 import java.util.concurrent.Callable;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackAdapter;
 
-class AnyCombinedDownloadTask<T> extends CombinedDownloadTask<T> {
+class AnyCombinedTask<T> extends CombinedDownloadTask<T> {
 
 	private CombinedDownloadTask<T>[] tasks;
 	private Class<? extends Throwable>[] expectedExceptions;
 
-	public AnyCombinedDownloadTask(CombinedDownloadTask<T>[] tasks, Class<? extends Throwable>[] expectedExceptions) {
+	public AnyCombinedTask(CombinedDownloadTask<T>[] tasks, Class<? extends Throwable>[] expectedExceptions) {
 		this.tasks = tasks;
 		this.expectedExceptions = expectedExceptions;
 	}

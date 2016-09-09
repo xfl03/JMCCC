@@ -1,41 +1,18 @@
 package org.to2mbn.jmccc.mcdownloader.download.combine;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask.CacheStrategy;
-import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.CombinedDownloadCallback;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.DownloadCallback;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.DownloadTask;
 
-class CachedCombinedDownloadContext<T> implements CombinedDownloadContext<T> {
+class DownloadContextCacheStrategyDecorator<T> extends CombinedDownloadContextDecorator<T> {
 
-	private CombinedDownloadContext<T> proxied;
 	private CacheStrategy strategy;
 
-	public CachedCombinedDownloadContext(CombinedDownloadContext<T> proxied, CacheStrategy strategy) {
-		this.proxied = proxied;
+	public DownloadContextCacheStrategyDecorator(CombinedDownloadContext<T> delegated, CacheStrategy strategy) {
+		super(delegated);
 		this.strategy = strategy;
-	}
-
-	@Override
-	public void done(T result) {
-		proxied.done(result);
-	}
-
-	@Override
-	public void failed(Throwable e) {
-		proxied.failed(e);
-	}
-
-	@Override
-	public void cancelled() {
-		proxied.cancelled();
-	}
-
-	@Override
-	public <R> Future<R> submit(Callable<R> task, Callback<R> callback, boolean fatal) throws InterruptedException {
-		return proxied.submit(task, callback, fatal);
 	}
 
 	@Override
@@ -55,7 +32,7 @@ class CachedCombinedDownloadContext<T> implements CombinedDownloadContext<T> {
 				processed = task;
 				break;
 		}
-		return proxied.submit(processed, callback, fatal);
+		return delegated.submit(processed, callback, fatal);
 	}
 
 	@Override
@@ -79,12 +56,6 @@ class CachedCombinedDownloadContext<T> implements CombinedDownloadContext<T> {
 				processed = task;
 				break;
 		}
-		return proxied.submit(processed, callback, fatal);
+		return delegated.submit(processed, callback, fatal);
 	}
-
-	@Override
-	public void awaitAllTasks(Callable<Void> callback) throws InterruptedException {
-		proxied.awaitAllTasks(callback);
-	}
-
 }

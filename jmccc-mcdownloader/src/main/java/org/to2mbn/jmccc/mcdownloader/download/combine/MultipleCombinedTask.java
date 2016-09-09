@@ -2,11 +2,11 @@ package org.to2mbn.jmccc.mcdownloader.download.combine;
 
 import java.util.concurrent.Callable;
 
-class MultipleCombinedDownloadTask extends CombinedDownloadTask<Void> {
+class MultipleCombinedTask extends CombinedDownloadTask<Void> {
 
 	CombinedDownloadTask<?>[] tasks;
 
-	public MultipleCombinedDownloadTask(CombinedDownloadTask<?>[] tasks) {
+	public MultipleCombinedTask(CombinedDownloadTask<?>[] tasks) {
 		this.tasks = tasks;
 	}
 

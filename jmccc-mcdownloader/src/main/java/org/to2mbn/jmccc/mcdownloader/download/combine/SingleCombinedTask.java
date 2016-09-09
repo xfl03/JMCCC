@@ -3,11 +3,11 @@ package org.to2mbn.jmccc.mcdownloader.download.combine;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackAdapter;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.DownloadTask;
 
-class SingleCombinedDownloadTask<T> extends CombinedDownloadTask<T> {
+class SingleCombinedTask<T> extends CombinedDownloadTask<T> {
 
 	DownloadTask<T> task;
 
-	public SingleCombinedDownloadTask(DownloadTask<T> task) {
+	public SingleCombinedTask(DownloadTask<T> task) {
 		this.task = task;
 	}
 
