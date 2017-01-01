@@ -30,22 +30,30 @@ public class RemoteVersionTest {
 		data.add(new Object[] { "1.9.4",
 				"release",
 				date("2016-05-10 14:45:26", "UTC"),
+				"2016-05-10T14:45:26+00:00",
 				date("2016-05-10 10:17:16", "UTC"),
+				"2016-05-10T10:17:16+00:00",
 				"https://launchermeta.mojang.com/mc/game/cdcd308b7cbd15bc595850ce6557d4ade48cee7a/1.9.4.json",
 				"{\"id\":\"1.9.4\",\"type\":\"release\",\"time\":\"2016-05-10T14:45:26+00:00\",\"releaseTime\":\"2016-05-10T10:17:16+00:00\",\"url\":\"https://launchermeta.mojang.com/mc/game/cdcd308b7cbd15bc595850ce6557d4ade48cee7a/1.9.4.json\"}" });
 		data.add(new Object[] { "1.9.4",
 				"release",
 				date("2016-05-10 14:45:26", "UTC"),
+				"2016-05-10T14:45:26+00:00",
 				date("2016-05-10 10:17:16", "GMT-1:00"),
+				"2016-05-10T10:17:16-01:00",
 				"https://launchermeta.mojang.com/mc/game/cdcd308b7cbd15bc595850ce6557d4ade48cee7a/1.9.4.json",
 				"{\"id\":\"1.9.4\",\"type\":\"release\",\"time\":\"2016-05-10T14:45:26+00:00\",\"releaseTime\":\"2016-05-10T10:17:16-01:00\",\"url\":\"https://launchermeta.mojang.com/mc/game/cdcd308b7cbd15bc595850ce6557d4ade48cee7a/1.9.4.json\"}" });
 		data.add(new Object[] { "1.9.4",
 				"release",
 				date("2016-05-10 14:45:26", "UTC"),
+				"2016-05-10T14:45:26+00:00",
+				null,
 				null,
 				"https://launchermeta.mojang.com/mc/game/cdcd308b7cbd15bc595850ce6557d4ade48cee7a/1.9.4.json",
 				"{\"id\":\"1.9.4\",\"type\":\"release\",\"time\":\"2016-05-10T14:45:26+00:00\",\"url\":\"https://launchermeta.mojang.com/mc/game/cdcd308b7cbd15bc595850ce6557d4ade48cee7a/1.9.4.json\"}" });
 		data.add(new Object[] { "1.9.4",
+				null,
+				null,
 				null,
 				null,
 				null,
@@ -57,15 +65,19 @@ public class RemoteVersionTest {
 	private String id;
 	private String type;
 	private Date uploadTime;
+	private String uploadTimeString;
 	private Date releaseTime;
+	private String releaseTimeString;
 	private String url;
 	private String json;
 
-	public RemoteVersionTest(String id, String type, Date uploadTime, Date releaseTime, String url, String json) {
+	public RemoteVersionTest(String id, String type, Date uploadTime, String uploadTimeString, Date releaseTime, String releaseTimeString, String url, String json) {
 		this.id = id;
 		this.type = type;
 		this.uploadTime = uploadTime;
+		this.uploadTimeString = uploadTimeString;
 		this.releaseTime = releaseTime;
+		this.releaseTimeString = releaseTimeString;
 		this.url = url;
 		this.json = json;
 	}
@@ -73,12 +85,12 @@ public class RemoteVersionTest {
 	@Test
 	public void testFromJson() {
 		assertEquals(RemoteVersion.fromJson(new JSONObject(json)),
-				new RemoteVersion(id, uploadTime, releaseTime, type, url));
+				new RemoteVersion(id, uploadTime, uploadTimeString, releaseTime, releaseTimeString, type, url));
 	}
 
 	@Test
 	public void testSerializion() throws ClassNotFoundException, IOException {
-		SerializationTestUtils.testSerialization(new RemoteVersion(id, uploadTime, releaseTime, type, url));
+		SerializationTestUtils.testSerialization(new RemoteVersion(id, uploadTime, uploadTimeString, releaseTime, releaseTimeString, type, url));
 	}
 
 }

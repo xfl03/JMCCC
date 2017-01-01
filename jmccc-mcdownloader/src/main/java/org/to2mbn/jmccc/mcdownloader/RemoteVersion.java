@@ -32,7 +32,9 @@ public class RemoteVersion implements Serializable {
 		String url = json.optString("url", null);
 		return new RemoteVersion(version,
 				updateTime == null ? null : convertDate(updateTime),
+				updateTime,
 				releaseTime == null ? null : convertDate(releaseTime),
+				releaseTime,
 				type,
 				url);
 	}
@@ -70,7 +72,9 @@ public class RemoteVersion implements Serializable {
 
 	private String version;
 	private Date uploadTime;
+	private String uploadTimeString;
 	private Date releaseTime;
+	private String releaseTimeString;
 	private String type;
 	private String url;
 
@@ -79,15 +83,19 @@ public class RemoteVersion implements Serializable {
 	 * 
 	 * @param version the version number
 	 * @param uploadTime the upload time
+	 * @param uploadTimeString the raw string of upload time
 	 * @param releaseTime the release time
+	 * @param releaseTimeString the raw string of release time
 	 * @param type the version type
 	 * @param url the url of the version json
 	 * @throws NullPointerException if <code>version==null</code>
 	 */
-	public RemoteVersion(String version, Date uploadTime, Date releaseTime, String type, String url) {
+	public RemoteVersion(String version, Date uploadTime, String uploadTimeString, Date releaseTime, String releaseTimeString, String type, String url) {
 		this.version = Objects.requireNonNull(version);
 		this.uploadTime = uploadTime;
+		this.uploadTimeString = uploadTimeString;
 		this.releaseTime = releaseTime;
+		this.releaseTimeString = releaseTimeString;
 		this.type = type;
 		this.url = url;
 	}
@@ -139,9 +147,17 @@ public class RemoteVersion implements Serializable {
 		return url;
 	}
 
+	public String getUploadTimeString() {
+		return uploadTimeString;
+	}
+
+	public String getReleaseTimeString() {
+		return releaseTimeString;
+	}
+
 	@Override
 	public String toString() {
-		return String.format("RemoteVersion [version=%s, uploadTime=%s, releaseTime=%s, type=%s, url=%s]", version, uploadTime, releaseTime, type, url);
+		return String.format("RemoteVersion [version=%s, uploadTime=%s, uploadTimeString=%s, releaseTime=%s, releaseTimeString=%s, type=%s, url=%s]", version, uploadTime, uploadTimeString, releaseTime, releaseTimeString, type, url);
 	}
 
 	@Override
@@ -158,7 +174,9 @@ public class RemoteVersion implements Serializable {
 			RemoteVersion another = (RemoteVersion) obj;
 			return Objects.equals(version, another.version) &&
 					Objects.equals(releaseTime, another.releaseTime) &&
+					Objects.equals(releaseTimeString, another.releaseTimeString) &&
 					Objects.equals(uploadTime, another.uploadTime) &&
+					Objects.equals(uploadTimeString, another.uploadTimeString) &&
 					Objects.equals(type, another.type) &&
 					Objects.equals(url, another.url);
 		}
