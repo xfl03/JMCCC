@@ -168,11 +168,11 @@ class YggdrasilAuthenticationService extends AbstractYggdrasilService implements
 
 		String accessToken = response.getString("accessToken");
 
-		JSONObject userjson = response.getJSONObject("user");
-		String userId = userjson.getString("id");
+		JSONObject userjson = response.optJSONObject("user");
+		String userId = userjson == null ? null : userjson.optString("id", null);
 
 		Map<String, String> userProperties;
-		JSONArray propertiesJson = userjson.optJSONArray("properties");
+		JSONArray propertiesJson = userjson == null ? null : userjson.optJSONArray("properties");
 		if (propertiesJson == null) {
 			userProperties = null;
 		} else {
