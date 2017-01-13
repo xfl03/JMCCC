@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.to2mbn.jmccc.internal.org.json.JSONArray;
@@ -149,11 +150,49 @@ class YggdrasilProfileService extends AbstractYggdrasilService implements Profil
 	@Override
 	public GameProfile lookupGameProfile(final String name) throws AuthenticationException {
 		Objects.requireNonNull(name);
+
+		final String url;
+		try {
+			url = api.profileByUsername(name);
+		} catch (UnsupportedOperationException e) {
+			// fallback
+
+			// prevent infinite loop
+			try {
+				api.profilesLookup();
+			} catch (UnsupportedOperationException e1) {
+				throw new AuthenticationException("Unsupported operation", e);
+			}
+
+			final AtomicReference<Object> resultWrapper = new AtomicReference<>();
+			lookupGameProfiles(Collections.singleton(name), new GameProfileCallback() {
+
+				@Override
+				public void failed(String name, AuthenticationException e) {
+					resultWrapper.set(e);
+				}
+
+				@Override
+				public void completed(GameProfile profile) {
+					resultWrapper.set(profile);
+				}
+			});
+			Object result = resultWrapper.get();
+			if (result instanceof GameProfile) {
+				return (GameProfile) result;
+			} else {
+				AuthenticationException exception = (AuthenticationException) result;
+				if (exception instanceof ProfileNotFoundException) return null;
+				throw exception;
+			}
+			//
+		}
+
 		return invokeOperation(new Callable<GameProfile>() {
 
 			@Override
 			public GameProfile call() throws Exception {
-				return getAndParseGameProfile(api.profileByUsername(name));
+				return getAndParseGameProfile(url);
 			}
 		});
 	}
@@ -181,6 +220,27 @@ class YggdrasilProfileService extends AbstractYggdrasilService implements Profil
 		Objects.requireNonNull(names);
 		Objects.requireNonNull(callback);
 
+		final String url;
+		try {
+			url = api.profilesLookup();
+		} catch (UnsupportedOperationException e) {
+			// fallback
+			for (String name : names) {
+				try {
+					GameProfile result = lookupGameProfile(name);
+					if (result == null) {
+						callback.failed(name, new ProfileNotFoundException(name));
+					} else {
+						callback.completed(result);
+					}
+				} catch (AuthenticationException e1) {
+					callback.failed(name, e1);
+				}
+			}
+			return;
+			//
+		}
+
 		Iterator<String> it = names.iterator();
 		while (it.hasNext()) {
 			Set<String> lookingUp = new HashSet<>();
@@ -199,7 +259,7 @@ class YggdrasilProfileService extends AbstractYggdrasilService implements Profil
 
 					@Override
 					public Set<GameProfile> call() throws Exception {
-						JSONArray response = requireJsonArray(requester.requestWithPayload("POST", api.profilesLookup(), request, CONTENT_TYPE_JSON));
+						JSONArray response = requireJsonArray(requester.requestWithPayload("POST", url, request, CONTENT_TYPE_JSON));
 						Set<GameProfile> result = new HashSet<>();
 						for (Object element : response) {
 							result.add(parseGameProfile((JSONObject) element));
