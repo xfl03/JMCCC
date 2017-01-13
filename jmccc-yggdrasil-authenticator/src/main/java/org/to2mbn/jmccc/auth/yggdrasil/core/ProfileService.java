@@ -29,19 +29,26 @@ public interface ProfileService {
 	PropertiesGameProfile getGameProfile(UUID profileUUID) throws AuthenticationException;
 
 	/**
-	 * Returns the specified player's textures.
+	 * Fetches the properties of the profile and returns it as a
+	 * {@code PropertiesGameProfile}. If the profile is already a
+	 * {@code PropertiesGameProfile}, nothing will be done.
 	 * <p>
-	 * If {@code profile} is a {@code PropertiesGameProfile}, this method won't
-	 * have any network communication. Otherwise, this method will call
-	 * {@link #getGameProfile(UUID)} to get the player's full profile. So you'd
-	 * better cache the textures, or pass in {@code PropertiesGameProfile}.
-	 * (because {@link #getGameProfile(UUID)} has a rate limit)
+	 * This method has a rate limit, see {@link #getGameProfile(UUID)}.
+	 * 
+	 * @param profile the profile
+	 * @return the profile with properties
+	 * @throws AuthenticationException if an exception occurs during requesting
+	 */
+	PropertiesGameProfile fillProperties(GameProfile profile) throws AuthenticationException;
+
+	/**
+	 * Returns the specified player's textures.
 	 * 
 	 * @param profile the player's profile
 	 * @return the player's textures, can be null
 	 * @throws AuthenticationException if an exception occurs during requesting
 	 */
-	Map<TextureType, Texture> getTextures(GameProfile profile) throws AuthenticationException;
+	Map<TextureType, Texture> getTextures(PropertiesGameProfile profile) throws AuthenticationException;
 
 	/**
 	 * Returns the profile of the player that uses the specified username, or

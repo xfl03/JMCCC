@@ -76,59 +76,28 @@ class YggdrasilProfileService extends AbstractYggdrasilService implements Profil
 	}
 
 	@Override
-	public Map<TextureType, Texture> getTextures(GameProfile profile) throws AuthenticationException {
+	public PropertiesGameProfile fillProperties(GameProfile profile) throws AuthenticationException {
 		Objects.requireNonNull(profile);
+		if (profile instanceof PropertiesGameProfile) return (PropertiesGameProfile) profile;
+		PropertiesGameProfile result = getGameProfile(profile.getUUID());
+		if (result == null) result = new PropertiesGameProfile(profile.getUUID(), profile.getName(), null);
+		return result;
+	}
 
-		if (!(profile instanceof PropertiesGameProfile)) {
-			UUID uuid = profile.getUUID();
-			profile = getGameProfile(uuid);
-			if (profile == null) {
-				throw new AuthenticationException("No such game profile: " + uuid);
-			}
-		}
-
-		final Map<String, String> properties = ((PropertiesGameProfile) profile).getProperties();
+	@Override
+	public Map<TextureType, Texture> getTextures(final PropertiesGameProfile profile) throws AuthenticationException {
+		Objects.requireNonNull(profile);
 
 		return invokeOperation(new Callable<Map<TextureType, Texture>>() {
 
 			@Override
 			public Map<TextureType, Texture> call() throws Exception {
-				return getTextures(properties);
+				return parseTextures(profile.getProperties());
 			}
 		});
 	}
 
-	@Override
-	public GameProfile lookupGameProfile(final String name) throws AuthenticationException {
-		Objects.requireNonNull(name);
-		return invokeOperation(new Callable<GameProfile>() {
-
-			@Override
-			public GameProfile call() throws Exception {
-				return lookupGameProfile0(api.profileByUsername(name));
-			}
-		});
-	}
-
-	@Override
-	public GameProfile lookupGameProfile(final String name, final long timestamp) throws AuthenticationException {
-		Objects.requireNonNull(name);
-		return invokeOperation(new Callable<GameProfile>() {
-
-			@Override
-			public GameProfile call() throws Exception {
-				Map<String, Object> arguments = new HashMap<>();
-				arguments.put("at", timestamp / 1000);
-				return lookupGameProfile0(withUrlArguments(api.profileByUsername(name), arguments));
-			}
-		});
-	}
-
-	private GameProfile lookupGameProfile0(String url) throws AuthenticationException, JSONException, IOException {
-		return parseGameProfile(nullableJsonObject(requester.request("GET", url)));
-	}
-
-	private Map<TextureType, Texture> getTextures(Map<String, String> properties) {
+	private Map<TextureType, Texture> parseTextures(Map<String, String> properties) {
 		if (properties == null) {
 			return null;
 		}
@@ -153,7 +122,7 @@ class YggdrasilProfileService extends AbstractYggdrasilService implements Profil
 			}
 			JSONObject texureJson = textures.getJSONObject(textureTypeName);
 			try {
-				result.put(textureType, getTexture(texureJson));
+				result.put(textureType, parseTexture(texureJson));
 			} catch (MalformedURLException e) {
 				LOGGER.log(Level.WARNING, "Couldn't parse texture: " + texureJson, e);
 			}
@@ -162,7 +131,7 @@ class YggdrasilProfileService extends AbstractYggdrasilService implements Profil
 		return Collections.unmodifiableMap(result);
 	}
 
-	private Texture getTexture(JSONObject json) throws MalformedURLException {
+	private Texture parseTexture(JSONObject json) throws MalformedURLException {
 		String url = json.getString("url");
 		Map<String, String> metadata = null;
 		if (json.has("metadata")) {
@@ -175,6 +144,36 @@ class YggdrasilProfileService extends AbstractYggdrasilService implements Profil
 			}
 		}
 		return Textures.createTexture(url, metadata == null ? null : Collections.unmodifiableMap(metadata));
+	}
+
+	@Override
+	public GameProfile lookupGameProfile(final String name) throws AuthenticationException {
+		Objects.requireNonNull(name);
+		return invokeOperation(new Callable<GameProfile>() {
+
+			@Override
+			public GameProfile call() throws Exception {
+				return getAndParseGameProfile(api.profileByUsername(name));
+			}
+		});
+	}
+
+	@Override
+	public GameProfile lookupGameProfile(final String name, final long timestamp) throws AuthenticationException {
+		Objects.requireNonNull(name);
+		return invokeOperation(new Callable<GameProfile>() {
+
+			@Override
+			public GameProfile call() throws Exception {
+				Map<String, Object> arguments = new HashMap<>();
+				arguments.put("at", timestamp / 1000);
+				return getAndParseGameProfile(withUrlArguments(api.profileByUsername(name), arguments));
+			}
+		});
+	}
+
+	private GameProfile getAndParseGameProfile(String url) throws AuthenticationException, JSONException, IOException {
+		return parseGameProfile(nullableJsonObject(requester.request("GET", url)));
 	}
 
 	@Override
@@ -226,4 +225,5 @@ class YggdrasilProfileService extends AbstractYggdrasilService implements Profil
 			}
 		}
 	}
+
 }
