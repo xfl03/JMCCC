@@ -18,4 +18,6 @@ public interface YggdrasilAPIProvider {
 
 	String profileByUsername(String username);
 
+	String profilesLookup();
+
 }

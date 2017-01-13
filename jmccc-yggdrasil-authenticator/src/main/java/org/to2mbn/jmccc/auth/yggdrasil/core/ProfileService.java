@@ -1,6 +1,7 @@
 package org.to2mbn.jmccc.auth.yggdrasil.core;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import org.to2mbn.jmccc.auth.AuthenticationException;
 import org.to2mbn.jmccc.auth.yggdrasil.core.texture.Texture;
@@ -64,5 +65,15 @@ public interface ProfileService {
 	 * @throws AuthenticationException if an exception occurs during requesting
 	 */
 	GameProfile lookupGameProfile(String name, long timestamp) throws AuthenticationException;
+
+	/**
+	 * Queries the profiles of the given players. The method will block until
+	 * all the profiles are queried. Once a profile is queried, {@code callback}
+	 * will be called.
+	 * 
+	 * @param names the players' names
+	 * @param callback the callback
+	 */
+	void lookupGameProfiles(Set<String> names, GameProfileCallback callback);
 
 }

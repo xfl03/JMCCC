@@ -43,4 +43,9 @@ public class MojangYggdrasilAPIProvider implements YggdrasilAPIProvider, Seriali
 		return "https://api.mojang.com/users/profiles/minecraft/" + username;
 	}
 
+	@Override
+	public String profilesLookup() {
+		return "https://api.mojang.com/profiles/minecraft";
+	}
+
 }

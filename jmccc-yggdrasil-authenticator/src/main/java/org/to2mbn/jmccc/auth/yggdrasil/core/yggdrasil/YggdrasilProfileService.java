@@ -6,8 +6,11 @@ import java.net.MalformedURLException;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -18,6 +21,8 @@ import org.to2mbn.jmccc.internal.org.json.JSONException;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import org.to2mbn.jmccc.auth.AuthenticationException;
 import org.to2mbn.jmccc.auth.yggdrasil.core.GameProfile;
+import org.to2mbn.jmccc.auth.yggdrasil.core.GameProfileCallback;
+import org.to2mbn.jmccc.auth.yggdrasil.core.ProfileNotFoundException;
 import org.to2mbn.jmccc.auth.yggdrasil.core.ProfileService;
 import org.to2mbn.jmccc.auth.yggdrasil.core.PropertiesGameProfile;
 import org.to2mbn.jmccc.auth.yggdrasil.core.io.HttpRequester;
@@ -31,6 +36,8 @@ import org.to2mbn.jmccc.util.UUIDUtils;
 class YggdrasilProfileService extends AbstractYggdrasilService implements ProfileService {
 
 	private static final Logger LOGGER = Logger.getLogger(YggdrasilProfileService.class.getCanonicalName());
+
+	private static final int PROFILES_PER_REQUEST = 100;
 
 	public YggdrasilProfileService(HttpRequester requester, PropertiesDeserializer propertiesDeserializer, YggdrasilAPIProvider api) {
 		super(requester, propertiesDeserializer, api);
@@ -168,5 +175,55 @@ class YggdrasilProfileService extends AbstractYggdrasilService implements Profil
 			}
 		}
 		return Textures.createTexture(url, metadata == null ? null : Collections.unmodifiableMap(metadata));
+	}
+
+	@Override
+	public void lookupGameProfiles(Set<String> names, GameProfileCallback callback) {
+		Objects.requireNonNull(names);
+		Objects.requireNonNull(callback);
+
+		Iterator<String> it = names.iterator();
+		while (it.hasNext()) {
+			Set<String> lookingUp = new HashSet<>();
+			for (int i = 0; i < PROFILES_PER_REQUEST; i++) {
+				if (it.hasNext()) {
+					lookingUp.add(it.next().toLowerCase());
+				} else {
+					break;
+				}
+			}
+
+			final JSONArray request = new JSONArray(lookingUp);
+			Set<GameProfile> queried = null;
+			try {
+				queried = invokeOperation(new Callable<Set<GameProfile>>() {
+
+					@Override
+					public Set<GameProfile> call() throws Exception {
+						JSONArray response = requireJsonArray(requester.requestWithPayload("POST", api.profilesLookup(), request, CONTENT_TYPE_JSON));
+						Set<GameProfile> result = new HashSet<>();
+						for (Object element : response) {
+							result.add(parseGameProfile((JSONObject) element));
+						}
+						return result;
+					}
+
+				});
+			} catch (AuthenticationException e) {
+				for (String name : lookingUp) {
+					callback.failed(name, e);
+				}
+			}
+
+			if (queried != null) {
+				for (GameProfile profile : queried) {
+					callback.completed(profile);
+					lookingUp.remove(profile.getName().toLowerCase());
+				}
+				for (String missing : lookingUp) {
+					callback.failed(missing, new ProfileNotFoundException(missing));
+				}
+			}
+		}
 	}
 }
