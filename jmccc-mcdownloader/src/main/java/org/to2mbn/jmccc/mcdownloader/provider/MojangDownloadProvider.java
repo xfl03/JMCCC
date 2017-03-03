@@ -8,16 +8,6 @@ public class MojangDownloadProvider extends DefaultLayoutProvider {
 	}
 
 	@Override
-	protected String getVersionBaseURL() {
-		return "http://s3.amazonaws.com/Minecraft.Download/versions/";
-	}
-
-	@Override
-	protected String getAssetIndexBaseURL() {
-		return "http://s3.amazonaws.com/Minecraft.Download/indexes/";
-	}
-
-	@Override
 	protected String getVersionListURL() {
 		return "https://launchermeta.mojang.com/mc/game/version_manifest.json";
 	}

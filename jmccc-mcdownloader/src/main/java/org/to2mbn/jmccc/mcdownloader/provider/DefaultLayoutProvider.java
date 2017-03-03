@@ -14,25 +14,29 @@ abstract public class DefaultLayoutProvider extends URIDownloadProvider {
 	public CombinedDownloadTask<Void> library(final MinecraftDirectory mcdir, final Library library) {
 		if (library.isSnapshotArtifact()) {
 			final String repo = getLibraryRepo(library);
-			return MavenRepositories.snapshotPostfix(library.getGroupId(), library.getArtifactId(), library.getVersion(), repo)
-					.andThenDownload(new ResultProcessor<String, CombinedDownloadTask<Void>>() {
+			if (repo != null) {
+				return MavenRepositories.snapshotPostfix(library.getGroupId(), library.getArtifactId(), library.getVersion(), repo)
+						.andThenDownload(new ResultProcessor<String, CombinedDownloadTask<Void>>() {
 
-						@Override
-						public CombinedDownloadTask<Void> process(String postfix) throws Exception {
-							String url = repo + library.getPath(postfix);
-							if (library.getChecksums() != null) {
-								url += ".pack.xz";
+							@Override
+							public CombinedDownloadTask<Void> process(String postfix) throws Exception {
+								String url = repo + library.getPath(postfix);
+								if (library.getChecksums() != null) {
+									url += ".pack.xz";
+								}
+								return DefaultLayoutProvider.this.library(mcdir, library, URI.create(url));
 							}
-							return DefaultLayoutProvider.this.library(mcdir, library, URI.create(url));
-						}
-					});
+						});
+			}
 		}
 		return super.library(mcdir, library);
 	}
 
 	@Override
 	public URI getLibrary(Library library) {
-		String url = getLibraryRepo(library) + library.getPath();
+		String url = getLibraryRepo(library);
+		if (url == null) return null;
+		url += library.getPath();
 		if (library.getChecksums() != null) {
 			url += ".pack.xz";
 		}
@@ -46,33 +50,55 @@ abstract public class DefaultLayoutProvider extends URIDownloadProvider {
 
 	@Override
 	public URI getGameJar(Version version) {
-		return URI.create(getVersionBaseURL() + version.getRoot() + "/" + version.getRoot() + ".jar");
+		String url = getVersionBaseURL();
+		if (url == null) return null;
+		return URI.create(url + version.getRoot() + "/" + version.getRoot() + ".jar");
 	}
 
 	@Override
 	public URI getGameVersionJson(String version) {
-		return URI.create(getVersionBaseURL() + version + "/" + version + ".json");
+		String url = getVersionBaseURL();
+		if (url == null) return null;
+		return URI.create(url + version + "/" + version + ".json");
 	}
 
 	@Override
 	public URI getAssetIndex(Version version) {
-		return URI.create(getAssetIndexBaseURL() + version.getAssets() + ".json");
+		String url = getAssetIndexBaseURL();
+		if (url == null) return null;
+		return URI.create(url + version.getAssets() + ".json");
 	}
 
 	@Override
 	public URI getVersionList() {
-		return URI.create(getVersionListURL());
+		String url = getVersionListURL();
+		if (url == null) return null;
+		return URI.create(url);
 	}
 
 	@Override
 	public URI getAsset(Asset asset) {
-		return URI.create(getAssetBaseURL() + asset.getPath());
+		String url = getAssetBaseURL();
+		if (url == null) return null;
+		return URI.create(url + asset.getPath());
 	}
 
-	abstract protected String getLibraryBaseURL();
-	abstract protected String getVersionBaseURL();
-	abstract protected String getAssetIndexBaseURL();
+	@Deprecated
+	protected String getVersionBaseURL() {
+		return null;
+	}
+
+	@Deprecated
+	protected String getAssetIndexBaseURL() {
+		return null;
+	}
+
+	protected String getLibraryBaseURL() {
+		return null;
+	}
+
 	abstract protected String getVersionListURL();
+
 	abstract protected String getAssetBaseURL();
 
 }
