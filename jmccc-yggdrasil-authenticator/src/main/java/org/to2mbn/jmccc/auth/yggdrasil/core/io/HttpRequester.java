@@ -18,12 +18,12 @@ public class HttpRequester {
 
 	private Proxy proxy;
 
-	public HttpRequester() {
-		this(null);
+	public Proxy getProxy() {
+		return proxy;
 	}
 
-	public HttpRequester(Proxy proxy) {
-		this.proxy = proxy == null ? Proxy.NO_PROXY : proxy;
+	public void setProxy(Proxy proxy) {
+		this.proxy = proxy;
 	}
 
 	public String request(String method, String url) throws IOException {
@@ -109,7 +109,8 @@ public class HttpRequester {
 	}
 
 	private HttpURLConnection createHttpConnection(URL url) throws IOException {
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection(proxy);
+		Proxy usingProxy = proxy;
+		HttpURLConnection connection = (HttpURLConnection) url.openConnection(usingProxy == null ? Proxy.NO_PROXY : usingProxy);
 		connection.setConnectTimeout(TIMEOUT);
 		connection.setReadTimeout(TIMEOUT);
 		connection.setUseCaches(false);
