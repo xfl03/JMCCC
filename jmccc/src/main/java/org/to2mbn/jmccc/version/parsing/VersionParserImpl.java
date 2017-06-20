@@ -131,7 +131,12 @@ class VersionParserImpl implements VersionParser {
 			Set<Library> currentLibraries = parseLibraries(json.optJSONArray("libraries"), platformDescription);
 			if (currentLibraries != null) {
 				for (Library library : currentLibraries) {
-					librariesMap.put(library.getGroupId() + ":" + library.getArtifactId(), library);
+					StringBuilder libId = new StringBuilder();
+					libId.append(library.getGroupId()).append(':')
+							.append(library.getArtifactId());
+					if (library.getClassifier() != null)
+						libId.append(':').append(library.getClassifier());
+					librariesMap.put(libId.toString(), library);
 				}
 			}
 
