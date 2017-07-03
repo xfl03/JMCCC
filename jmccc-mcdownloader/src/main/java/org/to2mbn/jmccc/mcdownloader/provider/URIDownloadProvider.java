@@ -12,6 +12,7 @@ import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import org.to2mbn.jmccc.mcdownloader.RemoteVersionList;
 import org.to2mbn.jmccc.mcdownloader.download.cache.CacheNames;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
+import org.to2mbn.jmccc.mcdownloader.download.tasks.DownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.FileDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.MemoryDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.ResultProcessor;
@@ -36,7 +37,7 @@ abstract public class URIDownloadProvider implements MinecraftDownloadProvider {
 	});
 
 	// @formatter:off
-	protected URI getLibrary(Library library) { return null; }
+	protected URI[] getLibrary(Library library) { return null; }
 	protected URI getGameJar(Version version) { return null; }
 	protected URI getGameVersionJson(String version) { return null; }
 	protected URI getAssetIndex(Version version) { return null; }
@@ -114,28 +115,31 @@ abstract public class URIDownloadProvider implements MinecraftDownloadProvider {
 
 	@Override
 	public CombinedDownloadTask<Void> library(MinecraftDirectory mcdir, Library library) {
-		URI uri = getLibrary(library);
-		if (uri == null) {
+		URI[] uris = getLibrary(library);
+		if (uris == null || uris.length == 0) {
 			return null;
 		}
-		return library(mcdir, library, uri);
+		return library(mcdir, library, uris);
 	}
 
-	public CombinedDownloadTask<Void> library(MinecraftDirectory mcdir, Library library, URI uri) {
-		String path = uri.getPath();
-		LibraryDownloadHandler handler = null;
-		for (Entry<String, LibraryDownloadHandler> entry : libraryHandlers.entrySet()) {
-			if (path.endsWith(entry.getKey())) {
-				handler = entry.getValue();
-				break;
+	public CombinedDownloadTask<Void> library(MinecraftDirectory mcdir, Library library, URI... uris) {
+		@SuppressWarnings("unchecked")
+		DownloadTask<Void>[] tasks = new DownloadTask[uris.length];
+		for (int i = 0; i < uris.length; i++) {
+			URI uri = uris[i];
+			String path = uri.getPath();
+			LibraryDownloadHandler handler = null;
+			for (Entry<String, LibraryDownloadHandler> entry : libraryHandlers.entrySet()) {
+				if (path.endsWith(entry.getKey())) {
+					handler = entry.getValue();
+					break;
+				}
 			}
-		}
-		if (handler == null) {
-			throw new IllegalArgumentException("unable to resolve library download handler, path: " + path);
+			if (handler == null) throw new IllegalArgumentException("unable to resolve library download handler, path: " + path);
+			tasks[i] = handler.createDownloadTask(mcdir.getLibrary(library), library, uri);
 		}
 
-		return CombinedDownloadTask.single(
-				handler.createDownloadTask(mcdir.getLibrary(library), library, uri))
+		return CombinedDownloadTask.any(tasks)
 				.cachePool(CacheNames.LIBRARY);
 	}
 

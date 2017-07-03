@@ -33,14 +33,15 @@ abstract public class DefaultLayoutProvider extends URIDownloadProvider {
 	}
 
 	@Override
-	public URI getLibrary(Library library) {
+	public URI[] getLibrary(Library library) {
 		String url = getLibraryRepo(library);
 		if (url == null) return null;
 		url += library.getPath();
 		if (library.getChecksums() != null) {
-			url += ".pack.xz";
+			return new URI[] { URI.create(url), URI.create(url + ".pack.xz") };
+		} else {
+			return new URI[] { URI.create(url) };
 		}
-		return URI.create(url);
 	}
 
 	private String getLibraryRepo(Library library) {
