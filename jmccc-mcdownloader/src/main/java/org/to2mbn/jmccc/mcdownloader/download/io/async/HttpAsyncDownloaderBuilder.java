@@ -5,6 +5,7 @@ import java.net.Proxy;
 import java.net.SocketAddress;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
+import java.util.function.Supplier;
 import org.apache.http.HttpHost;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
@@ -14,7 +15,6 @@ import org.apache.http.message.BasicHeader;
 import org.to2mbn.jmccc.mcdownloader.download.Downloader;
 import org.to2mbn.jmccc.mcdownloader.download.io.AbstractDownloaderBuilder;
 import org.to2mbn.jmccc.mcdownloader.util.ThreadPoolUtils;
-import org.to2mbn.jmccc.util.Builder;
 
 public class HttpAsyncDownloaderBuilder extends AbstractDownloaderBuilder {
 
@@ -27,7 +27,7 @@ public class HttpAsyncDownloaderBuilder extends AbstractDownloaderBuilder {
 		return true;
 	}
 
-	private static class HttpAsyncClientBuilderAdapter implements Builder<CloseableHttpAsyncClient> {
+	private static class HttpAsyncClientBuilderAdapter implements Supplier<CloseableHttpAsyncClient> {
 
 		private HttpAsyncClientBuilder adapted;
 
@@ -36,7 +36,7 @@ public class HttpAsyncDownloaderBuilder extends AbstractDownloaderBuilder {
 		}
 
 		@Override
-		public CloseableHttpAsyncClient build() {
+		public CloseableHttpAsyncClient get() {
 			return adapted.build();
 		}
 
@@ -47,13 +47,13 @@ public class HttpAsyncDownloaderBuilder extends AbstractDownloaderBuilder {
 	}
 
 	public static Downloader buildDefault() {
-		return create().build();
+		return create().get();
 	}
 
-	protected Builder<CloseableHttpAsyncClient> httpClient;
+	protected Supplier<CloseableHttpAsyncClient> httpClient;
 	protected int bootstrapPoolSize = Runtime.getRuntime().availableProcessors();
 
-	public HttpAsyncDownloaderBuilder httpClient(Builder<CloseableHttpAsyncClient> httpClient) {
+	public HttpAsyncDownloaderBuilder httpClient(Supplier<CloseableHttpAsyncClient> httpClient) {
 		this.httpClient = httpClient;
 		return this;
 	}
@@ -69,14 +69,14 @@ public class HttpAsyncDownloaderBuilder extends AbstractDownloaderBuilder {
 	}
 
 	@Override
-	public Downloader build() {
+	public Downloader get() {
 		CloseableHttpAsyncClient client = null;
 		ExecutorService pool = null;
 		try {
 			if (httpClient == null) {
 				client = buildDefaultHttpAsyncClient();
 			} else {
-				client = httpClient.build();
+				client = httpClient.get();
 			}
 
 			pool = ThreadPoolUtils.createPool(bootstrapPoolSize, downloadPoolKeepAliveTime, downloadPoolKeepAliveTimeUnit, "asyncDownloader.bootstrap");

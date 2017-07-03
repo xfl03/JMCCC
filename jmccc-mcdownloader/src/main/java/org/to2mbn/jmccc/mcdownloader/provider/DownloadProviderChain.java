@@ -3,16 +3,16 @@ package org.to2mbn.jmccc.mcdownloader.provider;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import org.to2mbn.jmccc.util.Builder;
+import java.util.function.Supplier;
 
-public class DownloadProviderChain implements Builder<MinecraftDownloadProvider> {
+public class DownloadProviderChain implements Supplier<MinecraftDownloadProvider> {
 
 	public static DownloadProviderChain create() {
 		return new DownloadProviderChain();
 	}
 
 	public static MinecraftDownloadProvider buildDefault() {
-		return create().build();
+		return create().get();
 	}
 
 	/*
@@ -86,7 +86,7 @@ public class DownloadProviderChain implements Builder<MinecraftDownloadProvider>
 
 	protected MinecraftDownloadProvider baseProvider;
 	protected List<MinecraftDownloadProvider> providers = new ArrayList<>();
-	protected List<Builder<MinecraftDownloadProvider>> aheadProviders = new ArrayList<>();
+	protected List<Supplier<MinecraftDownloadProvider>> aheadProviders = new ArrayList<>();
 	protected boolean useDownloadInfo = true;
 	protected List<DownloadInfoProcessor> downloadInfoProcessor = new ArrayList<>();
 
@@ -102,7 +102,7 @@ public class DownloadProviderChain implements Builder<MinecraftDownloadProvider>
 		return this;
 	}
 
-	public DownloadProviderChain addAheadProvider(Builder<MinecraftDownloadProvider> aheadProvider) {
+	public DownloadProviderChain addAheadProvider(Supplier<MinecraftDownloadProvider> aheadProvider) {
 		aheadProviders.add(Objects.requireNonNull(aheadProvider));
 		return this;
 	}
@@ -118,7 +118,7 @@ public class DownloadProviderChain implements Builder<MinecraftDownloadProvider>
 	}
 
 	@Override
-	public MinecraftDownloadProvider build() {
+	public MinecraftDownloadProvider get() {
 		MinecraftDownloadProvider right = this.baseProvider == null ? new MojangDownloadProvider() : this.baseProvider;
 		for (MinecraftDownloadProvider left : providers) {
 			if (left instanceof ExtendedDownloadProvider) {
@@ -132,8 +132,8 @@ public class DownloadProviderChain implements Builder<MinecraftDownloadProvider>
 
 	protected MinecraftDownloadProvider withAheadProvider(MinecraftDownloadProvider right) {
 		List<MinecraftDownloadProvider> ahead = new ArrayList<>();
-		for (Builder<MinecraftDownloadProvider> builder : aheadProviders) {
-			ahead.add(Objects.requireNonNull(builder.build(), "Ahead provider builder [" + builder + "] returns null"));
+		for (Supplier<MinecraftDownloadProvider> builder : aheadProviders) {
+			ahead.add(Objects.requireNonNull(builder.get(), "Ahead provider builder [" + builder + "] returns null"));
 		}
 		if (useDownloadInfo) {
 			ahead.add(new DownloadInfoProvider(new ArrayList<>(downloadInfoProcessor)));

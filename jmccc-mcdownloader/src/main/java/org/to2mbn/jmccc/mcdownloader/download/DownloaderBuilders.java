@@ -1,13 +1,13 @@
 package org.to2mbn.jmccc.mcdownloader.download;
 
+import java.util.function.Supplier;
 import org.to2mbn.jmccc.mcdownloader.download.cache.CachedDownloaderBuilder;
 import org.to2mbn.jmccc.mcdownloader.download.io.JdkDownloaderBuilder;
 import org.to2mbn.jmccc.mcdownloader.download.io.async.HttpAsyncDownloaderBuilder;
-import org.to2mbn.jmccc.util.Builder;
 
 public final class DownloaderBuilders {
 
-	public static Builder<Downloader> downloader() {
+	public static Supplier<Downloader> downloader() {
 		if (HttpAsyncDownloaderBuilder.isAvailable()) {
 			return HttpAsyncDownloaderBuilder.create();
 		} else {
@@ -15,7 +15,7 @@ public final class DownloaderBuilders {
 		}
 	}
 
-	public static Builder<Downloader> cacheableDownloader(Builder<Downloader> underlying) {
+	public static Supplier<Downloader> cacheableDownloader(Supplier<Downloader> underlying) {
 		if (CachedDownloaderBuilder.isAvailable()){
 			return CachedDownloaderBuilder.create(underlying);
 		} else {
@@ -23,7 +23,7 @@ public final class DownloaderBuilders {
 		}
 	}
 
-	public static Builder<Downloader> cacheableDownloader() {
+	public static Supplier<Downloader> cacheableDownloader() {
 		return cacheableDownloader(downloader());
 	}
 

@@ -1,13 +1,13 @@
 package org.to2mbn.jmccc.launch;
 
-import org.to2mbn.jmccc.util.Builder;
+import java.util.function.Supplier;
 
 /**
  * Builder for {@link Launcher}.
  * 
  * @author yushijinhun
  */
-public class LauncherBuilder implements Builder<Launcher> {
+public class LauncherBuilder implements Supplier<Launcher> {
 
 	/**
 	 * Creates a new <code>LauncherBuilder</code> instance.
@@ -24,7 +24,7 @@ public class LauncherBuilder implements Builder<Launcher> {
 	 * @return a <code>Launcher</code> instance
 	 */
 	public static Launcher buildDefault() {
-		return create().build();
+		return create().get();
 	}
 
 	private boolean nativeFastCheck = false;
@@ -96,7 +96,7 @@ public class LauncherBuilder implements Builder<Launcher> {
 	 * @return a <code>Launcher</code> instance
 	 */
 	@Override
-	public Launcher build() {
+	public Launcher get() {
 		LauncherImpl launcher = new LauncherImpl();
 		launcher.setNativeFastCheck(nativeFastCheck);
 		launcher.setPrintDebugCommandline(printDebugCommandline);

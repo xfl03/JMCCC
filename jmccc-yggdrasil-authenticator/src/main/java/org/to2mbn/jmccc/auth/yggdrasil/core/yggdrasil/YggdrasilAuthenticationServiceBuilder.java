@@ -10,7 +10,7 @@ public class YggdrasilAuthenticationServiceBuilder extends AbstractYggdrasilServ
 	}
 
 	public static AuthenticationService buildDefault() {
-		return create().build();
+		return create().get();
 	}
 
 	protected Agent agent;
@@ -21,7 +21,7 @@ public class YggdrasilAuthenticationServiceBuilder extends AbstractYggdrasilServ
 	}
 
 	@Override
-	public AuthenticationService build() {
+	public AuthenticationService get() {
 		return new YggdrasilAuthenticationService(buildHttpRequester(), buildPropertiesDeserializer(), buildAPIProvider(), buildAgent());
 	}
 

@@ -1,8 +1,10 @@
 package org.to2mbn.jmccc.auth.yggdrasil.core.yggdrasil;
 
-import static org.to2mbn.jmccc.auth.yggdrasil.core.io.HttpUtils.*;
+import static org.to2mbn.jmccc.auth.yggdrasil.core.io.HttpUtils.CONTENT_TYPE_JSON;
+import static org.to2mbn.jmccc.auth.yggdrasil.core.io.HttpUtils.withUrlArguments;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -17,9 +19,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.to2mbn.jmccc.internal.org.json.JSONArray;
-import org.to2mbn.jmccc.internal.org.json.JSONException;
-import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import org.to2mbn.jmccc.auth.AuthenticationException;
 import org.to2mbn.jmccc.auth.yggdrasil.core.GameProfile;
 import org.to2mbn.jmccc.auth.yggdrasil.core.GameProfileCallback;
@@ -30,7 +29,9 @@ import org.to2mbn.jmccc.auth.yggdrasil.core.io.HttpRequester;
 import org.to2mbn.jmccc.auth.yggdrasil.core.texture.Texture;
 import org.to2mbn.jmccc.auth.yggdrasil.core.texture.TextureType;
 import org.to2mbn.jmccc.auth.yggdrasil.core.texture.Textures;
-import org.to2mbn.jmccc.auth.yggdrasil.core.util.Base64;
+import org.to2mbn.jmccc.internal.org.json.JSONArray;
+import org.to2mbn.jmccc.internal.org.json.JSONException;
+import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import org.to2mbn.jmccc.util.IOUtils;
 import org.to2mbn.jmccc.util.UUIDUtils;
 
@@ -108,7 +109,7 @@ class YggdrasilProfileService extends AbstractYggdrasilService implements Profil
 			return null;
 		}
 
-		JSONObject payload = IOUtils.toJson(Base64.decode(encodedTextures.toCharArray()));
+		JSONObject payload = IOUtils.toJson(Base64.getDecoder().decode(encodedTextures));
 
 		Map<TextureType, Texture> result = new EnumMap<>(TextureType.class);
 

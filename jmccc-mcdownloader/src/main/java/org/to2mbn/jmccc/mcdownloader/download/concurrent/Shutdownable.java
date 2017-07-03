@@ -1,6 +1,6 @@
 package org.to2mbn.jmccc.mcdownloader.download.concurrent;
 
-public interface Shutdownable {
+public interface Shutdownable extends AutoCloseable {
 
 	/**
 	 * Shutdown the executor.
@@ -13,5 +13,10 @@ public interface Shutdownable {
 	 * @return true if this executor has been shutdown
 	 */
 	boolean isShutdown();
+
+	@Override
+	default void close() throws Exception {
+		shutdown();
+	}
 
 }

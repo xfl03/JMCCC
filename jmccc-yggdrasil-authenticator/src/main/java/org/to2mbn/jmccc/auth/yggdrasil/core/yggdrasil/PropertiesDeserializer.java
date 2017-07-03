@@ -6,12 +6,12 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
+import java.util.Base64;
 import java.util.Map;
 import java.util.TreeMap;
 import org.to2mbn.jmccc.internal.org.json.JSONArray;
 import org.to2mbn.jmccc.internal.org.json.JSONException;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
-import org.to2mbn.jmccc.auth.yggdrasil.core.util.Base64;
 
 class PropertiesDeserializer implements Serializable {
 
@@ -54,7 +54,7 @@ class PropertiesDeserializer implements Serializable {
 		Signature verifier = Signature.getInstance("SHA1withRSA");
 		verifier.initVerify(signaturePublicKey);
 		verifier.update(value.getBytes());
-		if (!verifier.verify(Base64.decode(signature.toCharArray()))) {
+		if (!verifier.verify(Base64.getDecoder().decode(signature))) {
 			throw new SignatureException("Invalid signature. data=[" + value + "], expectedSignature=[" + signature + "]");
 		}
 	}

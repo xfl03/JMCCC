@@ -9,11 +9,11 @@ public class YggdrasilProfileServiceBuilder extends AbstractYggdrasilServiceBuil
 	}
 
 	public static ProfileService buildDefault() {
-		return create().build();
+		return create().get();
 	}
 
 	@Override
-	public ProfileService build() {
+	public ProfileService get() {
 		return new YggdrasilProfileService(buildHttpRequester(), buildPropertiesDeserializer(), buildAPIProvider());
 	}
 

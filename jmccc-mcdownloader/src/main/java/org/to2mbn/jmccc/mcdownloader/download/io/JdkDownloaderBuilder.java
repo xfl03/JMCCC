@@ -9,11 +9,11 @@ public class JdkDownloaderBuilder extends AbstractDownloaderBuilder {
 	}
 
 	public static Downloader buildDefault() {
-		return create().build();
+		return create().get();
 	}
 
 	@Override
-	public Downloader build() {
+	public Downloader get() {
 		return new JdkHttpDownloader(maxConnections, connectTimeout, readTimeout, downloadPoolKeepAliveTime, downloadPoolKeepAliveTimeUnit, proxy);
 	}
 

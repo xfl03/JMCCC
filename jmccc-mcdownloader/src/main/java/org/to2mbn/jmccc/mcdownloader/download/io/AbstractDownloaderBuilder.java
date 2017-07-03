@@ -2,10 +2,10 @@ package org.to2mbn.jmccc.mcdownloader.download.io;
 
 import java.net.Proxy;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import org.to2mbn.jmccc.mcdownloader.download.Downloader;
-import org.to2mbn.jmccc.util.Builder;
 
-abstract public class AbstractDownloaderBuilder implements Builder<Downloader> {
+abstract public class AbstractDownloaderBuilder implements Supplier<Downloader> {
 
 	protected int maxConnections = 20;
 	protected int connectTimeout = 10000;

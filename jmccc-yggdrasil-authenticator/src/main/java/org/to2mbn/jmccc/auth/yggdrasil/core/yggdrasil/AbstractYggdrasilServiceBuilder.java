@@ -12,11 +12,11 @@ import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Objects;
+import java.util.function.Supplier;
 import org.to2mbn.jmccc.auth.yggdrasil.core.io.DebugHttpRequester;
 import org.to2mbn.jmccc.auth.yggdrasil.core.io.HttpRequester;
-import org.to2mbn.jmccc.util.Builder;
 
-abstract public class AbstractYggdrasilServiceBuilder<T> implements Builder<T> {
+abstract public class AbstractYggdrasilServiceBuilder<T> implements Supplier<T> {
 
 	protected YggdrasilAPIProvider apiProvider;
 	protected PublicKey sessionPublicKey;

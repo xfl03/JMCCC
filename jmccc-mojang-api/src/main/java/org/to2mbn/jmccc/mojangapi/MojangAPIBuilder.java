@@ -1,18 +1,18 @@
 package org.to2mbn.jmccc.mojangapi;
 
 import java.net.Proxy;
+import java.util.function.Supplier;
 import org.to2mbn.jmccc.auth.yggdrasil.core.io.DebugHttpRequester;
 import org.to2mbn.jmccc.auth.yggdrasil.core.io.HttpRequester;
-import org.to2mbn.jmccc.util.Builder;
 
-public class MojangAPIBuilder implements Builder<MojangAPI> {
+public class MojangAPIBuilder implements Supplier<MojangAPI> {
 
 	public static MojangAPIBuilder create() {
 		return new MojangAPIBuilder();
 	}
 
 	public static MojangAPI buildDefault() {
-		return create().build();
+		return create().get();
 	}
 
 	private MojangAPIProvider apiProvider;
@@ -45,7 +45,7 @@ public class MojangAPIBuilder implements Builder<MojangAPI> {
 	}
 
 	@Override
-	public MojangAPI build() {
+	public MojangAPI get() {
 		return new MojangAPIImpl(buildHttpRequester(), buildAPIProvider());
 	}
 
