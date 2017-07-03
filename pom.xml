@@ -2,7 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.to2mbn</groupId>
-	<version>2.5-SNAPSHOT</version>
+	<version>3.0-SNAPSHOT</version>
 	<artifactId>jmccc-parent</artifactId>
 	<url>https://github.com/to2mbn/JMCCC</url>
 	<packaging>pom</packaging>
@@ -10,8 +10,8 @@
 	<description>Jmccc is a powerful open-source library for launching and downloading Minecraft.</description>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<jar.source>1.7</jar.source>
-		<jar.target>1.7</jar.target>
+		<jar.source>1.8</jar.source>
+		<jar.target>1.8</jar.target>
 	</properties>
 	<issueManagement>
 		<url>https://github.com/to2mbn/JMCCC/issues</url>
@@ -25,7 +25,7 @@
 			<comments>
 				The MIT License (MIT)
 
-				Copyright (c) 2016 to2mbn
+				Copyright (c) 2017 to2mbn
 
 				Permission is hereby granted, free of charge, to any person obtaining a copy
 				of this software and associated documentation files (the "Software"), to deal
@@ -92,7 +92,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
-				<version>2.4</version>
+				<version>3.0.1</version>
 				<executions>
 					<execution>
 						<id>attach-sources</id>
@@ -105,7 +105,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.10.3</version>
+				<version>2.10.4</version>
 				<executions>
 					<execution>
 						<id>attach-javadocs</id>
@@ -121,7 +121,7 @@
 			<plugin>
 				<groupId>org.sonatype.plugins</groupId>
 				<artifactId>nexus-staging-maven-plugin</artifactId>
-				<version>1.6.6</version>
+				<version>1.6.8</version>
 				<extensions>true</extensions>
 				<configuration>
 					<serverId>ossrh</serverId>
@@ -132,10 +132,10 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.5.1</version>
+				<version>3.6.1</version>
 				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
+					<source>1.8</source>
+					<target>1.8</target>
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
@@ -167,7 +167,7 @@
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
-				<version>3.0.1</version>
+				<version>3.3.0</version>
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>

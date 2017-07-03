@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>org.to2mbn</groupId>
 		<artifactId>jmccc-parent</artifactId>
-		<version>2.5-SNAPSHOT</version>
+		<version>3.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>jmccc-mojang-api</artifactId>
 	<name>jmccc-mojang-api</name>
