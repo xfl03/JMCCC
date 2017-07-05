@@ -25,12 +25,12 @@ public class ArtifactTest {
 
 	@Test
 	public void test_toString_without_classifier() {
-		assertEquals(new Artifact("group", "artifact", "1.0", "jar", null, emptyMap()).toString(), "group:artifact:1.0:jar");
+		assertEquals("group:artifact:1.0:jar", new Artifact("group", "artifact", "1.0", "jar", null, emptyMap()).toString());
 	}
 
 	@Test
 	public void test_toString_with_classifier() {
-		assertEquals(new Artifact("group", "artifact", "1.0", "jar", "classifier", emptyMap()).toString(), "group:artifact:1.0:jar:classifier");
+		assertEquals("group:artifact:1.0:jar:classifier", new Artifact("group", "artifact", "1.0", "jar", "classifier", emptyMap()).toString());
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -43,8 +43,8 @@ public class ArtifactTest {
 		SnapshotVersion snapshot = new SnapshotVersion("20170101", 1);
 		Artifact resolved = new Artifact("group", "artifact", "1.0-SNAPSHOT", "jar", null, emptyMap()).resolveSnapshot(snapshot);
 		assertTrue(resolved.isSnapshotResolved());
-		assertEquals(resolved.getSnapshotVersion(), snapshot);
-		assertEquals(resolved.getResolvedVersion(), "1.0-20170101-1");
+		assertEquals(snapshot, resolved.getSnapshotVersion());
+		assertEquals("1.0-20170101-1", resolved.getResolvedVersion());
 	}
 
 	@Test
@@ -52,7 +52,7 @@ public class ArtifactTest {
 		Artifact artifact = new Artifact("group", "artifact", "1.0", "jar", null, emptyMap());
 		assertFalse(artifact.isSnapshotResolved());
 		assertNull(artifact.getSnapshotVersion());
-		assertEquals(artifact.getResolvedVersion(), "1.0");
+		assertEquals("1.0", artifact.getResolvedVersion());
 	}
 
 	@Test
@@ -61,7 +61,7 @@ public class ArtifactTest {
 		Artifact artifact = new Artifact("group", "artifact", "1.0", "jar", null, singletonMap(META_SNAPSHOT, snapshot));
 		assertFalse(artifact.isSnapshotResolved());
 		assertNull(artifact.getSnapshotVersion());
-		assertEquals(artifact.getResolvedVersion(), "1.0");
+		assertEquals("1.0", artifact.getResolvedVersion());
 	}
 
 	@Test
@@ -69,7 +69,7 @@ public class ArtifactTest {
 		Artifact artifact = new Artifact("group", "artifact", "1.0-SNAPSHOT", "jar", null, emptyMap());
 		assertFalse(artifact.isSnapshotResolved());
 		assertNull(artifact.getSnapshotVersion());
-		assertEquals(artifact.getResolvedVersion(), "1.0-SNAPSHOT");
+		assertEquals("1.0-SNAPSHOT", artifact.getResolvedVersion());
 	}
 
 }
