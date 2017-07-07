@@ -11,8 +11,8 @@
 	<description>The launching feature of jmccc</description>
 	<dependencies>
 		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
+			<groupId>com.fasterxml.jackson.module</groupId>
+			<artifactId>jackson-module-kotlin</artifactId>
 			<version>2.9.0.pr4</version>
 		</dependency>
 	</dependencies>

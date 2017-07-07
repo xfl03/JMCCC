@@ -1,12 +1,20 @@
 package org.to2mbn.jmccc.launch.platform
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import org.to2mbn.jmccc.launch.platform.Platform.LINUX
 import org.to2mbn.jmccc.launch.platform.Platform.OSX
 import org.to2mbn.jmccc.launch.platform.Platform.WINDOWS
 import java.lang.System.getProperty
 
-enum class Platform(val identity: String) {
-	LINUX("linux"), WINDOWS("windows"), OSX("osx")
+enum class Platform {
+	@JsonProperty("linux")
+	LINUX,
+	@JsonProperty("windows")
+	WINDOWS,
+	@JsonProperty("osx")
+	OSX;
+
+	val identity = name.toLowerCase()
 }
 
 val currentPlatform = inferPlatform(getProperty("os.name"))

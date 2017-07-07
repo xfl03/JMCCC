@@ -1,8 +1,8 @@
 package org.to2mbn.jmccc.test
 
-
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import org.junit.Test
 import org.to2mbn.jmccc.version.parse.minecraftModule
 import java.time.LocalDateTime
@@ -11,7 +11,9 @@ import kotlin.test.assertEquals
 
 class DateAdapterTest {
 
-	val om = ObjectMapper().registerModule(minecraftModule)
+	val om = ObjectMapper()
+			.registerKotlinModule()
+			.registerModule(minecraftModule)
 
 	fun date(datetime: String) = LocalDateTime.parse(datetime, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
 
