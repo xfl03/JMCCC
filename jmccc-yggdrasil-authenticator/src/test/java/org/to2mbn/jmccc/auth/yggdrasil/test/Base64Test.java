@@ -15,7 +15,7 @@ public class Base64Test {
 
 	@Parameters
 	public static List<Object[]> data() throws UnsupportedEncodingException {
-		List<Object[]> data = new ArrayList<Object[]>();
+		List<Object[]> data = new ArrayList<>();
 		data.add(new Object[] { new byte[0], new char[0] });
 		data.add(new Object[] { "1".getBytes("ASCII"), "MQ==".toCharArray() });
 		data.add(new Object[] { "1\n".getBytes("ASCII"), "MQo=".toCharArray() });

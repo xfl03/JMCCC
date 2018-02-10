@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.concurrent.Callable;
 import org.to2mbn.jmccc.internal.org.json.JSONArray;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
@@ -59,7 +58,7 @@ class YggdrasilAuthenticationService extends AbstractYggdrasilService implements
 	}
 
 	@Override
-	public Session selectProfile(final String clientToken, String accessToken, UUID profile) throws AuthenticationException {
+	public Session selectProfile(final String clientToken, String accessToken, GameProfile profile) throws AuthenticationException {
 		Objects.requireNonNull(clientToken);
 		Objects.requireNonNull(accessToken);
 
@@ -70,7 +69,8 @@ class YggdrasilAuthenticationService extends AbstractYggdrasilService implements
 
 		if (profile != null) {
 			JSONObject selectedProfile = new JSONObject();
-			selectedProfile.put("id", UUIDUtils.unsign(profile));
+			selectedProfile.put("id", UUIDUtils.unsign(profile.getUUID()));
+			selectedProfile.put("name", profile.getName());
 			request.put("selectedProfile", selectedProfile);
 		}
 

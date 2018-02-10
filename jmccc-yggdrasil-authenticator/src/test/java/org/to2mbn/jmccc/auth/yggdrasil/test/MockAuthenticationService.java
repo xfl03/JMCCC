@@ -53,7 +53,7 @@ public class MockAuthenticationService implements AuthenticationService {
 	}
 
 	@Override
-	public Session selectProfile(String clientToken, String accessToken, UUID profile) throws AuthenticationException {
+	public Session selectProfile(String clientToken, String accessToken, GameProfile profile) throws AuthenticationException {
 		if (Objects.equals(e_accessToken, accessToken) && Objects.equals(e_clientToken, clientToken)) {
 			e_clientToken = clientToken;
 			e_accessToken = UUIDUtils.randomUnsignedUUID();
@@ -61,7 +61,7 @@ public class MockAuthenticationService implements AuthenticationService {
 			if (profile != null) {
 				boolean selected = false;
 				for (GameProfile p : e_profiles) {
-					if (p.getUUID().equals(profile)) {
+					if (p.getUUID().equals(profile.getUUID())) {
 						e_selectedProfile = p;
 						selected = true;
 					}
