@@ -10,8 +10,8 @@
 	<description>Jmccc is a powerful open-source library for launching and downloading Minecraft.</description>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<jar.source>1.7</jar.source>
-		<jar.target>1.7</jar.target>
+		<jar.source>1.8</jar.source>
+		<jar.target>1.8</jar.target>
 	</properties>
 	<issueManagement>
 		<url>https://github.com/to2mbn/JMCCC/issues</url>
