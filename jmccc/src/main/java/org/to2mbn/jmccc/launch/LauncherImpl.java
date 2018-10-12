@@ -211,8 +211,12 @@ class LauncherImpl implements Launcher {
 					}
 
 					if (!match) {
-						try (OutputStream out = new FileOutputStream(outFile)) {
-							out.write(buf, 0, len);
+						if(entry.isDirectory()) {
+							outFile.mkdir();//Fix extract directory as file
+						} else {
+							try (OutputStream out = new FileOutputStream(outFile)) {
+								out.write(buf, 0, len);
+							}
 						}
 					}
 				}
