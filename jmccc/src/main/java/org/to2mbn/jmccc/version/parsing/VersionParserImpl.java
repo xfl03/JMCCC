@@ -77,7 +77,7 @@ class VersionParserImpl implements VersionParser {
 		String type = "jar";
 
 		if (isNative) {
-			Set<String> excludes = parseExtractExcludes(json.getJSONObject("extract"));
+			Set<String> excludes = parseExtractExcludes(json.optJSONObject("extract"));
 			return new Native(groupId, artifactId, version, classifier, type, libinfo, url, checksums, excludes);
 		} else {
 			return new Library(groupId, artifactId, version, classifier, type, libinfo, url, checksums);
@@ -125,7 +125,7 @@ class VersionParserImpl implements VersionParser {
 
 			assets = json.optString("assets", assets);
 			mainClass = json.optString("mainClass", mainClass);
-			launchArgs = json.optString("minecraftArguments", launchArgs);
+			launchArgs = parseMinecraftArgs(json);
 			type = json.optString("type", type);
 
 			Set<Library> currentLibraries = parseLibraries(json.optJSONArray("libraries"), platformDescription);
@@ -276,4 +276,20 @@ class VersionParserImpl implements VersionParser {
 		return downloads;
 	}
 
+	private String parseMinecraftArgs(JSONObject json){
+		if(json.has("minecraftArguments"))
+			return json.getString("minecraftArguments");
+
+		JSONObject arguments = json.optJSONObject("arguments");
+		if(arguments != null && arguments.has("game")) {
+			JSONArray gameArgs = arguments.getJSONArray("game");
+			StringBuilder sb = new StringBuilder();
+			for(Object arg : gameArgs) {
+				if(arg instanceof String)
+					sb.append(arg).append(" ");
+			}
+			return sb.toString().trim();
+		}
+		return null;//No Minecraft Args found
+	}
 }
