@@ -191,6 +191,10 @@ class LauncherImpl implements Launcher {
 					}
 
 					File outFile = new File(outputDir, entry.getName());
+
+					if (!outFile.toPath().normalize().startsWith(outputDir.toPath().normalize())) {
+						throw new IOException("Bad zip entry");
+					}
 					boolean match; // true if two files are the same
 					if (outFile.isFile() && outFile.length() == entry.getSize()) {
 						// same length, check the content
