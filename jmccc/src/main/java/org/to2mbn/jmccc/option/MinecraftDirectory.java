@@ -226,6 +226,7 @@ public class MinecraftDirectory implements Serializable {
 		if (current.exists()) {
 			return current;
 		}
+		//Copy root jar to current, like official launcher
 		File root = getVersionJar(version.getRoot());
 		try {
 			Files.copy(root.toPath(), current.toPath());

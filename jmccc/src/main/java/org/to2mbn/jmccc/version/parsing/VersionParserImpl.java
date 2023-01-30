@@ -69,10 +69,10 @@ class VersionParserImpl implements VersionParser {
         String classifier = isNative ? parseNativeClassifier(json.getJSONObject("natives"), platformDescription) : null;
         LibraryInfo libinfo = parseLibraryDownloads(json.optJSONObject("downloads"), classifier);
 
-        //Override native
-        if (!isNative && splitedGav.length == 4) {
+        //Override native classifier
+        //In new version, minecraft launcher regard native as standard library, don't need extract
+        if (splitedGav.length == 4) {
             classifier = splitedGav[3];
-            isNative = classifier.startsWith("natives-");
         }
 
         String type = "jar";
@@ -281,24 +281,11 @@ class VersionParserImpl implements VersionParser {
     private Set<Library> parseLibraries(JSONArray json, PlatformDescription platform) throws JSONException {
         if (json == null) return null;
         Set<Library> libraries = new HashSet<>();
-        Map<String, Map<Arch, Native>> natives = new HashMap<>();
         for (Object element : json) {
             Library library = parseLibrary((JSONObject) element, platform);
             if (library != null) {
-                if (library instanceof Native) {
-                    Native native0 = (Native) library;
-                    Map<Arch, Native> map = natives.computeIfAbsent(native0.getArtifactId(), it -> new HashMap<>());
-                    map.put(native0.getArch(), native0);
-                } else {
                     libraries.add(library);
-                }
             }
-        }
-
-        //Choose best native
-        for (Map<Arch, Native> map : natives.values()) {
-            libraries.add(map.getOrDefault(platform.getArch(), map.get(Arch.DEFAULT)));
-
         }
         return libraries;
     }
