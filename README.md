@@ -39,7 +39,7 @@ The snapshot repository:
 ```xml
 <repository>
 	<id>ossrh</id>
-	<url>https://oss.sonatype.org/content/groups/public/</url>
+	<url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
 	<snapshots>
 		<enabled>true</enabled>
 	</snapshots>

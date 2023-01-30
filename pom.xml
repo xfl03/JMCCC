@@ -1,17 +1,18 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.to2mbn</groupId>
-	<version>2.5-SNAPSHOT</version>
+	<groupId>dev.3-3</groupId>
+	<version>${revision}</version>
 	<artifactId>jmccc-parent</artifactId>
-	<url>https://github.com/to2mbn/JMCCC</url>
+	<url>https://github.com/xfl03/JMCCC</url>
 	<packaging>pom</packaging>
 	<name>jmccc-parent</name>
-	<description>Jmccc is a powerful open-source library for launching and downloading Minecraft.</description>
+	<description>JMCCC is a powerful open-source library for launching and downloading Minecraft.</description>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jar.source>1.8</jar.source>
 		<jar.target>1.8</jar.target>
+        <revision>2.5-SNAPSHOT</revision>
 	</properties>
 	<issueManagement>
 		<url>https://github.com/to2mbn/JMCCC/issues</url>
@@ -48,19 +49,19 @@
 		</license>
 	</licenses>
 	<scm>
-		<url>https://github.com/to2mbn/JMCCC</url>
-		<connection>scm:git:git://github.com/to2mbn/JMCCC.git</connection>
-		<developerConnection>scm:git:git@github.com:to2mbn/JMCCC.git</developerConnection>
+		<url>https://github.com/xfl03/JMCCC</url>
+		<connection>scm:git:git://github.com/xfl03/JMCCC.git</connection>
+		<developerConnection>scm:git:git@github.com:xfl03/JMCCC.git</developerConnection>
 		<tag>master</tag>
 	</scm>
 	<distributionManagement>
 		<snapshotRepository>
 			<id>ossrh</id>
-			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+			<url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
 		</snapshotRepository>
 		<repository>
 			<id>ossrh</id>
-			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+			<url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 		</repository>
 	</distributionManagement>
 	<developers>
@@ -75,6 +76,12 @@
 			<name>Haowei Wen</name>
 			<url>https://github.com/yushijinhun</url>
 			<id>yushijinhun</id>
+		</developer>
+		<developer>
+			<email>moe@3-3.dev</email>
+			<name>Haowei Wen</name>
+			<url>https://github.com/xfl03</url>
+			<id>xfl03</id>
 		</developer>
 	</developers>
 	<build>
@@ -125,7 +132,7 @@
 				<extensions>true</extensions>
 				<configuration>
 					<serverId>ossrh</serverId>
-					<nexusUrl>https://oss.sonatype.org/</nexusUrl>
+					<nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
 					<autoReleaseAfterClose>true</autoReleaseAfterClose>
 				</configuration>
 			</plugin>

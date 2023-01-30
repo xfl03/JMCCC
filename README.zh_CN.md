@@ -39,7 +39,7 @@ JMCCC使用[MIT许可证](https://to2mbn.github.io/jmccc/LICENSE.txt)。
 ```xml
 <repository>
 	<id>ossrh</id>
-	<url>https://oss.sonatype.org/content/groups/public/</url>
+	<url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
 	<snapshots>
 		<enabled>true</enabled>
 	</snapshots>

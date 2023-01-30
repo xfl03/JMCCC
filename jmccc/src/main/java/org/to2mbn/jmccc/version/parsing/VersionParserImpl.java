@@ -159,7 +159,7 @@ class VersionParserImpl implements VersionParser {
         if (!additionArgs.isEmpty()) {
             for (String arg : additionArgs) sb.append(arg).append(" ");
         }
-        String finalArgs = sb.toString();
+        String finalArgs = sb.toString().trim();
 
         if (mainClass == null)
             throw new JSONException("Missing mainClass");
