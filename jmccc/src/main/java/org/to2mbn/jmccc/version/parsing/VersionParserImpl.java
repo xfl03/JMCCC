@@ -69,14 +69,6 @@ class VersionParserImpl implements VersionParser {
         String classifier = isNative ? parseNativeClassifier(json.getJSONObject("natives"), platformDescription) : null;
         LibraryInfo libinfo = parseLibraryDownloads(json.optJSONObject("downloads"), classifier);
 
-        //Override download info from downloads
-        if (libinfo.getUrl() != null) {
-            url = libinfo.getUrl();
-        }
-        if (libinfo.getChecksum() != null) {
-            checksums = new String[]{libinfo.getChecksum()};
-        }
-
         //Override native
         if (!isNative && splitedGav.length == 4) {
             classifier = splitedGav[3];
