@@ -1,12 +1,9 @@
 package org.to2mbn.jmccc.launch;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
+
 import org.to2mbn.jmccc.option.LaunchOption;
 import org.to2mbn.jmccc.util.Platform;
 import org.to2mbn.jmccc.version.Version;
@@ -52,15 +49,8 @@ class LaunchArgument {
 			}
 		}
 
-		// natives path
-		args.add("-Djava.library.path=" + nativesPath);
-
-		// class path
-		// ==========START==========
-		args.add("-cp");
-		StringBuilder cpBuilder = new StringBuilder();
-
 		// libraries
+		StringBuilder cpBuilder = new StringBuilder();
 		for (File lib : libraries) {
 			if (lib != null) {
 				cpBuilder.append(lib.getAbsolutePath()).append(Platform.getPathSeparator());
@@ -69,15 +59,21 @@ class LaunchArgument {
 		if (cpBuilder.length() > 0) {
 			cpBuilder.deleteCharAt(cpBuilder.length() - 1); // to avoid the last unnecessary ':'
 		}
+		defaultVariables.put("classpath",cpBuilder.toString());
 
-		args.add(cpBuilder.toString());
-		// ==========END==========
+		// JVM arguments
+		List<String> jvmArgs = launchOption.getVersion().getJvmArgs();
+		if (jvmArgs.isEmpty()) {
+            //Default JVM args
+			jvmArgs.addAll(Arrays.asList("-Djava.library.path=${natives_directory}", "-cp", "${classpath}"));
+		}
+		args.addAll(getFormattedMinecraftArguments(jvmArgs));
 
 		// main class
 		args.add(version.getMainClass());
 
 		// template arguments
-		args.addAll(getFormattedMinecraftArguments());
+		args.addAll(getFormattedMinecraftArguments(launchOption.getVersion().getGameArgs()));
 
 		// extra minecraft arguments
 		for (String arg : launchOption.extraMinecraftArguments()) {
@@ -116,14 +112,13 @@ class LaunchArgument {
 		return args.toArray(new String[args.size()]);
 	}
 
-	private List<String> getFormattedMinecraftArguments() {
+	private List<String> getFormattedMinecraftArguments(List<String> templete) {
 		Map<String, String> variables = new HashMap<>();
 		variables.putAll(defaultVariables);
 		variables.putAll(launchOption.commandlineVariables());
 
-		String templete = launchOption.getVersion().getLaunchArgs();
 		List<String> args = new ArrayList<>();
-		for (String arg : templete.split(" ")) {
+		for (String arg : templete) {
 			for (Entry<String, String> var : variables.entrySet()) {
 				String k = var.getKey();
 				String v = var.getValue();

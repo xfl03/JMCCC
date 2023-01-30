@@ -124,6 +124,7 @@ class VersionParserImpl implements VersionParser {
         String mainClass = null;
         String launchArgs = null;//Old Minecraft Arguments
         List<String> additionArgs = new ArrayList<>();//New Minecraft Arguments
+        List<String> jvmArgs = new ArrayList<>();
         String type = null;
         Map<String, Library> librariesMap = new TreeMap<>();
         Map<String, DownloadInfo> downloads = new TreeMap<>();
@@ -139,14 +140,8 @@ class VersionParserImpl implements VersionParser {
             type = json.optString("type", type);
 
             JSONObject arguments = json.optJSONObject("arguments");
-            if (arguments != null && arguments.has("game")) {
-                JSONArray gameArgs = arguments.getJSONArray("game");
-                for (Object arg : gameArgs) {
-                    if (arg instanceof String) {
-                        additionArgs.add((String) arg);
-                    }
-                }
-            }
+            additionArgs.addAll(parseArguments(arguments, "game", platformDescription));
+            jvmArgs.addAll(parseArguments(arguments, "jvm", platformDescription));
 
             Set<Library> currentLibraries = parseLibraries(json.optJSONArray("libraries"), platformDescription);
             if (currentLibraries != null) {
@@ -171,12 +166,11 @@ class VersionParserImpl implements VersionParser {
         } while (!hierarchy.isEmpty());
 
         //Process final Minecraft Arguments
-        StringBuilder sb = new StringBuilder();
-        if (launchArgs != null) sb.append(launchArgs).append(" ");
-        if (!additionArgs.isEmpty()) {
-            for (String arg : additionArgs) sb.append(arg).append(" ");
+        List<String> finalArgs = new ArrayList<>();
+        if (launchArgs != null) {
+            finalArgs.addAll(Arrays.asList(launchArgs.split(" ")));
         }
-        String finalArgs = sb.toString().trim();
+        finalArgs.addAll(additionArgs);
 
         if (mainClass == null)
             throw new JSONException("Missing mainClass");
@@ -190,6 +184,7 @@ class VersionParserImpl implements VersionParser {
                 mainClass,
                 assets,
                 finalArgs,
+                jvmArgs,
                 root,
                 Collections.unmodifiableSet(libraries),
                 assets.equals("legacy"),
@@ -219,14 +214,22 @@ class VersionParserImpl implements VersionParser {
                 apply = false;
 
                 JSONObject osRule = rule.getJSONObject("os");
-                String name = osRule.getString("name");
+                String name = osRule.optString("name", null);
                 String version = osRule.has("version") ? osRule.getString("version") : null;
+                String arch = osRule.optString("arch", null);
 
-                if (platformDescription.getPlatform().name().equalsIgnoreCase(name)) {
+                if (name == null || platformDescription.getPlatform().name().equalsIgnoreCase(name)) {
                     if (version == null || platformDescription.getVersion().matches(version)) {
-                        apply = true;
+                        if (arch == null || platformDescription.getArch().name().equalsIgnoreCase(arch)) {
+                            apply = true;
+                        }
                     }
                 }
+            }
+
+            //We didn't support any feature at this time
+            if (rule.has("features")) {
+                apply = false;
             }
 
             if (apply) {
@@ -317,20 +320,35 @@ class VersionParserImpl implements VersionParser {
         return downloads;
     }
 
-    private String parseMinecraftArgs(JSONObject json) {
-        if (json.has("minecraftArguments"))
-            return json.getString("minecraftArguments");
-
-        JSONObject arguments = json.optJSONObject("arguments");
-        if (arguments != null && arguments.has("game")) {
-            JSONArray gameArgs = arguments.getJSONArray("game");
-            StringBuilder sb = new StringBuilder();
-            for (Object arg : gameArgs) {
-                if (arg instanceof String)
-                    sb.append(arg).append(" ");
-            }
-            return sb.toString().trim();
+    private List<String> parseArguments(JSONObject arguments, String key, PlatformDescription platformDescription) {
+        if (arguments == null || !arguments.has(key)) {
+            return Collections.emptyList();
         }
-        return null;//No Minecraft Args found
+        return parseArgument(arguments.getJSONArray(key), platformDescription);
+    }
+
+    private List<String> parseArgument(Object json, PlatformDescription platformDescription) {
+        if (json instanceof String) {
+            return Collections.singletonList((String) json);
+        }
+        if (json instanceof JSONArray) {
+            List<String> ret = new ArrayList<>();
+            JSONArray array = (JSONArray) json;
+            for (Object obj : array) {
+                ret.addAll(parseArgument(obj, platformDescription));
+            }
+            return ret;
+        }
+        if (json instanceof JSONObject) {
+            JSONObject obj = (JSONObject) json;
+            boolean allow = true;
+            if (obj.has("rules")) {
+                allow = checkAllowed(obj.getJSONArray("rules"), platformDescription);
+            }
+            if (allow) {
+                return parseArgument(obj.get("value"), platformDescription);
+            }
+        }
+        return Collections.emptyList();
     }
 }

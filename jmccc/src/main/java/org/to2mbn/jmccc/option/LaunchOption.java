@@ -332,7 +332,7 @@ public class LaunchOption implements Serializable {
 	 * modifiable.
 	 * <p>
 	 * When generating launch commandline, the variables in
-	 * {@link Version#getLaunchArgs()} will be replaced. For example,
+	 * {@link Version#getGameArgs()} will be replaced. For example,
 	 * <code>${version_name}</code> will be replaced by the version id. Some
 	 * variables are automatically replaced by the launcher. If you want to add
 	 * customized variables, you can set the values of the variables via

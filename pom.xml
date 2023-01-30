@@ -12,7 +12,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jar.source>1.8</jar.source>
 		<jar.target>1.8</jar.target>
-        <revision>2.6-SNAPSHOT</revision>
+        <revision>3.0-SNAPSHOT</revision>
 	</properties>
 	<issueManagement>
 		<url>https://github.com/xfl03/JMCCC/issues</url>

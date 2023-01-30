@@ -18,6 +18,7 @@ import org.to2mbn.jmccc.auth.AuthInfo;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import org.to2mbn.jmccc.option.LaunchOption;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
+import org.to2mbn.jmccc.option.WindowSize;
 import org.to2mbn.jmccc.util.FileUtils;
 import org.to2mbn.jmccc.util.UUIDUtils;
 import org.to2mbn.jmccc.version.Asset;
@@ -139,11 +140,20 @@ class LauncherImpl implements Launcher {
 		tokens.put("version_name", version.getVersion());
 		tokens.put("assets_index_name", version.getAssets());
 		tokens.put("game_directory", option.getRuntimeDirectory().getAbsolutePath());
+		tokens.put("natives_directory", nativesDir.getAbsolutePath());
+		tokens.put("launcher_name", "JMCCC");
+		tokens.put("launcher_version", "3.0");
 
 		String type = version.getType();
 		if (type != null) {
 			tokens.put("version_type", type);
 		}
+
+        WindowSize windowSize = option.getWindowSize();
+        if (windowSize != null) {
+            tokens.put("resolution_width", Integer.toString(windowSize.getWidth()));
+            tokens.put("resolution_height", Integer.toString(windowSize.getHeight()));
+        }
 
 		return new LaunchArgument(option, tokens, javaLibraries, nativesDir);
 	}
