@@ -5,6 +5,7 @@ import java.util.*;
 import org.to2mbn.jmccc.internal.org.json.JSONArray;
 import org.to2mbn.jmccc.internal.org.json.JSONException;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
+import org.to2mbn.jmccc.util.Arch;
 import org.to2mbn.jmccc.version.Asset;
 import org.to2mbn.jmccc.version.AssetIndexInfo;
 import org.to2mbn.jmccc.version.DownloadInfo;
@@ -53,19 +54,35 @@ class VersionParserImpl implements VersionParser {
             return null;
         }
 
-        String[] splitedGav = json.getString("name").split(":", 3);
+        String[] splitedGav = json.getString("name").split(":", 4);
         String groupId = splitedGav[0];
         String artifactId = splitedGav[1];
         String version = splitedGav[2];
 
+        //Legacy download info
         String url = json.optString("url", null);
         String[] checksums = parseChecksums(json.optJSONArray("checksums"));
 
+        //Legacy native
         JSONObject jsonNatives = json.optJSONObject("natives");
-
         boolean isNative = jsonNatives != null;
         String classifier = isNative ? parseNativeClassifier(json.getJSONObject("natives"), platformDescription) : null;
         LibraryInfo libinfo = parseLibraryDownloads(json.optJSONObject("downloads"), classifier);
+
+        //Override download info from downloads
+        if (libinfo.getUrl() != null) {
+            url = libinfo.getUrl();
+        }
+        if (libinfo.getChecksum() != null) {
+            checksums = new String[]{libinfo.getChecksum()};
+        }
+
+        //Override native
+        if (!isNative && splitedGav.length == 4) {
+            classifier = splitedGav[3];
+            isNative = classifier.startsWith("natives-");
+        }
+
         String type = "jar";
 
         if (isNative) {
@@ -234,7 +251,7 @@ class VersionParserImpl implements VersionParser {
         if (natives == null) return null;
         String classifier = natives.optString(platform.getPlatform().name().toLowerCase(), null);
         if (classifier != null) {
-            classifier = classifier.replaceAll("\\Q${arch}", platform.getArch());
+            classifier = classifier.replaceAll("\\Q${arch}", Arch.SIMPLE);
         }
         return classifier;
     }
@@ -269,11 +286,24 @@ class VersionParserImpl implements VersionParser {
     private Set<Library> parseLibraries(JSONArray json, PlatformDescription platform) throws JSONException {
         if (json == null) return null;
         Set<Library> libraries = new HashSet<>();
+        Map<String, Map<Arch, Native>> natives = new HashMap<>();
         for (Object element : json) {
             Library library = parseLibrary((JSONObject) element, platform);
             if (library != null) {
-                libraries.add(library);
+                if (library instanceof Native) {
+                    Native native0 = (Native) library;
+                    Map<Arch, Native> map = natives.computeIfAbsent(native0.getArtifactId(), it -> new HashMap<>());
+                    map.put(native0.getArch(), native0);
+                } else {
+                    libraries.add(library);
+                }
             }
+        }
+
+        //Choose best native
+        for (Map<Arch, Native> map : natives.values()) {
+            libraries.add(map.getOrDefault(platform.getArch(), map.get(Arch.DEFAULT)));
+
         }
         return libraries;
     }

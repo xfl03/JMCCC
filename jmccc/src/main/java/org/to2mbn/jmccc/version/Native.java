@@ -1,5 +1,7 @@
 package org.to2mbn.jmccc.version;
 
+import org.to2mbn.jmccc.util.Arch;
+
 import java.util.Objects;
 import java.util.Set;
 
@@ -42,4 +44,12 @@ public class Native extends Library {
 		return false;
 	}
 
+	public Arch getArch(){
+		String classifier = getClassifier();
+		if (classifier == null) {
+			return Arch.DEFAULT;
+		}
+		String[] strs = classifier.split("-");
+        return Arch.inferArch(strs[strs.length - 1]);
+	}
 }
