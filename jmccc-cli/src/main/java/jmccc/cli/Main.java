@@ -12,7 +12,7 @@ public class Main {
         System.out.println("Latest Release: " + latest);
         ForgeVersion forge = ModLoaderDownloader.getLatestForge(latest);
         System.out.println("Latest Forge: " + forge);
-        Version v = SimpleDownloader.download(forge.getVersionName());
-//        SimpleLauncher.launch(v);
+//        SimpleDownloader.download(forge.getVersionName());
+        SimpleLauncher.launch(forge.getMinecraftVersion() + "-forge-" + forge.getForgeVersion());
     }
 }

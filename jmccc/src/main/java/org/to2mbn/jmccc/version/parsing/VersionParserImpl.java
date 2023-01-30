@@ -115,8 +115,8 @@ class VersionParserImpl implements VersionParser {
         String assets = "legacy";
         String mainClass = null;
         String launchArgs = null;//Old Minecraft Arguments
-        List<String> additionArgs = new ArrayList<>();//New Minecraft Arguments
-        List<String> jvmArgs = new ArrayList<>();
+        Deque<List<String>> gameArgsDeque = new ArrayDeque<>();//New Minecraft Arguments
+        Deque<List<String>> jvmArgsDeque = new ArrayDeque<>();
         String type = null;
         Map<String, Library> librariesMap = new TreeMap<>();
         Map<String, DownloadInfo> downloads = new TreeMap<>();
@@ -132,8 +132,8 @@ class VersionParserImpl implements VersionParser {
             type = json.optString("type", type);
 
             JSONObject arguments = json.optJSONObject("arguments");
-            additionArgs.addAll(parseArguments(arguments, "game", platformDescription));
-            jvmArgs.addAll(parseArguments(arguments, "jvm", platformDescription));
+            gameArgsDeque.addLast(parseArguments(arguments, "game", platformDescription));
+            jvmArgsDeque.addLast(parseArguments(arguments, "jvm", platformDescription));
 
             Set<Library> currentLibraries = parseLibraries(json.optJSONArray("libraries"), platformDescription);
             if (currentLibraries != null) {
@@ -158,15 +158,15 @@ class VersionParserImpl implements VersionParser {
         } while (!hierarchy.isEmpty());
 
         //Process final Minecraft Arguments
-        List<String> finalArgs = new ArrayList<>();
+        List<String> gameArgs = mergeArgument(gameArgsDeque);
         if (launchArgs != null) {
-            finalArgs.addAll(Arrays.asList(launchArgs.split(" ")));
+            gameArgs.addAll(Arrays.asList(launchArgs.split(" ")));
         }
-        finalArgs.addAll(additionArgs);
+        List<String> jvmArgs = mergeArgument(jvmArgsDeque);
 
         if (mainClass == null)
             throw new JSONException("Missing mainClass");
-        if (launchArgs == null && additionArgs.isEmpty())
+        if (launchArgs == null && gameArgs.isEmpty())
             throw new JSONException("Missing minecraftArguments");
 
         Set<Library> libraries = new LinkedHashSet<>(librariesMap.values());
@@ -175,7 +175,7 @@ class VersionParserImpl implements VersionParser {
                 type,
                 mainClass,
                 assets,
-                finalArgs,
+                gameArgs,
                 jvmArgs,
                 root,
                 Collections.unmodifiableSet(libraries),
@@ -342,5 +342,13 @@ class VersionParserImpl implements VersionParser {
             }
         }
         return Collections.emptyList();
+    }
+
+    private List<String> mergeArgument(Deque<List<String>> deque) {
+        List<String> ret = new ArrayList<>();
+        while (!deque.isEmpty()) {
+            ret.addAll(deque.removeFirst());
+        }
+        return ret;
     }
 }

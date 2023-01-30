@@ -20,6 +20,7 @@ import org.to2mbn.jmccc.option.LaunchOption;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.option.WindowSize;
 import org.to2mbn.jmccc.util.FileUtils;
+import org.to2mbn.jmccc.util.Platform;
 import org.to2mbn.jmccc.util.UUIDUtils;
 import org.to2mbn.jmccc.version.Asset;
 import org.to2mbn.jmccc.version.Library;
@@ -143,6 +144,8 @@ class LauncherImpl implements Launcher {
 		tokens.put("natives_directory", nativesDir.getAbsolutePath());
 		tokens.put("launcher_name", "JMCCC");
 		tokens.put("launcher_version", "3.0");
+		tokens.put("library_directory", mcdir.getLibraries().getAbsolutePath());
+		tokens.put("classpath_separator", Platform.getPathSeparator());
 
 		String type = version.getType();
 		if (type != null) {

@@ -2,6 +2,7 @@ package org.to2mbn.jmccc.option;
 
 import java.io.File;
 import java.io.Serializable;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 import org.to2mbn.jmccc.version.Asset;
@@ -221,7 +222,17 @@ public class MinecraftDirectory implements Serializable {
 	 * @return the jar file of the given version
 	 */
 	public File getVersionJar(Version version) {
-		return getVersionJar(version.getRoot());
+		File current = getVersionJar(version.getVersion());
+		if (current.exists()) {
+			return current;
+		}
+		File root = getVersionJar(version.getRoot());
+		try {
+			Files.copy(root.toPath(), current.toPath());
+			return current;
+		} catch (Exception e) {
+			return root;
+		}
 	}
 
 	/**
