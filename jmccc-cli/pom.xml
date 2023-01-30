@@ -5,9 +5,9 @@
 		<artifactId>jmccc-parent</artifactId>
 		<version>${revision}</version>
 	</parent>
-	<artifactId>jmccc-example</artifactId>
-	<name>jmccc example</name>
-	<description>Example for JMCCC</description>
+	<artifactId>jmccc-cli</artifactId>
+	<name>jmccc cli</name>
+	<description>CLI for JMCCC</description>
 	<dependencies>
 		<dependency>
 			<groupId>dev.3-3</groupId>

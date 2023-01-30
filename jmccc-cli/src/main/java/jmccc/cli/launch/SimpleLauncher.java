@@ -1,20 +1,26 @@
-package jmccc.example;
+package jmccc.cli.launch;
 
+import jmccc.cli.Config;
 import org.to2mbn.jmccc.auth.OfflineAuthenticator;
 import org.to2mbn.jmccc.launch.LaunchException;
 import org.to2mbn.jmccc.launch.Launcher;
 import org.to2mbn.jmccc.launch.LauncherBuilder;
 import org.to2mbn.jmccc.launch.ProcessListener;
 import org.to2mbn.jmccc.option.LaunchOption;
+import org.to2mbn.jmccc.version.Version;
 
-import java.io.IOException;
+public class SimpleLauncher {
 
-public class ExampleLauncher {
-    public static void main(String... args) throws IOException, LaunchException {
+    public static void launch(Version targetVersion) throws LaunchException {
         Launcher launcher = LauncherBuilder.create().printDebugCommandline(true).build();
-        launcher.launch(new LaunchOption(ExampleConfig.MINECRAFT_VERSION,
-                new OfflineAuthenticator(ExampleConfig.PLAYER_NAME),
-                ExampleConfig.MINECRAFT_DIRECTORY), new ExampleListener());
+        LaunchOption option = new LaunchOption(targetVersion,
+                new OfflineAuthenticator(Config.PLAYER_NAME),
+                Config.MINECRAFT_DIRECTORY);
+        //Change Minecraft main menu bottom left text
+        option.commandlineVariables().put("version_type", "JMCCC");
+        //Set memory to 2048MB
+        option.setMaxMemory(2048);
+        launcher.launch(option, new ExampleListener());
     }
 
     private static class ExampleListener implements ProcessListener {

@@ -230,6 +230,6 @@
 		<module>jmccc-yggdrasil-authenticator</module>
 		<module>jmccc-mcdownloader</module>
 		<module>jmccc-mojang-api</module>
-		<module>jmccc-example</module>
+		<module>jmccc-cli</module>
 	</modules>
 </project>

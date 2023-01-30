@@ -2,6 +2,7 @@ package org.to2mbn.jmccc.option;
 
 import java.io.File;
 import java.io.Serializable;
+import java.nio.file.Path;
 import java.util.Objects;
 import org.to2mbn.jmccc.version.Asset;
 import org.to2mbn.jmccc.version.Library;
@@ -9,7 +10,7 @@ import org.to2mbn.jmccc.version.Version;
 
 /**
  * Describes a minecraft directory.
- * 
+ *
  * @author yushijinhun
  */
 public class MinecraftDirectory implements Serializable {
@@ -20,6 +21,7 @@ public class MinecraftDirectory implements Serializable {
 	 * The '.minecraft' dir.
 	 */
 	protected File rootDir;
+    protected Path rootPath;
 
 	/**
 	 * Creates a MinecraftDirectory with the '.minecraft' directory in the current directory.
@@ -30,7 +32,7 @@ public class MinecraftDirectory implements Serializable {
 
 	/**
 	 * Creates a MinecraftDirectory with the given root directory.
-	 * 
+	 *
 	 * @param rootDir the root directory of minecraft (eg. <code>".minecraft"</code>)
 	 */
 	public MinecraftDirectory(String rootDir) {
@@ -39,19 +41,20 @@ public class MinecraftDirectory implements Serializable {
 
 	/**
 	 * Creates a MinecraftDirectory with the given root directory.
-	 * 
+	 *
 	 * @param rootDir the root directory of minecraft (eg. <code>".minecraft"</code>)
 	 */
 	public MinecraftDirectory(File rootDir) {
 		Objects.requireNonNull(rootDir);
 		this.rootDir = rootDir.getAbsoluteFile();
+        this.rootPath = rootDir.toPath();
 	}
 
 	/**
 	 * Gets the root of the minecraft directory.
 	 * <p>
 	 * Usually it's '.minecraft'.
-	 * 
+	 *
 	 * @return the root of the minecraft directory
 	 */
 	public File getRoot() {
@@ -60,7 +63,7 @@ public class MinecraftDirectory implements Serializable {
 
 	/**
 	 * Gets the versions directory.
-	 * 
+	 *
 	 * @return the versions directory
 	 */
 	public File getVersions() {
@@ -69,7 +72,7 @@ public class MinecraftDirectory implements Serializable {
 
 	/**
 	 * Gets the libraries directory.
-	 * 
+	 *
 	 * @return the libraries directory
 	 */
 	public File getLibraries() {
@@ -78,7 +81,7 @@ public class MinecraftDirectory implements Serializable {
 
 	/**
 	 * Gets the library file.
-	 * 
+	 *
 	 * @param library the library
 	 * @return the library file
 	 */
@@ -88,7 +91,7 @@ public class MinecraftDirectory implements Serializable {
 
 	/**
 	 * Gets the natives directory.
-	 * 
+	 *
 	 * @param version the owner of the natives
 	 * @return the natives directory
 	 */
@@ -98,7 +101,7 @@ public class MinecraftDirectory implements Serializable {
 
 	/**
 	 * Gets the natives directory.
-	 * 
+	 *
 	 * @param version the owner of the natives
 	 * @return the natives directory
 	 */
@@ -108,7 +111,7 @@ public class MinecraftDirectory implements Serializable {
 
 	/**
 	 * Gets the assets directory.
-	 * 
+	 *
 	 * @return the assets directory
 	 */
 	public File getAssets() {
@@ -117,7 +120,7 @@ public class MinecraftDirectory implements Serializable {
 
 	/**
 	 * Gets the virtual assets directory.
-	 * 
+	 *
 	 * @return the virtual assets directory
 	 */
 	public File getVirtualAssets() {
@@ -126,7 +129,7 @@ public class MinecraftDirectory implements Serializable {
 
 	/**
 	 * Gets the virtual legacy assets directory.
-	 * 
+	 *
 	 * @return the virtual legacy assets directory
 	 */
 	public File getVirtualLegacyAssets() {
@@ -135,7 +138,7 @@ public class MinecraftDirectory implements Serializable {
 
 	/**
 	 * Gets the object assets directory.
-	 * 
+	 *
 	 * @return the object assets directory
 	 */
 	public File getAssetObjects() {
@@ -144,7 +147,7 @@ public class MinecraftDirectory implements Serializable {
 
 	/**
 	 * Gets the asset indexes directory.
-	 * 
+	 *
 	 * @return the asset indexes directory
 	 */
 	public File getAssetIndexes() {
@@ -153,7 +156,7 @@ public class MinecraftDirectory implements Serializable {
 
 	/**
 	 * Gets the asset index file.
-	 * 
+	 *
 	 * @param assets the name of the asset index
 	 * @return the asset index file
 	 */
@@ -163,7 +166,7 @@ public class MinecraftDirectory implements Serializable {
 
 	/**
 	 * Gets the asset index file of the given version.
-	 * 
+	 *
 	 * @param version the version
 	 * @return the asset index file
 	 */
@@ -173,7 +176,7 @@ public class MinecraftDirectory implements Serializable {
 
 	/**
 	 * Gets the base directory of the given version
-	 * 
+	 *
 	 * @param version the version
 	 * @return the base directory of the given version
 	 */
@@ -183,7 +186,7 @@ public class MinecraftDirectory implements Serializable {
 
 	/**
 	 * Gets the json file of the given version
-	 * 
+	 *
 	 * @param version the version
 	 * @return the json file of the given version
 	 */
@@ -193,7 +196,7 @@ public class MinecraftDirectory implements Serializable {
 
 	/**
 	 * Gets the json file of the given version
-	 * 
+	 *
 	 * @param version the version
 	 * @return the json file of the given version
 	 */
@@ -203,7 +206,7 @@ public class MinecraftDirectory implements Serializable {
 
 	/**
 	 * Gets the jar file of the given version
-	 * 
+	 *
 	 * @param version the version
 	 * @return the jar file of the given version
 	 */
@@ -213,7 +216,7 @@ public class MinecraftDirectory implements Serializable {
 
 	/**
 	 * Gets the jar file of the given version
-	 * 
+	 *
 	 * @param version the version
 	 * @return the jar file of the given version
 	 */
@@ -223,7 +226,7 @@ public class MinecraftDirectory implements Serializable {
 
 	/**
 	 * Gets the location of the given asset.
-	 * 
+	 *
 	 * @param asset the asset
 	 * @return the location of the asset
 	 */
@@ -233,7 +236,7 @@ public class MinecraftDirectory implements Serializable {
 
 	/**
 	 * Gets the virtual location of the given asset.
-	 * 
+	 *
 	 * @param asset the asset
 	 * @return the virtual location of the asset
 	 */
@@ -267,4 +270,7 @@ public class MinecraftDirectory implements Serializable {
 		return rootDir.hashCode();
 	}
 
+	public Path get(String path) {
+		return rootDir.toPath().resolve(path);
+	}
 }

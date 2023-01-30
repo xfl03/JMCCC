@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
+import java.net.URL;
 import java.net.URLConnection;
 import java.nio.ByteBuffer;
 import java.util.Collections;
@@ -73,7 +74,11 @@ class JdkHttpDownloader implements Downloader {
 		}
 
 		private T download() throws Exception {
-			URLConnection connection = task.getURI().toURL().openConnection(proxy);
+			return downloadCore(task.getURI().toURL());
+		}
+
+		private T downloadCore(URL url) throws Exception {
+			URLConnection connection = url.openConnection(proxy);
 			connection.setReadTimeout(readTimeout);
 			connection.setConnectTimeout(connectTimeout);
 			connection.setRequestProperty("Accept", "*/*");
@@ -81,15 +86,20 @@ class JdkHttpDownloader implements Downloader {
 			connection.setRequestProperty("Accept-Encoding", "gzip");
 			if (connection instanceof HttpURLConnection) {
 				((HttpURLConnection) connection).setRequestMethod("GET");
+				((HttpURLConnection) connection).setInstanceFollowRedirects(true);
 			}
 			connection.connect();
 
 			try {
 				if (connection instanceof HttpURLConnection) {
-					int responseCode = ((HttpURLConnection) connection).getResponseCode();
+					HttpURLConnection urlConnection = (HttpURLConnection) connection;
+					int responseCode = urlConnection.getResponseCode();
+					if (responseCode == 301 || responseCode == 302 || responseCode == 307) {
+						return downloadCore(new URL(urlConnection.getHeaderField("Location")));
+					}
 					if (responseCode < 200 || responseCode > 299) {
 						// non-2xx response code
-						throw new IllegalHttpResponseCodeException(((HttpURLConnection) connection).getHeaderField(0), responseCode);
+						throw new IllegalHttpResponseCodeException(urlConnection.getHeaderField(0), responseCode);
 					}
 				}
 

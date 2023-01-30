@@ -9,7 +9,7 @@ public class MojangDownloadProvider extends DefaultLayoutProvider {
 
 	@Override
 	protected String getVersionListURL() {
-		return "https://launchermeta.mojang.com/mc/game/version_manifest.json";
+		return "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json";
 	}
 
 	@Override
