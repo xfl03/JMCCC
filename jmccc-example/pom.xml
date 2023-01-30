@@ -5,14 +5,20 @@
 		<artifactId>jmccc-parent</artifactId>
 		<version>${revision}</version>
 	</parent>
-	<artifactId>jmccc-mojang-api</artifactId>
-	<name>jmccc-mojang-api</name>
-	<description>JMCCC's Mojang API client</description>
+	<artifactId>jmccc-example</artifactId>
+	<name>jmccc example</name>
+	<description>Example for JMCCC</description>
 	<dependencies>
-		<dependency> 
+		<dependency>
 			<groupId>dev.3-3</groupId>
-			<artifactId>jmccc-yggdrasil-authenticator</artifactId>
+			<artifactId>jmccc</artifactId>
+<!--			<version>${revision}</version>-->
+		</dependency>
+		<dependency>
+			<groupId>dev.3-3</groupId>
+			<artifactId>jmccc-mcdownloader</artifactId>
 <!--			<version>${revision}</version>-->
 		</dependency>
 	</dependencies>
 </project>
+

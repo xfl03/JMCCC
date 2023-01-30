@@ -3,7 +3,7 @@
 A powerful open-source library for launching and downloading Minecraft.
 
 ## License
-JMCCC is licensed under [the MIT license](https://to2mbn.github.io/jmccc/LICENSE.txt).
+JMCCC is licensed under [the MIT license](https://github.com/xfl03/JMCCC/LICENSE).
 
 ## Features
  * Launches all versions of Minecraft
@@ -28,12 +28,12 @@ JMCCC is licensed under [the MIT license](https://to2mbn.github.io/jmccc/LICENSE
 
 ## Quick Start
 ### Dependencies
-|Dependency                                |Description                      |
-|------------------------------------------|---------------------------------|
-|`org.to2mbn:jmccc`                        |Minecraft launching feature.     |
-|`org.to2mbn:jmccc-yggdrasil-authenticator`|Yggdrasil authentication feature.|
-|`org.to2mbn:jmccc-mcdownloader`           |Minecraft downloading feature.   |
-|`org.to2mbn:jmccc-mojang-api`             |Mojang API client.               |
+| Dependency                              | Description                       |
+|-----------------------------------------|-----------------------------------|
+| `dev.3-3:jmccc`                         | Minecraft launching feature.      |
+| `dev.3-3:jmccc-yggdrasil-authenticator` | Yggdrasil authentication feature. |
+| `dev.3-3:jmccc-mcdownloader`            | Minecraft downloading feature.    |
+| `dev.3-3:jmccc-mojang-api`              | Mojang API client.                |
 
 The snapshot repository:
 ```xml

@@ -12,7 +12,7 @@
 		<dependency>
 			<groupId>dev.3-3</groupId>
 			<artifactId>jmccc</artifactId>
-			<version>${revision}</version>
+<!--			<version>${revision}</version>-->
 		</dependency>
 		<dependency>
 			<groupId>org.tukaani</groupId>
@@ -22,7 +22,7 @@
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpasyncclient</artifactId>
-			<version>4.1.2</version>
+			<version>4.1.5</version>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
@@ -36,6 +36,11 @@
 			<artifactId>cache-api</artifactId>
 			<version>1.0.0</version>
 			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-compress</artifactId>
+			<version>1.22</version>
 		</dependency>
 	</dependencies>
 </project>

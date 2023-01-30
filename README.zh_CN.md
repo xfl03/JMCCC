@@ -3,7 +3,7 @@
 一个用来下载并启动Minecraft的强大的开源类库。
 
 ## 许可证
-JMCCC使用[MIT许可证](https://to2mbn.github.io/jmccc/LICENSE.txt)。
+JMCCC使用[MIT许可证](https://github.com/xfl03/JMCCC/LICENSE)。
 
 ## 功能
  * 启动各个版本的Minecraft
@@ -28,12 +28,12 @@ JMCCC使用[MIT许可证](https://to2mbn.github.io/jmccc/LICENSE.txt)。
 
 ## 快速开始
 ### 依赖库
-|依赖                                      |说明                     |
-|------------------------------------------|------------------------|
-|`org.to2mbn:jmccc`                        |提供启动Minecraft的功能  |
-|`org.to2mbn:jmccc-yggdrasil-authenticator`|提供Yggdrasil验证功能    |
-|`org.to2mbn:jmccc-mcdownloader`           |提供下载Minecraft的功能  |
-|`org.to2mbn:jmccc-mojang-api`             |Mojang API客户端        |
+| 依赖                                      | 说明               |
+|-----------------------------------------|------------------|
+| `dev.3-3:jmccc`                         | 提供启动Minecraft的功能 |
+| `dev.3-3:jmccc-yggdrasil-authenticator` | 提供Yggdrasil验证功能  |
+| `dev.3-3:jmccc-mcdownloader`            | 提供下载Minecraft的功能 |
+| `dev.3-3:jmccc-mojang-api`              | Mojang API客户端    |
 
 快照版本（snapshot）的Maven仓库：
 ```xml

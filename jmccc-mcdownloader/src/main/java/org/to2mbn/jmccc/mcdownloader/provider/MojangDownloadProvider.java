@@ -14,7 +14,7 @@ public class MojangDownloadProvider extends DefaultLayoutProvider {
 
 	@Override
 	protected String getAssetBaseURL() {
-		return "http://resources.download.minecraft.net/";
+		return "https://resources.download.minecraft.net/";
 	}
 
 }

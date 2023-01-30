@@ -12,16 +12,16 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jar.source>1.8</jar.source>
 		<jar.target>1.8</jar.target>
-        <revision>2.5-SNAPSHOT</revision>
+        <revision>2.6-SNAPSHOT</revision>
 	</properties>
 	<issueManagement>
-		<url>https://github.com/to2mbn/JMCCC/issues</url>
+		<url>https://github.com/xfl03/JMCCC/issues</url>
 		<system>GitHub Issues</system>
 	</issueManagement>
 	<licenses>
 		<license>
 			<name>MIT</name>
-			<url>https://to2mbn.github.io/jmccc/LICENSE.txt</url>
+			<url>https://github.com/xfl03/JMCCC/LICENSE</url>
 			<distribution>repo</distribution>
 			<comments>
 				The MIT License (MIT)
@@ -79,7 +79,7 @@
 		</developer>
 		<developer>
 			<email>moe@3-3.dev</email>
-			<name>Haowei Wen</name>
+			<name>xfl03</name>
 			<url>https://github.com/xfl03</url>
 			<id>xfl03</id>
 		</developer>
@@ -197,21 +197,31 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.12</version>
+			<version>4.13.1</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>org.to2mbn</groupId>
+				<groupId>dev.3-3</groupId>
 				<artifactId>jmccc</artifactId>
-				<version>${project.version}</version>
+				<version>${revision}</version>
 			</dependency>
 			<dependency>
-				<groupId>org.to2mbn</groupId>
+				<groupId>dev.3-3</groupId>
+				<artifactId>jmccc-mcdownloader</artifactId>
+				<version>${revision}</version>
+			</dependency>
+			<dependency>
+				<groupId>dev.3-3</groupId>
 				<artifactId>jmccc-yggdrasil-authenticator</artifactId>
-				<version>${project.version}</version>
+				<version>${revision}</version>
+			</dependency>
+			<dependency>
+				<groupId>dev.3-3</groupId>
+				<artifactId>jmccc-mojang-api</artifactId>
+				<version>${revision}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -220,5 +230,6 @@
 		<module>jmccc-yggdrasil-authenticator</module>
 		<module>jmccc-mcdownloader</module>
 		<module>jmccc-mojang-api</module>
+		<module>jmccc-example</module>
 	</modules>
 </project>

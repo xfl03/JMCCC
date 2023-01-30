@@ -12,7 +12,7 @@
 		<dependency>
 			<groupId>dev.3-3</groupId>
 			<artifactId>jmccc</artifactId>
-			<version>${revision}</version>
+<!--			<version>${revision}</version>-->
 		</dependency>
 	</dependencies>
 </project>
