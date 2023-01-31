@@ -33,6 +33,7 @@ public class Main {
         //Check special version
         switch (version) {
             case "latest":
+            case "stable":
             case "release":
                 version = SimpleDownloader.getLatestRelease();
                 break;
@@ -44,6 +45,18 @@ public class Main {
                 break;
             case "liteloader":
                 version = ModLoaderDownloader.getLatestLiteLoader().getVersionName();
+                break;
+            case "fabric":
+                version = ModLoaderDownloader.getLatestFabric().getVersionName();
+                break;
+            case "fabric-snapshot":
+                version = ModLoaderDownloader.getLatestFabricSnapshot().getVersionName();
+                break;
+            case "quilt":
+                version = ModLoaderDownloader.getLatestQuilt().getVersionName();
+                break;
+            case "quilt-snapshot":
+                version = ModLoaderDownloader.getLatestQuiltSnapshot().getVersionName();
                 break;
         }
         System.out.println("Version: " + version);

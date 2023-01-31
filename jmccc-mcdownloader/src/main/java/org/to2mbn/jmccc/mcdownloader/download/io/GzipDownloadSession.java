@@ -42,7 +42,7 @@ public class GzipDownloadSession<T> implements DownloadSession<T> {
             ByteBuffer bb = ByteBuffer.wrap(buf);
             int read;
             while ((read = gzin.read(buf)) != -1) {
-                bb.position(0);
+                ((java.nio.Buffer) bb).position(0);
                 bb.limit(read);
                 underlying.receiveData(bb);
             }

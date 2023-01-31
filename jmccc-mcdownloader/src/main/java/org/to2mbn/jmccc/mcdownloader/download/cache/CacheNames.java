@@ -21,6 +21,8 @@ public final class CacheNames {
     // Liteloader caches
     public static final String LITELOADER_VERSION_LIST = PREFIX_DYNAMIC + "liteloader.versionList";
     public static final String LITELOADER_VERSION_JSON = PREFIX_DYNAMIC + "liteloader.versionJson";
+    // Fabric caches
+    public static final String FABRIC_VERSION_LIST = PREFIX_DYNAMIC + "fabric.versionList";
 
     // Maven
     public static final String M2_METADATA = PREFIX_DYNAMIC + "m2.metadata";

@@ -47,13 +47,7 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
     public CombinedDownloadTask<LiteloaderVersionList> liteloaderVersionList() {
         return CombinedDownloadTask.single(new MemoryDownloadTask(source.getLiteloaderManifestUrl())
                 .andThen(new JsonDecoder())
-                .andThen(new ResultProcessor<JSONObject, LiteloaderVersionList>() {
-
-                    @Override
-                    public LiteloaderVersionList process(JSONObject json) throws Exception {
-                        return LiteloaderVersionList.fromJson(json);
-                    }
-                })
+                .andThen(LiteloaderVersionList::fromJson)
                 .cacheable()
                 .cachePool(CacheNames.LITELOADER_VERSION_LIST));
     }
@@ -65,59 +59,39 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
             return null;
         }
 
+        // lookup LiteloaderVersion
+        // create version json
         return upstreamProvider.gameVersionJson(mcdir, liteloaderInfo.getSuperVersion())
-                .andThenDownload(new ResultProcessor<String, CombinedDownloadTask<LiteloaderVersion>>() {
+                .andThenDownload(superVersion -> liteloaderVersionList()
+                        .andThen(versionList -> {
+                            String mcversion = liteloaderInfo.getMinecraftVersion();
+                            LiteloaderVersion genericLiteloader = versionList.getLatest(mcversion);
+                            if (genericLiteloader == null) {
+                                genericLiteloader = versionList.getSnapshot(mcversion);
+                            }
 
-                    // lookup LiteloaderVersion
-                    @Override
-                    public CombinedDownloadTask<LiteloaderVersion> process(final String superVersion) throws Exception {
-                        return liteloaderVersionList()
-                                .andThen(new ResultProcessor<LiteloaderVersionList, LiteloaderVersion>() {
+                            if (genericLiteloader == null) {
+                                throw new IllegalArgumentException("Liteloader version not found: " + liteloaderInfo);
+                            }
+                            return genericLiteloader.customize(superVersion);
+                        }))
+                .andThenDownload(liteloader -> {
+                    if (liteloader.getLiteloaderVersion().endsWith("-SNAPSHOT")) {
+                        // it's a snapshot
 
-                                    @Override
-                                    public LiteloaderVersion process(LiteloaderVersionList versionList) throws Exception {
-                                        String mcversion = liteloaderInfo.getMinecraftVersion();
-                                        LiteloaderVersion genericLiteloader = versionList.getLatest(mcversion);
-                                        if (genericLiteloader == null) {
-                                            genericLiteloader = versionList.getSnapshot(mcversion);
-                                        }
+                        return source.liteloaderSnapshotVersionJson(liteloader)
+                                .andThen(json -> processSnapshotLiteloaderVersion(mcdir, json, liteloader))
+                                .andThen(new VersionJsonInstaller(mcdir))
+                                .cachePool(CacheNames.LITELOADER_VERSION_JSON);
+                    } else {
+                        // it's a release
+                        return new CombinedDownloadTask<String>() {
 
-                                        if (genericLiteloader == null) {
-                                            throw new IllegalArgumentException("Liteloader version not found: " + liteloaderInfo);
-                                        }
-                                        return genericLiteloader.customize(superVersion);
-                                    }
-                                });
-                    }
-                })
-                .andThenDownload(new ResultProcessor<LiteloaderVersion, CombinedDownloadTask<String>>() {
-
-                    // create version json
-                    @Override
-                    public CombinedDownloadTask<String> process(final LiteloaderVersion liteloader) throws Exception {
-                        if (liteloader.getLiteloaderVersion().endsWith("-SNAPSHOT")) {
-                            // it's a snapshot
-
-                            return source.liteloaderSnapshotVersionJson(liteloader)
-                                    .andThen(new ResultProcessor<JSONObject, JSONObject>() {
-
-                                        @Override
-                                        public JSONObject process(JSONObject json) throws Exception {
-                                            return processSnapshotLiteloaderVersion(mcdir, json, liteloader);
-                                        }
-                                    })
-                                    .andThen(new VersionJsonInstaller(mcdir))
-                                    .cachePool(CacheNames.LITELOADER_VERSION_JSON);
-                        } else {
-                            // it's a release
-                            return new CombinedDownloadTask<String>() {
-
-                                @Override
-                                public void execute(CombinedDownloadContext<String> context) throws Exception {
-                                    context.done(new VersionJsonInstaller(mcdir).process(createLiteloaderVersion(mcdir, liteloader)));
-                                }
-                            };
-                        }
+                            @Override
+                            public void execute(CombinedDownloadContext<String> context) throws Exception {
+                                context.done(new VersionJsonInstaller(mcdir).process(createLiteloaderVersion(mcdir, liteloader)));
+                            }
+                        };
                     }
                 });
     }
@@ -131,32 +105,24 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
         if (LITELOADER_GROUP_ID.equals(groupId) && LITELOADER_ARTIFACT_ID.equals(artifactId)) {
             if (library.isSnapshotArtifact()) {
                 return liteloaderVersionList()
-                        .andThenDownload(new ResultProcessor<LiteloaderVersionList, CombinedDownloadTask<Void>>() {
-
-                            @Override
-                            public CombinedDownloadTask<Void> process(LiteloaderVersionList versionList) throws Exception {
-                                LiteloaderVersion liteloader = versionList.getSnapshot(
-                                        version.substring(0, version.length() - "-SNAPSHOT".length()) // the minecraft version
-                                );
-                                if (liteloader != null) {
-                                    final String repo = liteloader.getRepoUrl();
-                                    if (repo != null) {
-                                        return MavenRepositories.snapshotPostfix(groupId, artifactId, version, repo)
-                                                .andThenDownload(new ResultProcessor<String, CombinedDownloadTask<Void>>() {
-
-                                                    @Override
-                                                    public CombinedDownloadTask<Void> process(String postfix) throws Exception {
-                                                        Library libToDownload = new Library(groupId, artifactId, version, "release", library.getType());
-                                                        return CombinedDownloadTask.single(
-                                                                new FileDownloadTask(repo + libToDownload.getPath(postfix), mcdir.getLibrary(library))
-                                                                        .cacheable()
-                                                                        .cachePool(CacheNames.LIBRARY));
-                                                    }
-                                                });
-                                    }
+                        .andThenDownload(versionList -> {
+                            LiteloaderVersion liteloader = versionList.getSnapshot(
+                                    version.substring(0, version.length() - "-SNAPSHOT".length()) // the minecraft version
+                            );
+                            if (liteloader != null) {
+                                final String repo = liteloader.getRepoUrl();
+                                if (repo != null) {
+                                    return MavenRepositories.snapshotPostfix(groupId, artifactId, version, repo)
+                                            .andThenDownload(postfix -> {
+                                                Library libToDownload = new Library(groupId, artifactId, version, "release", library.getType());
+                                                return CombinedDownloadTask.single(
+                                                        new FileDownloadTask(repo + libToDownload.getPath(postfix), mcdir.getLibrary(library))
+                                                                .cacheable()
+                                                                .cachePool(CacheNames.LIBRARY));
+                                            });
                                 }
-                                return upstreamProvider.library(mcdir, library);
                             }
+                            return upstreamProvider.library(mcdir, library);
                         });
             }
         }

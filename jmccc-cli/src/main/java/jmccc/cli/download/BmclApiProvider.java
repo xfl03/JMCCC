@@ -3,14 +3,14 @@ package jmccc.cli.download;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.MemoryDownloadTask;
-import org.to2mbn.jmccc.mcdownloader.download.tasks.ResultProcessor;
 import org.to2mbn.jmccc.mcdownloader.provider.DefaultLayoutProvider;
 import org.to2mbn.jmccc.mcdownloader.provider.JsonDecoder;
+import org.to2mbn.jmccc.mcdownloader.provider.fabric.FabricDownloadSource;
 import org.to2mbn.jmccc.mcdownloader.provider.forge.ForgeDownloadSource;
 import org.to2mbn.jmccc.mcdownloader.provider.liteloader.LiteloaderDownloadSource;
 import org.to2mbn.jmccc.mcdownloader.provider.liteloader.LiteloaderVersion;
 
-public class BmclApiProvider extends DefaultLayoutProvider implements ForgeDownloadSource, LiteloaderDownloadSource {
+public class BmclApiProvider extends DefaultLayoutProvider implements ForgeDownloadSource, LiteloaderDownloadSource, FabricDownloadSource {
 
     @Override
     protected String getLibraryBaseURL() {
@@ -49,5 +49,10 @@ public class BmclApiProvider extends DefaultLayoutProvider implements ForgeDownl
                         .andThen(new JsonDecoder())
                         .andThen(installProfile -> installProfile.getJSONObject("versionInfo"))
                         .cacheable());
+    }
+
+    @Override
+    public String getFabricMetaBaseUrl() {
+        return "https://bmclapi2.bangbang93.com/fabric-meta/";
     }
 }

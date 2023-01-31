@@ -23,7 +23,9 @@ public class SimpleCallback<T> extends CallbackAdapter<T> {
 
     @Override
     public void updateProgress(long done, long total) {
-        System.out.printf("Progress: %d/%d\n", done, total);
+        if (Math.random() < 0.33) {
+            System.out.printf("Progress: %d/%d\n", done, total);
+        }
     }
 
     @Override
