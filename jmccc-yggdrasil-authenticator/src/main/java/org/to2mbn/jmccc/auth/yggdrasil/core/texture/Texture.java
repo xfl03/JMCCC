@@ -6,8 +6,8 @@ import java.util.Map;
 
 public interface Texture {
 
-	Map<String, String> getMetadata();
+    Map<String, String> getMetadata();
 
-	InputStream openStream() throws IOException;
+    InputStream openStream() throws IOException;
 
 }

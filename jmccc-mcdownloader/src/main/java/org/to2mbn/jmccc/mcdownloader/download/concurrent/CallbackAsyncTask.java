@@ -3,233 +3,227 @@ package org.to2mbn.jmccc.mcdownloader.download.concurrent;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.RunnableFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 abstract public class CallbackAsyncTask<V> implements RunnableFuture<V>, Cancelable {
 
-	public static interface FutureManager<T> extends Callback<T> {
+    private final Set<Object> cancelables = Collections.newSetFromMap(new ConcurrentHashMap<Object, Boolean>());
+    private final AsyncFuture<V> future;
+    private final Callback<V> lifecycle;
+    private final AtomicBoolean running = new AtomicBoolean(false);
 
-		void setFuture(Future<?> future);
+    public CallbackAsyncTask() {
+        future = new AsyncFuture<>(new CancelProcesser());
+        lifecycle = new InterruptedExceptionMapper<V>(future);
+    }
 
-	}
+    private static void cancelCancelable(Object cancelable, boolean mayInterruptIfRunning) {
+        if (cancelable instanceof Future) {
+            ((Future<?>) cancelable).cancel(mayInterruptIfRunning);
+        } else if (cancelable instanceof Cancelable) {
+            ((Cancelable) cancelable).cancel(mayInterruptIfRunning);
+        }
+    }
 
-	private static void cancelCancelable(Object cancelable, boolean mayInterruptIfRunning) {
-		if (cancelable instanceof Future) {
-			((Future<?>) cancelable).cancel(mayInterruptIfRunning);
-		} else if (cancelable instanceof Cancelable) {
-			((Cancelable) cancelable).cancel(mayInterruptIfRunning);
-		}
-	}
+    public Callback<V> getCallback() {
+        return future.getCallback();
+    }
 
-	private static class InterruptedExceptionMapper<V> implements Callback<V> {
+    public void setCallback(Callback<V> callback) {
+        future.setCallback(callback);
+    }
 
-		private final Callback<V> mapped;
+    @Override
+    public V get() throws InterruptedException, ExecutionException {
+        return future.get();
+    }
 
-		public InterruptedExceptionMapper(Callback<V> mapped) {
-			this.mapped = mapped;
-		}
+    @Override
+    public V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+        return future.get(timeout, unit);
+    }
 
-		@Override
-		public void done(V result) {
-			mapped.done(result);
-		}
+    @Override
+    public boolean isCancelled() {
+        return future.isCancelled();
+    }
 
-		@Override
-		public void failed(Throwable e) {
-			if (e instanceof InterruptedException) {
-				mapped.cancelled();
-			} else {
-				mapped.failed(e);
-			}
-		}
+    @Override
+    public boolean isDone() {
+        return future.isDone();
+    }
 
-		@Override
-		public void cancelled() {
-			mapped.cancelled();
-		}
+    public boolean isExceptional() {
+        return future.isExceptional();
+    }
 
-	}
+    @Override
+    public void run() {
+        if (!future.isCancelled() && running.compareAndSet(false, true)) {
+            Cancelable canceller = new ThreadCancelableAdapter(Thread.currentThread());
+            addCancelable(canceller);
+            try {
+                if (Thread.interrupted())
+                    return;
 
-	private static class ThreadCancelableAdapter implements Cancelable {
+                try {
+                    execute();
+                } catch (Throwable e) {
+                    lifecycle.failed(e);
+                }
+            } finally {
+                removeCancelable(canceller);
+            }
+        }
+    }
 
-		private final Thread t;
+    @Override
+    public boolean cancel(boolean mayInterruptIfRunning) {
+        return future.cancel(mayInterruptIfRunning);
+    }
 
-		public ThreadCancelableAdapter(Thread t) {
-			this.t = t;
-		}
+    abstract protected void execute() throws Exception;
 
-		@Override
-		public boolean cancel(boolean mayInterruptIfRunning) {
-			t.interrupt();
-			return true;
-		}
+    protected Callback<V> lifecycle() {
+        return lifecycle;
+    }
 
-	}
+    protected void addCancelable(Cancelable cancelable) {
+        cancelables.add(cancelable);
+        cancelIfNecessary(cancelable);
+    }
 
-	private class CancelProcesser implements Cancelable {
+    protected void addCancelable(Future<?> cancelable) {
+        cancelables.add(cancelable);
+        cancelIfNecessary(cancelable);
+    }
 
-		@Override
-		public boolean cancel(boolean mayInterruptIfRunning) {
-			for (Object cancelable : cancelables) {
-				cancelCancelable(cancelable, mayInterruptIfRunning);
-				cancelables.remove(cancelable);
-			}
-			return true;
-		}
+    protected void removeCancelable(Cancelable cancelable) {
+        cancelables.remove(cancelable);
+    }
 
-	}
+    protected void removeCancelable(Future<?> cancelable) {
+        cancelables.remove(cancelable);
+    }
 
-	private class FutureManagerImpl<R> implements FutureManager<R> {
+    protected <R> FutureManager<R> createFutureManager() {
+        return new FutureManagerImpl<R>();
+    }
 
-		private volatile Future<?> subfuture;
-		private volatile boolean terminated = false;
-		private final Object lock = new Object();
+    private void cancelIfNecessary(Object cancelable) {
+        if (future.isCancelled()) {
+            cancelCancelable(cancelable, true);
+            cancelables.remove(cancelable);
+        }
+    }
 
-		@Override
-		public void done(R result) {
-			removeFuture();
-		}
+    public static interface FutureManager<T> extends Callback<T> {
 
-		@Override
-		public void failed(Throwable e) {
-			removeFuture();
-		}
+        void setFuture(Future<?> future);
 
-		@Override
-		public void cancelled() {
-			removeFuture();
-		}
+    }
 
-		@Override
-		public void setFuture(Future<?> subfuture) {
-			Objects.requireNonNull(subfuture);
-			synchronized (lock) {
-				if (!terminated) {
-					this.subfuture = subfuture;
-					addCancelable(subfuture);
-				}
-			}
-		}
+    private static class InterruptedExceptionMapper<V> implements Callback<V> {
 
-		private void removeFuture() {
-			synchronized (lock) {
-				terminated = true;
-				if (subfuture != null) {
-					removeCancelable(subfuture);
-					subfuture = null;
-				}
-			}
-		}
+        private final Callback<V> mapped;
 
-	}
+        public InterruptedExceptionMapper(Callback<V> mapped) {
+            this.mapped = mapped;
+        }
 
-	private final Set<Object> cancelables = Collections.newSetFromMap(new ConcurrentHashMap<Object, Boolean>());
-	private final AsyncFuture<V> future;
-	private final Callback<V> lifecycle;
+        @Override
+        public void done(V result) {
+            mapped.done(result);
+        }
 
-	private final AtomicBoolean running = new AtomicBoolean(false);
+        @Override
+        public void failed(Throwable e) {
+            if (e instanceof InterruptedException) {
+                mapped.cancelled();
+            } else {
+                mapped.failed(e);
+            }
+        }
 
-	public CallbackAsyncTask() {
-		future = new AsyncFuture<>(new CancelProcesser());
-		lifecycle = new InterruptedExceptionMapper<V>(future);
-	}
+        @Override
+        public void cancelled() {
+            mapped.cancelled();
+        }
 
-	public Callback<V> getCallback() {
-		return future.getCallback();
-	}
+    }
 
-	public void setCallback(Callback<V> callback) {
-		future.setCallback(callback);
-	}
+    private static class ThreadCancelableAdapter implements Cancelable {
 
-	@Override
-	public V get() throws InterruptedException, ExecutionException {
-		return future.get();
-	}
+        private final Thread t;
 
-	@Override
-	public V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-		return future.get(timeout, unit);
-	}
+        public ThreadCancelableAdapter(Thread t) {
+            this.t = t;
+        }
 
-	@Override
-	public boolean isCancelled() {
-		return future.isCancelled();
-	}
+        @Override
+        public boolean cancel(boolean mayInterruptIfRunning) {
+            t.interrupt();
+            return true;
+        }
 
-	@Override
-	public boolean isDone() {
-		return future.isDone();
-	}
+    }
 
-	public boolean isExceptional() {
-		return future.isExceptional();
-	}
+    private class CancelProcesser implements Cancelable {
 
-	@Override
-	public void run() {
-		if (!future.isCancelled() && running.compareAndSet(false, true)) {
-			Cancelable canceller = new ThreadCancelableAdapter(Thread.currentThread());
-			addCancelable(canceller);
-			try {
-				if (Thread.interrupted())
-					return;
+        @Override
+        public boolean cancel(boolean mayInterruptIfRunning) {
+            for (Object cancelable : cancelables) {
+                cancelCancelable(cancelable, mayInterruptIfRunning);
+                cancelables.remove(cancelable);
+            }
+            return true;
+        }
 
-				try {
-					execute();
-				} catch (Throwable e) {
-					lifecycle.failed(e);
-				}
-			} finally {
-				removeCancelable(canceller);
-			}
-		}
-	}
+    }
 
-	@Override
-	public boolean cancel(boolean mayInterruptIfRunning) {
-		return future.cancel(mayInterruptIfRunning);
-	}
+    private class FutureManagerImpl<R> implements FutureManager<R> {
 
-	abstract protected void execute() throws Exception;
+        private final Object lock = new Object();
+        private volatile Future<?> subfuture;
+        private volatile boolean terminated = false;
 
-	protected Callback<V> lifecycle() {
-		return lifecycle;
-	}
+        @Override
+        public void done(R result) {
+            removeFuture();
+        }
 
-	protected void addCancelable(Cancelable cancelable) {
-		cancelables.add(cancelable);
-		cancelIfNecessary(cancelable);
-	}
+        @Override
+        public void failed(Throwable e) {
+            removeFuture();
+        }
 
-	protected void addCancelable(Future<?> cancelable) {
-		cancelables.add(cancelable);
-		cancelIfNecessary(cancelable);
-	}
+        @Override
+        public void cancelled() {
+            removeFuture();
+        }
 
-	protected void removeCancelable(Cancelable cancelable) {
-		cancelables.remove(cancelable);
-	}
+        @Override
+        public void setFuture(Future<?> subfuture) {
+            Objects.requireNonNull(subfuture);
+            synchronized (lock) {
+                if (!terminated) {
+                    this.subfuture = subfuture;
+                    addCancelable(subfuture);
+                }
+            }
+        }
 
-	protected void removeCancelable(Future<?> cancelable) {
-		cancelables.remove(cancelable);
-	}
+        private void removeFuture() {
+            synchronized (lock) {
+                terminated = true;
+                if (subfuture != null) {
+                    removeCancelable(subfuture);
+                    subfuture = null;
+                }
+            }
+        }
 
-	protected <R> FutureManager<R> createFutureManager() {
-		return new FutureManagerImpl<R>();
-	}
-
-	private void cancelIfNecessary(Object cancelable) {
-		if (future.isCancelled()) {
-			cancelCancelable(cancelable, true);
-			cancelables.remove(cancelable);
-		}
-	}
+    }
 
 }

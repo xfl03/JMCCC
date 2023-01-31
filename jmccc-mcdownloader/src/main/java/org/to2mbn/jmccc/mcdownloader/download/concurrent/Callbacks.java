@@ -5,28 +5,28 @@ import java.util.Objects;
 
 public final class Callbacks {
 
-	@SafeVarargs
-	public static <T> Callback<T> group(Callback<T>... callbacks) {
-		Objects.requireNonNull(callbacks);
-		return new CallbackGroup<>(callbacks);
-	}
+    private Callbacks() {
+    }
 
-	public static <T> Callback<T> group(Collection<Callback<T>> callbacks) {
-		Objects.requireNonNull(callbacks);
-		@SuppressWarnings("unchecked")
-		Callback<T>[] result = callbacks.toArray(new Callback[callbacks.size()]);
-		return new CallbackGroup<>(result);
-	}
+    @SafeVarargs
+    public static <T> Callback<T> group(Callback<T>... callbacks) {
+        Objects.requireNonNull(callbacks);
+        return new CallbackGroup<>(callbacks);
+    }
 
-	public static <T> Callback<T> whatever(Runnable callback) {
-		Objects.requireNonNull(callback);
-		return new WhateverCallback<>(callback);
-	}
+    public static <T> Callback<T> group(Collection<Callback<T>> callbacks) {
+        Objects.requireNonNull(callbacks);
+        @SuppressWarnings("unchecked")
+        Callback<T>[] result = callbacks.toArray(new Callback[callbacks.size()]);
+        return new CallbackGroup<>(result);
+    }
 
-	public static <T> Callback<T> empty() {
-		return new EmptyCallback<>();
-	}
+    public static <T> Callback<T> whatever(Runnable callback) {
+        Objects.requireNonNull(callback);
+        return new WhateverCallback<>(callback);
+    }
 
-	private Callbacks() {
-	}
+    public static <T> Callback<T> empty() {
+        return new EmptyCallback<>();
+    }
 }

@@ -4,17 +4,17 @@ import org.to2mbn.jmccc.auth.yggdrasil.core.ProfileService;
 
 public class YggdrasilProfileServiceBuilder extends AbstractYggdrasilServiceBuilder<ProfileService> {
 
-	public static YggdrasilProfileServiceBuilder create() {
-		return new YggdrasilProfileServiceBuilder();
-	}
+    public static YggdrasilProfileServiceBuilder create() {
+        return new YggdrasilProfileServiceBuilder();
+    }
 
-	public static ProfileService buildDefault() {
-		return create().build();
-	}
+    public static ProfileService buildDefault() {
+        return create().build();
+    }
 
-	@Override
-	public ProfileService build() {
-		return new YggdrasilProfileService(buildHttpRequester(), buildPropertiesDeserializer(), buildAPIProvider());
-	}
+    @Override
+    public ProfileService build() {
+        return new YggdrasilProfileService(buildHttpRequester(), buildPropertiesDeserializer(), buildAPIProvider());
+    }
 
 }

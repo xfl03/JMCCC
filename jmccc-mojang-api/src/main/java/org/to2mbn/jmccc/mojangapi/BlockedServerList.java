@@ -4,8 +4,8 @@ import java.io.Serializable;
 
 public interface BlockedServerList extends Serializable {
 
-	boolean isBlocked(String host);
+    boolean isBlocked(String host);
 
-	String[] getEntries();
+    String[] getEntries();
 
 }

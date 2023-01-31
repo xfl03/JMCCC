@@ -1,9 +1,5 @@
 package org.to2mbn.jmccc.mcdownloader.download.cache;
 
-import java.net.URI;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 import org.to2mbn.jmccc.mcdownloader.download.Downloader;
 import org.to2mbn.jmccc.mcdownloader.download.cache.provider.CacheProvider;
 import org.to2mbn.jmccc.mcdownloader.download.cache.provider.EhcacheProvider;
@@ -11,259 +7,261 @@ import org.to2mbn.jmccc.mcdownloader.download.cache.provider.JCacheProvider;
 import org.to2mbn.jmccc.util.Builder;
 import org.to2mbn.jmccc.util.Builders;
 
+import java.net.URI;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
+
 public class CachedDownloaderBuilder implements Builder<Downloader> {
 
-	private static final Logger LOGGER = Logger.getLogger(CachedDownloaderBuilder.class.getCanonicalName());
+    private static final Logger LOGGER = Logger.getLogger(CachedDownloaderBuilder.class.getCanonicalName());
+    // === Default cache settings
+    private static final long DEFAULT_CACHE_TTL = 2;
+    private static final TimeUnit DEFAULT_CACHE_TTL_UNIT = TimeUnit.HOURS;
+    private static final long DEFAULT_CACHE_HEAP = 32;
+    private static final String DEFAULT_CACHE_HEAP_UNIT = "MB";
+    protected final Builder<Downloader> underlying;
+    protected Builder<? extends CacheProvider<URI, byte[]>> cacheProvider;
+    protected CachedDownloaderBuilder(Builder<Downloader> underlying) {
+        this.underlying = Objects.requireNonNull(underlying);
+    }
+    // ===
 
-	public static CachedDownloaderBuilder create(Builder<Downloader> underlying) {
-		return new CachedDownloaderBuilder(underlying);
-	}
+    public static CachedDownloaderBuilder create(Builder<Downloader> underlying) {
+        return new CachedDownloaderBuilder(underlying);
+    }
 
-	public static Downloader buildDefault(Builder<Downloader> underlying) {
-		return create(underlying).build();
-	}
+    public static Downloader buildDefault(Builder<Downloader> underlying) {
+        return create(underlying).build();
+    }
 
-	public static boolean isAvailable() {
-		return (JCacheProvider.isAvailable() && JCacheSupport.hasAvailableProvider()) || EhcacheProvider.isAvailable();
-	}
+    public static boolean isAvailable() {
+        return (JCacheProvider.isAvailable() && JCacheSupport.hasAvailableProvider()) || EhcacheProvider.isAvailable();
+    }
 
-	// === Default cache settings
-	private static final long DEFAULT_CACHE_TTL = 2;
-	private static final TimeUnit DEFAULT_CACHE_TTL_UNIT = TimeUnit.HOURS;
-	private static final long DEFAULT_CACHE_HEAP = 32;
-	private static final String DEFAULT_CACHE_HEAP_UNIT = "MB";
-	// ===
+    public CachedDownloaderBuilder cacheProvider(Builder<? extends CacheProvider<URI, byte[]>> cacheProvider) {
+        this.cacheProvider = Objects.requireNonNull(cacheProvider);
+        return this;
+    }
 
-	protected final Builder<Downloader> underlying;
-	protected Builder<? extends CacheProvider<URI, byte[]>> cacheProvider;
+    // === Ehcache Supports
 
-	protected CachedDownloaderBuilder(Builder<Downloader> underlying) {
-		this.underlying = Objects.requireNonNull(underlying);
-	}
+    public CachedDownloaderBuilder ehcache(Builder<? extends org.ehcache.CacheManager> ehcache, boolean autoClose) {
+        this.cacheProvider = new EhcacheProviderBuilder(Objects.requireNonNull(ehcache), autoClose);
+        return this;
+    }
 
-	public CachedDownloaderBuilder cacheProvider(Builder<? extends CacheProvider<URI, byte[]>> cacheProvider) {
-		this.cacheProvider = Objects.requireNonNull(cacheProvider);
-		return this;
-	}
+    public CachedDownloaderBuilder ehcache(Builder<? extends org.ehcache.CacheManager> ehcache) {
+        return ehcache(ehcache, true);
+    }
 
-	// === Ehcache Supports
+    public CachedDownloaderBuilder ehcache(org.ehcache.config.Builder<? extends org.ehcache.CacheManager> ehcache, boolean autoClose) {
+        return ehcache(new EhcacheBuilderAdapter<>(Objects.requireNonNull(ehcache)), autoClose);
+    }
 
-	private static class EhcacheProviderBuilder implements Builder<CacheProvider<URI, byte[]>> {
+    public CachedDownloaderBuilder ehcache(org.ehcache.config.Builder<? extends org.ehcache.CacheManager> ehcache) {
+        return ehcache(ehcache, true);
+    }
 
-		private Builder<? extends org.ehcache.CacheManager> ehcache;
-		private boolean autoClose;
+    public CachedDownloaderBuilder ehcache(final org.ehcache.CacheManager ehcache, boolean autoClose) {
+        Objects.requireNonNull(ehcache);
+        return ehcache(Builders.of(ehcache), autoClose);
+    }
 
-		public EhcacheProviderBuilder(Builder<? extends org.ehcache.CacheManager> ehcache, boolean autoClose) {
-			this.ehcache = ehcache;
-			this.autoClose = autoClose;
-		}
+    public CachedDownloaderBuilder ehcache(org.ehcache.CacheManager ehcache) {
+        return ehcache(ehcache, false);
+    }
 
-		@Override
-		public CacheProvider<URI, byte[]> build() {
-			return EhcacheSupport.adapt(ehcache.build(), autoClose);
-		}
-	}
+    public CachedDownloaderBuilder jcache(Builder<? extends javax.cache.CacheManager> jcache, boolean autoClose) {
+        this.cacheProvider = new JCacheProviderBuilder(Objects.requireNonNull(jcache), autoClose);
+        return this;
+    }
 
-	private static class EhcacheBuilderAdapter<T> implements Builder<T> {
+    public CachedDownloaderBuilder jcache(Builder<? extends javax.cache.CacheManager> jcache) {
+        return jcache(jcache, true);
+    }
 
-		private org.ehcache.config.Builder<T> adapted;
+    public CachedDownloaderBuilder jcache(final javax.cache.CacheManager jcache, boolean autoClose) {
+        Objects.requireNonNull(jcache);
+        this.cacheProvider = new JCacheProviderBuilder(Builders.of(jcache), autoClose);
+        return this;
+    }
 
-		public EhcacheBuilderAdapter(org.ehcache.config.Builder<T> adapted) {
-			this.adapted = adapted;
-		}
+    // ===
 
-		@Override
-		public T build() {
-			return adapted.build();
-		}
+    // === javax.cache Supports
 
-	}
+    public CachedDownloaderBuilder jcache(javax.cache.CacheManager jcache) {
+        return jcache(jcache, false);
+    }
 
-	private static class EhcacheSupport {
+    @Override
+    public Downloader build() {
+        Downloader underlying = null;
+        CacheProvider<URI, byte[]> cache = null;
 
-		static CacheProvider<URI, byte[]> adapt(org.ehcache.CacheManager manager, boolean autoClose) {
-			if (manager.getStatus() == org.ehcache.Status.UNINITIALIZED)
-				manager.init();
+        try {
+            underlying = Objects.requireNonNull(this.underlying.build(), "Underlying downloader builder returns null");
+            cache = buildCacheProvider();
+            LOGGER.fine("Using cache provider: " + cache);
+            return new CachedDownloader(underlying, cache);
 
-			return new EhcacheProvider<>(manager, URI.class, byte[].class, autoClose);
-		}
+        } catch (Throwable e) {
+            if (underlying != null) {
+                try {
+                    underlying.shutdown();
+                } catch (Throwable e1) {
+                    e.addSuppressed(e1);
+                }
+            }
+            if (cache != null) {
+                try {
+                    cache.close();
+                } catch (Throwable e1) {
+                    e.addSuppressed(e1);
+                }
+            }
+            throw e;
+        }
+    }
 
-		static org.ehcache.config.Builder<org.ehcache.CacheManager> defaultCacheManagerBuilder() {
-			return org.ehcache.config.builders.CacheManagerBuilder.newCacheManagerBuilder()
-					.withCache(CacheNames.DEFAULT, org.ehcache.config.builders.CacheConfigurationBuilder.newCacheConfigurationBuilder(URI.class, byte[].class,
-							org.ehcache.config.builders.ResourcePoolsBuilder.newResourcePoolsBuilder()
-									.heap(DEFAULT_CACHE_HEAP, org.ehcache.config.units.MemoryUnit.valueOf(DEFAULT_CACHE_HEAP_UNIT)))
-							.withExpiry(org.ehcache.expiry.Expirations.timeToLiveExpiration(new org.ehcache.expiry.Duration(DEFAULT_CACHE_TTL, DEFAULT_CACHE_TTL_UNIT))));
-		}
+    private CacheProvider<URI, byte[]> buildCacheProvider() {
+        CacheProvider<URI, byte[]> provider;
+        if (cacheProvider == null) {
+            provider = createDefaultCacheProvider();
+            if (provider == null) {
+                throw new IllegalStateException("No default cache provider found");
+            }
+        } else {
+            provider = Objects.requireNonNull(cacheProvider.build(), "Cache provider builder returns null");
+        }
 
-		static CacheProvider<URI, byte[]> createDefault() {
-			return adapt(defaultCacheManagerBuilder().build(), true);
-		}
+        return provider;
+    }
 
-	}
+    protected CacheProvider<URI, byte[]> createDefaultCacheProvider() {
+        CacheProvider<URI, byte[]> provider = null;
 
-	public CachedDownloaderBuilder ehcache(Builder<? extends org.ehcache.CacheManager> ehcache, boolean autoClose) {
-		this.cacheProvider = new EhcacheProviderBuilder(Objects.requireNonNull(ehcache), autoClose);
-		return this;
-	}
+        if (JCacheProvider.isAvailable()) {
+            provider = JCacheSupport.createDefault();
+        }
 
-	public CachedDownloaderBuilder ehcache(Builder<? extends org.ehcache.CacheManager> ehcache) {
-		return ehcache(ehcache, true);
-	}
+        if (provider == null) {
+            if (EhcacheProvider.isAvailable()) {
+                provider = EhcacheSupport.createDefault();
+            }
+        }
 
-	public CachedDownloaderBuilder ehcache(org.ehcache.config.Builder<? extends org.ehcache.CacheManager> ehcache, boolean autoClose) {
-		return ehcache(new EhcacheBuilderAdapter<>(Objects.requireNonNull(ehcache)), autoClose);
-	}
+        return provider;
+    }
 
-	public CachedDownloaderBuilder ehcache(org.ehcache.config.Builder<? extends org.ehcache.CacheManager> ehcache) {
-		return ehcache(ehcache, true);
-	}
+    private static class EhcacheProviderBuilder implements Builder<CacheProvider<URI, byte[]>> {
 
-	public CachedDownloaderBuilder ehcache(final org.ehcache.CacheManager ehcache, boolean autoClose) {
-		Objects.requireNonNull(ehcache);
-		return ehcache(Builders.of(ehcache), autoClose);
-	}
+        private Builder<? extends org.ehcache.CacheManager> ehcache;
+        private boolean autoClose;
 
-	public CachedDownloaderBuilder ehcache(org.ehcache.CacheManager ehcache) {
-		return ehcache(ehcache, false);
-	}
+        public EhcacheProviderBuilder(Builder<? extends org.ehcache.CacheManager> ehcache, boolean autoClose) {
+            this.ehcache = ehcache;
+            this.autoClose = autoClose;
+        }
 
-	// ===
+        @Override
+        public CacheProvider<URI, byte[]> build() {
+            return EhcacheSupport.adapt(ehcache.build(), autoClose);
+        }
+    }
 
-	// === javax.cache Supports
+    private static class EhcacheBuilderAdapter<T> implements Builder<T> {
 
-	private static class JCacheProviderBuilder implements Builder<CacheProvider<URI, byte[]>> {
+        private org.ehcache.config.Builder<T> adapted;
 
-		private Builder<? extends javax.cache.CacheManager> jcache;
-		private boolean autoClose;
+        public EhcacheBuilderAdapter(org.ehcache.config.Builder<T> adapted) {
+            this.adapted = adapted;
+        }
 
-		public JCacheProviderBuilder(Builder<? extends javax.cache.CacheManager> jcache, boolean autoClose) {
-			this.jcache = jcache;
-			this.autoClose = autoClose;
-		}
+        @Override
+        public T build() {
+            return adapted.build();
+        }
 
-		@Override
-		public CacheProvider<URI, byte[]> build() {
-			return JCacheSupport.adapt(jcache.build(), autoClose);
-		}
-	}
+    }
 
-	private static class JCacheSupport {
+    // ===
 
-		static CacheProvider<URI, byte[]> adapt(javax.cache.CacheManager manager, boolean autoClose) {
-			return new JCacheProvider<>(manager, URI.class, byte[].class, autoClose);
-		}
+    private static class EhcacheSupport {
 
-		static javax.cache.CacheManager defaultCacheManager() {
-			javax.cache.spi.CachingProvider cachingProvider;
-			try {
-				cachingProvider = javax.cache.Caching.getCachingProvider();
-			} catch (javax.cache.CacheException e) {
-				return null;
-			}
-			javax.cache.CacheManager cacheManager = cachingProvider.getCacheManager();
+        static CacheProvider<URI, byte[]> adapt(org.ehcache.CacheManager manager, boolean autoClose) {
+            if (manager.getStatus() == org.ehcache.Status.UNINITIALIZED)
+                manager.init();
 
-			if (cacheManager.getCache(CacheNames.DEFAULT, URI.class, byte[].class) == null) {
-				cacheManager.createCache(CacheNames.DEFAULT, new javax.cache.configuration.MutableConfiguration<URI, byte[]>()
-						.setTypes(URI.class, byte[].class)
-						.setExpiryPolicyFactory(javax.cache.expiry.CreatedExpiryPolicy.factoryOf(
-								new javax.cache.expiry.Duration(DEFAULT_CACHE_TTL_UNIT, DEFAULT_CACHE_TTL))));
-			}
-			return cacheManager;
-		}
+            return new EhcacheProvider<>(manager, URI.class, byte[].class, autoClose);
+        }
 
-		static CacheProvider<URI, byte[]> createDefault() {
-			javax.cache.CacheManager cacheManager = defaultCacheManager();
-			if (cacheManager == null) {
-				return null;
-			}
-			return adapt(cacheManager, true);
-		}
+        static org.ehcache.config.Builder<org.ehcache.CacheManager> defaultCacheManagerBuilder() {
+            return org.ehcache.config.builders.CacheManagerBuilder.newCacheManagerBuilder()
+                    .withCache(CacheNames.DEFAULT, org.ehcache.config.builders.CacheConfigurationBuilder.newCacheConfigurationBuilder(URI.class, byte[].class,
+                                    org.ehcache.config.builders.ResourcePoolsBuilder.newResourcePoolsBuilder()
+                                            .heap(DEFAULT_CACHE_HEAP, org.ehcache.config.units.MemoryUnit.valueOf(DEFAULT_CACHE_HEAP_UNIT)))
+                            .withExpiry(org.ehcache.expiry.Expirations.timeToLiveExpiration(new org.ehcache.expiry.Duration(DEFAULT_CACHE_TTL, DEFAULT_CACHE_TTL_UNIT))));
+        }
 
-		static boolean hasAvailableProvider() {
-			return javax.cache.Caching.getCachingProviders().iterator().hasNext();
-		}
-	}
+        static CacheProvider<URI, byte[]> createDefault() {
+            return adapt(defaultCacheManagerBuilder().build(), true);
+        }
 
-	public CachedDownloaderBuilder jcache(Builder<? extends javax.cache.CacheManager> jcache, boolean autoClose) {
-		this.cacheProvider = new JCacheProviderBuilder(Objects.requireNonNull(jcache), autoClose);
-		return this;
-	}
+    }
 
-	public CachedDownloaderBuilder jcache(Builder<? extends javax.cache.CacheManager> jcache) {
-		return jcache(jcache, true);
-	}
+    private static class JCacheProviderBuilder implements Builder<CacheProvider<URI, byte[]>> {
 
-	public CachedDownloaderBuilder jcache(final javax.cache.CacheManager jcache, boolean autoClose) {
-		Objects.requireNonNull(jcache);
-		this.cacheProvider = new JCacheProviderBuilder(Builders.of(jcache), autoClose);
-		return this;
-	}
+        private Builder<? extends javax.cache.CacheManager> jcache;
+        private boolean autoClose;
 
-	public CachedDownloaderBuilder jcache(javax.cache.CacheManager jcache) {
-		return jcache(jcache, false);
-	}
+        public JCacheProviderBuilder(Builder<? extends javax.cache.CacheManager> jcache, boolean autoClose) {
+            this.jcache = jcache;
+            this.autoClose = autoClose;
+        }
 
-	// ===
+        @Override
+        public CacheProvider<URI, byte[]> build() {
+            return JCacheSupport.adapt(jcache.build(), autoClose);
+        }
+    }
 
-	@Override
-	public Downloader build() {
-		Downloader underlying = null;
-		CacheProvider<URI, byte[]> cache = null;
+    private static class JCacheSupport {
 
-		try {
-			underlying = Objects.requireNonNull(this.underlying.build(), "Underlying downloader builder returns null");
-			cache = buildCacheProvider();
-			LOGGER.fine("Using cache provider: " + cache);
-			return new CachedDownloader(underlying, cache);
+        static CacheProvider<URI, byte[]> adapt(javax.cache.CacheManager manager, boolean autoClose) {
+            return new JCacheProvider<>(manager, URI.class, byte[].class, autoClose);
+        }
 
-		} catch (Throwable e) {
-			if (underlying != null) {
-				try {
-					underlying.shutdown();
-				} catch (Throwable e1) {
-					e.addSuppressed(e1);
-				}
-			}
-			if (cache != null) {
-				try {
-					cache.close();
-				} catch (Throwable e1) {
-					e.addSuppressed(e1);
-				}
-			}
-			throw e;
-		}
-	}
+        static javax.cache.CacheManager defaultCacheManager() {
+            javax.cache.spi.CachingProvider cachingProvider;
+            try {
+                cachingProvider = javax.cache.Caching.getCachingProvider();
+            } catch (javax.cache.CacheException e) {
+                return null;
+            }
+            javax.cache.CacheManager cacheManager = cachingProvider.getCacheManager();
 
-	private CacheProvider<URI, byte[]> buildCacheProvider() {
-		CacheProvider<URI, byte[]> provider;
-		if (cacheProvider == null) {
-			provider = createDefaultCacheProvider();
-			if (provider == null) {
-				throw new IllegalStateException("No default cache provider found");
-			}
-		} else {
-			provider = Objects.requireNonNull(cacheProvider.build(), "Cache provider builder returns null");
-		}
+            if (cacheManager.getCache(CacheNames.DEFAULT, URI.class, byte[].class) == null) {
+                cacheManager.createCache(CacheNames.DEFAULT, new javax.cache.configuration.MutableConfiguration<URI, byte[]>()
+                        .setTypes(URI.class, byte[].class)
+                        .setExpiryPolicyFactory(javax.cache.expiry.CreatedExpiryPolicy.factoryOf(
+                                new javax.cache.expiry.Duration(DEFAULT_CACHE_TTL_UNIT, DEFAULT_CACHE_TTL))));
+            }
+            return cacheManager;
+        }
 
-		return provider;
-	}
+        static CacheProvider<URI, byte[]> createDefault() {
+            javax.cache.CacheManager cacheManager = defaultCacheManager();
+            if (cacheManager == null) {
+                return null;
+            }
+            return adapt(cacheManager, true);
+        }
 
-	protected CacheProvider<URI, byte[]> createDefaultCacheProvider() {
-		CacheProvider<URI, byte[]> provider = null;
-
-		if (JCacheProvider.isAvailable()) {
-			provider = JCacheSupport.createDefault();
-		}
-
-		if (provider == null) {
-			if (EhcacheProvider.isAvailable()) {
-				provider = EhcacheSupport.createDefault();
-			}
-		}
-
-		return provider;
-	}
+        static boolean hasAvailableProvider() {
+            return javax.cache.Caching.getCachingProviders().iterator().hasNext();
+        }
+    }
 
 }

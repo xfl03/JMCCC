@@ -4,12 +4,12 @@ import java.io.Closeable;
 
 public interface CacheProvider<K, V> extends Closeable {
 
-	V get(String cachePool, K key);
+    V get(String cachePool, K key);
 
-	void put(String cachePool, K key, V value);
+    void put(String cachePool, K key, V value);
 
-	void remove(String cachePool, K key);
+    void remove(String cachePool, K key);
 
-	boolean hasCache(String cachePool);
+    boolean hasCache(String cachePool);
 
 }

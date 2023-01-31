@@ -7,66 +7,63 @@ import java.util.regex.Pattern;
 
 class ResolvedLiteloaderVersion implements Serializable {
 
-	private static final Pattern LITELOADER_VERSION_PATTERN = Pattern.compile("^([\\w\\.\\-]+)-[lL]ite[lL]oader([\\w\\.\\-]+)$");
+    private static final Pattern LITELOADER_VERSION_PATTERN = Pattern.compile("^([\\w\\.\\-]+)-[lL]ite[lL]oader([\\w\\.\\-]+)$");
+    private static final long serialVersionUID = 1L;
+    private String minecraftVersion;
+    private String superVersion;
+    public ResolvedLiteloaderVersion(LiteloaderVersion version) {
+        this(version.getMinecraftVersion(), version.getSuperVersion());
+    }
 
-	public static ResolvedLiteloaderVersion resolve(String version) {
-		Matcher matcher = LITELOADER_VERSION_PATTERN.matcher(version);
-		if (matcher.matches()) {
-			String superVersion = matcher.group(1);
-			String minecraftVersion = matcher.group(2);
-			return new ResolvedLiteloaderVersion(minecraftVersion, superVersion);
-		}
+    public ResolvedLiteloaderVersion(String minecraftVersion, String superVersion) {
+        this.minecraftVersion = minecraftVersion;
+        this.superVersion = superVersion;
+    }
 
-		return null;
-	}
+    public static ResolvedLiteloaderVersion resolve(String version) {
+        Matcher matcher = LITELOADER_VERSION_PATTERN.matcher(version);
+        if (matcher.matches()) {
+            String superVersion = matcher.group(1);
+            String minecraftVersion = matcher.group(2);
+            return new ResolvedLiteloaderVersion(minecraftVersion, superVersion);
+        }
 
-	private static final long serialVersionUID = 1L;
+        return null;
+    }
 
-	private String minecraftVersion;
-	private String superVersion;
+    public String getMinecraftVersion() {
+        return minecraftVersion;
+    }
 
-	public ResolvedLiteloaderVersion(LiteloaderVersion version) {
-		this(version.getMinecraftVersion(), version.getSuperVersion());
-	}
+    public String getSuperVersion() {
+        return superVersion;
+    }
 
-	public ResolvedLiteloaderVersion(String minecraftVersion, String superVersion) {
-		this.minecraftVersion = minecraftVersion;
-		this.superVersion = superVersion;
-	}
+    public String getVersionName() {
+        return superVersion + "-" + minecraftVersion;
+    }
 
-	public String getMinecraftVersion() {
-		return minecraftVersion;
-	}
+    @Override
+    public String toString() {
+        return getVersionName();
+    }
 
-	public String getSuperVersion() {
-		return superVersion;
-	}
+    @Override
+    public int hashCode() {
+        return Objects.hash(minecraftVersion, superVersion);
+    }
 
-	public String getVersionName() {
-		return superVersion + "-" + minecraftVersion;
-	}
-
-	@Override
-	public String toString() {
-		return getVersionName();
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(minecraftVersion, superVersion);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (obj == this) {
-			return true;
-		}
-		if (obj instanceof ResolvedLiteloaderVersion) {
-			ResolvedLiteloaderVersion another = (ResolvedLiteloaderVersion) obj;
-			return Objects.equals(minecraftVersion, another.minecraftVersion) &&
-					Objects.equals(superVersion, another.superVersion);
-		}
-		return false;
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj instanceof ResolvedLiteloaderVersion) {
+            ResolvedLiteloaderVersion another = (ResolvedLiteloaderVersion) obj;
+            return Objects.equals(minecraftVersion, another.minecraftVersion) &&
+                    Objects.equals(superVersion, another.superVersion);
+        }
+        return false;
+    }
 
 }

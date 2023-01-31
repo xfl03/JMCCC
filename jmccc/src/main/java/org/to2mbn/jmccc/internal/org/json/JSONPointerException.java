@@ -27,20 +27,20 @@ SOFTWARE.
 /**
  * The JSONPointerException is thrown by {@link JSONPointer} if an error occurs
  * during evaluating a pointer.
- * 
+ *
  * @author JSON.org
  * @version 2016-05-13
  */
 public class JSONPointerException extends JSONException {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public JSONPointerException(String message) {
-		super(message);
-	}
+    public JSONPointerException(String message) {
+        super(message);
+    }
 
-	public JSONPointerException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    public JSONPointerException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
 }

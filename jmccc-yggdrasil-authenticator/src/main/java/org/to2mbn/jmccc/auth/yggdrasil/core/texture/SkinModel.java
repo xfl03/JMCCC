@@ -5,43 +5,42 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum SkinModel {
-	STEVE(""), ALEX("slim");
+    STEVE(""), ALEX("slim");
 
-	public static final String METADATA_KEY_MODEL = "model";
+    public static final String METADATA_KEY_MODEL = "model";
+    private String modelName;
+    private Map<String, String> metadata;
 
-	public static SkinModel inferModel(Texture texture) {
-		if (texture == null) {
-			return STEVE;
-		} else {
-			return inferModel(texture.getMetadata());
-		}
-	}
+    SkinModel(String modelName) {
+        this.modelName = modelName;
 
-	public static SkinModel inferModel(Map<String, String> metadata) {
-		if (metadata != null && ALEX.modelName.equals(metadata.get(METADATA_KEY_MODEL))) {
-			return ALEX;
-		} else {
-			return STEVE;
-		}
-	}
+        Map<String, String> modifiableMetadata = new HashMap<>();
+        modifiableMetadata.put(METADATA_KEY_MODEL, modelName);
+        metadata = Collections.unmodifiableMap(modifiableMetadata);
+    }
 
-	private String modelName;
-	private Map<String, String> metadata;
+    public static SkinModel inferModel(Texture texture) {
+        if (texture == null) {
+            return STEVE;
+        } else {
+            return inferModel(texture.getMetadata());
+        }
+    }
 
-	SkinModel(String modelName) {
-		this.modelName = modelName;
+    public static SkinModel inferModel(Map<String, String> metadata) {
+        if (metadata != null && ALEX.modelName.equals(metadata.get(METADATA_KEY_MODEL))) {
+            return ALEX;
+        } else {
+            return STEVE;
+        }
+    }
 
-		Map<String, String> modifiableMetadata = new HashMap<>();
-		modifiableMetadata.put(METADATA_KEY_MODEL, modelName);
-		metadata = Collections.unmodifiableMap(modifiableMetadata);
-	}
+    public String modelName() {
+        return modelName;
+    }
 
-	public String modelName() {
-		return modelName;
-	}
-
-	public Map<String, String> metadata() {
-		return metadata;
-	}
+    public Map<String, String> metadata() {
+        return metadata;
+    }
 
 }

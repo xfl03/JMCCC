@@ -1,24 +1,23 @@
 package org.to2mbn.jmccc.version.parsing;
 
-import java.util.Objects;
-
 import org.to2mbn.jmccc.util.Arch;
 import org.to2mbn.jmccc.util.Platform;
 
-public class PlatformDescription {
+import java.util.Objects;
 
-    public static PlatformDescription current() {
-        return new PlatformDescription(Platform.CURRENT, System.getProperty("os.version"), Arch.CURRENT);
-    }
+public class PlatformDescription {
 
     private Platform platform;
     private String version;
     private Arch arch;
-
     public PlatformDescription(Platform platform, String version, Arch arch) {
         this.platform = Objects.requireNonNull(platform);
         this.version = version;
         this.arch = Objects.requireNonNull(arch);
+    }
+
+    public static PlatformDescription current() {
+        return new PlatformDescription(Platform.CURRENT, System.getProperty("os.version"), Arch.CURRENT);
     }
 
     public Platform getPlatform() {

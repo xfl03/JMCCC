@@ -1,6 +1,5 @@
 package jmccc.cli.download;
 
-import org.to2mbn.jmccc.mcdownloader.provider.forge.ForgeDownloadProvider;
 import org.to2mbn.jmccc.mcdownloader.provider.forge.ForgeVersion;
 
 import java.util.concurrent.ExecutionException;

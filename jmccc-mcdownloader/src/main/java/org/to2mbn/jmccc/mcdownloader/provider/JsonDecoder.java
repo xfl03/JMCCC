@@ -6,9 +6,9 @@ import org.to2mbn.jmccc.util.IOUtils;
 
 public class JsonDecoder implements ResultProcessor<byte[], JSONObject> {
 
-	@Override
-	public JSONObject process(byte[] data) throws Exception {
-		return IOUtils.toJson(data);
-	}
+    @Override
+    public JSONObject process(byte[] data) throws Exception {
+        return IOUtils.toJson(data);
+    }
 
 }

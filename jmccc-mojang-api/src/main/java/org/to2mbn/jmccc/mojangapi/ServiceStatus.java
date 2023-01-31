@@ -2,24 +2,24 @@ package org.to2mbn.jmccc.mojangapi;
 
 /**
  * Describes the status of a Mojang service.
- * 
+ *
  * @author yushijinhun
  */
 public enum ServiceStatus {
 
-	/**
-	 * Service available.
-	 */
-	GREEN,
+    /**
+     * Service available.
+     */
+    GREEN,
 
-	/**
-	 * Something wrong with the service.
-	 */
-	YELLOW,
+    /**
+     * Something wrong with the service.
+     */
+    YELLOW,
 
-	/**
-	 * Service unavailable.
-	 */
-	RED;
+    /**
+     * Service unavailable.
+     */
+    RED;
 
 }

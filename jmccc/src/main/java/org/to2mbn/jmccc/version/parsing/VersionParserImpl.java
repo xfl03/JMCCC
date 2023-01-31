@@ -1,18 +1,12 @@
 package org.to2mbn.jmccc.version.parsing;
 
-import java.util.*;
-
 import org.to2mbn.jmccc.internal.org.json.JSONArray;
 import org.to2mbn.jmccc.internal.org.json.JSONException;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import org.to2mbn.jmccc.util.Arch;
-import org.to2mbn.jmccc.version.Asset;
-import org.to2mbn.jmccc.version.AssetIndexInfo;
-import org.to2mbn.jmccc.version.DownloadInfo;
-import org.to2mbn.jmccc.version.Library;
-import org.to2mbn.jmccc.version.LibraryInfo;
-import org.to2mbn.jmccc.version.Native;
-import org.to2mbn.jmccc.version.Version;
+import org.to2mbn.jmccc.version.*;
+
+import java.util.*;
 
 class VersionParserImpl implements VersionParser {
 
@@ -284,7 +278,7 @@ class VersionParserImpl implements VersionParser {
         for (Object element : json) {
             Library library = parseLibrary((JSONObject) element, platform);
             if (library != null) {
-                    libraries.add(library);
+                libraries.add(library);
             }
         }
         return libraries;

@@ -4,8 +4,8 @@ import org.to2mbn.jmccc.auth.AuthenticationException;
 
 public interface GameProfileCallback {
 
-	void completed(GameProfile profile);
+    void completed(GameProfile profile);
 
-	void failed(String name, AuthenticationException e);
+    void failed(String name, AuthenticationException e);
 
 }

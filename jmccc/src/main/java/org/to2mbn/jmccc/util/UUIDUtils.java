@@ -4,32 +4,32 @@ import java.util.UUID;
 
 public final class UUIDUtils {
 
-	public static String unsign(UUID uuid) {
-		return uuid.toString().replace("-", "");
-	}
+    private UUIDUtils() {
+    }
 
-	public static String unsign(String uuid) {
-		return uuid.replace("-", "");
-	}
+    public static String unsign(UUID uuid) {
+        return uuid.toString().replace("-", "");
+    }
 
-	public static UUID toUUID(String uuid) {
-		switch (uuid.length()) {
-			case 36:
-				return UUID.fromString(uuid);
+    public static String unsign(String uuid) {
+        return uuid.replace("-", "");
+    }
 
-			case 32:
-				return UUID.fromString(uuid.substring(0, 8) + "-" + uuid.substring(8, 12) + "-" + uuid.substring(12, 16) + "-" + uuid.substring(16, 20) + "-" + uuid.substring(20, 32));
+    public static UUID toUUID(String uuid) {
+        switch (uuid.length()) {
+            case 36:
+                return UUID.fromString(uuid);
 
-			default:
-				throw new IllegalArgumentException("Invalid UUID string: " + uuid);
-		}
-	}
+            case 32:
+                return UUID.fromString(uuid.substring(0, 8) + "-" + uuid.substring(8, 12) + "-" + uuid.substring(12, 16) + "-" + uuid.substring(16, 20) + "-" + uuid.substring(20, 32));
 
-	public static String randomUnsignedUUID() {
-		return unsign(UUID.randomUUID());
-	}
+            default:
+                throw new IllegalArgumentException("Invalid UUID string: " + uuid);
+        }
+    }
 
-	private UUIDUtils() {
-	}
+    public static String randomUnsignedUUID() {
+        return unsign(UUID.randomUUID());
+    }
 
 }

@@ -1,12 +1,5 @@
 package org.to2mbn.jmccc.version.parsing;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Objects;
-import java.util.Set;
-import java.util.Stack;
-import java.util.TreeSet;
 import org.to2mbn.jmccc.internal.org.json.JSONException;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
@@ -14,123 +7,128 @@ import org.to2mbn.jmccc.util.IOUtils;
 import org.to2mbn.jmccc.version.Asset;
 import org.to2mbn.jmccc.version.Version;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+
 /**
  * A tool class for resolving versions.
- * 
+ *
  * @author yushijinhun
  */
 public final class Versions {
 
-	private final static VersionParser PARSER = new VersionParserImpl();
+    private final static VersionParser PARSER = new VersionParserImpl();
 
-	/**
-	 * Resolves the version.
-	 * 
-	 * @param minecraftDir the minecraft directory
-	 * @param version the version name
-	 * @return the version object, or null if the version does not exist
-	 * @throws IOException if an I/O error has occurred during resolving version
-	 * @throws NullPointerException if
-	 *             <code>minecraftDir==null || version==null</code>
-	 */
-	public static Version resolveVersion(MinecraftDirectory minecraftDir, String version) throws IOException {
-		Objects.requireNonNull(minecraftDir);
-		Objects.requireNonNull(version);
+    private Versions() {
+    }
 
-		if (doesVersionExist(minecraftDir, version)) {
-			try {
-				return getVersionParser().parseVersion(resolveVersionHierarchy(version, minecraftDir), PlatformDescription.current());
-			} catch (JSONException e) {
-				throw new IOException("Couldn't parse version json: " + version, e);
-			}
-		} else {
-			return null;
-		}
-	}
+    /**
+     * Resolves the version.
+     *
+     * @param minecraftDir the minecraft directory
+     * @param version      the version name
+     * @return the version object, or null if the version does not exist
+     * @throws IOException          if an I/O error has occurred during resolving version
+     * @throws NullPointerException if
+     *                              <code>minecraftDir==null || version==null</code>
+     */
+    public static Version resolveVersion(MinecraftDirectory minecraftDir, String version) throws IOException {
+        Objects.requireNonNull(minecraftDir);
+        Objects.requireNonNull(version);
 
-	/**
-	 * Returns the set of versions in the given minecraft directory.
-	 * <p>
-	 * This method returns a non-threaded safe, unordered set.
-	 * 
-	 * @param minecraftDir the minecraft directory
-	 * @return the set of versions
-	 * @throws NullPointerException if <code>minecraftDir==null</code>
-	 */
-	public static Set<String> getVersions(MinecraftDirectory minecraftDir) {
-		Objects.requireNonNull(minecraftDir);
-		Set<String> versions = new TreeSet<>();
+        if (doesVersionExist(minecraftDir, version)) {
+            try {
+                return getVersionParser().parseVersion(resolveVersionHierarchy(version, minecraftDir), PlatformDescription.current());
+            } catch (JSONException e) {
+                throw new IOException("Couldn't parse version json: " + version, e);
+            }
+        } else {
+            return null;
+        }
+    }
 
-		// null if the 'versions' dir not exists
-		File[] subdirs = minecraftDir.getVersions().listFiles();
-		if (subdirs != null) {
-			for (File file : subdirs) {
-				if (file.isDirectory() && doesVersionExist(minecraftDir, file.getName())) {
-					versions.add(file.getName());
-				}
-			}
-		}
-		return Collections.unmodifiableSet(versions);
-	}
+    /**
+     * Returns the set of versions in the given minecraft directory.
+     * <p>
+     * This method returns a non-threaded safe, unordered set.
+     *
+     * @param minecraftDir the minecraft directory
+     * @return the set of versions
+     * @throws NullPointerException if <code>minecraftDir==null</code>
+     */
+    public static Set<String> getVersions(MinecraftDirectory minecraftDir) {
+        Objects.requireNonNull(minecraftDir);
+        Set<String> versions = new TreeSet<>();
 
-	/**
-	 * Resolves the asset index.
-	 * 
-	 * @param minecraftDir the minecraft directory
-	 * @param version the owner version of the asset index
-	 * @return the asset index, or null if the asset index does not exist
-	 * @throws IOException if an I/O error occurs during resolving asset index
-	 * @throws NullPointerException if
-	 *             <code>minecraftDir==null || version==null</code>
-	 */
-	public static Set<Asset> resolveAssets(MinecraftDirectory minecraftDir, Version version) throws IOException {
-		return resolveAssets(minecraftDir, version.getAssets());
-	}
+        // null if the 'versions' dir not exists
+        File[] subdirs = minecraftDir.getVersions().listFiles();
+        if (subdirs != null) {
+            for (File file : subdirs) {
+                if (file.isDirectory() && doesVersionExist(minecraftDir, file.getName())) {
+                    versions.add(file.getName());
+                }
+            }
+        }
+        return Collections.unmodifiableSet(versions);
+    }
 
-	/**
-	 * Resolves the asset index.
-	 * 
-	 * @param minecraftDir the minecraft directory
-	 * @param assets the name of the asset index, you can get this via
-	 *            {@link Version#getAssets()}
-	 * @return the asset index, null if the asset index does not exist
-	 * @throws IOException if an I/O error has occurred during resolving asset
-	 *             index
-	 * @throws NullPointerException if
-	 *             <code>minecraftDir==null || assets==null</code>
-	 */
-	public static Set<Asset> resolveAssets(MinecraftDirectory minecraftDir, String assets) throws IOException {
-		Objects.requireNonNull(minecraftDir);
-		Objects.requireNonNull(assets);
-		if (!minecraftDir.getAssetIndex(assets).isFile()) {
-			return null;
-		}
+    /**
+     * Resolves the asset index.
+     *
+     * @param minecraftDir the minecraft directory
+     * @param version      the owner version of the asset index
+     * @return the asset index, or null if the asset index does not exist
+     * @throws IOException          if an I/O error occurs during resolving asset index
+     * @throws NullPointerException if
+     *                              <code>minecraftDir==null || version==null</code>
+     */
+    public static Set<Asset> resolveAssets(MinecraftDirectory minecraftDir, Version version) throws IOException {
+        return resolveAssets(minecraftDir, version.getAssets());
+    }
 
-		try {
-			return getVersionParser().parseAssetIndex(IOUtils.toJson(minecraftDir.getAssetIndex(assets)));
-		} catch (JSONException e) {
-			throw new IOException("Couldn't parse asset index: " + assets, e);
-		}
-	}
+    /**
+     * Resolves the asset index.
+     *
+     * @param minecraftDir the minecraft directory
+     * @param assets       the name of the asset index, you can get this via
+     *                     {@link Version#getAssets()}
+     * @return the asset index, null if the asset index does not exist
+     * @throws IOException          if an I/O error has occurred during resolving asset
+     *                              index
+     * @throws NullPointerException if
+     *                              <code>minecraftDir==null || assets==null</code>
+     */
+    public static Set<Asset> resolveAssets(MinecraftDirectory minecraftDir, String assets) throws IOException {
+        Objects.requireNonNull(minecraftDir);
+        Objects.requireNonNull(assets);
+        if (!minecraftDir.getAssetIndex(assets).isFile()) {
+            return null;
+        }
 
-	public static VersionParser getVersionParser() {
-		return PARSER;
-	}
+        try {
+            return getVersionParser().parseAssetIndex(IOUtils.toJson(minecraftDir.getAssetIndex(assets)));
+        } catch (JSONException e) {
+            throw new IOException("Couldn't parse asset index: " + assets, e);
+        }
+    }
 
-	private static boolean doesVersionExist(MinecraftDirectory minecraftDir, String version) {
-		return minecraftDir.getVersionJson(version).isFile();
-	}
+    public static VersionParser getVersionParser() {
+        return PARSER;
+    }
 
-	private static Stack<JSONObject> resolveVersionHierarchy(String version, MinecraftDirectory mcdir) throws IOException, JSONException {
-		Stack<JSONObject> result = new Stack<>();
-		do {
-			JSONObject json = IOUtils.toJson(mcdir.getVersionJson(version));
-			result.push(json);
-			version = json.optString("inheritsFrom", null);
-		} while (version != null);
-		return result;
-	}
+    private static boolean doesVersionExist(MinecraftDirectory minecraftDir, String version) {
+        return minecraftDir.getVersionJson(version).isFile();
+    }
 
-	private Versions() {}
+    private static Stack<JSONObject> resolveVersionHierarchy(String version, MinecraftDirectory mcdir) throws IOException, JSONException {
+        Stack<JSONObject> result = new Stack<>();
+        do {
+            JSONObject json = IOUtils.toJson(mcdir.getVersionJson(version));
+            result.push(json);
+            version = json.optString("inheritsFrom", null);
+        } while (version != null);
+        return result;
+    }
 
 }

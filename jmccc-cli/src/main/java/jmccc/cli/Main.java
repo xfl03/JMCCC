@@ -4,7 +4,6 @@ import jmccc.cli.download.ModLoaderDownloader;
 import jmccc.cli.download.SimpleDownloader;
 import jmccc.cli.launch.SimpleLauncher;
 import org.to2mbn.jmccc.mcdownloader.provider.forge.ForgeVersion;
-import org.to2mbn.jmccc.version.Version;
 
 public class Main {
     public static void main(String... args) throws Exception {

@@ -1,40 +1,42 @@
 package org.to2mbn.jmccc.test;
 
-import static org.junit.Assert.*;
+import org.junit.Test;
+import org.to2mbn.jmccc.version.Asset;
+import org.to2mbn.jmccc.version.parsing.Versions;
+
 import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.HashSet;
 import java.util.Set;
-import org.junit.Test;
-import org.to2mbn.jmccc.version.Asset;
-import org.to2mbn.jmccc.version.parsing.Versions;
+
+import static org.junit.Assert.assertEquals;
 
 public class AssetTest extends MinecraftEnvironmentTest {
 
-	@Override
-	protected void copyFiles() throws IOException {
-		new File("mcdir/assets/objects/00").mkdirs();
-		copyFromJar("/mcdir/assets/objects/00/000c82756fd54e40cb236199f2b479629d0aca2f", new File("mcdir/assets/objects/00/000c82756fd54e40cb236199f2b479629d0aca2f"));
+    @Override
+    protected void copyFiles() throws IOException {
+        new File("mcdir/assets/objects/00").mkdirs();
+        copyFromJar("/mcdir/assets/objects/00/000c82756fd54e40cb236199f2b479629d0aca2f", new File("mcdir/assets/objects/00/000c82756fd54e40cb236199f2b479629d0aca2f"));
         copyFromJar("/mcdir/assets/objects/00/000c82756fd54e40cb236199f2b479629d0aca2f", new File("mcdir/assets/objects/00/000c82756fd54e40cb236199f2b479629d0aca20"));
         new File("mcdir/assets/indexes").mkdirs();
         copyFromJar("/mcdir/assets/indexes/test.json", new File("mcdir/assets/indexes/test.json"));
-	}
+    }
 
-	@Test
-	public void testHashCheckOk() throws IOException, GeneralSecurityException {
-		assertEquals(true, new Asset("minecraft/sounds/mob/skeleton/step3.ogg", "000c82756fd54e40cb236199f2b479629d0aca2f", 8565).isValid(mcdir()));
-	}
+    @Test
+    public void testHashCheckOk() throws IOException, GeneralSecurityException {
+        assertEquals(true, new Asset("minecraft/sounds/mob/skeleton/step3.ogg", "000c82756fd54e40cb236199f2b479629d0aca2f", 8565).isValid(mcdir()));
+    }
 
-	@Test
-	public void testHashCheckFailSize() throws IOException, GeneralSecurityException {
-		assertEquals(false, new Asset("minecraft/sounds/mob/skeleton/step3.ogg", "000c82756fd54e40cb236199f2b479629d0aca2f", 2333).isValid(mcdir()));
-	}
+    @Test
+    public void testHashCheckFailSize() throws IOException, GeneralSecurityException {
+        assertEquals(false, new Asset("minecraft/sounds/mob/skeleton/step3.ogg", "000c82756fd54e40cb236199f2b479629d0aca2f", 2333).isValid(mcdir()));
+    }
 
-	@Test
-	public void testHashCheckFailHash() throws IOException, GeneralSecurityException {
-		assertEquals(false, new Asset("minecraft/sounds/mob/skeleton/step3.ogg", "000c82756fd54e40cb236199f2b479629d0aca20", 8565).isValid(mcdir()));
-	}
+    @Test
+    public void testHashCheckFailHash() throws IOException, GeneralSecurityException {
+        assertEquals(false, new Asset("minecraft/sounds/mob/skeleton/step3.ogg", "000c82756fd54e40cb236199f2b479629d0aca20", 8565).isValid(mcdir()));
+    }
 
     @Test
     public void testFromJson() throws IOException {

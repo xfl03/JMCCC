@@ -4,15 +4,15 @@ import java.util.Objects;
 
 class DownloadTaskCachePoolDecorator<T> extends SimpleDownloadTaskDecorator<T> {
 
-	private String pool;
+    private String pool;
 
-	public DownloadTaskCachePoolDecorator(DownloadTask<T> delegated, String pool) {
-		super(delegated);
-		this.pool = Objects.requireNonNull(pool);
-	}
+    public DownloadTaskCachePoolDecorator(DownloadTask<T> delegated, String pool) {
+        super(delegated);
+        this.pool = Objects.requireNonNull(pool);
+    }
 
-	@Override
-	public String getCachePool() {
-		return pool;
-	}
+    @Override
+    public String getCachePool() {
+        return pool;
+    }
 }

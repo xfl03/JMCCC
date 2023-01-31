@@ -4,20 +4,20 @@ import java.util.UUID;
 
 public interface YggdrasilAPIProvider {
 
-	String authenticate();
+    String authenticate();
 
-	String refresh();
+    String refresh();
 
-	String validate();
+    String validate();
 
-	String invalidate();
+    String invalidate();
 
-	String signout();
+    String signout();
 
-	String profile(UUID profileUUID);
+    String profile(UUID profileUUID);
 
-	String profileByUsername(String username);
+    String profileByUsername(String username);
 
-	String profilesLookup();
+    String profilesLookup();
 
 }

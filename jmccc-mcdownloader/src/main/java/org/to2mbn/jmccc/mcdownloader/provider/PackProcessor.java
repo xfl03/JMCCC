@@ -1,7 +1,10 @@
 package org.to2mbn.jmccc.mcdownloader.provider;
 
-import static org.to2mbn.jmccc.util.HexUtils.bytesToHex;
-import static org.to2mbn.jmccc.util.HexUtils.hexToBytes;
+import org.apache.commons.compress.compressors.CompressorException;
+import org.apache.commons.compress.compressors.CompressorOutputStream;
+import org.apache.commons.compress.compressors.CompressorStreamFactory;
+import org.to2mbn.jmccc.mcdownloader.download.tasks.ResultProcessor;
+import org.to2mbn.jmccc.util.FileUtils;
 
 import java.io.BufferedReader;
 import java.io.CharArrayReader;
@@ -19,11 +22,8 @@ import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.apache.commons.compress.compressors.CompressorException;
-import org.apache.commons.compress.compressors.CompressorOutputStream;
-import org.apache.commons.compress.compressors.CompressorStreamFactory;
-import org.to2mbn.jmccc.mcdownloader.download.tasks.ResultProcessor;
-import org.to2mbn.jmccc.util.FileUtils;
+import static org.to2mbn.jmccc.util.HexUtils.bytesToHex;
+import static org.to2mbn.jmccc.util.HexUtils.hexToBytes;
 
 class PackProcessor implements ResultProcessor<byte[], Void> {
 

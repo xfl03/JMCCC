@@ -5,28 +5,28 @@ import org.to2mbn.jmccc.auth.yggdrasil.core.AuthenticationService;
 
 public class YggdrasilAuthenticationServiceBuilder extends AbstractYggdrasilServiceBuilder<AuthenticationService> {
 
-	public static YggdrasilAuthenticationServiceBuilder create() {
-		return new YggdrasilAuthenticationServiceBuilder();
-	}
+    protected Agent agent;
 
-	public static AuthenticationService buildDefault() {
-		return create().build();
-	}
+    public static YggdrasilAuthenticationServiceBuilder create() {
+        return new YggdrasilAuthenticationServiceBuilder();
+    }
 
-	protected Agent agent;
-	
-	public YggdrasilAuthenticationServiceBuilder agent(Agent agent) {
-		this.agent = agent;
-		return this;
-	}
+    public static AuthenticationService buildDefault() {
+        return create().build();
+    }
 
-	@Override
-	public AuthenticationService build() {
-		return new YggdrasilAuthenticationService(buildHttpRequester(), buildPropertiesDeserializer(), buildAPIProvider(), buildAgent());
-	}
+    public YggdrasilAuthenticationServiceBuilder agent(Agent agent) {
+        this.agent = agent;
+        return this;
+    }
 
-	protected Agent buildAgent() {
-		return agent == null ? Agent.MINECRAFT : agent;
-	}
+    @Override
+    public AuthenticationService build() {
+        return new YggdrasilAuthenticationService(buildHttpRequester(), buildPropertiesDeserializer(), buildAPIProvider(), buildAgent());
+    }
+
+    protected Agent buildAgent() {
+        return agent == null ? Agent.MINECRAFT : agent;
+    }
 
 }

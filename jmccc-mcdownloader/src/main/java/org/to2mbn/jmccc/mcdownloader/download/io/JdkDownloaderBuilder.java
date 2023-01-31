@@ -4,17 +4,17 @@ import org.to2mbn.jmccc.mcdownloader.download.Downloader;
 
 public class JdkDownloaderBuilder extends AbstractDownloaderBuilder {
 
-	public static JdkDownloaderBuilder create() {
-		return new JdkDownloaderBuilder();
-	}
+    public static JdkDownloaderBuilder create() {
+        return new JdkDownloaderBuilder();
+    }
 
-	public static Downloader buildDefault() {
-		return create().build();
-	}
+    public static Downloader buildDefault() {
+        return create().build();
+    }
 
-	@Override
-	public Downloader build() {
-		return new JdkHttpDownloader(maxConnections, connectTimeout, readTimeout, downloadPoolKeepAliveTime, downloadPoolKeepAliveTimeUnit, proxy);
-	}
+    @Override
+    public Downloader build() {
+        return new JdkHttpDownloader(maxConnections, connectTimeout, readTimeout, downloadPoolKeepAliveTime, downloadPoolKeepAliveTimeUnit, proxy);
+    }
 
 }

@@ -9,36 +9,37 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public final class ThreadPoolUtils {
 
-	private static class NamedThreadFactory implements ThreadFactory {
+    private ThreadPoolUtils() {
+    }
 
-		private static final AtomicInteger poolNumber = new AtomicInteger(1);
+    public static ThreadFactory createNamedThreadFactory(String name) {
+        return new NamedThreadFactory(Objects.requireNonNull(name));
+    }
 
-		private final String name;
-		private final AtomicInteger threadNumber = new AtomicInteger(1);
-		private final int poolIdx;
+    public static ThreadPoolExecutor createPool(int threads, long keepAliveTime, TimeUnit unit, String poolName) {
+        ThreadPoolExecutor pool = new ThreadPoolExecutor(threads, threads, keepAliveTime, unit, new LinkedBlockingQueue<Runnable>(), createNamedThreadFactory(poolName));
+        pool.allowCoreThreadTimeOut(true);
+        return pool;
+    }
 
-		public NamedThreadFactory(String name) {
-			this.name = name;
-			poolIdx = poolNumber.getAndIncrement();
-		}
+    private static class NamedThreadFactory implements ThreadFactory {
 
-		@Override
-		public Thread newThread(Runnable r) {
-			Thread t = new Thread(r, "pool-" + poolIdx + "-" + name + "-thread-" + threadNumber.getAndIncrement());
-			return t;
-		}
+        private static final AtomicInteger poolNumber = new AtomicInteger(1);
 
-	}
+        private final String name;
+        private final AtomicInteger threadNumber = new AtomicInteger(1);
+        private final int poolIdx;
 
-	public static ThreadFactory createNamedThreadFactory(String name) {
-		return new NamedThreadFactory(Objects.requireNonNull(name));
-	}
+        public NamedThreadFactory(String name) {
+            this.name = name;
+            poolIdx = poolNumber.getAndIncrement();
+        }
 
-	public static ThreadPoolExecutor createPool(int threads, long keepAliveTime, TimeUnit unit, String poolName) {
-		ThreadPoolExecutor pool = new ThreadPoolExecutor(threads, threads, keepAliveTime, unit, new LinkedBlockingQueue<Runnable>(), createNamedThreadFactory(poolName));
-		pool.allowCoreThreadTimeOut(true);
-		return pool;
-	}
+        @Override
+        public Thread newThread(Runnable r) {
+            Thread t = new Thread(r, "pool-" + poolIdx + "-" + name + "-thread-" + threadNumber.getAndIncrement());
+            return t;
+        }
 
-	private ThreadPoolUtils() {}
+    }
 }
