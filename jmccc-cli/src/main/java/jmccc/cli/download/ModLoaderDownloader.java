@@ -8,27 +8,27 @@ import java.util.concurrent.ExecutionException;
 
 public class ModLoaderDownloader {
     public static ForgeVersion getLatestForge() throws ExecutionException, InterruptedException {
-        return SimpleDownloader.get(SimpleDownloader.forgeProvider.forgeVersionList()).getLatest();
+        return CliDownloader.get(CliDownloader.forgeProvider.forgeVersionList()).getLatest();
     }
 
     public static LiteloaderVersion getLatestLiteLoader() throws ExecutionException, InterruptedException {
-        return SimpleDownloader.get(SimpleDownloader.liteloaderProvider.liteloaderVersionList())
+        return CliDownloader.get(CliDownloader.liteloaderProvider.liteloaderVersionList())
                 .getSnapshot("1.12.2");
     }
 
     public static FabricVersion getLatestFabric() throws ExecutionException, InterruptedException {
-        return SimpleDownloader.get(SimpleDownloader.fabricProvider.fabricVersionList()).getLatestRelease();
+        return CliDownloader.get(CliDownloader.fabricProvider.fabricVersionList()).getLatestRelease();
     }
 
     public static FabricVersion getLatestFabricSnapshot() throws ExecutionException, InterruptedException {
-        return SimpleDownloader.get(SimpleDownloader.fabricProvider.fabricVersionList()).getLatestSnapshot();
+        return CliDownloader.get(CliDownloader.fabricProvider.fabricVersionList()).getLatestSnapshot();
     }
 
     public static FabricVersion getLatestQuilt() throws ExecutionException, InterruptedException {
-        return SimpleDownloader.get(SimpleDownloader.quiltProvider.fabricVersionList()).getLatestRelease();
+        return CliDownloader.get(CliDownloader.quiltProvider.fabricVersionList()).getLatestRelease();
     }
 
     public static FabricVersion getLatestQuiltSnapshot() throws ExecutionException, InterruptedException {
-        return SimpleDownloader.get(SimpleDownloader.quiltProvider.fabricVersionList()).getLatestSnapshot();
+        return CliDownloader.get(CliDownloader.quiltProvider.fabricVersionList()).getLatestSnapshot();
     }
 }

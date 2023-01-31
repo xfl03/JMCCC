@@ -91,7 +91,7 @@ class InstallProfileProcessor implements ResultProcessor<byte[], String> {
             Class<?> installer = cl.loadClass("net.minecraftforge.installer.SimpleInstaller");
             Method main = installer.getMethod("main", String[].class);
             //We have tweaked install server to install client
-            main.invoke(null, (Object) new String[]{"--installServer", mcdir.getAbsolutePath(),"--mirror",""});
+            main.invoke(null, (Object) new String[]{"--installServer", mcdir.getAbsolutePath()});
         }
     }
 }

@@ -4,7 +4,7 @@ import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackAdapter;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.DownloadCallback;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.DownloadTask;
 
-public class SimpleCallback<T> extends CallbackAdapter<T> {
+public class CliCallback<T> extends CallbackAdapter<T> {
     @Override
     public void done(T result) {
         String res = result.toString();
@@ -36,6 +36,6 @@ public class SimpleCallback<T> extends CallbackAdapter<T> {
     @Override
     public <R> DownloadCallback<R> taskStart(DownloadTask<R> task) {
         System.out.println("Start: " + task.getURI());
-        return new SimpleCallback<R>();
+        return new CliCallback<R>();
     }
 }

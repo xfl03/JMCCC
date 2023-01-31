@@ -1,13 +1,15 @@
 package jmccc.cli;
 
+import jmccc.cli.download.CliDownloader;
 import jmccc.cli.download.ModLoaderDownloader;
-import jmccc.cli.download.SimpleDownloader;
-import jmccc.cli.launch.SimpleLauncher;
+import jmccc.cli.launch.CliLauncher;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.version.Version;
+
+import java.util.concurrent.ExecutionException;
 
 public class Main {
 
@@ -25,49 +27,47 @@ public class Main {
         String player = playerOption.value(options);
         String dir = dirOption.value(options);
         String version = versionOption.value(options);
-        if (version == null) {
-            version = "release";
-        }
         MinecraftDirectory minecraftDirectory = new MinecraftDirectory(dir);
 
         //Check special version
-        switch (version) {
-            case "latest":
-            case "stable":
-            case "release":
-                version = SimpleDownloader.getLatestRelease();
-                break;
-            case "snapshot":
-                version = SimpleDownloader.getLatestSnapshot();
-                break;
-            case "forge":
-                version = ModLoaderDownloader.getLatestForge().getVersionName();
-                break;
-            case "liteloader":
-                version = ModLoaderDownloader.getLatestLiteLoader().getVersionName();
-                break;
-            case "fabric":
-                version = ModLoaderDownloader.getLatestFabric().getVersionName();
-                break;
-            case "fabric-snapshot":
-                version = ModLoaderDownloader.getLatestFabricSnapshot().getVersionName();
-                break;
-            case "quilt":
-                version = ModLoaderDownloader.getLatestQuilt().getVersionName();
-                break;
-            case "quilt-snapshot":
-                version = ModLoaderDownloader.getLatestQuiltSnapshot().getVersionName();
-                break;
-        }
+        version = parseVersion(version);
         System.out.println("Version: " + version);
 
         //Download game if not exist
         if (!minecraftDirectory.getVersionJson(version).exists()) {
-            Version v = SimpleDownloader.download(minecraftDirectory, version);
+            Version v = CliDownloader.download(minecraftDirectory, version);
             version = v.getVersion();
         }
 
         //Launch game
-        SimpleLauncher.launch(minecraftDirectory, version, player);
+        CliLauncher.launch(minecraftDirectory, version, player);
+    }
+
+    private static String parseVersion(String version) throws ExecutionException, InterruptedException {
+        if (version == null) {
+            version = "release";
+        }
+        switch (version) {
+            case "latest":
+            case "stable":
+            case "release":
+                return CliDownloader.getLatestRelease();
+            case "snapshot":
+                return CliDownloader.getLatestSnapshot();
+            case "forge":
+                return ModLoaderDownloader.getLatestForge().getVersionName();
+            case "liteloader":
+                return ModLoaderDownloader.getLatestLiteLoader().getVersionName();
+            case "fabric":
+                return ModLoaderDownloader.getLatestFabric().getVersionName();
+            case "fabric-snapshot":
+                return ModLoaderDownloader.getLatestFabricSnapshot().getVersionName();
+            case "quilt":
+                return ModLoaderDownloader.getLatestQuilt().getVersionName();
+            case "quilt-snapshot":
+                return ModLoaderDownloader.getLatestQuiltSnapshot().getVersionName();
+            default:
+                return version;
+        }
     }
 }

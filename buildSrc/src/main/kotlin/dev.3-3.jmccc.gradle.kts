@@ -1,6 +1,7 @@
 plugins {
     `java-library`
     `maven-publish`
+    signing
 }
 
 dependencies {
@@ -40,6 +41,7 @@ publishing {
                 artifact(tasks["shadowJar"])
             }
             pom {
+                name.set(project.name)
                 description.set("JMCCC is a powerful open-source library for launching and downloading Minecraft.")
                 url.set("https://github.com/xfl03/JMCCC")
                 licenses {
@@ -119,4 +121,8 @@ publishing {
             }
         }
     }
+}
+
+signing {
+    sign(publishing.publications["mavenJava"])
 }

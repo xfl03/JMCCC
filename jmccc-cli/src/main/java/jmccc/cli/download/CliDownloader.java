@@ -14,7 +14,7 @@ import org.to2mbn.jmccc.version.Version;
 
 import java.util.concurrent.ExecutionException;
 
-public class SimpleDownloader {
+public class CliDownloader {
     public static BmclApiProvider bmclApiProvider = new BmclApiProvider();
     public static ForgeDownloadProvider forgeProvider = new ForgeDownloadProvider(bmclApiProvider);
     public static LiteloaderDownloadProvider liteloaderProvider = new LiteloaderDownloadProvider(bmclApiProvider);
@@ -40,14 +40,14 @@ public class SimpleDownloader {
     }
 
     public static Version download(MinecraftDirectory dir, String version) throws ExecutionException, InterruptedException {
-        return downloader.downloadIncrementally(dir, version, new SimpleCallback<>()).get();
+        return downloader.downloadIncrementally(dir, version, new CliCallback<>()).get();
     }
 
     public static void downloadLibrary(MinecraftDirectory dir, Library lib) throws ExecutionException, InterruptedException {
-        downloader.download(downloader.getProvider().library(dir, lib), new SimpleCallback<>()).get();
+        downloader.download(downloader.getProvider().library(dir, lib), new CliCallback<>()).get();
     }
 
     public static <T> T get(CombinedDownloadTask<T> task) throws ExecutionException, InterruptedException {
-        return SimpleDownloader.downloader.download(task, new SimpleCallback<>()).get();
+        return CliDownloader.downloader.download(task, new CliCallback<>()).get();
     }
 }
