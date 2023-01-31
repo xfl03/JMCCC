@@ -44,7 +44,7 @@ class InstallProfileProcessor implements ResultProcessor<byte[], String> {
                     byte[] bytes = IOUtils.toByteArray(in);
                     JSONObject installProfile = new JSONObject(new JSONTokener(new String(bytes)));
                     JSONObject versionInfo = processJson(installProfile);
-                    // 1.12.2-
+                    // 1.12.2 2850-
                     if (versionInfo != null) {
                         version = new VersionJsonInstaller(mcdir).process(versionInfo);
                         in.closeEntry();
@@ -69,7 +69,7 @@ class InstallProfileProcessor implements ResultProcessor<byte[], String> {
             return version;
         }
 
-        //1.13+
+        //1.12.2 2851+
         runInstaller(tweakedInstaller);
         Files.delete(tweakedInstaller);
         return newInstallerVersion;
@@ -91,7 +91,7 @@ class InstallProfileProcessor implements ResultProcessor<byte[], String> {
             Class<?> installer = cl.loadClass("net.minecraftforge.installer.SimpleInstaller");
             Method main = installer.getMethod("main", String[].class);
             //We have tweaked install server to install client
-            main.invoke(null, (Object) new String[]{"--installServer", mcdir.getAbsolutePath()});
+            main.invoke(null, (Object) new String[]{"--installServer", mcdir.getAbsolutePath(),"--mirror",""});
         }
     }
 }

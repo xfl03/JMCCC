@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 class ResolvedForgeVersion implements Serializable {
 
-    private static final Pattern FORGE_VERSION_PATTERN_1 = Pattern.compile("^([\\w\\.\\-]+)-[Ff]orge\\1-([\\w\\.\\-]+)$");
+    private static final Pattern FORGE_VERSION_PATTERN_1 = Pattern.compile("^([\\w\\.\\-]+)-[Ff]orge\\1?-([\\w\\.\\-]+)$");
     private static final Pattern FORGE_VERSION_PATTERN_2 = Pattern.compile("^([\\w\\.\\-]+)-[Ff]orge([\\w\\.\\-]+)$");
     private static final Pattern FORGE_VERSION_PATTERN_3 = Pattern.compile("^Forge([\\w\\.\\-]+)$");
     private static final long serialVersionUID = 1L;

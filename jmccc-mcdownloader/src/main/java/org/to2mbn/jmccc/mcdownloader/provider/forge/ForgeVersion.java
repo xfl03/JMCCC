@@ -39,7 +39,7 @@ public class ForgeVersion implements Serializable {
     // @formatter:on
 
     public String getVersionName() {
-        return minecraftVersion + "-forge" + minecraftVersion + "-" + forgeVersion;
+        return minecraftVersion + "-forge-" + forgeVersion;
     }
 
     public String getMavenVersion() {

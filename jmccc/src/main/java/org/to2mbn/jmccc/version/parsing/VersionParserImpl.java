@@ -72,6 +72,10 @@ class VersionParserImpl implements VersionParser {
         String type = "jar";
 
         if (isNative) {
+            //Native not found
+            if (classifier == null) {
+                return null;
+            }
             Set<String> excludes = parseExtractExcludes(json.optJSONObject("extract"));
             return new Native(groupId, artifactId, version, classifier, type, libinfo, url, checksums, excludes);
         } else {
