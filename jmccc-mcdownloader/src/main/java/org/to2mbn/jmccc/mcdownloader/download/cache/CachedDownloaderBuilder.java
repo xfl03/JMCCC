@@ -1,5 +1,8 @@
 package org.to2mbn.jmccc.mcdownloader.download.cache;
 
+import org.ehcache.config.builders.CacheConfigurationBuilder;
+import org.ehcache.config.builders.ResourcePoolsBuilder;
+import org.ehcache.config.units.MemoryUnit;
 import org.to2mbn.jmccc.mcdownloader.download.Downloader;
 import org.to2mbn.jmccc.mcdownloader.download.cache.provider.CacheProvider;
 import org.to2mbn.jmccc.mcdownloader.download.cache.provider.EhcacheProvider;
@@ -8,6 +11,7 @@ import org.to2mbn.jmccc.util.Builder;
 import org.to2mbn.jmccc.util.Builders;
 
 import java.net.URI;
+import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
@@ -22,6 +26,7 @@ public class CachedDownloaderBuilder implements Builder<Downloader> {
     private static final String DEFAULT_CACHE_HEAP_UNIT = "MB";
     protected final Builder<Downloader> underlying;
     protected Builder<? extends CacheProvider<URI, byte[]>> cacheProvider;
+
     protected CachedDownloaderBuilder(Builder<Downloader> underlying) {
         this.underlying = Objects.requireNonNull(underlying);
     }
@@ -199,10 +204,10 @@ public class CachedDownloaderBuilder implements Builder<Downloader> {
 
         static org.ehcache.config.Builder<org.ehcache.CacheManager> defaultCacheManagerBuilder() {
             return org.ehcache.config.builders.CacheManagerBuilder.newCacheManagerBuilder()
-                    .withCache(CacheNames.DEFAULT, org.ehcache.config.builders.CacheConfigurationBuilder.newCacheConfigurationBuilder(URI.class, byte[].class,
-                                    org.ehcache.config.builders.ResourcePoolsBuilder.newResourcePoolsBuilder()
-                                            .heap(DEFAULT_CACHE_HEAP, org.ehcache.config.units.MemoryUnit.valueOf(DEFAULT_CACHE_HEAP_UNIT)))
-                            .withExpiry(org.ehcache.expiry.Expirations.timeToLiveExpiration(new org.ehcache.expiry.Duration(DEFAULT_CACHE_TTL, DEFAULT_CACHE_TTL_UNIT))));
+                    .withCache(CacheNames.DEFAULT, CacheConfigurationBuilder.newCacheConfigurationBuilder(URI.class, byte[].class,
+                                    ResourcePoolsBuilder.newResourcePoolsBuilder()
+                                            .heap(DEFAULT_CACHE_HEAP, MemoryUnit.valueOf(DEFAULT_CACHE_HEAP_UNIT)))
+                            .withExpiry(org.ehcache.config.builders.ExpiryPolicyBuilder.timeToLiveExpiration(Duration.ofSeconds(DEFAULT_CACHE_TTL_UNIT.toSeconds(DEFAULT_CACHE_TTL)))));
         }
 
         static CacheProvider<URI, byte[]> createDefault() {

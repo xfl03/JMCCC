@@ -1,5 +1,7 @@
 # JMCCC
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Southern-InfinityStudio/JMCCC?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Build Status](https://travis-ci.org/to2mbn/JMCCC.svg?branch=master)](https://travis-ci.org/to2mbn/JMCCC)<br/>
+[![Maven Central](https://img.shields.io/maven-central/v/dev.3-3/jmccc)](https://central.sonatype.com/search?q=jmccc&namespace=dev.3-3)
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Southern-InfinityStudio/JMCCC?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+
 A powerful open-source library for launching and downloading Minecraft.
 
 ## License
@@ -35,15 +37,14 @@ JMCCC is licensed under [the MIT license](https://github.com/xfl03/JMCCC/LICENSE
 | `dev.3-3:jmccc-mcdownloader`            | Minecraft downloading feature.    |
 | `dev.3-3:jmccc-mojang-api`              | Mojang API client.                |
 
-The snapshot repository:
-```xml
-<repository>
-	<id>ossrh</id>
-	<url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
-	<snapshots>
-		<enabled>true</enabled>
-	</snapshots>
-</repository>
+JMCCC **RELEASE** version has been uploaded to **MAVEN CENTRAL**:
+```
+https://repo1.maven.org/maven2/
+```
+
+If you do need the snapshot repository:
+```
+https://s01.oss.sonatype.org/content/repositories/snapshots/
 ```
 
 ### Launching Minecraft

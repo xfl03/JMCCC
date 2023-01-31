@@ -1,5 +1,7 @@
 # JMCCC
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Southern-InfinityStudio/JMCCC?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Build Status](https://travis-ci.org/to2mbn/JMCCC.svg?branch=master)](https://travis-ci.org/to2mbn/JMCCC)<br/>
+[![Maven Central](https://img.shields.io/maven-central/v/dev.3-3/jmccc)](https://central.sonatype.com/search?q=jmccc&namespace=dev.3-3)
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Southern-InfinityStudio/JMCCC?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+
 一个用来下载并启动Minecraft的强大的开源类库。
 
 ## 许可证
@@ -35,15 +37,14 @@ JMCCC使用[MIT许可证](https://github.com/xfl03/JMCCC/LICENSE)。
 | `dev.3-3:jmccc-mcdownloader`            | 提供下载Minecraft的功能 |
 | `dev.3-3:jmccc-mojang-api`              | Mojang API客户端    |
 
-快照版本（snapshot）的Maven仓库：
-```xml
-<repository>
-	<id>ossrh</id>
-	<url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
-	<snapshots>
-		<enabled>true</enabled>
-	</snapshots>
-</repository>
+JMCCC的**正式版本**（release） 已上传至 **Maven Central**:
+```
+https://repo1.maven.org/maven2/
+```
+
+快照版本（snapshot）的Maven仓库:
+```
+https://s01.oss.sonatype.org/content/repositories/snapshots/
 ```
 
 ### 启动Minecraft

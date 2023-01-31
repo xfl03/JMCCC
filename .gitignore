@@ -24,11 +24,10 @@ hs_err_pid*
 ## Gradle
 .gradle/
 build/
-gradle/
-gradlew
 out/
 output/
 run/
+!gradle/wrapper/gradle-wrapper.jar
 
 ## sublime
 *.sublime*
@@ -53,4 +52,4 @@ target/
 
 *~
 
-run
+Library

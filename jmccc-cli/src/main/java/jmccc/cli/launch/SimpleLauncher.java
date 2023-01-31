@@ -45,7 +45,9 @@ public class SimpleLauncher {
 
         @Override
         public void onExit(int code) {
-            System.out.println(code);
+            System.out.println("Game exited with " + code);
+            SimpleDownloader.downloader.shutdown();
+            System.exit(0);
         }
     }
 }
