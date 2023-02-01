@@ -31,13 +31,13 @@ JMCCC is licensed under [the MIT license](https://github.com/xfl03/JMCCC/LICENSE
 
 ## Quick Start
 ### Dependencies
-| Dependency                              | Description                       |
-|-----------------------------------------|-----------------------------------|
-| `dev.3-3:jmccc`                         | Minecraft launching feature.      |
-| `dev.3-3:jmccc-mcdownloader`            | Minecraft downloading feature.    |
-| `dev.3-3:jmccc-microsoft-authenticator` | Microsoft authentication feature. |
-| `dev.3-3:jmccc-mojang-api`              | Mojang API client.                |
-| `dev.3-3:jmccc-yggdrasil-authenticator` | Yggdrasil authentication feature. |
+| Dependency                              | Description                               |
+|-----------------------------------------|-------------------------------------------|
+| `dev.3-3:jmccc`                         | Minecraft launching feature.              |
+| `dev.3-3:jmccc-mcdownloader`            | Minecraft downloading feature.            |
+| `dev.3-3:jmccc-microsoft-authenticator` | Microsoft Account authentication feature. |
+| `dev.3-3:jmccc-mojang-api`              | Mojang API client.                        |
+| `dev.3-3:jmccc-yggdrasil-authenticator` | Mojang Account authentication feature.    |
 
 JMCCC **RELEASE** version has been uploaded to **MAVEN CENTRAL**:
 ```

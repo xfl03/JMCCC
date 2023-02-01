@@ -10,7 +10,7 @@ JMCCC使用[MIT许可证](https://github.com/xfl03/JMCCC/LICENSE)。
 ## 功能
  * 启动各个版本的Minecraft
  * 可拓展的登录系统
-   * 默认支持Microsoft账户/Mojang账户/离线，当然也可以使用authlib-injector
+   * 默认支持Microsoft账户/Mojang账户/离线，可以自行扩展
  * 下载各个版本的Minecraft
    * 支持Forge/Liteloader/Fabric/Quilt下载
      * 支持Liteloader的快照版本
