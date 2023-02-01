@@ -10,7 +10,7 @@ JMCCC is licensed under [the MIT license](https://github.com/xfl03/JMCCC/LICENSE
 ## Features
  * Launches all versions of Minecraft
  * Scalable authentication
-   * Supports Microsoft Account/Mojang Account/Offline, and can be extended (e.g. authlib-injector)
+   * Supports Microsoft Account/Mojang Account/Offline, and can be extended
  * Downloads all versions of Minecraft
    * Supports Forge/Liteloader/Fabric/Quilt
      * Supports Liteloader snapshots
