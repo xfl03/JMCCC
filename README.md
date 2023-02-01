@@ -10,10 +10,11 @@ JMCCC is licensed under [the MIT license](https://github.com/xfl03/JMCCC/LICENSE
 ## Features
  * Launches all versions of Minecraft
  * Scalable authentication
-   * Supports Yggdrasil/Offline, and can be extended
+   * Supports Microsoft Account/Mojang Account/Offline, and can be extended (e.g. authlib-injector)
  * Downloads all versions of Minecraft
-   * Supports Forge/Liteloader
+   * Supports Forge/Liteloader/Fabric/Quilt
      * Supports Liteloader snapshots
+     * Supports Fabric/Quilt in Minecraft snapshots
    * Customizable download source
    * Asynchronous task system
    * Supports BIO/NIO
@@ -33,9 +34,10 @@ JMCCC is licensed under [the MIT license](https://github.com/xfl03/JMCCC/LICENSE
 | Dependency                              | Description                       |
 |-----------------------------------------|-----------------------------------|
 | `dev.3-3:jmccc`                         | Minecraft launching feature.      |
-| `dev.3-3:jmccc-yggdrasil-authenticator` | Yggdrasil authentication feature. |
 | `dev.3-3:jmccc-mcdownloader`            | Minecraft downloading feature.    |
+| `dev.3-3:jmccc-microsoft-authenticator` | Microsoft authentication feature. |
 | `dev.3-3:jmccc-mojang-api`              | Mojang API client.                |
+| `dev.3-3:jmccc-yggdrasil-authenticator` | Yggdrasil authentication feature. |
 
 JMCCC **RELEASE** version has been uploaded to **MAVEN CENTRAL**:
 ```
@@ -51,15 +53,15 @@ https://s01.oss.sonatype.org/content/repositories/snapshots/
 ```java
 MinecraftDirectory dir = new MinecraftDirectory("/home/user/.minecraft");
 Launcher launcher = LauncherBuilder.buildDefault();
-launcher.launch(new LaunchOption("1.10", YggdrasilAuthenticator.password("<email>", "<password>"), dir));
+launcher.launch(new LaunchOption("1.19.3", MicrosoftAuthenticator.login(it -> System.out.println(it.message)), dir));
 ```
-You can replace `YggdrasilAuthenticator.password("<email>", "<password>")` with `new OfflineAuthenticator("<username>")` if you want to use offline authentication.
+You can use Microsoft Account with `MicrosoftAuthenticator.login(it -> System.out.println(it.message))`,also you can use `YggdrasilAuthenticator.password("<email>", "<password>")` with Mojang Account or `new OfflineAuthenticator("<username>")` if you want to use offline authentication.
 
 ### Downloading Minecraft
 ```java
 MinecraftDirectory dir = new MinecraftDirectory("/home/user/.minecraft");
 MinecraftDownloader downloader = MinecraftDownloaderBuilder.buildDefault();
-downloader.downloadIncrementally(dir, "1.10", new CallbackAdapter<Version>() {
+downloader.downloadIncrementally(dir, "1.19.3", new CallbackAdapter<Version>() {
 	
 	@Override
 	public void failed(Throwable e) {
@@ -120,7 +122,7 @@ Don't forget to shutdown the downloader when you are no longer going to use it.
 downloader.shutdown();
 ```
 
-### Downloading Forge/Liteloader
+### Downloading Forge/Liteloader/Fabric/Quilt
 ```java
 MinecraftDirectory dir = new MinecraftDirectory("/home/user/.minecraft");
 ForgeDownloadProvider forgeProvider = new ForgeDownloadProvider();
@@ -131,8 +133,10 @@ MinecraftDownloader downloader = MinecraftDownloaderBuilder.create()
 		.addProvider(liteloaderProvider))
 	.build();
 
-downloader.downloadIncrementally(dir, "1.8-forge1.8-11.14.3.1514", new CallbackAdapter<Version>() {...});
-downloader.downloadIncrementally(dir, "1.7.10-LiteLoader1.7.10", new CallbackAdapter<Version>() {...});
+downloader.downloadIncrementally(dir, "1.19.3-forge-44.1.7", new CallbackAdapter<Version>() {...});
+downloader.downloadIncrementally(dir, "1.12.2-LiteLoader1.12.2", new CallbackAdapter<Version>() {...});
+downloader.downloadIncrementally(dir, "fabric-loader-0.14.13-1.19.3", new CallbackAdapter<Version>() {...});
+downloader.downloadIncrementally(dir, "quilt-loader-0.17.11-1.19.3", new CallbackAdapter<Version>() {...});
 downloader.download(forgeProvider.forgeVersionList(), new CallbackAdapter<ForgeVersionList>() {...});
 downloader.download(liteloaderProvider.liteloaderVersionList(), new CallbackAdapter<LiteloaderVersionList>() {...});
 ```

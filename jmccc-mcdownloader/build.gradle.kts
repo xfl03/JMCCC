@@ -9,7 +9,3 @@ dependencies {
 }
 
 description = "jmccc mcdownloader"
-
-java {
-    withJavadocJar()
-}

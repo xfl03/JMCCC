@@ -10,10 +10,11 @@ JMCCC使用[MIT许可证](https://github.com/xfl03/JMCCC/LICENSE)。
 ## 功能
  * 启动各个版本的Minecraft
  * 可拓展的登录系统
-   * 默认支持Yggdrasil/离线
+   * 默认支持Microsoft账户/Mojang账户/离线，当然也可以使用authlib-injector
  * 下载各个版本的Minecraft
-   * 支持Forge/Liteloader下载
+   * 支持Forge/Liteloader/Fabric/Quilt下载
      * 支持Liteloader的快照版本
+     * 支持在Minecraft快照版本使用Fabric/Quilt
    * 可自定义下载源
    * 异步的任务系统
    * 支持阻塞式IO(BIO)和非阻塞式IO(NIO)
@@ -30,12 +31,13 @@ JMCCC使用[MIT许可证](https://github.com/xfl03/JMCCC/LICENSE)。
 
 ## 快速开始
 ### 依赖库
-| 依赖                                      | 说明               |
-|-----------------------------------------|------------------|
-| `dev.3-3:jmccc`                         | 提供启动Minecraft的功能 |
-| `dev.3-3:jmccc-yggdrasil-authenticator` | 提供Yggdrasil验证功能  |
-| `dev.3-3:jmccc-mcdownloader`            | 提供下载Minecraft的功能 |
-| `dev.3-3:jmccc-mojang-api`              | Mojang API客户端    |
+| 依赖                                      | 说明                |
+|-----------------------------------------|-------------------|
+| `dev.3-3:jmccc`                         | 提供启动Minecraft的功能  |
+| `dev.3-3:jmccc-mcdownloader`            | 提供下载Minecraft的功能  |
+| `dev.3-3:jmccc-microsoft-authenticator` | 提供Microsoft账户验证功能 |
+| `dev.3-3:jmccc-mojang-api`              | Mojang API客户端     |
+| `dev.3-3:jmccc-yggdrasil-authenticator` | 提供Mojang账户验证功能    |
 
 JMCCC的**正式版本**（release） 已上传至 **Maven Central**:
 ```
@@ -51,15 +53,15 @@ https://s01.oss.sonatype.org/content/repositories/snapshots/
 ```java
 MinecraftDirectory dir = new MinecraftDirectory("/home/user/.minecraft");
 Launcher launcher = LauncherBuilder.buildDefault();
-launcher.launch(new LaunchOption("1.10", YggdrasilAuthenticator.password("<email>", "<password>"), dir));
+launcher.launch(new LaunchOption("1.19.3", MicrosoftAuthenticator.login(it -> System.out.println(it.message)), dir));
 ```
-如果需要离线验证的话，可以将`YggdrasilAuthenticator.password("<email>", "<password>")`换成`new OfflineAuthenticator("<username>")`。
+除了使用Microsoft账户`MicrosoftAuthenticator.login(it -> System.out.println(it.message))`以外，还支持Mojang账户`YggdrasilAuthenticator.password("<email>", "<password>")`，也支持离线模式`OfflineAuthenticator.name("<username>")`。
 
 ### 下载Minecraft
 ```java
 MinecraftDirectory dir = new MinecraftDirectory("/home/user/.minecraft");
 MinecraftDownloader downloader = MinecraftDownloaderBuilder.buildDefault();
-downloader.downloadIncrementally(dir, "1.10", new CallbackAdapter<Version>() {
+downloader.downloadIncrementally(dir, "1.19.3", new CallbackAdapter<Version>() {
 	
 	@Override
 	public void failed(Throwable e) {
@@ -120,21 +122,23 @@ downloader.downloadIncrementally(dir, "1.10", new CallbackAdapter<Version>() {
 downloader.shutdown();
 ```
 
-### 下载Forge/Liteloader
+### 下载Forge/Liteloader/Fabric/Quilt
 ```java
 MinecraftDirectory dir = new MinecraftDirectory("/home/user/.minecraft");
-ForgeDownloadProvider forgeProvider = new ForgeDownloadProvider();
-LiteloaderDownloadProvider liteloaderProvider = new LiteloaderDownloadProvider();
-MinecraftDownloader downloader = MinecraftDownloaderBuilder.create()
-	.providerChain(DownloadProviderChain.create()
-		.addProvider(forgeProvider)
-		.addProvider(liteloaderProvider))
-	.build();
+        ForgeDownloadProvider forgeProvider = new ForgeDownloadProvider();
+        LiteloaderDownloadProvider liteloaderProvider = new LiteloaderDownloadProvider();
+        MinecraftDownloader downloader = MinecraftDownloaderBuilder.create()
+        .providerChain(DownloadProviderChain.create()
+        .addProvider(forgeProvider)
+        .addProvider(liteloaderProvider))
+        .build();
 
-downloader.downloadIncrementally(dir, "1.8-forge1.8-11.14.3.1514", new CallbackAdapter<Version>() {...});
-downloader.downloadIncrementally(dir, "1.7.10-LiteLoader1.7.10", new CallbackAdapter<Version>() {...});
-downloader.download(forgeProvider.forgeVersionList(), new CallbackAdapter<ForgeVersionList>() {...});
-downloader.download(liteloaderProvider.liteloaderVersionList(), new CallbackAdapter<LiteloaderVersionList>() {...});
+        downloader.downloadIncrementally(dir, "1.19.3-forge-44.1.7", new CallbackAdapter<Version>() {...});
+        downloader.downloadIncrementally(dir, "1.12.2-LiteLoader1.12.2", new CallbackAdapter<Version>() {...});
+        downloader.downloadIncrementally(dir, "fabric-loader-0.14.13-1.19.3", new CallbackAdapter<Version>() {...});
+        downloader.downloadIncrementally(dir, "quilt-loader-0.17.11-1.19.3", new CallbackAdapter<Version>() {...});
+        downloader.download(forgeProvider.forgeVersionList(), new CallbackAdapter<ForgeVersionList>() {...});
+        downloader.download(liteloaderProvider.liteloaderVersionList(), new CallbackAdapter<LiteloaderVersionList>() {...});
 ```
 
 ### FML参数

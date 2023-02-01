@@ -3,7 +3,7 @@ plugins {
     id("io.github.gradle-nexus.publish-plugin")
 }
 
-version = "3.0.3-SNAPSHOT"
+version = "3.1.0-SNAPSHOT"
 
 subprojects {
     //Real subproject DSL is located at `buildSrc/src/main/kotlin/dev.3-3.jmccc.gradle.kts`

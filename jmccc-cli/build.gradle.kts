@@ -7,7 +7,9 @@ description = "jmccc cli"
 dependencies {
     implementation(project(":jmccc"))
     implementation(project(":jmccc-mcdownloader"))
+    implementation(project(":jmccc-microsoft-authenticator"))
     implementation("net.sf.jopt-simple:jopt-simple:5.0.4")
+    implementation("com.google.code.gson:gson:2.10.1")
 }
 tasks {
     shadowJar {
