@@ -4,6 +4,7 @@ import org.to2mbn.jmccc.mcdownloader.MinecraftDownloader;
 import org.to2mbn.jmccc.mcdownloader.MinecraftDownloaderBuilder;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.provider.DownloadProviderChain;
+import org.to2mbn.jmccc.mcdownloader.provider.MojangDownloadProvider;
 import org.to2mbn.jmccc.mcdownloader.provider.fabric.FabricDownloadProvider;
 import org.to2mbn.jmccc.mcdownloader.provider.forge.ForgeDownloadProvider;
 import org.to2mbn.jmccc.mcdownloader.provider.liteloader.LiteloaderDownloadProvider;
@@ -15,21 +16,28 @@ import org.to2mbn.jmccc.version.Version;
 import java.util.concurrent.ExecutionException;
 
 public class CliDownloader {
-    public static BmclApiProvider bmclApiProvider = new BmclApiProvider();
-    public static ForgeDownloadProvider forgeProvider = new ForgeDownloadProvider(bmclApiProvider);
-    public static LiteloaderDownloadProvider liteloaderProvider = new LiteloaderDownloadProvider(bmclApiProvider);
-    public static FabricDownloadProvider fabricProvider = new FabricDownloadProvider();
-    public static FabricDownloadProvider quiltProvider = new QuiltDownloadProvider();
+    public static ForgeDownloadProvider forgeProvider;
+    public static LiteloaderDownloadProvider liteloaderProvider;
+    public static FabricDownloadProvider fabricProvider;
+    public static FabricDownloadProvider quiltProvider;
+    public static MinecraftDownloader downloader;
 
-    public static MinecraftDownloader downloader = MinecraftDownloaderBuilder.create()
-            .providerChain(DownloadProviderChain.create()
-                    .baseProvider(bmclApiProvider)
-                    .addProvider(forgeProvider)
-                    .addProvider(liteloaderProvider)
-                    .addProvider(fabricProvider)
-                    .addProvider(quiltProvider)
-            )
-            .build();
+    public static void init(boolean isBmclApi) {
+        BmclApiProvider bmclApiProvider = isBmclApi ? new BmclApiProvider() : null;
+        forgeProvider = new ForgeDownloadProvider(bmclApiProvider);
+        liteloaderProvider = new LiteloaderDownloadProvider(bmclApiProvider);
+        fabricProvider = new FabricDownloadProvider();
+        quiltProvider = new QuiltDownloadProvider();
+        downloader = MinecraftDownloaderBuilder.create()
+                .providerChain(DownloadProviderChain.create()
+                        .baseProvider(bmclApiProvider == null ? new MojangDownloadProvider() : bmclApiProvider)
+                        .addProvider(forgeProvider)
+                        .addProvider(liteloaderProvider)
+                        .addProvider(fabricProvider)
+                        .addProvider(quiltProvider)
+                )
+                .build();
+    }
 
     public static String getLatestRelease() throws ExecutionException, InterruptedException {
         return downloader.fetchRemoteVersionList(null).get().getLatestRelease();

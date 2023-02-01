@@ -4,7 +4,7 @@ import jmccc.microsoft.core.response.MicrosoftDeviceCodeResponse;
 import jmccc.microsoft.core.response.MicrosoftTokenResponse;
 import jmccc.microsoft.core.response.MinecraftLoginWithXboxResponse;
 import jmccc.microsoft.core.response.XboxAuthenticateResponse;
-import jmccc.microsoft.entity.AuthenticationToken;
+import jmccc.microsoft.entity.MicrosoftSession;
 import jmccc.microsoft.entity.MicrosoftVerification;
 import jmccc.microsoft.entity.MinecraftProfile;
 import org.to2mbn.jmccc.auth.AuthenticationException;
@@ -20,7 +20,7 @@ public class MicrosoftAuthenticationController {
         service = new MicrosoftAuthenticationService(clientId);
     }
 
-    public AuthenticationToken getMicrosoftToken(Consumer<MicrosoftVerification> callback) throws AuthenticationException {
+    public MicrosoftSession getMicrosoftToken(Consumer<MicrosoftVerification> callback) throws AuthenticationException {
         try {
             //Request authentication
             MicrosoftDeviceCodeResponse codeRes = service.getMicrosoftDeviceCode();
@@ -42,7 +42,7 @@ public class MicrosoftAuthenticationController {
             }
             Objects.requireNonNull(tokenRes);
             Objects.requireNonNull(tokenRes.accessToken);
-            AuthenticationToken token = new AuthenticationToken();
+            MicrosoftSession token = new MicrosoftSession();
             token.microsoftAccessToken = tokenRes.accessToken;
             token.microsoftRefreshToken = tokenRes.refreshToken;
             return token;
@@ -51,12 +51,12 @@ public class MicrosoftAuthenticationController {
         }
     }
 
-    public AuthenticationToken refreshMicrosoftToken(AuthenticationToken microsoftToken) throws AuthenticationException {
+    public MicrosoftSession refreshMicrosoftToken(MicrosoftSession session) throws AuthenticationException {
         try {
-            Objects.requireNonNull(microsoftToken);
-            Objects.requireNonNull(microsoftToken.microsoftRefreshToken);
-            MicrosoftTokenResponse res = service.refreshMicrosoftToken(microsoftToken.microsoftRefreshToken);
-            AuthenticationToken token = new AuthenticationToken();
+            Objects.requireNonNull(session);
+            Objects.requireNonNull(session.microsoftRefreshToken);
+            MicrosoftTokenResponse res = service.refreshMicrosoftToken(session.microsoftRefreshToken);
+            MicrosoftSession token = new MicrosoftSession();
             token.microsoftAccessToken = res.accessToken;
             token.microsoftRefreshToken = res.refreshToken;
             return token;
@@ -65,27 +65,29 @@ public class MicrosoftAuthenticationController {
         }
     }
 
-    public AuthenticationToken getMinecraftToken(AuthenticationToken microsoftToken) throws AuthenticationException {
+    public MicrosoftSession getMinecraftToken(MicrosoftSession session) throws AuthenticationException {
         try {
-            Objects.requireNonNull(microsoftToken);
-            Objects.requireNonNull(microsoftToken.microsoftAccessToken);
-            XboxAuthenticateResponse xboxUserToken = service.getXboxUserToken(microsoftToken.microsoftAccessToken);
-            XboxAuthenticateResponse xboxXstsToken = service.getXboxXstsToken(xboxUserToken.token);
+            Objects.requireNonNull(session);
+            Objects.requireNonNull(session.microsoftAccessToken);
+            XboxAuthenticateResponse xboxUserToken = service.getXboxUserToken(session.microsoftAccessToken);
+            XboxAuthenticateResponse xboxXstsMcToken = service.getXboxXstsToken(xboxUserToken.token,"rp://api.minecraftservices.com/");
+            XboxAuthenticateResponse xboxXstsToken = service.getXboxXstsToken(xboxUserToken.token, "http://xboxlive.com");
+            session.xboxUserId = xboxXstsToken.displayClaims.get("xui").getAsJsonArray().get(0).getAsJsonObject().get("xid").getAsString();
 
-            String userHash = xboxXstsToken.displayClaims.get("xui").getAsJsonArray().get(0).getAsJsonObject().get("uhs").getAsString();
-            MinecraftLoginWithXboxResponse minecraftToken = service.getMinecraftToken(userHash, xboxXstsToken.token);
-            microsoftToken.minecraftAccessToken = minecraftToken.accessToken;
-            return microsoftToken;
+            String userHash = xboxXstsMcToken.displayClaims.get("xui").getAsJsonArray().get(0).getAsJsonObject().get("uhs").getAsString();
+            MinecraftLoginWithXboxResponse minecraftToken = service.getMinecraftToken(userHash, xboxXstsMcToken.token);
+            session.minecraftAccessToken = minecraftToken.accessToken;
+            return session;
         } catch (Exception e) {
             throw new AuthenticationException(e);
         }
     }
 
-    public MinecraftProfile getMinecraftProfile(AuthenticationToken minecraftToken) throws AuthenticationException {
+    public MinecraftProfile getMinecraftProfile(MicrosoftSession session) throws AuthenticationException {
         try {
-            Objects.requireNonNull(minecraftToken);
-            Objects.requireNonNull(minecraftToken.minecraftAccessToken);
-            return service.getMinecraftProfile(minecraftToken.minecraftAccessToken);
+            Objects.requireNonNull(session);
+            Objects.requireNonNull(session.minecraftAccessToken);
+            return service.getMinecraftProfile(session.minecraftAccessToken);
         } catch (Exception e) {
             throw new AuthenticationException(e);
         }

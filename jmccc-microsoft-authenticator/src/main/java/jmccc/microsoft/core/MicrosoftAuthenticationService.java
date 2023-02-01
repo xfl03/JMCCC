@@ -78,9 +78,9 @@ public class MicrosoftAuthenticationService {
                 .execute().handleResponse(new JsonResponseHander<>(XboxAuthenticateResponse.class));
     }
 
-    public XboxAuthenticateResponse getXboxXstsToken(String xboxUserToken) throws IOException {
+    public XboxAuthenticateResponse getXboxXstsToken(String xboxUserToken, String relyingParty) throws IOException {
         XboxAuthenticateRequest req = new XboxAuthenticateRequest();
-        req.relyingParty = "rp://api.minecraftservices.com/";
+        req.relyingParty = relyingParty;
         req.properties.addProperty("SandboxId", "RETAIL");
         JsonArray arr = new JsonArray();
         arr.add(xboxUserToken);

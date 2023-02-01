@@ -1,5 +1,6 @@
 package org.to2mbn.jmccc.util;
 
+import java.util.Base64;
 import java.util.UUID;
 
 public final class UUIDUtils {
@@ -30,6 +31,10 @@ public final class UUIDUtils {
 
     public static String randomUnsignedUUID() {
         return unsign(UUID.randomUUID());
+    }
+
+    public static String randomUnsignedUuidBase64() {
+        return Base64.getEncoder().encodeToString(randomUnsignedUUID().toUpperCase().getBytes());
     }
 
 }

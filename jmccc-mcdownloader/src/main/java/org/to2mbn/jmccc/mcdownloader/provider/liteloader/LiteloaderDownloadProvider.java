@@ -7,14 +7,12 @@ import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadContext;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.FileDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.MemoryDownloadTask;
-import org.to2mbn.jmccc.mcdownloader.download.tasks.ResultProcessor;
 import org.to2mbn.jmccc.mcdownloader.provider.*;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.util.IOUtils;
 import org.to2mbn.jmccc.version.Library;
 
 import java.io.IOException;
-import java.util.Objects;
 import java.util.Set;
 
 public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvider implements ExtendedDownloadProvider {
@@ -29,11 +27,11 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
     public static final String LAUNCH_WRAPPER_LOWEST_VERSION = "1.7";
     public static final String LAUNCH_WRAPPER_MAINCLASS = "net.minecraft.launchwrapper.Launch";
 
-    private LiteloaderDownloadSource source;
+    private final LiteloaderDownloadSource source;
     private boolean upgradeLaunchWrapper = true;
     private String lowestLaunchWrapperVersion = LAUNCH_WRAPPER_LOWEST_VERSION;
 
-    private VersionComparator versionComparator = new VersionComparator();
+    private final VersionComparator versionComparator = new VersionComparator();
     private MinecraftDownloadProvider upstreamProvider;
 
     public LiteloaderDownloadProvider() {
@@ -41,7 +39,10 @@ public class LiteloaderDownloadProvider extends AbstractMinecraftDownloadProvide
     }
 
     public LiteloaderDownloadProvider(LiteloaderDownloadSource source) {
-        this.source = Objects.requireNonNull(source);
+        if (source == null) {
+            source = new DefaultLiteloaderDownloadSource();
+        }
+        this.source = source;
     }
 
     public CombinedDownloadTask<LiteloaderVersionList> liteloaderVersionList() {

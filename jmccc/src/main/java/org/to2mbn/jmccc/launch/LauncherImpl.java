@@ -15,6 +15,7 @@ import org.to2mbn.jmccc.version.Version;
 import org.to2mbn.jmccc.version.parsing.Versions;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -137,6 +138,7 @@ class LauncherImpl implements Launcher {
         tokens.put("launcher_version", "3.0");
         tokens.put("library_directory", mcdir.getLibraries().getAbsolutePath());
         tokens.put("classpath_separator", Platform.getPathSeparator());
+        tokens.put("auth_xuid", auth.getXboxUserId());
 
         String type = version.getType();
         if (type != null) {
@@ -163,7 +165,7 @@ class LauncherImpl implements Launcher {
         if (!outputDir.exists())
             outputDir.mkdirs();
 
-        try (ZipInputStream in = new ZipInputStream(new FileInputStream(zip))) {
+        try (ZipInputStream in = new ZipInputStream(Files.newInputStream(zip.toPath()))) {
             ZipEntry entry;
             byte[] buf = null;
 
@@ -200,7 +202,7 @@ class LauncherImpl implements Launcher {
                         // same length, check the content
                         match = true;
                         if (!nativeFastCheck) {
-                            try (InputStream targetin = new BufferedInputStream(new FileInputStream(outFile))) {
+                            try (InputStream targetin = new BufferedInputStream(Files.newInputStream(outFile.toPath()))) {
                                 for (int i = 0; i < len; i++) {
                                     if (buf[i] != (byte) targetin.read()) {
                                         match = false;
@@ -218,7 +220,7 @@ class LauncherImpl implements Launcher {
                         if (entry.isDirectory()) {
                             outFile.mkdir();//Fix extract directory as file
                         } else {
-                            try (OutputStream out = new FileOutputStream(outFile)) {
+                            try (OutputStream out = Files.newOutputStream(outFile.toPath())) {
                                 out.write(buf, 0, len);
                             }
                         }

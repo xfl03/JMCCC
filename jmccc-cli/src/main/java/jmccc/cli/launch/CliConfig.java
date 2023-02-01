@@ -2,8 +2,9 @@ package jmccc.cli.launch;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import jmccc.microsoft.entity.AuthenticationToken;
+import jmccc.microsoft.entity.MicrosoftSession;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
+import org.to2mbn.jmccc.util.UUIDUtils;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -11,7 +12,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class CliConfig {
-    public AuthenticationToken token;
+    public MicrosoftSession token;
+    public String clientId = UUIDUtils.randomUnsignedUuidBase64();
 
     private static CliConfig instance;
     private static Path configFile;

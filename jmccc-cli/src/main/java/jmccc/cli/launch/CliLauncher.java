@@ -15,6 +15,7 @@ public class CliLauncher {
         Launcher launcher = LauncherBuilder.create().printDebugCommandline(true).build();
         //Change Minecraft main menu bottom left text
         option.commandlineVariables().put("version_type", "JMCCC 3.0");
+        option.commandlineVariables().put("clientid", CliConfig.getConfig().clientId);
         //Set memory to 2048MB
         option.setMaxMemory(2048);
         ProcessListener listener = new CliListener();

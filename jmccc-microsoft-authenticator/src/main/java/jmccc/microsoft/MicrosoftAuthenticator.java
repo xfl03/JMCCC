@@ -1,7 +1,7 @@
 package jmccc.microsoft;
 
 import jmccc.microsoft.core.MicrosoftAuthenticationController;
-import jmccc.microsoft.entity.AuthenticationToken;
+import jmccc.microsoft.entity.MicrosoftSession;
 import jmccc.microsoft.entity.MicrosoftVerification;
 import jmccc.microsoft.entity.MinecraftProfile;
 import org.to2mbn.jmccc.auth.AuthInfo;
@@ -17,7 +17,7 @@ public class MicrosoftAuthenticator implements Authenticator {
     private static String clientId;
     private MinecraftProfile profile;
 
-    private AuthenticationToken authenticationToken;
+    private MicrosoftSession session;
 
     private final MicrosoftAuthenticationController controller;
 
@@ -30,28 +30,28 @@ public class MicrosoftAuthenticator implements Authenticator {
      * Create with exist token
      * This method will take a long time and block current thread, please run in new thread
      *
-     * @param token    token used in authenticator
+     * @param session  token used in authenticator
      * @param callback a callback to display verification link and code to user
      * @return MicrosoftAuthenticator
      */
-    public static MicrosoftAuthenticator token(AuthenticationToken token, Consumer<MicrosoftVerification> callback) throws AuthenticationException {
+    public static MicrosoftAuthenticator session(MicrosoftSession session, Consumer<MicrosoftVerification> callback) throws AuthenticationException {
         MicrosoftAuthenticator authenticator = new MicrosoftAuthenticator();
         MicrosoftAuthenticationController controller = authenticator.controller;
-        authenticator.authenticationToken = token;
+        authenticator.session = session;
 
         //Get profile by token
         try {
-            authenticator.profile = controller.getMinecraftProfile(token);
+            authenticator.profile = controller.getMinecraftProfile(session);
             return authenticator;
         } catch (AuthenticationException ignored) {
         }
 
         //Refresh tokens
         try {
-            token = controller.refreshMicrosoftToken(token);
-            token = controller.getMinecraftToken(token);
-            authenticator.authenticationToken = token;
-            authenticator.profile = controller.getMinecraftProfile(token);
+            session = controller.refreshMicrosoftToken(session);
+            session = controller.getMinecraftToken(session);
+            authenticator.session = session;
+            authenticator.profile = controller.getMinecraftProfile(session);
             return authenticator;
         } catch (AuthenticationException ignored) {
         }
@@ -73,8 +73,8 @@ public class MicrosoftAuthenticator implements Authenticator {
         MicrosoftAuthenticationController controller = authenticator.controller;
 
         //Get token and profile
-        authenticator.authenticationToken = controller.getMinecraftToken(controller.getMicrosoftToken(callback));
-        authenticator.profile = controller.getMinecraftProfile(authenticator.authenticationToken);
+        authenticator.session = controller.getMinecraftToken(controller.getMicrosoftToken(callback));
+        authenticator.profile = controller.getMinecraftProfile(authenticator.session);
         return authenticator;
     }
 
@@ -87,8 +87,8 @@ public class MicrosoftAuthenticator implements Authenticator {
     public AuthInfo auth() {
         Objects.requireNonNull(profile);
 
-        return new AuthInfo(profile.name, authenticationToken.minecraftAccessToken, UUIDUtils.toUUID(profile.id),
-                Collections.emptyMap(), "mojang");
+        return new AuthInfo(profile.name, session.minecraftAccessToken, UUIDUtils.toUUID(profile.id),
+                Collections.emptyMap(), "msa", session.xboxUserId);
     }
 
     /**
@@ -96,8 +96,8 @@ public class MicrosoftAuthenticator implements Authenticator {
      *
      * @return token used in authenticator
      */
-    public AuthenticationToken getAuthenticationToken() {
-        return authenticationToken;
+    public MicrosoftSession getSession() {
+        return session;
     }
 
     /**

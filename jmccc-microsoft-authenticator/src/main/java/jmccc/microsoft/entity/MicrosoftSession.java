@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * Token used in authenticator, which can be serialized and save to file
  */
-public class AuthenticationToken implements Serializable {
+public class MicrosoftSession implements Serializable {
     /**
      * Microsoft access token
      */
@@ -18,4 +18,8 @@ public class AuthenticationToken implements Serializable {
      * Minecraft access token
      */
     public String minecraftAccessToken;
+    /**
+     * Xbox User ID
+     */
+    public String xboxUserId;
 }

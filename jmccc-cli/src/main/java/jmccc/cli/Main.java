@@ -5,6 +5,7 @@ import jmccc.cli.download.ModLoaderDownloader;
 import jmccc.cli.launch.CliAuthenticator;
 import jmccc.cli.launch.CliConfig;
 import jmccc.cli.launch.CliLauncher;
+import jmccc.microsoft.MicrosoftAuthenticator;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
@@ -20,7 +21,9 @@ public class Main {
 
     /**
      * Arguments:
-     * [--offline player_name] [--dir minecraft_directory] [version]
+     * Microsoft Account: [--microsoft] [--clientId client_id]
+     * Offline: [--offline player_name]
+     * [--bmclapi] [--dir minecraft_directory] [version]
      */
     public static void main(String... args) {
         try {
@@ -36,9 +39,12 @@ public class Main {
         //Parse args
         OptionParser parser = new OptionParser();
         parser.accepts("microsoft");
+        parser.accepts("bmclapi");
         OptionSpec<String> offlineOption = parser.accepts("offline")
                 .availableUnless("microsoft").withOptionalArg().defaultsTo("Player");
         OptionSpec<String> dirOption = parser.accepts("dir").withOptionalArg().defaultsTo(".minecraft");
+        OptionSpec<String> clientIdOption = parser.accepts("clientId")
+                .availableIf("microsoft").withOptionalArg();
         OptionSpec<String> versionOption = parser.nonOptions();
 
         OptionSet options = parser.parse(args);
@@ -47,9 +53,15 @@ public class Main {
         String version = versionOption.value(options);
         MinecraftDirectory minecraftDirectory = new MinecraftDirectory(dir);
         boolean isMicrosoftAccount = options.has("microsoft");
+        boolean isBmclApi = options.has("bmclapi");
+        String clientId = clientIdOption.value(options);
 
         //Init config
         CliConfig.initConfig(minecraftDirectory);
+        if (clientId != null) {
+            MicrosoftAuthenticator.setClientId(clientId);
+        }
+        CliDownloader.init(isBmclApi);
 
         //Check special version
         version = parseVersion(version);

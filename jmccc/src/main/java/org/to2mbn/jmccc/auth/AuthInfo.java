@@ -14,11 +14,12 @@ public class AuthInfo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private String username;
-    private String token;
-    private UUID uuid;
-    private Map<String, String> properties;
-    private String userType;
+    private final String username;
+    private final String token;
+    private final UUID uuid;
+    private final Map<String, String> properties;
+    private final String userType;
+    private final String xboxUserId;
 
     /**
      * Constructs an AuthInfo.
@@ -31,17 +32,34 @@ public class AuthInfo implements Serializable {
      * @throws NullPointerException if any of the params is null
      */
     public AuthInfo(String username, String token, UUID uuid, Map<String, String> properties, String userType) {
+        this(username, token, uuid, properties, userType, "");
+    }
+
+    /**
+     * Constructs an AuthInfo with Xbox User ID.
+     *
+     * @param username   the username
+     * @param token      the access token
+     * @param uuid       the uuid of the login
+     * @param properties the properties
+     * @param userType   the type of the login
+     * @param xboxUserId Xbox User ID(XUID)
+     * @throws NullPointerException if any of the params is null
+     */
+    public AuthInfo(String username, String token, UUID uuid, Map<String, String> properties, String userType, String xboxUserId) {
         Objects.requireNonNull(username);
         Objects.requireNonNull(token);
         Objects.requireNonNull(uuid);
         Objects.requireNonNull(properties);
         Objects.requireNonNull(userType);
+        Objects.requireNonNull(xboxUserId);
 
         this.username = username;
         this.token = token;
         this.uuid = uuid;
         this.properties = properties;
         this.userType = userType;
+        this.xboxUserId = xboxUserId;
     }
 
     /**
@@ -87,6 +105,15 @@ public class AuthInfo implements Serializable {
      */
     public String getUserType() {
         return userType;
+    }
+
+    /**
+     * Get Xbox User ID
+     *
+     * @return Xbox User ID
+     */
+    public String getXboxUserId() {
+        return xboxUserId;
     }
 
     @Override
