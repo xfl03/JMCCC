@@ -1,23 +1,25 @@
 package org.to2mbn.jmccc.mcdownloader.provider.forge;
 
+import org.to2mbn.jmccc.internal.org.json.JSONArray;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
 
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Objects;
-import java.util.TreeMap;
+import java.util.*;
 
 public class ForgeVersionList implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private Map<Integer, ForgeVersion> versions;
-    private Map<String, ForgeVersion> latests;
-    private Map<String, ForgeVersion> recommendeds;
-    private Map<String, ForgeVersion> forgeVersionMapping;
-    private ForgeVersion latest;
-    private ForgeVersion recommended;
-    public ForgeVersionList(Map<Integer, ForgeVersion> versions, Map<String, ForgeVersion> latests, Map<String, ForgeVersion> recommendeds, Map<String, ForgeVersion> forgeVersionMapping, ForgeVersion latest, ForgeVersion recommended) {
+    private final Map<String, List<ForgeVersion>> versions;
+    private final Map<String, ForgeVersion> latests;
+    private final Map<String, ForgeVersion> recommendeds;
+    private final Map<String, ForgeVersion> forgeVersionMapping;
+    private final ForgeVersion latest;
+    private final ForgeVersion recommended;
+
+    public ForgeVersionList(
+            Map<String, List<ForgeVersion>> versions, Map<String, ForgeVersion> latests,
+            Map<String, ForgeVersion> recommendeds, Map<String, ForgeVersion> forgeVersionMapping, ForgeVersion latest,
+            ForgeVersion recommended) {
         Objects.requireNonNull(versions);
         Objects.requireNonNull(latests);
         Objects.requireNonNull(recommendeds);
@@ -30,44 +32,34 @@ public class ForgeVersionList implements Serializable {
         this.recommended = recommended;
     }
 
-    public static ForgeVersionList fromJson(JSONObject json) {
-        Map<Integer, ForgeVersion> versions = new TreeMap<>();
+    public static ForgeVersionList fromJson(JSONObject metaJson, JSONObject promoJson) {
+        Map<String, List<ForgeVersion>> versions = new TreeMap<>();
         Map<String, ForgeVersion> latests = new TreeMap<>();
         Map<String, ForgeVersion> recommendeds = new TreeMap<>();
         Map<String, ForgeVersion> forgeVersionMapping = new TreeMap<>();
         ForgeVersion latest = null;
         ForgeVersion recommended = null;
 
-        JSONObject versionsJson = json.getJSONObject("number");
-        for (String strbuildnum : versionsJson.keySet()) {
-            JSONObject versionJson = versionsJson.getJSONObject(strbuildnum);
-            String mcversion = versionJson.optString("mcversion", null);
-            String forgeversion = versionJson.optString("version", null);
-            int buildnum = versionJson.optInt("build", -1);
-
-            if (mcversion == null || forgeversion == null || buildnum == -1) {
-                continue;
+        for (String mcVersion : metaJson.keySet()) {
+            JSONArray versionJson = metaJson.getJSONArray(mcVersion);
+            for (Object forgeVersionObj : versionJson) {
+                ForgeVersion version = ForgeVersion.from((String) forgeVersionObj);
+                versions.computeIfAbsent(mcVersion, it -> new ArrayList<>()).add(version);
+                forgeVersionMapping.put(version.getForgeVersion(), version);
             }
 
-            String branch = versionJson.optString("branch", null);
-            ForgeVersion version = new ForgeVersion(mcversion, forgeversion, buildnum, branch);
-
-            versions.put(buildnum, version);
-            forgeVersionMapping.put(forgeversion, version);
         }
-        JSONObject promos = json.getJSONObject("promos");
+        JSONObject promos = promoJson.getJSONObject("promos");
         for (String key : promos.keySet()) {
-            ForgeVersion version = versions.get(promos.getInt(key));
-            if ("latest".equals(key)) {
-                latest = version;
-            } else if ("recommended".equals(key)) {
-                recommended = version;
-            } else if (key.endsWith("-latest")) {
+            ForgeVersion version = forgeVersionMapping.get(promos.getString(key));
+            if (key.endsWith("-latest")) {
                 // 7 - length of "-latest"
                 latests.put(key.substring(0, key.length() - 7), version);
+                latest = version;
             } else if (key.endsWith("-recommended")) {
                 // 12 - length of "-recommended"
                 recommendeds.put(key.substring(0, key.length() - 12), version);
+                recommended = version;
             }
         }
         return new ForgeVersionList(Collections.unmodifiableMap(versions),
@@ -79,12 +71,12 @@ public class ForgeVersionList implements Serializable {
     }
 
     /**
-     * Gets all the forge versions.
+     * Gets all the forge versions of given minecraft version.
      *
-     * @return all the forge versions, key is the build number
+     * @return all the forge versions
      */
-    public Map<Integer, ForgeVersion> getVersions() {
-        return versions;
+    public List<ForgeVersion> getVersions(String mcversion) {
+        return versions.get(mcversion);
     }
 
     /**
@@ -153,8 +145,8 @@ public class ForgeVersionList implements Serializable {
         return forgeVersionMapping;
     }
 
-    public ForgeVersion get(int buildNumber) {
-        return versions.get(buildNumber);
+    public ForgeVersion get(String mcversion, int buildNumber) {
+        return versions.get(mcversion).get(buildNumber);
     }
 
     public ForgeVersion get(String forgeVersion) {

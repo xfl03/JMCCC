@@ -105,7 +105,7 @@ public class JSONObject implements Serializable {
      * Construct an empty JSONObject.
      */
     public JSONObject() {
-        this.map = new TreeMap<String, Object>();
+        this.map = new LinkedHashMap<>();
     }
 
     /**
@@ -118,9 +118,9 @@ public class JSONObject implements Serializable {
      */
     public JSONObject(JSONObject jo, String[] names) {
         this();
-        for (int i = 0; i < names.length; i += 1) {
+        for (String name : names) {
             try {
-                this.putOnce(names[i], jo.opt(names[i]));
+                this.putOnce(name, jo.opt(name));
             } catch (Exception ignore) {
             }
         }
@@ -186,7 +186,7 @@ public class JSONObject implements Serializable {
      *            the JSONObject.
      */
     public JSONObject(Map<?, ?> map) {
-        this.map = new TreeMap<String, Object>();
+        this.map = new TreeMap<>();
         if (map != null) {
             for (final Entry<?, ?> e : map.entrySet()) {
                 final Object value = e.getValue();
@@ -230,11 +230,10 @@ public class JSONObject implements Serializable {
      * @param names  An array of strings, the names of the fields to be obtained
      *               from the object.
      */
-    public JSONObject(Object object, String names[]) {
+    public JSONObject(Object object, String[] names) {
         this();
         Class<?> c = object.getClass();
-        for (int i = 0; i < names.length; i += 1) {
-            String name = names[i];
+        for (String name : names) {
             try {
                 this.putOpt(name, c.getField(name).get(object));
             } catch (Exception ignore) {
@@ -272,14 +271,14 @@ public class JSONObject implements Serializable {
 
         Enumeration<String> keys = bundle.getKeys();
         while (keys.hasMoreElements()) {
-            Object key = keys.nextElement();
+            String key = keys.nextElement();
             if (key != null) {
 
                 // Go through the path, ensuring that there is a nested JSONObject for each
                 // segment except the last. Add the value using the last segment's name into
                 // the deepest nested JSONObject.
 
-                String[] path = ((String) key).split("\\.");
+                String[] path = (key).split("\\.");
                 int last = path.length - 1;
                 JSONObject target = this;
                 for (int i = 0; i < last; i += 1) {
@@ -291,7 +290,7 @@ public class JSONObject implements Serializable {
                     }
                     target = nextTarget;
                 }
-                target.put(path[last], bundle.getString((String) key));
+                target.put(path[last], bundle.getString(key));
             }
         }
     }
@@ -418,7 +417,7 @@ public class JSONObject implements Serializable {
                     break;
                 default:
                     if (c < ' ' || (c >= '\u0080' && c < '\u00a0')
-                            || (c >= '\u2000' && c < '\u2100')) {
+                            || (c >= '\u2000' && c < '℀')) {
                         w.write("\\u");
                         hhhh = Integer.toHexString(c);
                         w.write("0000", 0, 4 - hhhh.length());
@@ -469,10 +468,10 @@ public class JSONObject implements Serializable {
                         return d;
                     }
                 } else {
-                    Long myLong = Long.valueOf(string);
-                    if (string.equals(myLong.toString())) {
-                        if (myLong.longValue() == myLong.intValue()) {
-                            return Integer.valueOf(myLong.intValue());
+                    long myLong = Long.parseLong(string);
+                    if (string.equals(Long.toString(myLong))) {
+                        if (myLong == (int) myLong) {
+                            return (int) myLong;
                         }
                         return myLong;
                     }
@@ -527,20 +526,20 @@ public class JSONObject implements Serializable {
      * @throws JSONException If the value is or contains an invalid number.
      */
     public static String valueToString(Object value) throws JSONException {
-        if (value == null || value.equals(null)) {
+        if (value == null) {
             return "null";
         }
         if (value instanceof JSONString) {
-            Object object;
+            String object;
             try {
                 object = ((JSONString) value).toJSONString();
             } catch (Exception e) {
                 throw new JSONException(e);
             }
-            if (object instanceof String) {
-                return (String) object;
+            if (object != null) {
+                return object;
             }
-            throw new JSONException("Bad value from toJSONString: " + object);
+            throw new JSONException("Bad value from toJSONString: " + null);
         }
         if (value instanceof Number) {
             return numberToString((Number) value);
@@ -615,9 +614,9 @@ public class JSONObject implements Serializable {
         }
     }
 
-    static final Writer writeValue(Writer writer, Object value,
-                                   int indentFactor, int indent) throws JSONException, IOException {
-        if (value == null || value.equals(null)) {
+    static Writer writeValue(Writer writer, Object value,
+                             int indentFactor, int indent) throws JSONException, IOException {
+        if (value == null) {
             writer.write("null");
         } else if (value instanceof JSONObject) {
             ((JSONObject) value).write(writer, indentFactor, indent);
@@ -649,7 +648,7 @@ public class JSONObject implements Serializable {
         return writer;
     }
 
-    static final void indent(Writer writer, int indent) throws IOException {
+    static void indent(Writer writer, int indent) throws IOException {
         for (int i = 0; i < indent; i += 1) {
             writer.write(' ');
         }
@@ -1035,9 +1034,7 @@ public class JSONObject implements Serializable {
                 return myE;
             }
             return Enum.valueOf(clazz, val.toString());
-        } catch (IllegalArgumentException e) {
-            return defaultValue;
-        } catch (NullPointerException e) {
+        } catch (IllegalArgumentException | NullPointerException e) {
             return defaultValue;
         }
     }
@@ -1249,11 +1246,10 @@ public class JSONObject implements Serializable {
 
         Method[] methods = includeSuperClass ? klass.getMethods() : klass
                 .getDeclaredMethods();
-        for (int i = 0; i < methods.length; i += 1) {
+        for (Method value : methods) {
             try {
-                Method method = methods[i];
-                if (Modifier.isPublic(method.getModifiers())) {
-                    String name = method.getName();
+                if (Modifier.isPublic(value.getModifiers())) {
+                    String name = value.getName();
                     String key = "";
                     if (name.startsWith("get")) {
                         if ("getClass".equals(name)
@@ -1267,7 +1263,7 @@ public class JSONObject implements Serializable {
                     }
                     if (key.length() > 0
                             && Character.isUpperCase(key.charAt(0))
-                            && method.getParameterTypes().length == 0) {
+                            && value.getParameterTypes().length == 0) {
                         if (key.length() == 1) {
                             key = key.toLowerCase();
                         } else if (!Character.isUpperCase(key.charAt(1))) {
@@ -1275,7 +1271,7 @@ public class JSONObject implements Serializable {
                                     + key.substring(1);
                         }
 
-                        Object result = method.invoke(bean, (Object[]) null);
+                        Object result = value.invoke(bean, (Object[]) null);
                         if (result != null) {
                             this.map.put(key, wrap(result));
                         }
@@ -1501,9 +1497,7 @@ public class JSONObject implements Serializable {
             if (!set.equals(((JSONObject) other).keySet())) {
                 return false;
             }
-            Iterator<String> iterator = set.iterator();
-            while (iterator.hasNext()) {
-                String name = iterator.next();
+            for (String name : set) {
                 Object valueThis = this.get(name);
                 Object valueOther = ((JSONObject) other).get(name);
                 if (valueThis instanceof JSONObject) {
@@ -1671,7 +1665,7 @@ public class JSONObject implements Serializable {
      * @return a java.util.Map containing the entrys of this object
      */
     public Map<String, Object> toMap() {
-        Map<String, Object> results = new TreeMap<String, Object>();
+        Map<String, Object> results = new TreeMap<>();
         for (Entry<String, Object> entry : this.map.entrySet()) {
             Object value;
             if (entry.getValue() == null || NULL.equals(entry.getValue())) {
@@ -1721,7 +1715,7 @@ public class JSONObject implements Serializable {
          * @return NULL.
          */
         @Override
-        protected final Object clone() {
+        protected Object clone() {
             return this;
         }
 

@@ -13,7 +13,7 @@ import java.util.zip.GZIPInputStream;
 
 public class GzipDownloadSession<T> implements DownloadSession<T> {
 
-    private DownloadSession<T> underlying;
+    private final DownloadSession<T> underlying;
     private ByteArrayOutputStream out;
     private WritableByteChannel channel;
 
@@ -43,7 +43,7 @@ public class GzipDownloadSession<T> implements DownloadSession<T> {
             int read;
             while ((read = gzin.read(buf)) != -1) {
                 ((java.nio.Buffer) bb).position(0);
-                bb.limit(read);
+                ((java.nio.Buffer) bb).limit(read);
                 underlying.receiveData(bb);
             }
         } catch (Throwable e) {

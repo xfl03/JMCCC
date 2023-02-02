@@ -55,7 +55,7 @@ MinecraftDirectory dir = new MinecraftDirectory("/home/user/.minecraft");
 Launcher launcher = LauncherBuilder.buildDefault();
 launcher.launch(new LaunchOption("1.19.3", MicrosoftAuthenticator.login(it -> System.out.println(it.message)), dir));
 ```
-You can use Microsoft Account with `MicrosoftAuthenticator.login(it -> System.out.println(it.message))`,also you can use `YggdrasilAuthenticator.password("<email>", "<password>")` with Mojang Account or `new OfflineAuthenticator("<username>")` if you want to use offline authentication.
+You can use Microsoft Account with `MicrosoftAuthenticator.login(it -> System.out.println(it.message))`, also you can use `YggdrasilAuthenticator.password("<email>", "<password>")` with Mojang Account or `new OfflineAuthenticator("<username>")` if you want to use offline authentication.
 
 ### Downloading Minecraft
 ```java

@@ -4,7 +4,11 @@ import org.to2mbn.jmccc.mcdownloader.download.tasks.DownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.ResultProcessor;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 /**
  * A task that can derive multiple DownloadTasks.
@@ -25,7 +29,7 @@ abstract public class CombinedDownloadTask<T> {
      */
     public static <T> CombinedDownloadTask<T> single(DownloadTask<T> task) {
         Objects.requireNonNull(task);
-        return new SingleCombinedTask<T>(task);
+        return new SingleCombinedTask<>(task);
     }
 
     public static CombinedDownloadTask<Void> multiple(DownloadTask<?>... tasks) {
@@ -40,6 +44,20 @@ abstract public class CombinedDownloadTask<T> {
     public static CombinedDownloadTask<Void> multiple(CombinedDownloadTask<?>... tasks) {
         Objects.requireNonNull(tasks);
         return new MultipleCombinedTask(tasks);
+    }
+
+    public static CombinedDownloadTask<Object[]> all(DownloadTask<?>... tasks) {
+        Objects.requireNonNull(tasks);
+        List<CombinedDownloadTask<?>> combinedTasks = new ArrayList<>(tasks.length);
+        for (DownloadTask<?> task : tasks) {
+            combinedTasks.add(single(task));
+        }
+        return new BlockedMultipleCombinedTask(combinedTasks);
+    }
+
+    public static CombinedDownloadTask<Object[]> all(CombinedDownloadTask<?>... tasks) {
+        Objects.requireNonNull(tasks);
+        return new BlockedMultipleCombinedTask(Arrays.asList(tasks));
     }
 
     @SafeVarargs
@@ -100,22 +118,23 @@ abstract public class CombinedDownloadTask<T> {
         return new AndThenCombinedTask<>(this, processor);
     }
 
+    public final CombinedDownloadTask<T> andThenCall(Consumer<T> callback) {
+        return andThen(it -> {
+            callback.accept(it);
+            return it;
+        });
+    }
+
     public final <R> CombinedDownloadTask<R> andThenDownload(ResultProcessor<T, CombinedDownloadTask<R>> then) {
         return new AndThenDownloadCombinedTask<>(this, then);
     }
 
     public final <R> CombinedDownloadTask<R> andThenReturn(final R result) {
-        return andThen(new ResultProcessor<T, R>() {
-
-            @Override
-            public R process(T arg) throws Exception {
-                return result;
-            }
-        });
+        return andThen(arg -> result);
     }
 
-    public static enum CacheStrategy {
-        DEFAULT, FORCIBLY_CACHE, CACHEABLE, NON_CACHEABLE;
+    public enum CacheStrategy {
+        DEFAULT, FORCIBLY_CACHE, CACHEABLE, NON_CACHEABLE
     }
 
 }

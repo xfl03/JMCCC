@@ -6,7 +6,6 @@ import org.to2mbn.jmccc.mcdownloader.download.cache.CacheNames;
 import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.FileDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.MemoryDownloadTask;
-import org.to2mbn.jmccc.mcdownloader.download.tasks.ResultProcessor;
 import org.to2mbn.jmccc.mcdownloader.provider.*;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.util.FileUtils;
@@ -51,12 +50,16 @@ public class ForgeDownloadProvider extends AbstractMinecraftDownloadProvider imp
     }
 
     public CombinedDownloadTask<ForgeVersionList> forgeVersionList() {
-        return CombinedDownloadTask.single(
-                new MemoryDownloadTask(source.getForgeVersionListUrl())
+        return CombinedDownloadTask.all(
+                new MemoryDownloadTask(source.getForgeMetadataUrl())
                         .andThen(new JsonDecoder())
-                        .andThen(ForgeVersionList::fromJson)
                         .cacheable()
-                        .cachePool(CacheNames.FORGE_VERSION_LIST));
+                        .cachePool(CacheNames.FORGE_VERSION_META),
+                new MemoryDownloadTask(source.getForgePromotionUrl())
+                        .andThen(new JsonDecoder())
+                        .cacheable()
+                        .cachePool(CacheNames.FORGE_VERSION_PROMO)
+        ).andThen(it -> ForgeVersionList.fromJson((JSONObject) it[0], (JSONObject) it[1]));
     }
 
     @Override
@@ -64,19 +67,13 @@ public class ForgeDownloadProvider extends AbstractMinecraftDownloadProvider imp
         final ResolvedForgeVersion forgeInfo = ResolvedForgeVersion.resolve(version);
 
         if (forgeInfo != null) {
+            // for old forge versions
             return forgeVersion(forgeInfo.getForgeVersion())
                     .andThenDownload(forge -> CombinedDownloadTask.any(
                             installerTask(forge.getMavenVersion())
                                     .andThen(new InstallProfileProcessor(mcdir)),
                             upstreamProvider.gameVersionJson(mcdir, forge.getMinecraftVersion())
-                                    .andThen(new ResultProcessor<String, JSONObject>() {
-
-                                        // for old forge versions
-                                        @Override
-                                        public JSONObject process(String superversion) throws Exception {
-                                            return createForgeVersionJson(mcdir, forge);
-                                        }
-                                    })
+                                    .andThen(superversion -> createForgeVersionJson(mcdir, forge))
                                     .andThen(new VersionJsonInstaller(mcdir))));
         }
 

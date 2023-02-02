@@ -78,8 +78,10 @@ public class Main {
 
         //Download game if not exist
         if (!minecraftDirectory.getVersionJson(version).exists()) {
+            System.out.println("Downloading: " + version);
             Version v = CliDownloader.download(minecraftDirectory, version);
             version = v.getVersion();
+            System.out.println("Downloaded: " + version);
         }
 
         //Launch game
@@ -120,6 +122,7 @@ public class Main {
     }
 
     public static void closeCli() {
+        System.out.println("JMCCC CLI closing");
         if (CliDownloader.downloader != null) {
             CliDownloader.downloader.shutdown();
         }

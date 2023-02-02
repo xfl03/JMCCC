@@ -7,10 +7,10 @@ public class ForgeVersion implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private String minecraftVersion;
-    private String forgeVersion;
-    private int buildNumber;
-    private String branch;
+    private final String minecraftVersion;
+    private final String forgeVersion;
+    private final int buildNumber;
+    private final String branch;
 
     public ForgeVersion(String minecraftVersion, String forgeVersion, int buildNumber, String branch) {
         this.minecraftVersion = Objects.requireNonNull(minecraftVersion);
@@ -19,8 +19,17 @@ public class ForgeVersion implements Serializable {
         this.branch = branch;
     }
 
+    public static ForgeVersion from(String fullVersion) {
+        String[] split = fullVersion.split("-", 3);
+        String mcVersion = split[0];
+        String forgeVersion = split[1];
+        String[] split1 = forgeVersion.split("\\.");
+        int buildNumber = Integer.parseInt(split1[split1.length - 1]);
+        String branch = split.length == 3 ? split[2] : null;
+        return new ForgeVersion(mcVersion, forgeVersion, buildNumber, branch);
+    }
+
     // Getters
-    // @formatter:off
     public String getMinecraftVersion() {
         return minecraftVersion;
     }

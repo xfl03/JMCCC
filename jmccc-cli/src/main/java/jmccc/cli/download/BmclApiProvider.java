@@ -28,8 +28,13 @@ public class BmclApiProvider extends DefaultLayoutProvider implements ForgeDownl
     }
 
     @Override
-    public String getForgeVersionListUrl() {
-        return "https://bmclapi2.bangbang93.com/maven/net/minecraftforge/forge/json";
+    public String getForgeMetadataUrl() {
+        return "https://files.minecraftforge.net/net/minecraftforge/forge/maven-metadata.json";
+    }
+
+    @Override
+    public String getForgePromotionUrl() {
+        return "https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json";
     }
 
     @Override
