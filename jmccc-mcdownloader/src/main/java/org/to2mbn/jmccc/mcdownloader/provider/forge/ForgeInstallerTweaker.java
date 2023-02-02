@@ -35,10 +35,21 @@ public class ForgeInstallerTweaker {
 
         @Override
         public void visitFieldInsn(int opcode, String owner, String name, String descriptor) {
+            // Change Actions.SERVER -> Actions.CLIENT
             if (opcode == Opcodes.GETSTATIC && name.equals("SERVER")) {
                 name = "CLIENT";
             }
             super.visitFieldInsn(opcode, owner, name, descriptor);
+        }
+
+        @Override
+        public void visitMethodInsn(int opcode, String owner, String name, String descriptor, boolean isInterface) {
+            // Remove System.exit
+            if (opcode == Opcodes.INVOKESTATIC && name.equals("exit")) {
+                super.visitInsn(Opcodes.POP);
+                return;
+            }
+            super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
         }
     }
 }
