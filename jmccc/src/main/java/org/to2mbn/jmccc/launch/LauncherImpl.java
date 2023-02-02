@@ -134,8 +134,6 @@ class LauncherImpl implements Launcher {
         tokens.put("assets_index_name", version.getAssets());
         tokens.put("game_directory", option.getRuntimeDirectory().getAbsolutePath());
         tokens.put("natives_directory", nativesDir.getAbsolutePath());
-        tokens.put("launcher_name", "JMCCC");
-        tokens.put("launcher_version", "3.0");
         tokens.put("library_directory", mcdir.getLibraries().getAbsolutePath());
         tokens.put("classpath_separator", Platform.getPathSeparator());
         tokens.put("auth_xuid", auth.getXboxUserId());
@@ -239,7 +237,7 @@ class LauncherImpl implements Launcher {
         for (String arg : commandline) {
             sb.append(arg).append('\n');
         }
-        System.err.println(sb.toString());
+        System.err.println(sb);
     }
 
     private void startStreamPumps(Process process) {

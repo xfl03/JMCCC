@@ -19,19 +19,26 @@ import java.util.concurrent.ExecutionException;
 
 public class Main {
 
+    public static String fullVersion = Main.class.getPackage().getImplementationVersion();
+    public static String version;
+
     /**
      * Arguments:
      * Microsoft Account: [--microsoft] [--clientId client_id]
      * Offline: [--offline player_name]
-     * [--bmclapi] [--dir minecraft_directory] [version]
+     * [--bmclapi] [--dir minecraft_directory] [--memory max_memory] [version]
      */
     public static void main(String... args) {
+        if (fullVersion == null) {
+            fullVersion = "dev";
+        }
+        version = fullVersion.replace("-SNAPSHOT", "");
+        System.out.println("JMCCC CLI " + fullVersion);
         try {
             internal(args);
         } catch (Exception e) {
             e.printStackTrace();
-            CliDownloader.downloader.shutdown();
-            System.exit(0);
+            closeCli();
         }
     }
 
@@ -45,6 +52,7 @@ public class Main {
         OptionSpec<String> dirOption = parser.accepts("dir").withOptionalArg().defaultsTo(".minecraft");
         OptionSpec<String> clientIdOption = parser.accepts("clientId")
                 .availableIf("microsoft").withOptionalArg();
+        OptionSpec<Integer> memoryOption = parser.accepts("memory").withOptionalArg().ofType(Integer.class).defaultsTo(2048);
         OptionSpec<String> versionOption = parser.nonOptions();
 
         OptionSet options = parser.parse(args);
@@ -55,6 +63,7 @@ public class Main {
         boolean isMicrosoftAccount = options.has("microsoft");
         boolean isBmclApi = options.has("bmclapi");
         String clientId = clientIdOption.value(options);
+        int memory = memoryOption.value(options);
 
         //Init config
         CliConfig.initConfig(minecraftDirectory);
@@ -78,6 +87,7 @@ public class Main {
                 CliAuthenticator.getMicrosoftAuthenticator() :
                 OfflineAuthenticator.name(player);
         LaunchOption option = new LaunchOption(version, authenticator, minecraftDirectory);
+        option.setMaxMemory(memory);
         CliLauncher.launch(option);
     }
 
@@ -107,5 +117,12 @@ public class Main {
             default:
                 return version;
         }
+    }
+
+    public static void closeCli() {
+        if (CliDownloader.downloader != null) {
+            CliDownloader.downloader.shutdown();
+        }
+        System.exit(0);
     }
 }

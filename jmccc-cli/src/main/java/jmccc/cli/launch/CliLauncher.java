@@ -1,5 +1,6 @@
 package jmccc.cli.launch;
 
+import jmccc.cli.Main;
 import jmccc.cli.download.CliDownloader;
 import org.to2mbn.jmccc.launch.Launcher;
 import org.to2mbn.jmccc.launch.LauncherBuilder;
@@ -14,10 +15,13 @@ public class CliLauncher {
     public static void launch(LaunchOption option) throws Exception {
         Launcher launcher = LauncherBuilder.create().printDebugCommandline(true).build();
         //Change Minecraft main menu bottom left text
-        option.commandlineVariables().put("version_type", "JMCCC 3.0");
+        option.commandlineVariables().put("version_type", "JMCCC CLI " + Main.version);
+
+        //Minecraft telemetry
+        option.commandlineVariables().put("launcher_name", "JMCCC CLI");
+        option.commandlineVariables().put("launcher_version", Main.version);
         option.commandlineVariables().put("clientid", CliConfig.getConfig().clientId);
-        //Set memory to 2048MB
-        option.setMaxMemory(2048);
+
         ProcessListener listener = new CliListener();
         System.out.println("Launching version: " + option.getVersion());
         try {

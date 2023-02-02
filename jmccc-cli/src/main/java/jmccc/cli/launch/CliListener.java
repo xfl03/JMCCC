@@ -1,6 +1,6 @@
 package jmccc.cli.launch;
 
-import jmccc.cli.download.CliDownloader;
+import jmccc.cli.Main;
 import org.to2mbn.jmccc.launch.ProcessListener;
 
 public class CliListener implements ProcessListener {
@@ -18,7 +18,6 @@ public class CliListener implements ProcessListener {
     @Override
     public void onExit(int code) {
         System.out.println("Game exited with " + code);
-        CliDownloader.downloader.shutdown();
-        System.exit(0);
+        Main.closeCli();
     }
 }
