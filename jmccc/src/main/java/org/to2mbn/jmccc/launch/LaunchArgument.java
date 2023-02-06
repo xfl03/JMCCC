@@ -11,7 +11,7 @@ import java.util.Map.Entry;
 /**
  * {@code LaunchArgument} is used to generate launching command line.
  */
-class LaunchArgument {
+public class LaunchArgument {
 
     private final LaunchOption launchOption;
     private final File nativesPath;
