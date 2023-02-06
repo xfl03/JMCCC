@@ -33,4 +33,5 @@ public interface Launcher {
      */
     Process launch(LaunchOption option, ProcessListener listener) throws LaunchException;
 
+    LaunchArgument generateLaunchArgs(LaunchOption option) throws LaunchException;
 }
