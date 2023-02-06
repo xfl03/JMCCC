@@ -13,10 +13,10 @@ import java.util.Map.Entry;
  */
 class LaunchArgument {
 
-    private LaunchOption launchOption;
-    private File nativesPath;
-    private Set<File> libraries;
-    private Map<String, String> defaultVariables;
+    private final LaunchOption launchOption;
+    private final File nativesPath;
+    private final Set<File> libraries;
+    private final Map<String, String> defaultVariables;
 
     public LaunchArgument(LaunchOption launchOption, Map<String, String> defaultVariables, Set<File> libraries, File nativesPath) {
         this.launchOption = launchOption;
@@ -25,12 +25,8 @@ class LaunchArgument {
         this.defaultVariables = defaultVariables;
     }
 
-    public String[] generateCommandline() {
+    public List<String> getJvmArguments() {
         List<String> args = new ArrayList<>();
-        Version version = launchOption.getVersion();
-
-        // java path
-        args.add(launchOption.getJavaEnvironment().getJavaPath().getAbsolutePath());
 
         // min memory
         if (launchOption.getMinMemory() != 0) {
@@ -69,11 +65,13 @@ class LaunchArgument {
         }
         args.addAll(getFormattedMinecraftArguments(jvmArgs));
 
-        // main class
-        args.add(version.getMainClass());
+        return args;
+    }
+
+    public List<String> getGameArguments() {
 
         // template arguments
-        args.addAll(getFormattedMinecraftArguments(launchOption.getVersion().getGameArgs()));
+        List<String> args = new ArrayList<>(getFormattedMinecraftArguments(launchOption.getVersion().getGameArgs()));
 
         // extra minecraft arguments
         for (String arg : launchOption.extraMinecraftArguments()) {
@@ -109,7 +107,26 @@ class LaunchArgument {
             }
         }
 
-        return args.toArray(new String[args.size()]);
+        return args;
+    }
+
+    public String[] generateCommandline() {
+        List<String> args = new ArrayList<>();
+        Version version = launchOption.getVersion();
+
+        // java path
+        args.add(launchOption.getJavaEnvironment().getJavaPath().getAbsolutePath());
+
+        // jvm arguments
+        args.addAll(getJvmArguments());
+
+        // main class
+        args.add(version.getMainClass());
+
+        // game arguments
+        args.addAll(getGameArguments());
+
+        return args.toArray(new String[0]);
     }
 
     private List<String> getFormattedMinecraftArguments(List<String> templete) {
@@ -132,7 +149,6 @@ class LaunchArgument {
     }
 
     // Getters
-    // @formatter:off
     public LaunchOption getLaunchOption() {
         return launchOption;
     }
@@ -148,5 +164,4 @@ class LaunchArgument {
     public Map<String, String> getTokens() {
         return defaultVariables;
     }
-    // @formatter:on
 }

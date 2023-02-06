@@ -11,7 +11,7 @@ pluginManagement {
     }
 }
 
-rootProject.name = "jmccc-parent"
+rootProject.name = "JMCCC"
 include(":jmccc-yggdrasil-authenticator")
 include(":jmccc-mojang-api")
 include(":jmccc")

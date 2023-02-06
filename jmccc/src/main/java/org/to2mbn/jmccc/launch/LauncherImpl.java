@@ -76,7 +76,7 @@ class LauncherImpl implements Launcher {
         return process;
     }
 
-    private LaunchArgument generateLaunchArgs(LaunchOption option) throws LaunchException {
+    public LaunchArgument generateLaunchArgs(LaunchOption option) throws LaunchException {
         Objects.requireNonNull(option);
 
         if (option.getJavaEnvironment() == null) {
